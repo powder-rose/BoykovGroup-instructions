@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Header from "./components/Header/Header.jsx";
+import CategoryNav from "./components/CategoryNav/CategoryNav.jsx";
 import InstructionList from "./components/InstructionList/InstructionList.jsx";
 import Pagination from "./components/Pagination/Pagination.jsx";
 import Loader from "./components/Loader/Loader.jsx";
@@ -79,6 +80,7 @@ export default function App() {
   return (
     <div className={styles.page}>
       <Header query={queryInput} onQueryChange={setQueryInput} />
+      <CategoryNav />
 
       <section className={styles.hero}>
         <h1 className={styles.title}>Инструкции по охране труда</h1>

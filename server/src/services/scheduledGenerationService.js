@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { instructionsRepository } from "./instructionsRepository.js";
 import { generateInstructionWithYandexGpt, isYandexGptConfigured } from "./yandexGptService.js";
 import { slugify } from "../utils/slug.js";
+import { runExclusive, isGenerationInFlight } from "./generationLock.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const QUEUE_PATH = path.join(__dirname, "..", "data", "professionQueue.json");
@@ -24,12 +25,17 @@ function loadQueue() {
   }
 }
 
-/** Находит первую профессию из очереди, для которой в базе ещё нет инструкции. */
+/**
+ * Находит первую профессию из очереди, для которой в базе ещё нет инструкции
+ * и для которой прямо сейчас не идёт генерация (см. generationLock.js) —
+ * иначе при пересечении по времени с ручной генерацией той же профессии
+ * очередь выбрала бы её же ещё раз.
+ */
 function pickNextProfession() {
   const queue = loadQueue();
   for (const profession of queue) {
     const id = slugify(profession);
-    if (id && !instructionsRepository.exists(id)) {
+    if (id && !instructionsRepository.exists(id) && !isGenerationInFlight(id)) {
       return { profession, id };
     }
   }
@@ -65,19 +71,29 @@ export async function runScheduledGeneration() {
   }
 
   try {
-    const generated = await generateInstructionWithYandexGpt(next.profession);
-    const instruction = {
-      id: next.id,
-      title: generated.title,
-      profession: generated.profession,
-      intro: generated.intro,
-      sections: generated.sections,
-      source: "generated",
-      generatedBy: "schedule",
-      createdAt: new Date().toISOString(),
-    };
-    instructionsRepository.save(instruction);
-    console.log(`[авто-генерация] Добавлена новая инструкция: «${instruction.title}»`);
+    const instruction = await runExclusive(next.id, async () => {
+      // Пока эта генерация ждала своей очереди (маловероятно, но на всякий
+      // случай), инструкцию мог успеть сохранить кто-то другой — например,
+      // админ вручную сгенерировал ту же профессию. Тогда просто используем
+      // готовый результат, не генерируя второй раз.
+      const alreadySaved = instructionsRepository.getById(next.id);
+      if (alreadySaved) return alreadySaved;
+
+      const generated = await generateInstructionWithYandexGpt(next.profession);
+      const built = {
+        id: next.id,
+        title: generated.title,
+        profession: generated.profession,
+        intro: generated.intro,
+        sections: generated.sections,
+        source: "generated",
+        generatedBy: "schedule",
+        createdAt: new Date().toISOString(),
+      };
+      instructionsRepository.save(built);
+      console.log(`[авто-генерация] Добавлена новая инструкция: «${built.title}»`);
+      return built;
+    });
     return { status: "generated", instruction };
   } catch (err) {
     console.error("[авто-генерация] Ошибка генерации инструкции:", err.message);

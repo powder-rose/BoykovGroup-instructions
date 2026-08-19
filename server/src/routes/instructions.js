@@ -9,6 +9,7 @@ import { runScheduledGeneration } from "../services/scheduledGenerationService.j
 import { extractTextFromUpload, splitIntoParagraphs } from "../services/documentTextExtractor.js";
 import { slugify } from "../utils/slug.js";
 import { requireAdmin } from "../middleware/auth.js";
+import { runExclusive } from "../services/generationLock.js";
 
 export const instructionsRouter = Router();
 
@@ -63,18 +64,28 @@ instructionsRouter.post("/generate", requireAdmin, async (req, res) => {
   }
 
   try {
-    const generated = await generateInstructionWithYandexGpt(profession);
-    const instruction = {
-      id,
-      title: generated.title,
-      profession: generated.profession,
-      intro: generated.intro,
-      sections: generated.sections,
-      source: "generated",
-      generatedBy: "admin",
-      createdAt: new Date().toISOString(),
-    };
-    instructionsRepository.save(instruction);
+    // runExclusive: если генерация для этого же id уже идёт (например, эту же
+    // профессию в этот момент подхватила автогенерация по расписанию, или
+    // админ нажал кнопку дважды), второй вызов просто дождётся результата
+    // первого вместо того, чтобы запускать YandexGPT ещё раз — см. generationLock.js.
+    const instruction = await runExclusive(id, async () => {
+      const alreadySaved = instructionsRepository.getById(id);
+      if (alreadySaved) return alreadySaved;
+
+      const generated = await generateInstructionWithYandexGpt(profession);
+      const built = {
+        id,
+        title: generated.title,
+        profession: generated.profession,
+        intro: generated.intro,
+        sections: generated.sections,
+        source: "generated",
+        generatedBy: "admin",
+        createdAt: new Date().toISOString(),
+      };
+      instructionsRepository.save(built);
+      return built;
+    });
     res.status(201).json(instruction);
   } catch (err) {
     console.error("Ошибка генерации инструкции через YandexGPT:", err);
