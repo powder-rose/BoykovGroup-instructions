@@ -1,0 +1,31 @@
+:root {
+  --color-bg: #f5f7fb;
+  --color-surface: #ffffff;
+  --color-text: #1a2233;
+  --color-text-muted: #6b7280;
+  --color-primary: #1f66d1;
+  --color-primary-hover: #1a57b2;
+  --color-primary-light: #eaf1fd;
+  --color-border: #e6e9f0;
+  --color-danger: #d92d20;
+
+  /* редакционный стиль: чёткие границы вместо мягких теней */
+  --border-width: 2px;
+  --border-hair: 1px solid var(--color-border);
+  --border-ink: var(--border-width) solid var(--color-text);
+  --border-primary: var(--border-width) solid var(--color-primary);
+
+  --radius-pill: 999px;
+  --radius-lg: 20px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+
+  --shadow-card: none;
+  --shadow-card-hover: none;
+  --shadow-btn: 0 8px 20px rgba(31, 102, 209, 0.18);
+
+  --font-main: "Comfortaa", "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --max-width: 1200px;
+}

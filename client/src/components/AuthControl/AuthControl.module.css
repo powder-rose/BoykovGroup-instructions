@@ -1,0 +1,39 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  padding: 10px 12px;
+  border: var(--border-ink);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  white-space: nowrap;
+}
+
+.logoutBtn,
+.loginBtn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: var(--border-ink);
+  border-radius: var(--radius-sm);
+  padding: 10px 16px;
+  height: 50px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.logoutBtn:hover,
+.loginBtn:hover {
+  background: var(--color-text);
+  color: #ffffff;
+}

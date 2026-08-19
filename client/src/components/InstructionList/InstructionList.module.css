@@ -1,0 +1,50 @@
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  counter-reset: item;
+}
+
+.list > li {
+  counter-increment: item;
+  animation: fadeInUp 0.3s ease both;
+}
+
+.list > li:nth-child(1) {
+  animation-delay: 0.02s;
+}
+.list > li:nth-child(2) {
+  animation-delay: 0.05s;
+}
+.list > li:nth-child(3) {
+  animation-delay: 0.08s;
+}
+.list > li:nth-child(4) {
+  animation-delay: 0.11s;
+}
+.list > li:nth-child(5) {
+  animation-delay: 0.14s;
+}
+.list > li:nth-child(6) {
+  animation-delay: 0.17s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .list > li {
+    animation: none;
+  }
+}

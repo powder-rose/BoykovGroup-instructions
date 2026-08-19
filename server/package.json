@@ -1,0 +1,27 @@
+{
+  "name": "boykovgroup-instructions-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "API-сервер: поиск инструкций по охране труда и генерация недостающих инструкций через YandexGPT",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "fuse.js": "^7.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.8.0",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.1",
+    "nanoid": "^5.0.7",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^3.3.2",
+    "pdf-parse": "^1.1.1"
+  }
+}

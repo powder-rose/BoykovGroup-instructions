@@ -1,0 +1,23 @@
+{
+  "name": "boykovgroup-instructions-client",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Сайт-справочник инструкций по охране труда (поиск и генерация недостающих инструкций через YandexGPT на сервере)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-redux": "^8.1.3",
+    "redux": "^4.2.1",
+    "redux-thunk": "^2.4.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.0"
+  }
+}

@@ -1,0 +1,49 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  padding: 13px 28px 13px 14px;
+  /* фон совпадает с заливкой самого значка логотипа (#407dd8),
+     а не с более тёмным фирменным синим — иначе значок на кнопке
+     виден как отдельный прямоугольник */
+  background: #407dd8;
+  /* та же редакционная толстая обводка и прямой угол, что и у остальных
+     кнопок сайта (AuthControl, GenerateInstructionButton) — вместо
+     пилюли и мягкой тени */
+  border: var(--border-width) solid var(--color-text);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.button:hover {
+  background: #366ab7;
+}
+
+.badge {
+  display: block;
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.title {
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: 0.03em;
+}
+
+.subtitle {
+  font-family: var(--font-mono);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  letter-spacing: 0.01em;
+}

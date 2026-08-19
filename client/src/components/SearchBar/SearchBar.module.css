@@ -1,0 +1,62 @@
+.wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1 1 380px;
+  max-width: 480px;
+  height: 50px;
+  padding: 0 16px;
+  background: var(--color-surface);
+  border: var(--border-ink);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wrapper:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 3px 3px 0 var(--color-primary);
+}
+
+.icon {
+  flex-shrink: 0;
+  margin-right: 10px;
+  color: var(--color-text-muted);
+}
+
+.input {
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--color-text);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.clear {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 8px;
+  background: var(--color-text);
+  color: var(--color-surface);
+  border: none;
+  border-radius: 50%;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.clear:hover {
+  background: var(--color-primary);
+}
