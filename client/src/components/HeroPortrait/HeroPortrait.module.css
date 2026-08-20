@@ -1,0 +1,53 @@
+﻿.wrap {
+  margin: 0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Фото уже circular само по себе — круглая обводка, тень и прозрачный фон
+   вокруг вшиты в сам файл (client/public/team/), поэтому здесь только
+   размер и никакого дополнительного border-radius/обрезки поверх —
+   иначе изображение обрежется второй раз. object-fit: contain гарантирует,
+   что видна вся картинка целиком, без кропа, при любых пропорциях блока. */
+.photoCircle {
+  flex-shrink: 0;
+  width: 210px;
+  height: 210px;
+}
+
+.photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.name {
+  align-self: flex-start;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-text);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--color-text);
+}
+
+.role {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+@media (max-width: 720px) {
+  .photoCircle {
+    width: 88px;
+    height: 87px;
+  }
+}

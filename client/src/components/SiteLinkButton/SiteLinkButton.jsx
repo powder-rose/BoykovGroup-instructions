@@ -21,7 +21,7 @@ export default function SiteLinkButton() {
       />
       <span className={styles.text}>
         <span className={styles.title}>БОЙКОВГРУПП</span>
-        <span className={styles.subtitle}>ООО «СпецКонс»</span>
+        <span className={styles.subtitle}>ООО «Спецконс»</span>
       </span>
     </a>
   );
