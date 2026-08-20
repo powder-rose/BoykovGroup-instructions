@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Сайт-справочник инструкций по охране труда (поиск и генерация недостающих инструкций через YandexGPT на сервере)",
+  "description": "-     (      YandexGPT  )",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

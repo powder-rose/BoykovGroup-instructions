@@ -10,7 +10,7 @@ export default function EmptyState({ query, isAdmin, isGenerating, error, onGene
         </svg>
       </div>
 
-      <p className={styles.text}>По запросу «{query}» инструкция не найдена</p>
+      <p className={styles.text}>  {query}   </p>
 
       {isAdmin ? (
         <>
@@ -20,13 +20,13 @@ export default function EmptyState({ query, isAdmin, isGenerating, error, onGene
             onClick={onGenerate}
             disabled={isGenerating}
           >
-            {isGenerating ? "Генерируем инструкцию..." : "Сгенерировать через YandexGPT"}
+            {isGenerating ? " ..." : "  YandexGPT"}
           </button>
           {error && <p className={styles.error}>{error}</p>}
         </>
       ) : (
         <p className={styles.hint}>
-          База пополняется автоматически каждый день — загляните позже.
+                 .
         </p>
       )}
     </div>

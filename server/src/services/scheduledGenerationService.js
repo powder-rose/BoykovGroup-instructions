@@ -10,26 +10,26 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const QUEUE_PATH = path.join(__dirname, "..", "data", "professionQueue.json");
 
 /**
- * Список профессий-кандидатов для автогенерации — server/src/data/professionQueue.json.
- * Можно свободно редактировать/дополнять файл, перезапуск сервера не требуется —
- * очередь перечитывается перед каждым запуском генерации.
+ *  -    server/src/data/professionQueue.json.
+ *   / ,     
+ *      .
  */
 function loadQueue() {
   try {
     const raw = fs.readFileSync(QUEUE_PATH, "utf-8");
-    const list = JSON.parse(raw);
+    const list = JSON.parse(raw.replace(/^\uFEFF/, ""));
     return Array.isArray(list) ? list : [];
   } catch (err) {
-    console.error("Не удалось прочитать очередь профессий для автогенерации:", err.message);
+    console.error("      :", err.message);
     return [];
   }
 }
 
 /**
- * Находит первую профессию из очереди, для которой в базе ещё нет инструкции
- * и для которой прямо сейчас не идёт генерация (см. generationLock.js) —
- * иначе при пересечении по времени с ручной генерацией той же профессии
- * очередь выбрала бы её же ещё раз.
+ *     ,       
+ *         (. generationLock.js) 
+ *           
+ *       .
  */
 function pickNextProfession() {
   const queue = loadQueue();
@@ -43,10 +43,10 @@ function pickNextProfession() {
 }
 
 /**
- * Генерирует через YandexGPT одну очередную инструкцию из очереди и сохраняет её.
- * Используется и ежедневным планировщиком (jobs/dailyGenerationJob.js), и ручным
- * запуском из панели администратора (POST /api/instructions/run-scheduled-generation) —
- * оба места вызывают ровно эту функцию, чтобы поведение не расходилось.
+ *   YandexGPT        .
+ *     (jobs/dailyGenerationJob.js),  
+ *     (POST /api/instructions/run-scheduled-generation) 
+ *      ,    .
  *
  * @returns {Promise<
  *   | { status: "generated", instruction: object }
@@ -58,7 +58,7 @@ export async function runScheduledGeneration() {
   if (!isYandexGptConfigured()) {
     return {
       status: "skipped",
-      reason: "YandexGPT не настроен на сервере (нет YANDEX_API_KEY/YANDEX_FOLDER_ID)",
+      reason: "YandexGPT     ( YANDEX_API_KEY/YANDEX_FOLDER_ID)",
     };
   }
 
@@ -66,16 +66,16 @@ export async function runScheduledGeneration() {
   if (!next) {
     return {
       status: "skipped",
-      reason: "Очередь профессий пуста — инструкции для всех профессий из списка уже созданы",
+      reason: "           ",
     };
   }
 
   try {
     const instruction = await runExclusive(next.id, async () => {
-      // Пока эта генерация ждала своей очереди (маловероятно, но на всякий
-      // случай), инструкцию мог успеть сохранить кто-то другой — например,
-      // админ вручную сгенерировал ту же профессию. Тогда просто используем
-      // готовый результат, не генерируя второй раз.
+      //       (,   
+      // ),     -   ,
+      //      .   
+      //  ,    .
       const alreadySaved = instructionsRepository.getById(next.id);
       if (alreadySaved) return alreadySaved;
 
@@ -91,12 +91,12 @@ export async function runScheduledGeneration() {
         createdAt: new Date().toISOString(),
       };
       instructionsRepository.save(built);
-      console.log(`[авто-генерация] Добавлена новая инструкция: «${built.title}»`);
+      console.log(`[-]   : ${built.title}`);
       return built;
     });
     return { status: "generated", instruction };
   } catch (err) {
-    console.error("[авто-генерация] Ошибка генерации инструкции:", err.message);
+    console.error("[-]   :", err.message);
     return { status: "error", reason: err.message };
   }
 }

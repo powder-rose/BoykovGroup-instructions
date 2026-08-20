@@ -27,8 +27,8 @@
   transition: color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Синий фон появляется отдельным слоем, плавно проявляясь через opacity —
-   так переход выглядит мягче, чем резкая смена background-color. */
+/*     ,    opacity 
+      ,    background-color. */
 .clickArea::before {
   content: "";
   position: absolute;
@@ -103,7 +103,7 @@
   transform: translateX(3px);
 }
 
-/* --- панель администратора: не инвертируется вместе с карточкой --- */
+/* ---  :      --- */
 
 .adminBar {
   display: flex;

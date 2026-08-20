@@ -11,13 +11,13 @@ function getAdminCredentials() {
   };
 }
 
-/** Настроена ли учётная запись админа (заданы ADMIN_LOGIN и ADMIN_PASSWORD_HASH). */
+/**      ( ADMIN_LOGIN  ADMIN_PASSWORD_HASH). */
 export function isAdminConfigured() {
   const { login, passwordHash } = getAdminCredentials();
   return Boolean(login && passwordHash);
 }
 
-/** Сверяет логин/пароль с единственной учётной записью админа из server/.env. */
+/**  /       server/.env. */
 export function verifyAdminCredentials(login, password) {
   const { login: adminLogin, passwordHash } = getAdminCredentials();
   if (!adminLogin || !passwordHash) return false;
@@ -35,7 +35,7 @@ export function issueAdminToken() {
   });
 }
 
-/** Бросает исключение, если токен невалиден или просрочен. */
+/**  ,     . */
 export function verifyToken(token) {
   return jwt.verify(token, JWT_SECRET);
 }

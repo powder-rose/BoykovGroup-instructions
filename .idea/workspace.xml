@@ -5,45 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aceb9357-a799-49af-b5ac-a1aa761b9781" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/client/public/team/nikolay-boykov.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/public/team/nikolay-boykov.webp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/HeroPortrait/HeroPortrait.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/HeroPortrait/HeroPortrait.module.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/InstructionSeoLink/InstructionSeoLink.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/seo-smoke-test.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/apparatchik-peregonki.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/apparatchik-sushki.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/betonschik.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/defektoskopist.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/dezhurnyy-po-pereezdu.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/elektrogazosvarschik.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/elektromontyor-po-remontu-i-obsluzhivaniyu-elektrooborudovaniya.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/elektroslesar-po-remontu-elektrooborudovaniya.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/frezerovschik.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/gruzchik.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/instruktsiya-po-ohrane-truda-dlya-avtoslesarya-0TiuTt.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/izolirovschik.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/kamenschik.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/kladovschik.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/laborant-himicheskogo-analiza.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/liftyor.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/malyar.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/mashinist-ekskavatora.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/mashinist-krana.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/montazhnik-tehnologicheskogo-oborudovaniya.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/operator-kotelnoy.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/operator-zapravochnoy-stantsii.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/plotnik.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/shtukatur.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/stropalschik.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/tokar.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/uborschik-proizvodstvennyh-pomescheniy.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/voditel-pogruzchika.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/routes/seo.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/fix-encoding.cjs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/client/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/client/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/App.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/App.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/App.module.css" afterDir="false" />
@@ -63,12 +28,15 @@
       <change beforePath="$PROJECT_DIR$/client/src/components/GenerateInstructionButton/GenerateInstructionModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/GenerateInstructionButton/GenerateInstructionModal.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/Header/Header.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/Header/Header.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/Header/Header.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/Header/Header.module.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/HeroPortrait/HeroPortrait.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/HeroPortrait/HeroPortrait.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/HeroPortrait/HeroPortrait.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/HeroPortrait/HeroPortrait.module.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/InstructionButton/InstructionButton.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/InstructionButton/InstructionButton.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/InstructionButton/InstructionButton.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/InstructionButton/InstructionButton.module.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/InstructionList/InstructionList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/InstructionList/InstructionList.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/InstructionList/InstructionList.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/InstructionList/InstructionList.module.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/InstructionModal/InstructionModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/InstructionModal/InstructionModal.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/InstructionModal/InstructionModal.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/InstructionModal/InstructionModal.module.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/InstructionSeoLink/InstructionSeoLink.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/InstructionSeoLink/InstructionSeoLink.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/Loader/Loader.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/Loader/Loader.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/Loader/Loader.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/Loader/Loader.module.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/LoginModal/LoginModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/LoginModal/LoginModal.jsx" afterDir="false" />
@@ -95,6 +63,44 @@
       <change beforePath="$PROJECT_DIR$/server/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/server/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/scripts/fix-generated-titles.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/scripts/fix-generated-titles.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/scripts/hash-password.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/scripts/hash-password.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/apparatchik-obogashcheniya-zolotosoderzhashchih-rud.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/apparatchik-obrabotki-krovi.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/apparatchik-obrabotki-silikagelya.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/apparatchik-obrabotki-zerna.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/apparatchik-obrabotki.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/apparatchik-okisleniya.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/apparatchik-ozhizheniya-vodoroda-i-geliya.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/apparatchik-peregonki.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/apparatchik-sushki.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/betonschik.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/defektoskopist.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/dezhurnyy-po-pereezdu.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/elektrogazosvarschik.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/elektromontyor-po-remontu-i-obsluzhivaniyu-elektrooborudovaniya.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/elektroslesar-po-remontu-elektrooborudovaniya.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/frezerovschik.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/gruzchik.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/instruktsiya-po-ohrane-truda-dlya-apparatchika-mukomolnogo-proizvodstva.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/instruktsiya-po-ohrane-truda-dlya-avtoslesarya-0TiuTt.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/izolirovschik.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/kamenschik.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/kladovschik.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/laborant-himicheskogo-analiza.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/liftyor.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/malyar.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/mashinist-ekskavatora.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/mashinist-krana.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/montazhnik-tehnologicheskogo-oborudovaniya.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/operator-kotelnoy.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/operator-zapravochnoy-stantsii.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/plotnik.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/shtukatur.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/slesar-remontnik.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/stropalschik.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/svarschik.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/tokar.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/uborschik-proizvodstvennyh-pomescheniy.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/data/instructions/voditel-pogruzchika.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/data/professionGenitiveOverrides.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/data/professionGenitiveOverrides.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/jobs/dailyGenerationJob.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/jobs/dailyGenerationJob.js" afterDir="false" />
@@ -102,6 +108,7 @@
       <change beforePath="$PROJECT_DIR$/server/src/prompts/generateInstructionPrompt.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/prompts/generateInstructionPrompt.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/routes/auth.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/routes/auth.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/routes/instructions.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/routes/instructions.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/routes/seo.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/routes/seo.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/services/authService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/services/authService.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/services/documentTextExtractor.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/services/documentTextExtractor.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/src/services/generationLock.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/services/generationLock.js" afterDir="false" />
@@ -132,31 +139,33 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/user/Desktop/boykov_group_site_instructions&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.dev.executor&quot;: &quot;Run&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "junie.onboarding.icon.badge.shown": "true",
+    "last_opened_file_path": "C:/Users/user/Desktop/boykov_group_site_instructions/server/src/data",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.jshint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.jshint": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.dev.executor": "Run",
+    "to.speed.mode.migration.done": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\user\Desktop\boykov_group_site_instructions\server\src\data" />
+      <recent name="C:\Users\user\Desktop\boykov_group_site_instructions\server\src\data\instructions" />
       <recent name="C:\Users\user\Desktop\boykov_group_site_instructions" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -196,7 +205,6 @@
       <updated>1787128458833</updated>
       <workItem from="1787128459916" duration="2523000" />
       <workItem from="1787132176177" duration="4793000" />
-      <workItem from="1787215596797" duration="299000" />
     </task>
     <servers />
   </component>

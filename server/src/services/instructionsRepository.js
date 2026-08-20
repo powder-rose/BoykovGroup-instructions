@@ -6,9 +6,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, "..", "data", "instructions");
 
 /**
- * Простое файловое хранилище инструкций: каждая инструкция — один JSON-файл
- * в server/src/data/instructions/<id>.json. Для реального продакшена
- * это легко заменить на любую БД, не меняя API репозитория ниже.
+ *    :     JSON-
+ *  server/src/data/instructions/<id>.json.   
+ *      ,   API  .
  */
 class InstructionsRepository {
   constructor(dir) {
@@ -25,13 +25,16 @@ class InstructionsRepository {
     this.cache.clear();
     for (const file of files) {
       try {
-        const raw = fs.readFileSync(path.join(this.dir, file), "utf-8");
-        const data = JSON.parse(raw);
+       const raw = fs
+  .readFileSync(path.join(this.dir, file), "utf-8")
+  .replace(/^\uFEFF/, "");
+
+const data = JSON.parse(raw);
         if (data && data.id) {
           this.cache.set(data.id, data);
         }
       } catch (err) {
-        console.error(`Не удалось прочитать инструкцию ${file}:`, err.message);
+        console.error(`    ${file}:`, err.message);
       }
     }
   }
@@ -48,10 +51,10 @@ class InstructionsRepository {
     return this.cache.has(id);
   }
 
-  /** Сохраняет новую (или обновлённую) инструкцию на диск и в кэш. */
+  /**   ( )      . */
   save(instruction) {
     if (!instruction?.id) {
-      throw new Error("У инструкции должен быть id перед сохранением");
+      throw new Error("    id  ");
     }
     const filePath = path.join(this.dir, `${instruction.id}.json`);
     fs.writeFileSync(filePath, JSON.stringify(instruction, null, 2), "utf-8");
@@ -59,7 +62,7 @@ class InstructionsRepository {
     return instruction;
   }
 
-  /** Удаляет инструкцию с диска и из кэша. */
+  /**       . */
   remove(id) {
     const filePath = path.join(this.dir, `${id}.json`);
     if (fs.existsSync(filePath)) {

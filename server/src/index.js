@@ -9,6 +9,7 @@ import { isYandexGptConfigured } from "./services/yandexGptService.js";
 import { isAdminConfigured } from "./services/authService.js";
 import { startDailyGenerationJob } from "./jobs/dailyGenerationJob.js";
 
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:5173";
@@ -17,6 +18,7 @@ app.use(cors({ origin: CLIENT_ORIGIN }));
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(attachUser);
+
 
 app.get("/api/health", (req, res) => {
   res.json({

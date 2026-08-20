@@ -42,17 +42,17 @@ export default function App() {
     deletingId,
   } = useSelector((state) => state.instructions);
 
-  // Восстанавливаем сессию админа (если токен сохранён в localStorage) один раз при загрузке.
+  //    (    localStorage)    .
   useEffect(() => {
     dispatch(restoreSession());
   }, [dispatch]);
 
-  // Сбрасываем страницу на первую при каждом новом поисковом запросе.
+  //         .
   useEffect(() => {
     setRequestedPage(1);
   }, [debouncedQuery]);
 
-  // Поиск инструкций на сервере при изменении запроса или страницы.
+  //         .
   useEffect(() => {
     dispatch(searchInstructions({ query: debouncedQuery, page: requestedPage, pageSize: PAGE_SIZE }));
   }, [dispatch, debouncedQuery, requestedPage]);
@@ -83,25 +83,25 @@ export default function App() {
       <CategoryNav />
 
       <section className={styles.hero}>
-        <h1 className={styles.title}>Инструкции по охране труда</h1>
+        <h1 className={styles.title}>   </h1>
         <p className={styles.subtitle}>
           {isAdmin
-            ? "Вы вошли как администратор — можно генерировать новые инструкции через YandexGPT и удалять существующие."
-            : "Найдите готовую инструкцию для нужной профессии. База пополняется автоматически каждый день."}
+            ? "          YandexGPT   ."
+            : "     .     ."}
         </p>
       </section>
 
       <main>
-        {isSearching && <Loader label="Ищем инструкции..." />}
+        {isSearching && <Loader label=" ..." />}
 
         {!isSearching && searchError && (
-          <p className={styles.error}>Не удалось выполнить поиск: {searchError}</p>
+          <p className={styles.error}>   : {searchError}</p>
         )}
 
         {!isSearching && !searchError && items.length > 0 && (
           <>
             <div className={styles.resultsHead}>
-              <span className={styles.count}>[ найдено: {total} ]</span>
+              <span className={styles.count}>[ : {total} ]</span>
             </div>
             <InstructionList
               instructions={items}

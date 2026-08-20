@@ -1,4 +1,4 @@
-﻿import fs from "node:fs";
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Router } from "express";
@@ -277,7 +277,7 @@ function makeDescription(instruction) {
 
   return source.length <= 165
     ? source
-    : `${source.slice(0, 162).trimEnd()}вЂ¦`;
+    : `${source.slice(0, 162).trimEnd()}…`;
 }
 
 function renderSiteLinkButton() {
@@ -364,7 +364,7 @@ function renderCategoryNav() {
     { divider: true },
     { label: "ГО и ЧС" },
     { label: "Антитеррористическая безопасность" },
-    { label: "РРЅС‹Рµ СѓСЃР»СѓРіРё" },
+    { label: "ные услуги" },
   ];
 
   return `
@@ -421,7 +421,7 @@ function renderMainHero({ headingTag = "h1" } = {}) {
     <section class="App_hero">
  <div class="App_heroText">
        <a class="seo-title-link" href="/">
-  ${openTag} class="App_title">РРЅСЃС‚СЂСѓРєС†РёРё РїРѕ РѕС…СЂР°РЅРµ С‚СЂСѓРґР°${closeTag}
+  ${openTag} class="App_title">нструкции по охране труда${closeTag}
 </a>
         <p class="App_subtitle">
           Найдите готовую инструкцию для нужной профессии. База пополняется автоматически каждый день.
@@ -449,7 +449,7 @@ function renderInstructionCards(instructions) {
                 </span>
               </span>
 
-              <span class="InstructionButton_arrow" aria-hidden="true">в†’</span>
+              <span class="InstructionButton_arrow" aria-hidden="true">→</span>
             </a>
           </div>
         </li>`
@@ -543,7 +543,7 @@ function renderInstructionsCatalogPage(req, instructions, query = "") {
 
   const pageTitle = hasQuery
     ? `Поиск инструкций: ${query} | ${BRAND_NAME}`
-    : `РРЅСЃС‚СЂСѓРєС†РёРё РїРѕ РѕС…СЂР°РЅРµ С‚СЂСѓРґР° | ${BRAND_NAME}`;
+    : `нструкции по охране труда | ${BRAND_NAME}`;
 
   const description =
     "Каталог инструкций по охране труда для работников различных профессий и видов работ.";
@@ -574,7 +574,7 @@ function renderInstructionsCatalogPage(req, instructions, query = "") {
         "@type": "CollectionPage",
         "@id": canonical,
         url: canonical,
-        name: "РРЅСЃС‚СЂСѓРєС†РёРё РїРѕ РѕС…СЂР°РЅРµ С‚СЂСѓРґР°",
+        name: "нструкции по охране труда",
         description,
         inLanguage: "ru-RU",
         isPartOf: {
@@ -623,7 +623,7 @@ function renderInstructionPage(req, instruction) {
   const siteUrl = getSiteUrl(req);
   const canonical = getInstructionUrl(req, instruction);
   const title = String(
-    instruction.title || "РРЅСЃС‚СЂСѓРєС†РёСЏ РїРѕ РѕС…СЂР°РЅРµ С‚СЂСѓРґР°"
+    instruction.title || "нструкция по охране труда"
   ).trim();
   const description = makeDescription(instruction);
   const modified = getDateModified(instruction);
@@ -686,7 +686,7 @@ function renderInstructionPage(req, instruction) {
           {
             "@type": "ListItem",
             position: 2,
-            name: "РРЅСЃС‚СЂСѓРєС†РёРё РїРѕ РѕС…СЂР°РЅРµ С‚СЂСѓРґР°",
+            name: "нструкции по охране труда",
             item: `${siteUrl}/instructions/`,
           },
           {
@@ -728,7 +728,7 @@ ${renderHtmlHead({
             class="InstructionModal_close"
             href="/instructions/"
             aria-label="Закрыть и вернуться к списку инструкций"
-          >Г—</a>
+          >×</a>
 
           <h1 class="InstructionModal_title">${escapeHtml(title)}</h1>
 
@@ -756,7 +756,7 @@ function renderNotFoundPage(req) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, follow">
-  <title>РРЅСЃС‚СЂСѓРєС†РёСЏ РЅРµ РЅР°Р№РґРµРЅР° | ${BRAND_NAME}</title>
+  <title>нструкция не найдена | ${BRAND_NAME}</title>
   <style>${EXACT_SITE_CSS}</style>
 </head>
 <body>
@@ -772,9 +772,9 @@ function renderNotFoundPage(req) {
             class="InstructionModal_close"
             href="/instructions/"
             aria-label="Вернуться к списку инструкций"
-          >Г—</a>
+          >×</a>
 
-          <h1 class="InstructionModal_title">РРЅСЃС‚СЂСѓРєС†РёСЏ РЅРµ РЅР°Р№РґРµРЅР°</h1>
+          <h1 class="InstructionModal_title">нструкция не найдена</h1>
           <p class="InstructionModal_intro">
             Такой инструкции нет в базе или её адрес был изменён.
           </p>
@@ -900,3 +900,4 @@ Sitemap: ${getSiteUrl(req)}/sitemap.xml
 });
 
 export default router;
+

@@ -1,15 +1,15 @@
-// Разовая утилита: пересобирает название («Инструкция по охране труда
-// для …») у уже сгенерированных YandexGPT инструкций, у которых профессия
-// в названии не была правильно склонена в родительный падеж (например,
-// «для электромонтёр» вместо «для электромонтёра»). После обновления кода
-// новые инструкции формируют название сразу правильно (см.
-// src/services/yandexGptService.js и src/utils/professionGenitive.js) — этот
-// скрипт нужен только чтобы поправить то, что уже успело сохраниться на диск
-// со старым, неправильно склонённым названием.
+//  :   (   
+//  )    YandexGPT ,   
+//          (,
+//     ).   
+//       (.
+// src/services/yandexGptService.js  src/utils/professionGenitive.js)  
+//      ,      
+//  ,   .
 //
-// Использование:
-//   node scripts/fix-generated-titles.js         — только показать, что изменится
-//   node scripts/fix-generated-titles.js --write  — применить и сохранить на диск
+// :
+//   node scripts/fix-generated-titles.js           ,  
+//   node scripts/fix-generated-titles.js --write       
 import { instructionsRepository } from "../src/services/instructionsRepository.js";
 import { getProfessionGenitive } from "../src/utils/professionGenitive.js";
 
@@ -19,30 +19,30 @@ const all = instructionsRepository.getAll();
 const toFix = [];
 
 for (const instruction of all) {
-  if (instruction.source !== "generated") continue; // загруженные вручную инструкции не трогаем
+  if (instruction.source !== "generated") continue; //     
   if (!instruction.profession) continue;
 
-  const correctTitle = `Инструкция по охране труда для ${getProfessionGenitive(instruction.profession)}`;
+  const correctTitle = `     ${getProfessionGenitive(instruction.profession)}`;
   if (instruction.title !== correctTitle) {
     toFix.push({ instruction, correctTitle });
   }
 }
 
 if (toFix.length === 0) {
-  console.log("Все названия уже корректны — исправлять нечего.");
+  console.log("      .");
   process.exit(0);
 }
 
-console.log(`Найдено ${toFix.length} инструкций с названием для исправления:\n`);
+console.log(` ${toFix.length}     :\n`);
 for (const { instruction, correctTitle } of toFix) {
   console.log(`  [${instruction.id}]`);
-  console.log(`    было:  ${instruction.title}`);
-  console.log(`    станет: ${correctTitle}\n`);
+  console.log(`    :  ${instruction.title}`);
+  console.log(`    : ${correctTitle}\n`);
 }
 
 if (!shouldWrite) {
-  console.log("Это предварительный просмотр — файлы не изменены.");
-  console.log("Чтобы применить исправления, запустите: node scripts/fix-generated-titles.js --write");
+  console.log("      .");
+  console.log("  , : node scripts/fix-generated-titles.js --write");
   process.exit(0);
 }
 
@@ -51,4 +51,4 @@ for (const { instruction, correctTitle } of toFix) {
   instructionsRepository.save(instruction);
 }
 
-console.log(`Готово — исправлено и сохранено ${toFix.length} инструкций.`);
+console.log(`     ${toFix.length} .`);

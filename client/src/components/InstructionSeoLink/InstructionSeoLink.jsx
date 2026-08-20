@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 
 /**
  * SEO-friendly link to an instruction.
@@ -48,3 +48,4 @@ export default function InstructionSeoLink({
     </a>
   );
 }
+

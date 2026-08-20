@@ -1,484 +1,484 @@
-# Инструкции по охране труда — БОЙКОВГРУПП
+#      
 
-Сайт-справочник инструкций по охране труда по макету: поиск инструкций
-выполняется на сервере, а недостающие инструкции умеет автогенерировать
-нейросеть **YandexGPT** — как вручную, по клику админа (в том числе через
-кнопку «+ сгенерировать инструкцию» в панели управления сверху), так и
-полностью автоматически, по расписанию — по умолчанию раз в час (~24 в сутки).
-Управление контентом (ручная генерация и удаление инструкций) закрыто
-авторизацией — доступно только администратору.
+-      :  
+  ,     
+ **YandexGPT**   ,    (   
+ +      ),  
+ ,         (~24  ).
+  (    ) 
+    .
 
-Проект состоит из двух частей:
+    :
 
-- **`client/`** — фронтенд на **Vite + React**, компонентный, стили — CSS Modules
-  (у каждого компонента свой `*.module.css`), состояние — **Redux + Redux
-  Thunk** (`client/src/store/`). Шрифты — **Comfortaa** (основной текст) и
-  **JetBrains Mono** (служебные/технические элементы интерфейса), подключены
-  через Google Fonts в `client/index.html`, переменные `--font-main` /
-  `--font-mono` в `client/src/styles/variables.css`. Если в вашей сети Google
-  Fonts недоступен, замените CDN-подключение на локальные пакеты
-  `@fontsource/comfortaa` и `@fontsource/jetbrains-mono`.
-- **`server/`** — API на **Express** (Node.js, ESM): поиск по инструкциям,
-  генерация недостающей инструкции через YandexGPT (вручную админом и
-  автоматически по расписанию, `node-cron`), авторизация администратора
-  (JWT) и удаление инструкций.
+- **`client/`**    **Vite + React**, ,   CSS Modules
+  (    `*.module.css`),   **Redux + Redux
+  Thunk** (`client/src/store/`).   **Comfortaa** ( ) 
+  **JetBrains Mono** (/  ), 
+   Google Fonts  `client/index.html`,  `--font-main` /
+  `--font-mono`  `client/src/styles/variables.css`.     Google
+  Fonts ,  CDN-   
+  `@fontsource/comfortaa`  `@fontsource/jetbrains-mono`.
+- **`server/`**  API  **Express** (Node.js, ESM):   ,
+      YandexGPT (  
+    , `node-cron`),  
+  (JWT)   .
 
-## Быстрый старт
+##  
 
 ```bash
-# из корня проекта
-npm run install:all      # установит зависимости в client/ и server/
+#   
+npm run install:all      #    client/  server/
 
-cp server/.env.example server/.env   # и впишите свои YANDEX_API_KEY / YANDEX_FOLDER_ID
-cp client/.env.example client/.env   # при необходимости поменяйте адрес API
+cp server/.env.example server/.env   #    YANDEX_API_KEY / YANDEX_FOLDER_ID
+cp client/.env.example client/.env   #     API
 
-# сгенерируйте пароль админа и впишите хеш в server/.env (ADMIN_PASSWORD_HASH)
-cd server && node scripts/hash-password.js "мойНадёжныйПароль" && cd ..
+#        server/.env (ADMIN_PASSWORD_HASH)
+cd server && node scripts/hash-password.js "" && cd ..
 
-npm run dev               # поднимет сервер (:4000) и клиент (:5173) параллельно
+npm run dev               #   (:4000)   (:5173) 
 ```
 
-Либо раздельно, в двух терминалах:
+ ,   :
 
 ```bash
 cd server && npm install && npm run dev     # http://localhost:4000
 cd client && npm install && npm run dev     # http://localhost:5173
 ```
 
-Клиентский dev-сервер (`client/vite.config.js`, `server.host: "0.0.0.0"`) слушает все
-сетевые интерфейсы, а не только `localhost` — значит, сайт при запущенном
-`npm run dev` доступен и по локальному IP-адресу компьютера в той же сети
-(Vite выведет такой адрес в терминале как `Network: http://<IP>:5173/`,
-удобно для проверки с телефона). Если это не нужно и важна изоляция —
-уберите `host` из `server` в `vite.config.js`, тогда сервер снова будет
-слушать только `localhost`. При обращении с другого адреса, не совпадающего
-с `CLIENT_ORIGIN` в `server/.env`, запросы к API будут блокироваться CORS —
-в этом случае впишите туда актуальный адрес (например,
+ dev- (`client/vite.config.js`, `server.host: "0.0.0.0"`)  
+ ,    `localhost`  ,   
+`npm run dev`     IP-     
+(Vite       `Network: http://<IP>:5173/`,
+    ).        
+ `host`  `server`  `vite.config.js`,    
+  `localhost`.     ,  
+ `CLIENT_ORIGIN`  `server/.env`,   API   CORS 
+       (,
 `http://192.168.1.42:5173`).
 
-> В песочнице, где собирался этот проект, не было доступа к npm-реестру,
-> поэтому `npm install` здесь не запускался. Весь код прошёл синтаксическую
-> проверку (`node --check` для сервера, `tsc --noEmit` для JSX-компонентов
-> клиента), но перед продакшен-деплоем стоит один раз прогнать `npm run dev`
-> локально и убедиться, что всё поднимается как ожидается.
+>  ,    ,     npm-,
+>  `npm install`   .    
+>  (`node --check`  , `tsc --noEmit`  JSX-
+> ),   -     `npm run dev`
+>   ,     .
 
-## Структура
+## 
 
 ```
 client/
   src/
     api/
-      instructionsApi.js          — обёртка над fetch к /api/instructions/*
-      authApi.js                  — обёртка над fetch к /api/auth/*
-    store/                        — Redux + Redux Thunk
-      index.js                    — createStore(rootReducer, applyMiddleware(thunk))
-      rootReducer.js               — combineReducers({ auth, instructions })
-      authSlice.js                 — состояние сессии + thunk'и login/logout/restoreSession
-      instructionsSlice.js         — список/поиск/выбранная инструкция + thunk'и
+      instructionsApi.js             fetch  /api/instructions/*
+      authApi.js                     fetch  /api/auth/*
+    store/                         Redux + Redux Thunk
+      index.js                     createStore(rootReducer, applyMiddleware(thunk))
+      rootReducer.js                combineReducers({ auth, instructions })
+      authSlice.js                    + thunk' login/logout/restoreSession
+      instructionsSlice.js          //  + thunk'
                                       search/fetch/generate/upload/delete
-    hooks/useDebouncedValue.js    — дебаунс поискового запроса
+    hooks/useDebouncedValue.js       
     components/
-      Header/                     — шапка (поиск + панель управления + кнопка-логотип)
-      SearchBar/                  — поле поиска
-      AuthControl/                — кнопка «войти» / бейдж админа с выходом
-      LoginModal/                 — форма входа администратора
-      GenerateInstructionButton/  — кнопка «+ сгенерировать инструкцию» в шапке
-                                      (только для админа) + модалка с вводом профессии
-      AddInstructionButton/       — кнопка «+ добавить инструкцию» в шапке (только
-                                      для админа) + модалка загрузки файла / ввода текста
-      SiteLinkButton/             — кнопка-логотип, ведёт на boykovgroup.ru
-      InstructionList/            — список найденных инструкций
-      InstructionButton/          — карточка инструкции + админ-панель удаления
-      Pagination/                 — пагинация (стрелки + номер страницы)
-      EmptyState/                 — "ничего не найдено" (+ кнопка генерации для админа)
-      InstructionModal/           — модалка с полным текстом инструкции
-      Loader/                     — индикатор загрузки
-    App.jsx                       — читает store, оркестрирует запросы
+      Header/                       ( +   + -)
+      SearchBar/                    
+      AuthControl/                   /    
+      LoginModal/                    
+      GenerateInstructionButton/    +    
+                                      (  ) +    
+      AddInstructionButton/         +     (
+                                       ) +    /  
+      SiteLinkButton/              -,   boykovgroup.ru
+      InstructionList/               
+      InstructionButton/             + - 
+      Pagination/                   ( +  )
+      EmptyState/                  "  " (+    )
+      InstructionModal/                
+      Loader/                       
+    App.jsx                         store,  
 
 server/
   src/
-    index.js                      — точка входа Express, запускает и cron-задание
-    middleware/auth.js            — attachUser (парсит JWT), requireAdmin (закрывает роут)
+    index.js                         Express,   cron-
+    middleware/auth.js             attachUser ( JWT), requireAdmin ( )
     jobs/
-      dailyGenerationJob.js       — cron-задание автогенерации, по умолчанию раз в час (node-cron)
+      dailyGenerationJob.js        cron- ,      (node-cron)
     routes/
-      auth.js                     — POST /api/auth/login, GET /api/auth/me
-      instructions.js             — GET /api/instructions, GET /:id,
-                                      POST /generate, POST /upload и DELETE /:id —
-                                      только для админа, POST /run-scheduled-generation
-                                      — ручной запуск автогенерации (тоже только для админа)
+      auth.js                      POST /api/auth/login, GET /api/auth/me
+      instructions.js              GET /api/instructions, GET /:id,
+                                      POST /generate, POST /upload  DELETE /:id 
+                                        , POST /run-scheduled-generation
+                                          (   )
     services/
-      authService.js              — проверка логина/пароля, выпуск и проверка JWT
-      instructionsRepository.js   — файловое хранилище инструкций (JSON)
-      searchService.js            — нечёткий поиск (Fuse.js) + пагинация
-      yandexGptService.js         — вызов Yandex Foundation Models API
-      documentTextExtractor.js    — извлечение текста из загруженных файлов
-                                      (PDF — pdf-parse, DOCX — mammoth, TXT/MD — как есть)
-      scheduledGenerationService.js — логика автогенерации: берёт следующую
-                                      профессию из очереди и генерирует по ней
-                                      инструкцию (используется и cron-заданием,
-                                      и ручным admin-роутом)
+      authService.js                /,    JWT
+      instructionsRepository.js       (JSON)
+      searchService.js               (Fuse.js) + 
+      yandexGptService.js           Yandex Foundation Models API
+      documentTextExtractor.js         
+                                      (PDF  pdf-parse, DOCX  mammoth, TXT/MD   )
+      scheduledGenerationService.js   :  
+                                            
+                                       (  cron-,
+                                        admin-)
     prompts/
-      generateInstructionPrompt.js — ПРОМПТ для YandexGPT (см. ниже)
+      generateInstructionPrompt.js    YandexGPT (. )
     data/
-      instructions/*.json         — сами инструкции (7 штук с макета — seed-данные)
-      professionQueue.json        — очередь профессий для автогенерации (180 шт.)
+      instructions/*.json            (7     seed-)
+      professionQueue.json             (180 .)
   scripts/
-    hash-password.js              — генерирует bcrypt-хеш пароля для .env
+    hash-password.js                bcrypt-   .env
 ```
 
-## Как работает поиск
+##   
 
-Клиент не хранит и не фильтрует инструкции самостоятельно — при каждом вводе
-в поле поиска (с дебаунсом 350 мс) он идёт на сервер:
+           
+   (  350 )    :
 
 ```
-GET /api/instructions?q=<запрос>&page=<номер>&pageSize=6
+GET /api/instructions?q=<>&page=<>&pageSize=6
 ```
 
-Сервер ищет совпадения по названию/профессии (`fuse.js`, нечёткий поиск,
-допускает опечатки) и возвращает уже отсортированную и постраничную выдачу.
-Клик по кнопке инструкции запрашивает её полный текст:
+    / (`fuse.js`,  ,
+ )       .
+       :
 
 ```
 GET /api/instructions/:id
 ```
 
-## Авторизация администратора
+##  
 
-Генерировать и удалять инструкции может только администратор — это
-единственная учётная запись, заданная напрямую в `server/.env` (без базы
-пользователей — для этого проекта одной роли достаточно).
+        
+  ,    `server/.env` ( 
+       ).
 
-1. Сгенерируйте хеш пароля: `node server/scripts/hash-password.js "пароль"`.
-2. Впишите в `server/.env`: `ADMIN_LOGIN` (логин) и `ADMIN_PASSWORD_HASH`
-   (хеш из шага 1), а также `JWT_SECRET` — любую длинную случайную строку.
-3. На сайте — кнопка «войти» в шапке (компонент `AuthControl`) открывает
-   форму `LoginModal`. Успешный вход даёт JWT (`POST /api/auth/login`),
-   токен сохраняется в `localStorage` браузера и подставляется в заголовок
-   `Authorization: Bearer <token>` при генерации/удалении. При перезагрузке
-   страницы клиент сверяет сохранённый токен через `GET /api/auth/me`
-   (thunk `restoreSession`) — если он просрочен или невалиден, тихо
-   разлогинивает.
+1.   : `node server/scripts/hash-password.js ""`.
+2.   `server/.env`: `ADMIN_LOGIN` ()  `ADMIN_PASSWORD_HASH`
+   (   1),   `JWT_SECRET`     .
+3.        ( `AuthControl`) 
+    `LoginModal`.    JWT (`POST /api/auth/login`),
+      `localStorage`     
+   `Authorization: Bearer <token>`  /.  
+         `GET /api/auth/me`
+   (thunk `restoreSession`)      , 
+   .
 
-Сервер — источник истины по правам: даже если кто-то обойдёт интерфейс и
-дёрнет `POST /api/instructions/generate` или `DELETE /api/instructions/:id`
-напрямую без валидного токена админа, middleware `requireAdmin` вернёт
-`401`. Поиск и просмотр инструкций (`GET`) остаются полностью публичными.
+     :   -   
+ `POST /api/instructions/generate`  `DELETE /api/instructions/:id`
+    , middleware `requireAdmin` 
+`401`.     (`GET`)   .
 
-## Как работает генерация и удаление инструкций (только админ)
+##       ( )
 
-Сгенерировать инструкцию вручную можно двумя способами:
+     :
 
-1. **Кнопка «+ сгенерировать инструкцию» в шапке** (компонент
-   `GenerateInstructionButton`, виден только админу, в панели управления
-   рядом с бейджем `[ админ: ... ]`) — открывает модалку, где нужно указать
-   профессию текстом, не обязательно связанную с текущим поисковым запросом.
-2. Если админ **ищет** что-то, чего нет в базе, под списком результатов
-   тоже появляется кнопка «Сгенерировать инструкцию через YandexGPT» — она
-   подставляет уже введённый поисковый запрос как профессию (обычный
-   посетитель вместо этой кнопки видит подсказку, что база пополняется
-   автоматически — см. раздел «Автоматическая генерация по расписанию»
-   ниже).
+1. ** +    ** (
+   `GenerateInstructionButton`,   ,   
+      `[ : ... ]`)   ,   
+    ,       .
+2.   **** -,    ,   
+         YandexGPT  
+          (
+        ,   
+     .     
+   ).
 
-Оба варианта вызывают один и тот же запрос:
+       :
 
 ```
 POST /api/instructions/generate
-Authorization: Bearer <token админа>
-Body: { "profession": "<указанная профессия>" }
+Authorization: Bearer <token >
+Body: { "profession": "< >" }
 ```
 
-У каждой карточки инструкции админ видит внизу `[ удалить ]` — по
-клику появляется инлайн-подтверждение «удалить статью? да / нет» в том же
-стиле, без нативного `confirm()` браузера. Подтверждение вызывает:
+       `[  ]`  
+  -  ?  /    
+,   `confirm()` .  :
 
 ```
 DELETE /api/instructions/:id
-Authorization: Bearer <token админа>
+Authorization: Bearer <token >
 ```
 
-Сервер (`server/src/services/yandexGptService.js`):
+ (`server/src/services/yandexGptService.js`):
 
-1. Строит системный промпт и по очереди — промпт на каждый из 5 разделов —
-   в `server/src/prompts/generateInstructionPrompt.js`.
-2. Отправляет их в Yandex Foundation Models
+1.            5  
+    `server/src/prompts/generateInstructionPrompt.js`.
+2.    Yandex Foundation Models
    (`https://llm.api.cloud.yandex.net/foundationModels/v1/completion`)
-   **последовательно, по одному разделу за запрос** (подробности и почему —
-   в следующем разделе), накапливая историю диалога.
-3. Разбирает текстовый ответ модели на пункты по меткам «N.M.» и приводит
-   к внутренней схеме инструкции (5 фиксированных разделов, как в примере
-   с макета).
-4. Сохраняет новую инструкцию как обычный JSON-файл в
-   `server/src/data/instructions/` — она сразу становится доступна для
-   поиска и просмотра, как и остальные.
+   **,     ** (   
+     ),   .
+3.         N.M.  
+       (5  ,   
+    ).
+4.      JSON- 
+   `server/src/data/instructions/`      
+     ,   .
 
-### Промпт
+### 
 
-Файл `server/src/prompts/generateInstructionPrompt.js` содержит промпт,
-который вы прислали («ЗАПРОС В ЧАТБОТ ДЛЯ СОЗДАНИЯ ИНСТРУКЦИИ», вариант от
-04.04.2025) — адаптированный под API-интеграцию. Требования оттуда сохранены
-как есть: 5 разделов со строго заданным числом пунктов (17 / 10 / 14 / 13 / 11
-для разделов 1–5 соответственно), каждый пункт — сплошной профессиональный
-текст не менее 200 символов, без ссылок на конкретные законы, без
-маркированных списков, с корректным склонением профессии в названии.
+ `server/src/prompts/generateInstructionPrompt.js`  ,
+   (     Ȼ,  
+04.04.2025)    API-.   
+ : 5       (17 / 10 / 14 / 13 / 11
+  15 ),     
+   200 ,     , 
+ ,      .
 
-Один нюанс потребовал технической адаптации. Ваш исходный промпт написан для
-**интерактивного чата**: модель пишет один раздел за сообщение и продолжает
-по вашей команде «да» — именно так, за несколько шагов, реально можно
-дописать раздел из 17 пунктов по 200+ символов каждый, не упираясь в лимит
-токенов одного ответа и не начиная урезать текст ближе к концу раздела (это
-как раз то, от чего явно предостерегает пункт 12 вашего промпта). Наш сервер
-дёргает API без человека в диалоге, поэтому команда «да» технически
-заменена на то же самое по сути: `generateInstructionWithYandexGpt()` сама
-шлёт **5 последовательных запросов** — по одному на раздел — с накоплением
-истории диалога (`messages`), так что модель на каждом шаге видит, что уже
-написала раньше. Если модель всё же вернула не то количество пунктов —
-сервис один раз просит её прислать раздел заново с точным числом пунктов
-(`server/src/services/yandexGptService.js`, retry-логика), а служебную
-переписку об этом потом убирает из истории, чтобы не раздувать контекст
-следующих разделов.
+    .     
+** **:        
+      ,   ,  
+   17   200+  ,    
+            (
+  ,      12  ).  
+ API    ,    
+      : `generateInstructionWithYandexGpt()` 
+ **5  **        
+  (`messages`),       ,  
+ .          
+           
+(`server/src/services/yandexGptService.js`, retry-),  
+      ,    
+ .
 
-Практическое следствие: генерация одной инструкции — это 5–6 запросов к
-YandexGPT подряд, а не один, и занимает заметно больше времени (обычно
-десятки секунд). Это осознанный компромисс ради соблюдения строгих
-требований промпта к объёму и количеству пунктов, а не ошибка.
+ :      56  
+YandexGPT ,   ,      (
+ ).      
+      ,   .
 
-### Склонение профессии в названии
+###    
 
-Промпт просит модель саму склонить профессию в родительный падеж для
-названия («Инструкция по охране труда для продавца-консультанта», а не «для
-продавец-консультант»), но на практике YandexGPT делает это не всегда
-надёжно — иногда оставляет профессию без склонения. Поэтому название теперь
-**не берётся из ответа модели**, а строится детерминированно в коде —
-`getProfessionGenitive()` в `server/src/utils/professionGenitive.js`:
+         
+ (     -,   
+-),    YandexGPT    
+      .   
+**    **,      
+`getProfessionGenitive()`  `server/src/utils/professionGenitive.js`:
 
-1. Для всех 180 профессий из очереди автогенерации
-   (`server/src/data/professionQueue.json`) есть точный, вручную выверенный
-   словарь родительного падежа —
-   `server/src/data/professionGenitiveOverrides.js`. Для них результат
-   гарантированно грамматически верный.
-2. Если профессию сгенерировал админ вручную через поиск (текст не из
-   очереди) — используется эвристика по типичным окончаниям русских
-   существительных/прилагательных. Она покрывает подавляющее большинство
-   обычных названий должностей, но не гарантирует идеальный результат для
-   совсем нетиповых формулировок.
+1.   180    
+   (`server/src/data/professionQueue.json`)  ,  
+      
+   `server/src/data/professionGenitiveOverrides.js`.   
+     .
+2.        (  
+   )       
+   /.    
+     ,      
+     .
 
-Если добавляете в очередь новую профессию — по-хорошему стоит добавить и её
-родительный падеж в `professionGenitiveOverrides.js` (иначе для неё сработает
-эвристика).
+       -    
+   `professionGenitiveOverrides.js` (   
+).
 
-**Что делать с уже сгенерированными ранее инструкциями**, у которых в
-названии профессия не склонена (то, что было до этого исправления): запустите
+**      **,   
+    (,     ): 
 ```
-node scripts/fix-generated-titles.js          # только посмотреть, что изменится
-node scripts/fix-generated-titles.js --write   # применить и сохранить
+node scripts/fix-generated-titles.js          #  ,  
+node scripts/fix-generated-titles.js --write   #   
 ```
-Скрипт проходит по всем инструкциям с `source: "generated"`, пересобирает
-название через ту же `getProfessionGenitive()` и, если оно отличается от
-сохранённого, поправляет и сохраняет файл. Загруженные вручную инструкции
-(`source: "uploaded"`) и сид-данные (`source: "seed"`) не трогает.
+      `source: "generated"`, 
+    `getProfessionGenitive()` ,    
+,    .   
+(`source: "uploaded"`)  - (`source: "seed"`)  .
 
-## Добавление собственной инструкции (файл или текст, только админ)
+##    (  ,  )
 
-Кроме генерации через YandexGPT, админ может добавить готовую инструкцию
-самостоятельно — кнопка **«+ добавить инструкцию»** в шапке (компонент
-`AddInstructionButton`, рядом с кнопкой генерации). В открывшейся модалке
-нужно указать название и профессию/категорию, а дальше — либо приложить
-файл, либо ввести текст вручную (переключатель «Файл» / «Текст вручную»):
+   YandexGPT,     
+   **+  **   (
+`AddInstructionButton`,    ).   
+    /,     
+,     (  /  ):
 
 ```
 POST /api/instructions/upload
-Authorization: Bearer <token админа>
+Authorization: Bearer <token >
 Content-Type: multipart/form-data
 
-title: <название>
-profession: <профессия/категория>
-file: <файл>            — если выбран режим «Файл»
-content: <текст>        — если выбран режим «Текст вручную»
+title: <>
+profession: </>
+file: <>                
+content: <>             
 ```
 
-Поддерживаемые форматы файла — **PDF**, **DOCX**, **TXT**, **MD**:
+    **PDF**, **DOCX**, **TXT**, **MD**:
 
-1. `.txt` / `.md` читаются как обычный текст.
-2. `.pdf` — текст извлекается пакетом `pdf-parse`.
-3. `.docx` — текст извлекается пакетом `mammoth`.
-4. Старый бинарный **`.doc`** (не `.docx`) mammoth не читает — сервер сразу
-   вернёт понятную ошибку с просьбой пересохранить файл в `.docx`/`.pdf`
-   или вставить текст вручную.
-5. Максимальный размер файла — **15 МБ** (`server/src/routes/instructions.js`).
-6. Сканы без текстового слоя (PDF-картинка без OCR) распознать не получится —
-   в этом случае тоже придёт понятная ошибка.
+1. `.txt` / `.md`    .
+2. `.pdf`     `pdf-parse`.
+3. `.docx`     `mammoth`.
+4.   **`.doc`** ( `.docx`) mammoth     
+           `.docx`/`.pdf`
+      .
+5.     **15 ** (`server/src/routes/instructions.js`).
+6.     (PDF-  OCR)    
+         .
 
-Извлечённый текст делится на абзацы (по пустой строке между ними; если файл,
-как часто бывает с PDF, вообще не сохранил пустых строк — делится по
-одиночным переводам строк) и сохраняется одним разделом «Текст инструкции» —
-без попытки угадать структуру вроде «5 разделов» у сгенерированных
-инструкций, чтобы не исказить исходный документ. Дальше загруженная
-инструкция ничем не отличается от остальных: участвует в поиске (по
-названию/профессии), открывается в той же модалке с полным текстом, её
-может удалить админ через `[ удалить ]` на карточке.
+     (    ;  ,
+    PDF,        
+  )       
+     5   
+,     .  
+     :    (
+/),        , 
+    `[  ]`  .
 
-Сохраняется она с полями `source: "uploaded"`, `uploadedBy: "admin"`,
-`fileType` (расширение исходного файла или `"manual"` для ручного ввода) и
-`originalFileName` — для истории/отладки, на отображение не влияют.
+    `source: "uploaded"`, `uploadedBy: "admin"`,
+`fileType` (    `"manual"`   ) 
+`originalFileName`   /,    .
 
-## Автоматическая генерация по расписанию
+##    
 
-Помимо ручной генерации админом, сервер сам, без участия человека,
-пополняет базу новыми инструкциями — **по умолчанию ~24 раза в сутки**
-(раз в час; просили 20-30 в сутки — час выбран как самое простое и
-предсказуемое cron-расписание, попадающее в этот диапазон):
+   ,  ,   ,
+     **  ~24   **
+(  ;  20-30         
+ cron-,    ):
 
-1. При старте сервера (`server/src/index.js`) запускается фоновое
-   cron-задание `server/src/jobs/dailyGenerationJob.js` (пакет `node-cron`).
-   По умолчанию оно срабатывает **каждый час** (каждое срабатывание
-   добавляет одну инструкцию) — расписание задаётся переменной
-   `DAILY_GENERATION_CRON` в `server/.env` в обычном cron-формате
-   (например, `0 */2 * * *` — каждые 2 часа, то есть 12 раз в сутки, если
-   24 в сутки окажется слишком часто). **Если у вас уже есть свой файл
-   `server/.env` с этой переменной, заданной раньше** (например,
-   `0 3,11,19 * * *` — старое расписание «3 раза в сутки»), новое значение
-   по умолчанию его не перезапишет — переменная окружения всегда в
-   приоритете. Чтобы перейти на новый темп, поправьте строку
-   `DAILY_GENERATION_CRON=...` в своём `server/.env` вручную (или удалите
-   её совсем, тогда подхватится значение по умолчанию из кода).
-   Дополнительно: cron не срабатывает сразу при старте сервера, а ждёт
-   ближайшего момента по расписанию — поэтому при старте сервер также
-   сразу, не дожидаясь расписания, запускает одну генерацию (лог
-   «Запуск стартовой генерации»), чтобы очередь начинала пополняться
-   немедленно. Сама генерация — это 5-6 последовательных запросов к
-   YandexGPT, так что первый результат появится не мгновенно, а через
-   десятки секунд — минуту-другую, это нормально.
-2. Срабатывая, задание вызывает `runScheduledGeneration()`
-   (`server/src/services/scheduledGenerationService.js`): та берёт из
-   очереди `server/src/data/professionQueue.json` (180 профессий) первую,
-   для которой ещё нет инструкции в базе, и генерирует по ней текст через
-   YandexGPT — тем же путём, что и ручная генерация, просто без запроса
-   от админа.
-3. Готовая инструкция сохраняется как обычный JSON-файл в
-   `server/src/data/instructions/`, с полем `generatedBy: "schedule"` —
-   в отличие от `generatedBy: "admin"` у инструкций, сгенерированных вручную
-   через кнопку в интерфейсе. Само поле `id` и структура инструкции у обеих
-   разновидностей одинаковые, различие чисто для истории/отладки.
-4. Если YandexGPT не настроен (нет `YANDEX_API_KEY`/`YANDEX_FOLDER_ID`) или
-   очередь профессий уже вся использована, задание просто логирует причину
-   пропуска и ничего не делает — ошибок наружу не выбрасывает.
+1.    (`server/src/index.js`)  
+   cron- `server/src/jobs/dailyGenerationJob.js` ( `node-cron`).
+       ** ** ( 
+     )    
+   `DAILY_GENERATION_CRON`  `server/.env`   cron-
+   (, `0 */2 * * *`   2 ,   12   , 
+   24     ). **      
+   `server/.env`   ,  ** (,
+   `0 3,11,19 * * *`    3   ),  
+            
+   .     ,  
+   `DAILY_GENERATION_CRON=...`   `server/.env`  ( 
+    ,       ).
+   : cron      ,  
+            
+   ,   ,    (
+     ),    
+   .     5-6   
+   YandexGPT,       ,  
+      -,  .
+2. ,   `runScheduledGeneration()`
+   (`server/src/services/scheduledGenerationService.js`):   
+    `server/src/data/professionQueue.json` (180 ) ,
+         ,      
+   YandexGPT    ,    ,   
+    .
+3.      JSON- 
+   `server/src/data/instructions/`,   `generatedBy: "schedule"` 
+      `generatedBy: "admin"`  ,  
+      .   `id`     
+    ,    /.
+4.  YandexGPT   ( `YANDEX_API_KEY`/`YANDEX_FOLDER_ID`) 
+       ,    
+            .
 
-### Защита от повторов и дублирования
+###     
 
-Инструкции не повторяются на двух независимых уровнях:
+      :
 
-- **По содержанию профессии.** `id` инструкции — это `slugify(profession)`
-  (`server/src/utils/slug.js`), то есть у каждой профессии ровно один
-  возможный id. Очередь (`professionQueue.json`) уже проверена на отсутствие
-  дублей — как дословных, так и после приведения к id, — а перед генерацией
-  (что автоматической, что ручной через кнопку) всегда сначала проверяется
-  `instructionsRepository`: если инструкция с таким id уже есть, она просто
-  возвращается, а новый запрос к YandexGPT не делается.
-- **По параллельным запускам.** Каждая генерация — это теперь 5-6
-  последовательных запросов к YandexGPT (см. раздел «Промпт» выше) и
-  занимает десятки секунд. Раньше, если бы для одной и той же профессии
-  почти одновременно сработали, например, автогенерация по расписанию и
-  ручная кнопка «+ сгенерировать инструкцию» (или админ просто дважды
-  нажал бы кнопку), сервер выполнил бы генерацию дважды впустую, а второй
-  результат тихо перезаписал бы первый. Теперь это исключено:
-  `server/src/services/generationLock.js` — простой мьютекс по id, который
-  гарантирует, что для одной и той же профессии в любой момент времени
-  выполняется не более одной генерации; если запрос на генерацию для уже
-  занятого id приходит второй раз, он просто дожидается результата первого,
-  вместо того чтобы запускать YandexGPT заново. Задействован во всех трёх
-  точках входа генерации: поиск → «сгенерировать инструкцию», кнопка
-  «+ сгенерировать инструкцию» в шапке, и очередь автогенерации
+- **  .** `id`    `slugify(profession)`
+  (`server/src/utils/slug.js`),       
+   id.  (`professionQueue.json`)    
+     ,      id,    
+  ( ,    )   
+  `instructionsRepository`:     id  ,  
+  ,     YandexGPT  .
+- **  .**      5-6
+     YandexGPT (.   ) 
+    . ,        
+    , ,    
+    +   (   
+    ),      ,  
+      .   :
+  `server/src/services/generationLock.js`     id, 
+  ,           
+      ;      
+   id   ,     ,
+      YandexGPT .    
+    :    , 
+  +    ,   
   (`scheduledGenerationService.js`).
 
-При интервале автогенерации раз в час пересечение запусков само по себе
-маловероятно (генерация обычно укладывается в 1-2 минуты), но теперь оно
-безопасно и в тех редких случаях, когда всё же происходит.
+          
+ (    1-2 ),   
+     ,    .
 
-При 180 профессиях в очереди и ~24 генерациях в сутки очередь
-  закончится примерно за неделю (180 / 24 ≈ 7.5 дня). Это ожидаемо —
-  когда все профессии из списка уже сгенерированы, задание просто начнёт
-  логировать «очередь пуста» и ничего не делать, это не ошибка. Чтобы
-  продолжить пополнение — допишите новые профессии в
-  `server/src/data/professionQueue.json` (обычный JSON-массив строк).
+ 180     ~24    
+      (180 / 24  7.5 ).   
+        ,   
+        ,   . 
+        
+  `server/src/data/professionQueue.json` ( JSON- ).
 
-Для проверки, не дожидаясь следующего часового запуска, админ может
-дёрнуть тот же процесс вручную:
+ ,     ,  
+    :
 
 ```
 POST /api/instructions/run-scheduled-generation
-Authorization: Bearer <token админа>
+Authorization: Bearer <token >
 ```
 
-Список профессий в очереди можно менять — это просто JSON-массив строк в
-`server/src/data/professionQueue.json`, задание идёт по нему по порядку и
-пропускает те профессии, для которых инструкция уже существует.
+         JSON-  
+`server/src/data/professionQueue.json`,       
+  ,     .
 
-### Переменные окружения сервера (`server/.env`)
+###    (`server/.env`)
 
 ```
 PORT=4000
 CLIENT_ORIGIN=http://localhost:5173
 
-YANDEX_API_KEY=            # API-ключ сервисного аккаунта Yandex Cloud
-YANDEX_FOLDER_ID=          # ID каталога в Yandex Cloud
+YANDEX_API_KEY=            # API-   Yandex Cloud
+YANDEX_FOLDER_ID=          # ID   Yandex Cloud
 YANDEX_GPT_MODEL=yandexgpt/latest
 
-JWT_SECRET=                # любая длинная случайная строка
+JWT_SECRET=                #    
 JWT_EXPIRES_IN=12h
 ADMIN_LOGIN=admin
-ADMIN_PASSWORD_HASH=       # результат node scripts/hash-password.js "пароль"
+ADMIN_PASSWORD_HASH=       #  node scripts/hash-password.js ""
 
-DAILY_GENERATION_CRON=0 * * * *   # расписание автогенерации, по умолчанию раз в час (cron-формат)
+DAILY_GENERATION_CRON=0 * * * *   #  ,      (cron-)
 ```
 
-Ключ и ID каталога получаются в консоли Yandex Cloud
-(https://console.yandex.cloud) — создаётся сервисный аккаунт с ролью
-`ai.languageModels.user` и API-ключ для него. Без `YANDEX_API_KEY`/
-`YANDEX_FOLDER_ID` сервер запустится и поиск будет работать, но генерация
-будет возвращать понятную ошибку 503. Без `ADMIN_LOGIN`/`ADMIN_PASSWORD_HASH`
-аналогично — вход в панель админа будет недоступен (503 на `/login`),
-остальной сайт при этом работает как обычно.
+  ID     Yandex Cloud
+(https://console.yandex.cloud)      
+`ai.languageModels.user`  API-  .  `YANDEX_API_KEY`/
+`YANDEX_FOLDER_ID`      ,  
+    503.  `ADMIN_LOGIN`/`ADMIN_PASSWORD_HASH`
+        (503  `/login`),
+      .
 
-## Redux-хранилище клиента
+## Redux- 
 
-Состояние поделено на два слайса (`combineReducers`, без Redux Toolkit —
-классический `redux` + `redux-thunk`, как и просили):
+     (`combineReducers`,  Redux Toolkit 
+ `redux` + `redux-thunk`,   ):
 
-- **`auth`** (`store/authSlice.js`) — токен, данные пользователя, статусы
-  входа/восстановления сессии. Thunk'и: `login`, `logout`, `restoreSession`.
-- **`instructions`** (`store/instructionsSlice.js`) — результаты поиска,
-  открытая инструкция, статусы генерации/загрузки/удаления. Thunk'и:
+- **`auth`** (`store/authSlice.js`)  ,  , 
+  / . Thunk': `login`, `logout`, `restoreSession`.
+- **`instructions`** (`store/instructionsSlice.js`)   ,
+   ,  //. Thunk':
   `searchInstructions`, `fetchInstruction`, `generateInstruction`,
   `uploadInstruction`, `deleteInstruction`.
 
-Осознанно в сторе нет самого текста поискового запроса и текущей
-запрошенной страницы — это чисто локальное состояние поля ввода
-(с дебаунсом), ему место в `useState` компонента `App`, а не в глобальном
-сторе. В Redux лежат только данные, полученные с сервера и асинхронные
-статусы работы с ними — то, что имеет смысл переиспользовать /
-инспектировать через Redux DevTools.
+         
+        
+( ),    `useState`  `App`,    
+.  Redux   ,     
+     ,     /
+  Redux DevTools.
 
-## Кнопка перехода на сайт
+##    
 
-Компонент `client/src/components/SiteLinkButton/SiteLinkButton.jsx` —
-кликабельный логотип в шапке, открывает **https://boykovgroup.ru** в новой
-вкладке. Адрес вынесен в переменную окружения клиента `VITE_SITE_URL`
-(`client/.env`), чтобы его можно было поменять без правки кода.
+ `client/src/components/SiteLinkButton/SiteLinkButton.jsx` 
+   ,  **https://boykovgroup.ru**  
+.       `VITE_SITE_URL`
+(`client/.env`),        .
 
-## Данные
+## 
 
-В `server/src/data/instructions/` лежат 7 инструкций-заготовок:
-6 названий с макета (аппаратчик обработки, ожижения водорода и гелия,
-обработки силикагеля, обработки зерна, обработки крови, обогащения
-золотосодержащих руд) плюс инструкция «аппаратчик окисления» — она взята
-из приложенного вами примера и перенесена в JSON без изменений по смыслу.
-Все остальные инструкции — как сгенерированные по клику админа, так и
-появившиеся автоматически по ночному расписанию (см. «Автоматическая
-генерация по расписанию» выше) — сохраняются туда же, в одном формате.
-Список профессий для автогенерации — `server/src/data/professionQueue.json`.
+ `server/src/data/instructions/`  7 -:
+6    ( ,    ,
+ ,  ,  , 
+ )       
+       JSON    .
+        ,  
+     (. 
+   )    ,   .
+     `server/src/data/professionQueue.json`.
 
-Для реального продакшена файловое хранилище (`instructionsRepository.js`)
-несложно заменить на любую БД — весь остальной код обращается к нему через
-`getAll / getById / save`, не зная о деталях хранения.
+     (`instructionsRepository.js`)
+            
+`getAll / getById / save`,     .

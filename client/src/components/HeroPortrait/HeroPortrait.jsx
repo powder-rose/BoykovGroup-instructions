@@ -1,4 +1,4 @@
-﻿import styles from "./HeroPortrait.module.css";
+import styles from "./HeroPortrait.module.css";
 
 /** Портрет руководителя в hero-блоке — визуальный элемент доверия рядом с заголовком. */
 export default function HeroPortrait() {
@@ -27,3 +27,4 @@ export default function HeroPortrait() {
     </figure>
   );
 }
+

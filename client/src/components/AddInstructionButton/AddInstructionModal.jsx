@@ -5,7 +5,7 @@ import styles from "./AddInstructionButton.module.css";
 
 const ACCEPTED_EXTENSIONS = ".pdf,.doc,.docx,.txt,.md";
 
-/** Модальная форма для добавления собственной инструкции — файлом или текстом (панель админа). */
+/**           ( ). */
 export default function AddInstructionModal({ onClose }) {
   const dispatch = useDispatch();
   const isUploading = useSelector((state) => state.instructions.isUploading);
@@ -49,42 +49,42 @@ export default function AddInstructionModal({ onClose }) {
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
-        <button type="button" className={styles.close} onClick={onClose} aria-label="Закрыть">
-          ×
+        <button type="button" className={styles.close} onClick={onClose} aria-label="">
+          
         </button>
 
-        <span className={styles.eyebrow}>// своя_инструкция</span>
-        <h2 className={styles.title}>Добавить свою инструкцию</h2>
+        <span className={styles.eyebrow}>// _</span>
+        <h2 className={styles.title}>  </h2>
         <p className={styles.hint}>
-          Загрузите готовый файл (PDF, DOCX, TXT, MD) — текст извлечётся автоматически,
-          либо вставьте текст вручную. Инструкция сразу появится в базе рядом со сгенерированными.
+             (PDF, DOCX, TXT, MD)    ,
+             .        .
         </p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <label className={styles.field}>
-            <span className={styles.label}>Название инструкции</span>
+            <span className={styles.label}> </span>
             <input
               className={styles.input}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Например: Инструкция по охране труда для кладовщика"
+              placeholder=":      "
               autoFocus
               required
             />
           </label>
 
           <label className={styles.field}>
-            <span className={styles.label}>Профессия / категория</span>
+            <span className={styles.label}> / </span>
             <input
               className={styles.input}
               value={profession}
               onChange={(e) => setProfession(e.target.value)}
-              placeholder="Например: кладовщик"
+              placeholder=": "
               required
             />
           </label>
 
-          <div className={styles.modeSwitch} role="tablist" aria-label="Способ добавления">
+          <div className={styles.modeSwitch} role="tablist" aria-label=" ">
             <button
               type="button"
               role="tab"
@@ -92,7 +92,7 @@ export default function AddInstructionModal({ onClose }) {
               className={mode === "file" ? styles.modeBtnActive : styles.modeBtn}
               onClick={() => setMode("file")}
             >
-              Файл
+              
             </button>
             <button
               type="button"
@@ -101,13 +101,13 @@ export default function AddInstructionModal({ onClose }) {
               className={mode === "text" ? styles.modeBtnActive : styles.modeBtn}
               onClick={() => setMode("text")}
             >
-              Текст вручную
+               
             </button>
           </div>
 
           {mode === "file" ? (
             <label className={styles.field}>
-              <span className={styles.label}>Файл (PDF / DOCX / TXT / MD)</span>
+              <span className={styles.label}> (PDF / DOCX / TXT / MD)</span>
               <input
                 ref={fileInputRef}
                 className={styles.fileInput}
@@ -116,18 +116,18 @@ export default function AddInstructionModal({ onClose }) {
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               />
               <span className={styles.fileHint}>
-                Старый формат .doc (не .docx) сервер не распознаёт — пересохраните файл в .docx или
-                .pdf, либо переключитесь на вкладку «Текст вручную».
+                  .doc ( .docx)        .docx 
+                .pdf,      .
               </span>
             </label>
           ) : (
             <label className={styles.field}>
-              <span className={styles.label}>Текст инструкции</span>
+              <span className={styles.label}> </span>
               <textarea
                 className={styles.textarea}
                 value={manualText}
                 onChange={(e) => setManualText(e.target.value)}
-                placeholder="Вставьте или напишите текст инструкции. Пустая строка между абзацами — разделитель абзацев."
+                placeholder="    .       ."
                 rows={8}
               />
             </label>
@@ -136,7 +136,7 @@ export default function AddInstructionModal({ onClose }) {
           {uploadError && <p className={styles.error}>{uploadError}</p>}
 
           <button type="submit" className={styles.submit} disabled={isUploading || !isReady}>
-            {isUploading ? "Добавляем..." : "Добавить инструкцию"}
+            {isUploading ? "..." : " "}
           </button>
         </form>
       </div>

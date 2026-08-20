@@ -125,7 +125,7 @@ export function instructionsReducer(state = initialState, action) {
 
 // --- thunks ---
 
-/** Поиск инструкций на сервере: клиент передаёт только текст запроса и страницу. */
+/**    :       . */
 export function searchInstructions({ query = "", page = 1, pageSize = PAGE_SIZE } = {}) {
   return async (dispatch) => {
     dispatch({ type: SEARCH_START });
@@ -155,9 +155,9 @@ export function clearSelectedInstruction() {
 }
 
 /**
- * Генерация недостающей инструкции через YandexGPT.
- * Сервер сам отклонит запрос без валидного токена админа — здесь
- * просто подкладываем токен из состояния, если он есть.
+ *     YandexGPT.
+ *          
+ *     ,   .
  */
 export function generateInstruction(profession) {
   return async (dispatch, getState) => {
@@ -177,9 +177,9 @@ export function generateInstruction(profession) {
 }
 
 /**
- * Загрузка собственной инструкции админа — файлом (pdf/docx/txt/md) или
- * текстом вручную. formData собирает вызывающий компонент (title,
- * profession и file/content).
+ *       (pdf/docx/txt/md) 
+ *  . formData    (title,
+ * profession  file/content).
  */
 export function uploadInstruction(formData) {
   return async (dispatch, getState) => {
@@ -198,7 +198,7 @@ export function uploadInstruction(formData) {
   };
 }
 
-/** Удаление инструкции. Доступно только админу. */
+/**  .   . */
 export function deleteInstruction(id) {
   return async (dispatch, getState) => {
     dispatch({ type: DELETE_START, payload: id });

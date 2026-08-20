@@ -1,4 +1,4 @@
-﻿.wrap {
+.wrap {
   margin: 0;
   flex-shrink: 0;
   display: flex;
@@ -51,3 +51,4 @@
     height: 87px;
   }
 }
+

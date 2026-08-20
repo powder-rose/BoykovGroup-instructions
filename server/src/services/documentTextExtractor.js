@@ -5,10 +5,10 @@ import pdfParse from "pdf-parse";
 const PLAIN_TEXT_EXTENSIONS = new Set([".txt", ".md"]);
 
 /**
- * Извлекает обычный текст из загруженного файла — поддерживаются
- * .txt/.md (читаются как есть), .pdf (pdf-parse) и .docx (mammoth).
- * Старый бинарный .doc не поддерживается напрямую — mammoth умеет работать
- * только с .docx, поэтому для .doc сразу возвращаем понятную ошибку.
+ *        
+ * .txt/.md (  ), .pdf (pdf-parse)  .docx (mammoth).
+ *   .doc     mammoth  
+ *   .docx,   .doc    .
  */
 export async function extractTextFromUpload({ buffer, originalName, mimetype }) {
   const ext = path.extname(originalName || "").toLowerCase();
@@ -33,19 +33,19 @@ export async function extractTextFromUpload({ buffer, originalName, mimetype }) 
 
   if (ext === ".doc" || mimetype === "application/msword") {
     throw new Error(
-      "Формат .doc (старый Word) не поддерживается напрямую — пересохраните файл в .docx или .pdf, либо вставьте текст вручную."
+      " .doc ( Word)        .docx  .pdf,    ."
     );
   }
 
   throw new Error(
-    `Неподдерживаемый формат файла (${ext || mimetype || "неизвестно"}). Поддерживаются: .txt, .md, .pdf, .docx.`
+    `   (${ext || mimetype || ""}). : .txt, .md, .pdf, .docx.`
   );
 }
 
 /**
- * Делит извлечённый текст на абзацы. PDF часто теряет структуру пустых
- * строк между абзацами — если двойных переводов строк не нашлось,
- * делим по одиночным переводам как более грубый, но рабочий вариант.
+ *     . PDF    
+ *          ,
+ *       ,   .
  */
 export function splitIntoParagraphs(text) {
   const normalized = String(text ?? "")
