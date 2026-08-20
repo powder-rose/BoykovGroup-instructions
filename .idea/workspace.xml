@@ -5,36 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aceb9357-a799-49af-b5ac-a1aa761b9781" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/client/src/components/InstructionCatalog/InstructionsCatalog.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/InstructionCatalog/InstructionsCatalog.module.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/InstructionPage/InstructionPage.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/InstructionPage/InstructionPage.module.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/Navigation/Navigation.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/Navigation/Navigation.module.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/SEO/SEO.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/components/StructuredData/StructuredData.jsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/client/src/index.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/elektromontyor-po-remontu-i-obsluzhivaniyu-elektrooborudovaniya.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/data/instructions/povar.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/routes/robots.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/server/src/routes/sitemap.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/components/EditInstructionModal/EditInstructionModal.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/components/EditInstructionModal/EditInstructionModal.module.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/components/InstructionSeoBlock/InstructionSeoBlock.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/components/InstructionSeoBlock/InstructionSeoBlock.module.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/components/MetaTags/MetaTags.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/components/RelatedInstructions/RelatedInstructions.jsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/components/RelatedInstructions/RelatedInstructions.module.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/App.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/App.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/App.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/App.module.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/CategoryNav/CategoryNav.jsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/CategoryNav/CategoryNav.module.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/AddInstructionButton/AddInstructionModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/AddInstructionButton/AddInstructionModal.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/Header/Header.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/Header/Header.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/Header/Header.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/Header/Header.module.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/InstructionButton/InstructionButton.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/InstructionButton/InstructionButton.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/InstructionButton/InstructionButton.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/InstructionButton/InstructionButton.module.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/client/src/components/InstructionList/InstructionList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/InstructionList/InstructionList.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/components/SiteLinkButton/SiteLinkButton.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/SiteLinkButton/SiteLinkButton.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/src/styles/global.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/styles/global.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/server/src/services/yandexGptService.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/services/yandexGptService.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/InstructionPage/InstructionPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/InstructionPage/InstructionPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/InstructionPage/InstructionPage.module.css" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/InstructionPage/InstructionPage.module.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/routes/instructions.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/routes/instructions.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +70,9 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "npm.dev.executor": "Run",
-    "to.speed.mode.migration.done": "true"
+    "settings.editor.selected.configurable": "settings.javascript.prettier",
+    "to.speed.mode.migration.done": "true",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\PyCharm 2026.2.0.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external"
   }
 }]]></component>
   <component name="RecentsManager">

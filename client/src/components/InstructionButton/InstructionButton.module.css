@@ -114,7 +114,7 @@
   background: var(--color-bg);
 }
 
-.deleteBtn {
+.adminBtn {
   font-family: var(--font-mono);
   font-size: 11.5px;
   font-weight: 600;
@@ -125,7 +125,7 @@
   padding: 4px;
 }
 
-.deleteBtn:hover {
+.adminBtn:hover {
   text-decoration: underline;
 }
 
@@ -164,4 +164,13 @@
 
 .confirmNo {
   color: var(--color-text-muted);
+}
+
+
+.adminBar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+
 }

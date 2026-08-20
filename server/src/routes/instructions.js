@@ -19,9 +19,6 @@ const upload = multer({
   limits: { fileSize: MAX_UPLOAD_SIZE_BYTES },
 });
 
-// GET /api/instructions?q=...&page=1&pageSize=6
-//     ,    .
-//  ,  .
 instructionsRouter.get("/", (req, res) => {
   const q = typeof req.query.q === "string" ? req.query.q : "";
   const page = Number.parseInt(req.query.page, 10) || 1;
@@ -31,7 +28,6 @@ instructionsRouter.get("/", (req, res) => {
   res.json(result);
 });
 
-// GET /api/instructions/:id     .   .
 instructionsRouter.get("/:id", (req, res) => {
   const instruction = instructionsRepository.getById(req.params.id);
   if (!instruction) {
@@ -40,9 +36,6 @@ instructionsRouter.get("/:id", (req, res) => {
   res.json(instruction);
 });
 
-// POST /api/instructions/generate { profession: string }
-//     YandexGPT     .
-//   (, )   .
 instructionsRouter.post("/generate", requireAdmin, async (req, res) => {
   const profession = String(req.body?.profession ?? "").trim();
   if (!profession) {
@@ -64,10 +57,6 @@ instructionsRouter.post("/generate", requireAdmin, async (req, res) => {
   }
 
   try {
-    // runExclusive:      id   (,  
-    //        , 
-    //    ),     
-    //   ,   YandexGPT    . generationLock.js.
     const instruction = await runExclusive(id, async () => {
       const alreadySaved = instructionsRepository.getById(id);
       if (alreadySaved) return alreadySaved;
@@ -93,17 +82,11 @@ instructionsRouter.post("/generate", requireAdmin, async (req, res) => {
   }
 });
 
-// POST /api/instructions/upload     :
-//   (multipart/form-data,  "file": .pdf/.docx/.txt/.md),
-//    ( "content").    
-// title  profession.  .
 instructionsRouter.post(
   "/upload",
   requireAdmin,
   (req, res, next) => {
-    // multer  next(err)      .. 
-    //  ,    JSON,    500.
-    upload.single("file")(req, res, (err) => {
+    upload.array("files", 50)(req, res, (err) => {
       if (!err) return next();
       if (err.code === "LIMIT_FILE_SIZE") {
         return res.status(413).json({
@@ -124,7 +107,7 @@ instructionsRouter.post(
     if (!profession) {
       return res.status(400).json({ error: " profession " });
     }
-    if (!req.file && !manualContent) {
+    if (!req.files && !manualContent) {
       return res.status(400).json({ error: "      " });
     }
 
@@ -175,6 +158,43 @@ instructionsRouter.post(
     res.status(201).json(instruction);
   }
 );
+
+instructionsRouter.put("/:id", requireAdmin, (req, res) => {
+
+  const existing = instructionsRepository.getById(req.params.id);
+
+  if (!existing) {
+    return res.status(404).json({
+      error: "  "
+    });
+  }
+
+
+  const updated = {
+
+    ...existing,
+
+    ...req.body,
+
+
+    id: existing.id,
+
+
+  version: existing.version
+  ? (Number(existing.version) + 0.1).toFixed(1)
+  : "1.1",
+
+    updatedAt: new Date().toISOString()
+
+  };
+
+
+  instructionsRepository.save(updated);
+
+
+  res.json(updated);
+
+});
 
 // DELETE /api/instructions/:id   .  .
 instructionsRouter.delete("/:id", requireAdmin, (req, res) => {

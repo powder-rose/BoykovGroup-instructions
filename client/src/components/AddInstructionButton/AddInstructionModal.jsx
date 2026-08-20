@@ -15,7 +15,7 @@ export default function AddInstructionModal({ onClose }) {
   const [title, setTitle] = useState("");
   const [profession, setProfession] = useState("");
   const [manualText, setManualText] = useState("");
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState([]);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -26,8 +26,10 @@ export default function AddInstructionModal({ onClose }) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  const isReady =
-    title.trim() && profession.trim() && (mode === "file" ? Boolean(file) : manualText.trim());
+ const isReady =
+  mode === "file"
+    ? files.length > 0
+    : manualText.trim();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -37,7 +39,17 @@ export default function AddInstructionModal({ onClose }) {
     formData.append("title", title.trim());
     formData.append("profession", profession.trim());
     if (mode === "file") {
-      formData.append("file", file);
+
+  files.forEach((file) => {
+
+    formData.append(
+      "files",
+      file
+    );
+
+  });
+
+}
     } else {
       formData.append("content", manualText.trim());
     }
@@ -112,8 +124,13 @@ export default function AddInstructionModal({ onClose }) {
                 ref={fileInputRef}
                 className={styles.fileInput}
                 type="file"
+                multiple
                 accept={ACCEPTED_EXTENSIONS}
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                onChange={(e) =>
+  setFiles(
+    Array.from(e.target.files || [])
+  )
+}
               />
               <span className={styles.fileHint}>
                   .doc ( .docx)        .docx 

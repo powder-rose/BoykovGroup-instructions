@@ -18,6 +18,7 @@ import Navigation from "./components/Navigation/Navigation.jsx";
 import { restoreSession, selectIsAdmin } from "./store/authSlice.js";
 import { PAGE_SIZE } from "./constants.js";
 import styles from "./App.module.css";
+import EditInstructionModal from "./components/EditInstructionModal/EditInstructionModal.jsx";
 
 import {
   Routes,
@@ -32,8 +33,8 @@ export default function App() {
 
   const [queryInput, setQueryInput] = useState("");
   const [requestedPage, setRequestedPage] = useState(1);
+  const [editingInstruction, setEditingInstruction] = useState(null);
   const debouncedQuery = useDebouncedValue(queryInput, 350);
-
   const {
     items,
     total,
@@ -70,10 +71,66 @@ export default function App() {
     await dispatch(generateInstruction(debouncedQuery));
   }
 
+  async function handleEditOpen(instruction) {
+
+  const response = await fetch(
+    `http://localhost:4000/api/instructions/${instruction.id}`
+  );
+
+
+  if (!response.ok) {
+    return;
+  }
+
+
+  const fullInstruction = await response.json();
+
+
+  setEditingInstruction(fullInstruction);
+
+}
+
   function handleDelete(id) {
     if (!isAdmin) return;
     dispatch(deleteInstruction(id));
   }
+
+  async function handleEditSave(updated) {
+
+  const response = await fetch(
+    `http://localhost:4000/api/instructions/${updated.id}`,
+    {
+      method: "PUT",
+
+     headers:{
+  "Content-Type":"application/json",
+  "Authorization": `Bearer ${localStorage.getItem("boykovgroup_admin_token")}`
+},
+
+      body: JSON.stringify(updated)
+    }
+  );
+
+
+  if (response.ok) {
+
+    const saved = await response.json();
+
+
+    setEditingInstruction(null);
+
+
+    dispatch(
+      searchInstructions({
+        query: debouncedQuery,
+        page: requestedPage,
+        pageSize: PAGE_SIZE
+      })
+    );
+
+  }
+
+}
 
   const showEmptyState = !isSearching && !searchError && debouncedQuery.trim() && items.length === 0;
 
@@ -136,10 +193,11 @@ export default function App() {
                 </div>
 
 
-                <InstructionList
+<InstructionList
   instructions={items}
   isAdmin={isAdmin}
   onDelete={handleDelete}
+  onEdit={handleEditOpen}
   deletingId={deletingId}
 />
 
@@ -165,7 +223,19 @@ export default function App() {
             )}
 
           </main>
+{editingInstruction && (
 
+  <EditInstructionModal
+
+    instruction={editingInstruction}
+
+    onClose={() => setEditingInstruction(null)}
+
+    onSave={handleEditSave}
+
+  />
+
+)}
         </div>
       }
     />

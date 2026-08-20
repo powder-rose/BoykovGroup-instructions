@@ -1,0 +1,134 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+
+.modal {
+
+    width: 900px;
+    max-width: 90vw;
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: white;
+
+    border-radius: 20px;
+
+    padding: 35px;
+
+}
+
+
+.close {
+
+    float: right;
+
+    border: none;
+
+    background: transparent;
+
+    font-size: 28px;
+
+    cursor: pointer;
+
+}
+
+
+.modal h2 {
+
+    font-family: "Comfortaa", sans-serif;
+
+    margin-bottom: 25px;
+
+}
+
+
+
+.modal label {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-bottom: 20px;
+
+    font-size: 14px;
+
+}
+
+
+
+.modal input,
+.modal textarea {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #ddd;
+
+    border-radius: 10px;
+
+    font-family: inherit;
+
+}
+
+
+
+.modal textarea {
+
+    min-height: 100px;
+
+    resize: vertical;
+
+}
+
+
+
+.section {
+
+    margin-top: 30px;
+
+    padding-top: 20px;
+
+    border-top: 1px solid #eee;
+
+}
+
+
+
+.section textarea {
+
+    margin-bottom: 12px;
+
+}
+
+
+
+.save {
+
+    margin-top: 25px;
+
+    padding: 12px 24px;
+
+    border-radius: 12px;
+
+    border: none;
+
+    background: #4278d3;
+
+    color: white;
+
+    cursor: pointer;
+
+}
