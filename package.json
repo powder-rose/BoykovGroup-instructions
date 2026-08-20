@@ -9,5 +9,8 @@
     "dev:client": "npm run dev --prefix client",
     "dev": "npm run dev:server & npm run dev:client",
     "build:client": "npm run build --prefix client"
+  },
+  "dependencies": {
+    "react-router-dom": "^7.18.2"
   }
 }

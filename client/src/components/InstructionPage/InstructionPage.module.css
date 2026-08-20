@@ -1,0 +1,121 @@
+.page {
+  min-height: 100vh;
+}
+
+.siteHeader {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 30px;
+}
+
+.content {
+  max-width: 1280px;
+
+  margin: 0 auto;
+
+  padding: 60px 30px 100px;
+}
+
+.back {
+  display: inline-block;
+
+  margin-bottom: 30px;
+
+  color: #4278d3;
+
+  text-decoration: none;
+
+  font-family: "Comfortaa", sans-serif;
+
+  font-size: 14px;
+}
+
+
+.title {
+  margin: 0 0 20px;
+
+  font-family: "Comfortaa", sans-serif;
+
+  font-size: 42px;
+
+  line-height: 1.2;
+
+  color: #111827;
+}
+
+
+.intro {
+  max-width: 850px;
+
+  font-size: 18px;
+
+  line-height: 1.7;
+
+  margin-bottom: 40px;
+}
+
+
+.toc {
+
+  padding: 25px;
+
+  margin-bottom: 50px;
+
+  background: rgba(66,120,211,0.06);
+
+  border-radius: 14px;
+}
+
+
+.toc h2 {
+
+  margin-top: 0;
+
+  font-family: "Comfortaa", sans-serif;
+
+}
+
+
+.toc a {
+
+  display: block;
+
+  margin: 10px 0;
+
+  color: #4278d3;
+
+  text-decoration: none;
+
+}
+
+
+.sections {
+
+  max-width: 900px;
+}
+
+
+.section {
+
+  margin-bottom: 50px;
+}
+
+
+.section h2 {
+
+  font-family: "Comfortaa", sans-serif;
+
+  font-size: 26px;
+
+  margin-bottom: 20px;
+}
+
+
+.section p {
+
+  font-size: 16px;
+
+  line-height: 1.8;
+
+  margin-bottom: 14px;
+}

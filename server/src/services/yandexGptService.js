@@ -220,8 +220,8 @@ export async function generateInstructionWithYandexGpt(profession) {
     title: `Инструкция по охране труда для ${professionGenitive}`,
     profession,
     intro:
-     intro ||
-`Инструкция по охране труда разработана для профессии ${profession}.`,
+ intro ||
+`Инструкция по охране труда разработана для работника, выполняющего работы по профессии ${professionGenitive}.`,
     sections,
   };
 }

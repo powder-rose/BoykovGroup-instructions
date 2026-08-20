@@ -1,23 +1,30 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import InstructionPage from "./components/InstructionPage/InstructionPage.jsx";
 import Header from "./components/Header/Header.jsx";
-import CategoryNav from "./components/CategoryNav/CategoryNav.jsx";
+import InstructionsCatalog from "./components/InstructionCatalog/InstructionsCatalog.jsx";
 import InstructionList from "./components/InstructionList/InstructionList.jsx";
 import Pagination from "./components/Pagination/Pagination.jsx";
 import Loader from "./components/Loader/Loader.jsx";
 import EmptyState from "./components/EmptyState/EmptyState.jsx";
-import InstructionModal from "./components/InstructionModal/InstructionModal.jsx";
+import HeroPortrait from "./components/HeroPortrait/HeroPortrait.jsx";
 import { useDebouncedValue } from "./hooks/useDebouncedValue.js";
 import {
   searchInstructions,
-  fetchInstruction,
-  clearSelectedInstruction,
   generateInstruction,
   deleteInstruction,
 } from "./store/instructionsSlice.js";
+import Navigation from "./components/Navigation/Navigation.jsx";
 import { restoreSession, selectIsAdmin } from "./store/authSlice.js";
 import { PAGE_SIZE } from "./constants.js";
 import styles from "./App.module.css";
+
+import {
+  Routes,
+  Route
+} from "react-router-dom";
+
+
 
 export default function App() {
   const dispatch = useDispatch();
@@ -57,13 +64,6 @@ export default function App() {
     dispatch(searchInstructions({ query: debouncedQuery, page: requestedPage, pageSize: PAGE_SIZE }));
   }, [dispatch, debouncedQuery, requestedPage]);
 
-  function handleSelect(id) {
-    dispatch(fetchInstruction(id));
-  }
-
-  function handleCloseModal() {
-    dispatch(clearSelectedInstruction());
-  }
 
   async function handleGenerate() {
     if (!isAdmin) return;
@@ -77,62 +77,109 @@ export default function App() {
 
   const showEmptyState = !isSearching && !searchError && debouncedQuery.trim() && items.length === 0;
 
-  return (
-    <div className={styles.page}>
-      <Header query={queryInput} onQueryChange={setQueryInput} />
-      <CategoryNav />
+ return (
+  <Routes>
 
-      <section className={styles.hero}>
-        <h1 className={styles.title}>   </h1>
-        <p className={styles.subtitle}>
-          {isAdmin
-            ? "          YandexGPT   ."
-            : "     .     ."}
-        </p>
-      </section>
+    <Route
+      path="/"
+      element={
+        <div className={styles.page}>
 
-      <main>
-        {isSearching && <Loader label=" ..." />}
-
-        {!isSearching && searchError && (
-          <p className={styles.error}>   : {searchError}</p>
-        )}
-
-        {!isSearching && !searchError && items.length > 0 && (
-          <>
-            <div className={styles.resultsHead}>
-              <span className={styles.count}>[ : {total} ]</span>
-            </div>
-            <InstructionList
-              instructions={items}
-              onSelect={handleSelect}
-              isAdmin={isAdmin}
-              onDelete={handleDelete}
-              deletingId={deletingId}
-            />
-            <Pagination page={resultPage} totalPages={totalPages} onChange={setRequestedPage} />
-          </>
-        )}
-
-        {showEmptyState && (
-          <EmptyState
-            query={debouncedQuery}
-            isAdmin={isAdmin}
-            isGenerating={isGenerating}
-            error={generateError}
-            onGenerate={handleGenerate}
+          <Header
+            query={queryInput}
+            onQueryChange={setQueryInput}
           />
-        )}
-      </main>
 
-      {(selected || isLoadingSelected || selectedError) && (
-        <InstructionModal
-          instruction={selected}
-          isLoading={isLoadingSelected}
-          error={selectedError}
-          onClose={handleCloseModal}
-        />
-      )}
-    </div>
-  );
+          <Navigation />
+
+
+          <section className={styles.hero}>
+            <div className={styles.heroText}>
+
+              <h1 className={styles.title}>
+                Инструкции по охране труда
+              </h1>
+
+              <p className={styles.subtitle}>
+                Найдите готовую инструкцию для нужной профессии.
+                База пополняется автоматически каждый день.
+              </p>
+
+            </div>
+
+            <HeroPortrait />
+
+          </section>
+
+
+          <main>
+
+            {isSearching && (
+              <Loader label="Загрузка..." />
+            )}
+
+
+            {!isSearching && searchError && (
+              <p className={styles.error}>
+                Ошибка: {searchError}
+              </p>
+            )}
+
+
+            {!isSearching && !searchError && items.length > 0 && (
+              <>
+
+                <div className={styles.resultsHead}>
+                  <span className={styles.count}>
+                    Всего инструкций: {total}
+                  </span>
+                </div>
+
+
+                <InstructionList
+  instructions={items}
+  isAdmin={isAdmin}
+  onDelete={handleDelete}
+  deletingId={deletingId}
+/>
+
+
+                <Pagination
+                  page={resultPage}
+                  totalPages={totalPages}
+                  onChange={setRequestedPage}
+                />
+
+              </>
+            )}
+
+
+            {showEmptyState && (
+              <EmptyState
+                query={debouncedQuery}
+                isAdmin={isAdmin}
+                isGenerating={isGenerating}
+                error={generateError}
+                onGenerate={handleGenerate}
+              />
+            )}
+
+          </main>
+
+        </div>
+      }
+    />
+<Route
+  path="/instrukcii-po-ohrane-truda"
+  element={<InstructionsCatalog />}
+/>
+
+    <Route
+      path="/instrukciya-po-ohrane-truda/:id"
+      element={<InstructionPage />}
+    />
+
+
+  </Routes>
+);
 }

@@ -2,7 +2,6 @@ import styles from "./SiteLinkButton.module.css";
 
 const SITE_URL = import.meta.env.VITE_SITE_URL || "https://boykovgroup.ru";
 
-/** -  :     . */
 export default function SiteLinkButton() {
   return (
     <a
@@ -10,7 +9,7 @@ export default function SiteLinkButton() {
       href={SITE_URL}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="   boykovgroup.ru"
+      aria-label="Перейти на сайт boykovgroup.ru"
     >
       <img
         className={styles.badge}
@@ -19,9 +18,15 @@ export default function SiteLinkButton() {
         width={46}
         height={46}
       />
+
       <span className={styles.text}>
-        <span className={styles.title}></span>
-        <span className={styles.subtitle}> </span>
+        <span className={styles.title}>
+          БОЙКОВГРУПП
+        </span>
+
+        <span className={styles.subtitle}>
+          ООО «Спецконс»
+        </span>
       </span>
     </a>
   );

@@ -5,8 +5,15 @@
 }
 
 .hero {
-  max-width: 680px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
   margin: 0 0 44px;
+}
+
+.heroText {
+  max-width: 680px;
 }
 
 .title {
@@ -43,4 +50,11 @@
 .error {
   color: var(--color-danger);
   font-size: 14px;
+}
+
+@media (max-width: 800px) {
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

@@ -8,8 +8,9 @@ import { attachUser } from "./middleware/auth.js";
 import { isYandexGptConfigured } from "./services/yandexGptService.js";
 import { isAdminConfigured } from "./services/authService.js";
 import { startDailyGenerationJob } from "./jobs/dailyGenerationJob.js";
+import robotsRouter from "./routes/robots.js";
 
-
+import sitemapRouter from "./routes/sitemap.js";
 const app = express();
 const PORT = process.env.PORT || 4000;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:5173";
@@ -18,7 +19,7 @@ app.use(cors({ origin: CLIENT_ORIGIN }));
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(attachUser);
-
+app.use("/", robotsRouter);
 
 app.get("/api/health", (req, res) => {
   res.json({
@@ -30,6 +31,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api/instructions", instructionsRouter);
+app.use("/", sitemapRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Маршрут не найден" });

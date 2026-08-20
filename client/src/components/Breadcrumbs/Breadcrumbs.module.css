@@ -1,0 +1,29 @@
+.breadcrumbs {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 30px;
+
+  font-size: 14px;
+
+}
+
+
+.breadcrumbs a {
+
+  color: var(--color-primary);
+
+  text-decoration: none;
+
+}
+
+
+.breadcrumbs span:last-child {
+
+  color: var(--color-text-muted);
+
+}
