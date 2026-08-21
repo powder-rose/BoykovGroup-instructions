@@ -24,13 +24,14 @@ import {
   Routes,
   Route
 } from "react-router-dom";
+import AdminPanel from "./components/AdminPanel/AdminPanel.jsx";
 
 
 
 export default function App() {
   const dispatch = useDispatch();
   const isAdmin = useSelector(selectIsAdmin);
-
+  const [importId,setImportId] = useState(null);
   const [queryInput, setQueryInput] = useState("");
   const [requestedPage, setRequestedPage] = useState(1);
   const [editingInstruction, setEditingInstruction] = useState(null);
@@ -42,9 +43,6 @@ export default function App() {
     totalPages,
     isSearching,
     searchError,
-    selected,
-    isLoadingSelected,
-    selectedError,
     isGenerating,
     generateError,
     deletingId,
@@ -74,7 +72,7 @@ export default function App() {
   async function handleEditOpen(instruction) {
 
   const response = await fetch(
-    `http://localhost:4000/api/instructions/${instruction.id}`
+    `/api/instructions/${instruction.id}`
   );
 
 
@@ -98,7 +96,7 @@ export default function App() {
   async function handleEditSave(updated) {
 
   const response = await fetch(
-    `http://localhost:4000/api/instructions/${updated.id}`,
+    `/api/instructions/${updated.id}`,
     {
       method: "PUT",
 
@@ -134,6 +132,18 @@ export default function App() {
 
   const showEmptyState = !isSearching && !searchError && debouncedQuery.trim() && items.length === 0;
 
+  function handleImportRefresh(){
+
+    dispatch(
+        searchInstructions({
+            query: debouncedQuery,
+            page: requestedPage,
+            pageSize: PAGE_SIZE
+        })
+    );
+
+}
+
  return (
   <Routes>
 
@@ -142,13 +152,28 @@ export default function App() {
       element={
         <div className={styles.page}>
 
-          <Header
-            query={queryInput}
-            onQueryChange={setQueryInput}
-          />
+         <Header
+  query={queryInput}
+  onQueryChange={setQueryInput}
+/>
 
-          <Navigation />
 
+<AdminPanel
+
+    importId={importId}
+
+    onImportCreated={(id)=>{
+
+        setImportId(id);
+
+    }}
+
+    onRefresh={handleImportRefresh}
+
+/>
+
+
+<Navigation />
 
           <section className={styles.hero}>
             <div className={styles.heroText}>

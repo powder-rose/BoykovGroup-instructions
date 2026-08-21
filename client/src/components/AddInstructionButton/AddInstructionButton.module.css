@@ -2,7 +2,6 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -11,6 +10,7 @@
   border: var(--border-ink);
   border-radius: var(--radius-sm);
   padding: 10px 16px;
+  margin-bottom: 20px;
   height: 50px;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
@@ -254,4 +254,43 @@
   margin: 0;
   color: var(--color-danger);
   font-size: 13px;
+}
+
+.adminPanel {
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+}
+
+
+.importWrapper {
+
+    margin-top:40px;
+
+    width:100%;
+
+}
+
+.wrapper {
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+}
+
+
+
+.managerBlock {
+
+    margin-top:30px;
+
+    width:420px;
+
 }

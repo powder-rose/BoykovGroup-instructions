@@ -1,0 +1,53 @@
+.panel {
+    display:flex;
+    flex-direction:column;
+    width:100%;
+}
+
+
+.actions {
+    display:flex;
+    gap:15px;
+    align-items:flex-start;
+
+}
+
+
+.importBlock {
+
+    margin-top:30px;
+
+}
+
+.file{
+
+display:flex;
+
+justify-content:space-between;
+
+padding:10px 0;
+
+border-bottom:1px solid #eee;
+
+}
+
+
+.statusCompleted{
+
+color:#16a34a;
+
+}
+
+
+.statusProcessing{
+
+color:#2563eb;
+
+}
+
+
+.statusFailed{
+
+color:#dc2626;
+
+}

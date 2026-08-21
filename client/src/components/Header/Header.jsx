@@ -1,8 +1,7 @@
 import SearchBar from "../SearchBar/SearchBar.jsx";
 import AuthControl from "../AuthControl/AuthControl.jsx";
-import GenerateInstructionButton from "../GenerateInstructionButton/GenerateInstructionButton.jsx";
-import AddInstructionButton from "../AddInstructionButton/AddInstructionButton.jsx";
 import SiteLinkButton from "../SiteLinkButton/SiteLinkButton.jsx";
+import ImportManager from "../ImportManager/ImportManager.jsx";
 
 import styles from "./Header.module.css";
 
@@ -21,9 +20,8 @@ export default function Header({ query, onQueryChange }) {
 
         <AuthControl />
 
-        <GenerateInstructionButton />
 
-        <AddInstructionButton />
+        <ImportManager />
 
         <SiteLinkButton />
 

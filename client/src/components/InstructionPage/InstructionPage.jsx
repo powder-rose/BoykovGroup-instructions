@@ -40,7 +40,7 @@ export default function InstructionPage() {
             setLoading(true);
 
             const response = await fetch(
-                `http://localhost:4000/api/instructions/${id}`
+                `/api/instructions/${id}`
             );
 
 
@@ -56,7 +56,7 @@ export default function InstructionPage() {
 
 
             const listResponse = await fetch(
-                "http://localhost:4000/api/instructions?page=1&pageSize=200"
+                "/api/instructions?page=1&pageSize=200"
             );
 
 
@@ -97,7 +97,7 @@ export default function InstructionPage() {
     async function saveInstruction(updated) {
 
         const response = await fetch(
-            `http://localhost:4000/api/instructions/${instruction.id}`,
+            `/api/instructions/${instruction.id}`,
             {
                 method: "PUT",
 

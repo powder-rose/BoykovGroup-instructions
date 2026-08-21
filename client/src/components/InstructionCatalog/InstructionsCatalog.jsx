@@ -22,7 +22,7 @@ export default function InstructionsCatalog() {
       try {
 
         const response = await fetch(
-          "http://localhost:4000/api/instructions?page=1&pageSize=200"
+          "/api/instructions?page=1&pageSize=200"
         );
 
         const data = await response.json();

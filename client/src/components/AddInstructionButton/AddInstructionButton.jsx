@@ -10,18 +10,55 @@ import styles from "./AddInstructionButton.module.css";
  * YandexGPT), здесь инструкция берётся из собственного файла админа
  * (PDF/DOCX/TXT/MD) или вводится текстом вручную.
  */
-export default function AddInstructionButton() {
-  const isAdmin = useSelector(selectIsAdmin);
-  const [isModalOpen, setModalOpen] = useState(false);
+export default function AddInstructionButton({ onImportCreated }) {
+    const isAdmin = useSelector(selectIsAdmin);
+    const [isModalOpen, setModalOpen] = useState(false)
 
-  if (!isAdmin) return null;
+    if (!isAdmin) return null;
 
-  return (
-    <>
-      <button type="button" className={styles.addBtn} onClick={() => setModalOpen(true)}>
-        <span aria-hidden="true" className={styles.plus}>+</span> добавить инструкцию
-      </button>
-      {isModalOpen && <AddInstructionModal onClose={() => setModalOpen(false)} />}
-    </>
-  );
+    return (
+
+        <div className={styles.wrapper}>
+
+            <button
+                type="button"
+                className={styles.addBtn}
+                onClick={() => setModalOpen(true)}
+            >
+
+            <span className={styles.plus}>
+                +
+            </span>
+
+                добавить инструкцию
+
+            </button>
+
+
+            {
+                isModalOpen &&
+
+               <AddInstructionModal
+
+    onClose={() =>
+        setModalOpen(false)
+    }
+
+    onImportCreated={(id)=>{
+
+        onImportCreated(id);
+
+        setModalOpen(false);
+
+    }}
+
+/>
+
+
+            }
+
+
+        </div>
+
+    );
 }
