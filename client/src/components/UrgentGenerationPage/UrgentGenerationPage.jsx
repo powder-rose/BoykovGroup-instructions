@@ -1,4 +1,3 @@
-import PrivateInstructionView from "../PrivateInstructionView/PrivateInstructionView.jsx";
 import {
   useLayoutEffect,
   useState
@@ -22,6 +21,74 @@ import {
 
 import styles
   from "./UrgentGenerationPage.module.css";
+
+
+function normalizePromoCode(value) {
+
+  return String(
+    value || ""
+  )
+    .trim()
+    .toUpperCase();
+
+}
+
+
+function formatAmount(value) {
+
+  const number =
+    Number(value);
+
+
+  if (
+    !Number.isFinite(
+      number
+    )
+  ) {
+
+    return "";
+
+  }
+
+
+  return new Intl.NumberFormat(
+    "ru-RU",
+    {
+      maximumFractionDigits:
+        2
+    }
+  ).format(
+    number
+  );
+
+}
+
+
+function getUserAuthToken() {
+
+  try {
+
+    const token =
+      window.localStorage
+        .getItem(
+          "boykovgroup_auth_token"
+        );
+
+
+    return token
+      ? String(
+          token
+        )
+      : null;
+
+  }
+  catch {
+
+    return null;
+
+  }
+
+}
 
 
 export default function UrgentGenerationPage() {
@@ -61,6 +128,61 @@ export default function UrgentGenerationPage() {
 
 
   /*
+   * PAYMENT CONSENTS
+   *
+   * Эти состояния раньше добавлялись поверх
+   * production bundle отдельным DOM-patch.
+   * Теперь это обычное React-состояние.
+   */
+  const [
+    offerAccepted,
+    setOfferAccepted
+  ] = useState(false);
+
+  const [
+    personalDataAccepted,
+    setPersonalDataAccepted
+  ] = useState(false);
+
+  const [
+    consentError,
+    setConsentError
+  ] = useState("");
+
+
+  /*
+   * PROMO CODE CHECKOUT
+   *
+   * Раньше этот слой внедрялся отдельным
+   * production JS поверх React.
+   */
+  const [
+    promoInput,
+    setPromoInput
+  ] = useState("");
+
+  const [
+    appliedPromo,
+    setAppliedPromo
+  ] = useState(null);
+
+  const [
+    promoMessage,
+    setPromoMessage
+  ] = useState("");
+
+  const [
+    promoMessageType,
+    setPromoMessageType
+  ] = useState("");
+
+  const [
+    isPromoChecking,
+    setIsPromoChecking
+  ] = useState(false);
+
+
+  /*
    * ==========================================================
    * URGENT PAGE SCROLL RESET
    * ==========================================================
@@ -89,2037 +211,192 @@ export default function UrgentGenerationPage() {
     document.body.scrollTop =
       0;
 
+
+    /*
+     * LEGACY ORDER STORAGE CLEANUP
+     *
+     * Старое восстановление заказа больше
+     * не используется. Удаляем оставшиеся
+     * ключи у пользователей после обновления.
+     */
+    try {
+
+      window.sessionStorage.removeItem(
+        "boykovgroup_urgent_generation_order_v1"
+      );
+
+      window.sessionStorage.removeItem(
+        "boykovdocs_thanks_order_v1"
+      );
+
+    }
+    catch {
+      /* storage может быть недоступен */
+    }
+
   }, []);
 
 
-  /*
 
 
-   * PRIVATE_PAID_RESULT_UI_V3
+  async function handlePromoApply() {
+
+    const code =
+      normalizePromoCode(
+        promoInput
+      );
 
 
-   *
+    if (!code) {
 
+      setAppliedPromo(
+        null
+      );
 
-   * Готовый оплаченный документ отображается
+      setPromoMessageType(
+        "error"
+      );
 
+      setPromoMessage(
+        "Введите промокод."
+      );
 
-   * сразу и не зависит от публикации в каталоге.
-
-
-   */
-
-
-  const [
-
-
-    generatedInstruction,
-
-
-    setGeneratedInstruction
-
-
-  ] =
-
-
-    useState(null);
-
-
-
-
-  function showGeneratedInstruction(
-
-
-    instruction
-
-
-  ) {
-
-
-
-    if (!instruction) {
-
-
-      return false;
-
-
+      return;
     }
 
 
-
-
-    setGeneratedInstruction(
-
-
-      instruction
-
-
+    setIsPromoChecking(
+      true
     );
 
-
-
-    setPaymentMessage(
-
-
-      "Инструкция готова."
-
-
+    setPromoMessage(
+      ""
     );
 
-
-
-
-    window.setTimeout(
-
-
-      () => {
-
-
-
-        document
-
-
-          .getElementById(
-
-
-            "urgent-generated-instruction"
-
-
-          )
-
-
-          ?.scrollIntoView({
-
-
-            behavior:
-
-
-              "smooth",
-
-
-
-            block:
-
-
-              "start"
-
-
-          });
-
-
-
-      },
-
-
-      50
-
-
+    setPromoMessageType(
+      ""
     );
-
-
-
-
-    return true;
-
-
-  }
-
-
-
-
-  /*
-
-
-
-
-   * URGENT_ORDER_SESSION_RESTORE_V1
-
-
-
-
-   *
-
-
-
-
-   * orderToken не помещаем в URL и не сохраняем
-
-
-
-
-   * постоянно. sessionStorage переживает F5,
-
-
-
-
-   * но очищается при закрытии вкладки.
-
-
-
-
-   */
-
-
-
-
-  const urgentOrderSessionKey =
-
-
-
-
-    "boykovgroup_urgent_generation_order_v1";
-
-
-
-
-
-
-  function readUrgentOrderSession() {
-
-
-
 
 
     try {
 
+      const response =
+        await fetch(
+          "/api/promo-codes/validate",
+          {
+            method:
+              "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+
+            body:
+              JSON.stringify({
+                code
+              })
+          }
+        );
 
 
-
-
-      const raw =
-
-
-
-
-        window.sessionStorage
-
-
-
-
-          .getItem(
-
-
-
-
-            urgentOrderSessionKey
-
-
-
-
+      const data =
+        await response
+          .json()
+          .catch(
+            () => ({})
           );
-
-
-
-
-
-
-      if (!raw) {
-
-
-
-
-        return null;
-
-
-
-
-      }
-
-
-
-
-
-
-      const parsed =
-
-
-
-
-        JSON.parse(raw);
-
-
-
-
 
 
       if (
-
-
-
-
-        !parsed?.orderId ||
-
-
-
-
-        !parsed?.orderToken
-
-
-
-
+        !response.ok ||
+        data?.ok !== true
       ) {
 
+        setAppliedPromo(
+          null
+        );
 
+        setPromoMessageType(
+          "error"
+        );
 
+        setPromoMessage(
+          data?.error ||
+          "Промокод не подходит."
+        );
 
-
-        return null;
-
-
-
-
-
+        return;
       }
 
 
-
-
-
-
-      return parsed;
-
-
-
-
-
-    }
-
-
-
-
-    catch {
-
-
-
-
-
-      return null;
-
-
-
-
-
-    }
-
-
-
-
-
-  }
-
-
-
-
-
-
-  function saveUrgentOrderSession(
-
-
-
-
-    orderId,
-
-
-
-
-    orderToken,
-
-
-
-
-    transactionId = null
-
-
-
-
-  ) {
-
-
-
-
-
-    if (
-
-
-
-
-      !orderId ||
-
-
-
-
-      !orderToken
-
-
-
-
-    ) {
-
-
-
-
-      return;
-
-
-
-
-    }
-
-
-
-
-
-
-    try {
-
-
-
-
-
-      const previous =
-
-
-
-
-        readUrgentOrderSession();
-
-
-
-
-
-
-      window.sessionStorage
-
-
-
-
-        .setItem(
-
-
-
-
-          urgentOrderSessionKey,
-
-
-
-
-          JSON.stringify({
-
-
-
-
-            orderId:
-
-
-
-
-              String(orderId),
-
-
-
-
-
-            orderToken:
-
-
-
-
-              String(orderToken),
-
-
-
-
-
-            transactionId:
-
-
-
-
-              transactionId
-
-
-
-
-                ? String(
-
-
-
-
-                    transactionId
-
-
-
-
-                  )
-
-
-
-
-                : previous?.orderId ===
-
-
-
-
-                    String(orderId)
-
-
-
-
-                  ? previous
-
-
-
-
-                      ?.transactionId ??
-
-
-
-
-                    null
-
-
-
-
-                  : null
-
-
-
-
-          })
-
-
-
-
-        );
-
-
-
-
-
-    }
-
-
-
-
-    catch {
-
-
-
-
-
-      /*
-
-
-
-
-       * Недоступный sessionStorage не должен
-
-
-
-
-       * мешать основной покупке.
-
-
-
-
-       */
-
-
-
-
-
-    }
-
-
-
-
-
-  }
-
-
-
-
-
-
-  function clearUrgentOrderSession() {
-
-
-
-
-
-    try {
-
-
-
-
-
-      window.sessionStorage
-
-
-
-
-        .removeItem(
-
-
-
-
-          urgentOrderSessionKey
-
-
-
-
-        );
-
-
-
-
-
-    }
-
-
-
-
-    catch {
-
-
-
-
-
-      /*
-
-
-
-
-       * Ничего не делаем.
-
-
-
-
-       */
-
-
-
-
-
-    }
-
-
-
-
-
-  }
-
-
-
-
-
-
-  useLayoutEffect(
-
-
-
-
-    () => {
-
-
-
-
-
-      const savedOrder =
-
-
-
-
-        readUrgentOrderSession();
-
-
-
-
-
-
-      if (!savedOrder) {
-
-
-
-
-        return undefined;
-
-
-
-
-      }
-
-
-
-
-
-
-      let cancelled =
-
-
-
-
-        false;
-
-
-
-
-
-
-      const sleep =
-
-
-
-
-        milliseconds =>
-
-
-
-
-          new Promise(
-
-
-
-
-            resolve =>
-
-
-
-
-              window.setTimeout(
-
-
-
-
-                resolve,
-
-
-
-
-                milliseconds
-
-
-
-
-              )
-
-
-
-
-          );
-
-
-
-
-
-
-      async function restoreOrder() {
-
-
-
-
-
-        setPaymentMessage(
-
-
-
-
-          "Восстанавливаем состояние оплаченного заказа..."
-
-
-
-
-        );
-
-
-
-
-
-
-        for (
-
-
-
-
-          let attempt = 0;
-
-
-
-
-          attempt < 180;
-
-
-
-
-          attempt += 1
-
-
-
-
-        ) {
-
-
-
-
-
-          if (cancelled) {
-
-
-
-
-            return;
-
-
-
-
-          }
-
-
-
-
-
-
-          let response;
-
-
-
-
-
-
-          try {
-
-
-
-
-
-            response =
-
-
-
-
-              await fetch(
-
-
-
-
-                `/api/public-generation/orders/${encodeURIComponent(
-
-
-
-
-                  savedOrder.orderId
-
-
-
-
-                )}`,
-
-
-
-
-                {
-
-
-
-
-                  headers: {
-
-
-
-
-                    "x-order-token":
-
-
-
-
-                      savedOrder.orderToken
-
-
-
-
-                  },
-
-
-
-
-
-                  cache:
-
-
-
-
-                    "no-store"
-
-
-
-
-                }
-
-
-
-
-              );
-
-
-
-
-
-          }
-
-
-
-
-          catch {
-
-
-
-
-
-            await sleep(
-
-
-
-
-              2000
-
-
-
-
-            );
-
-
-
-
-
-            continue;
-
-
-
-
-
-          }
-
-
-
-
-
-
-          if (
-
-
-
-
-            response.status ===
-
-
-
-
-              401 ||
-
-
-
-
-            response.status ===
-
-
-
-
-              404
-
-
-
-
-          ) {
-
-
-
-
-
-            clearUrgentOrderSession();
-
-
-
-
-
-            return;
-
-
-
-
-
-          }
-
-
-
-
-
-
-          if (!response.ok) {
-
-
-
-
-
-            await sleep(
-
-
-
-
-              2000
-
-
-
-
-            );
-
-
-
-
-
-            continue;
-
-
-
-
-
-          }
-
-
-
-
-
-
-          let order =
-
-
-
-
-            await response
-
-
-
-
-              .json()
-
-
-
-
-              .catch(
-
-
-
-
-                () => ({})
-
-
-
-
-              );
-
-
-
-
-
-
-          /*
-
-
-
-
-           * Если страница обновилась после успешного
-
-
-
-
-           * виджета оплаты, но до confirm-payment,
-
-
-
-
-           * повторяем серверное подтверждение.
-
-
-
-
-           */
-
-
-
-
-          if (
-
-
-
-
-            order?.status ===
-
-
-
-
-              "pending_payment" &&
-
-
-
-
-            savedOrder
-
-
-
-
-              .transactionId
-
-
-
-
-          ) {
-
-
-
-
-
-            try {
-
-
-
-
-
-              const confirmResponse =
-
-
-
-
-                await fetch(
-
-
-
-
-                  `/api/public-generation/orders/${encodeURIComponent(
-
-
-
-
-                    savedOrder.orderId
-
-
-
-
-                  )}/confirm-payment`,
-
-
-
-
-                  {
-
-
-
-
-                    method:
-
-
-
-
-                      "POST",
-
-
-
-
-
-                    headers: {
-
-
-
-
-                      "Content-Type":
-
-
-
-
-                        "application/json",
-
-
-
-
-
-                      "x-order-token":
-
-
-
-
-                        savedOrder.orderToken
-
-
-
-
-                    },
-
-
-
-
-
-                    body:
-
-
-
-
-                      JSON.stringify({
-
-
-
-
-                        transactionId:
-
-
-
-
-                          savedOrder
-
-
-
-
-                            .transactionId
-
-
-
-
-                      })
-
-
-
-
-                  }
-
-
-
-
-                );
-
-
-
-
-
-
-              if (
-
-
-
-
-                confirmResponse.ok
-
-
-
-
-              ) {
-
-
-
-
-
-                order =
-
-
-
-
-                  await confirmResponse
-
-
-
-
-                    .json()
-
-
-
-
-                    .catch(
-
-
-
-
-                      () => order
-
-
-
-
-                    );
-
-
-
-
-
-              }
-
-
-
-
-
-            }
-
-
-
-
-            catch {
-
-
-
-
-
-              /*
-
-
-
-
-               * Следующий polling повторит попытку.
-
-
-
-
-               */
-
-
-
-
-
-            }
-
-
-
-
-
-          }
-
-
-
-
-
-
-          if (cancelled) {
-
-
-
-
-            return;
-
-
-
-
-          }
-
-
-
-
-
-
-          switch (
-
-
-
-
-            order?.status
-
-
-
-
-          ) {
-
-
-
-
-
-            case "generated":
-
-
-
-
-
-              setIsPaymentComplete(
-
-
-
-
-                true
-
-
-
-
-              );
-
-
-
-
-
-
-              if (
-
-
-
-
-                showGeneratedInstruction(
-
-
-
-
-                  order?.instruction
-
-
-
-
-                )
-
-
-
-
-              ) {
-
-
-
-
-                return;
-
-
-
-
-              }
-
-
-
-
-
-
-              setPaymentMessage(
-
-
-
-
-                "Инструкция готова. Получаем документ..."
-
-
-
-
-              );
-
-
-
-
-
-              break;
-
-
-
-
-
-
-            case "published":
-
-
-
-
-
-              if (
-
-
-
-
-                order?.instructionId
-
-
-
-
-              ) {
-
-
-
-
-
-                clearUrgentOrderSession();
-
-
-
-
-
-                navigate(
-
-
-
-
-                  `/instrukciya-po-ohrane-truda/${encodeURIComponent(
-
-
-
-
-                    order.instructionId
-
-
-
-
-                  )}`
-
-
-
-
-                );
-
-
-
-
-
-                return;
-
-
-
-
-
-              }
-
-
-
-
-
-              break;
-
-
-
-
-
-
-            case "paid":
-
-
-
-
-
-              setIsPaymentComplete(
-
-
-
-
-                true
-
-
-
-
-              );
-
-
-
-
-
-              setPaymentMessage(
-
-
-
-
-                "Платёж подтверждён. Запускаем подготовку инструкции..."
-
-
-
-
-              );
-
-
-
-
-
-              break;
-
-
-
-
-
-
-            case "generating":
-
-
-
-
-
-              setIsPaymentComplete(
-
-
-
-
-                true
-
-
-
-
-              );
-
-
-
-
-
-              setPaymentMessage(
-
-
-
-
-                "Платёж подтверждён. Инструкция формируется..."
-
-
-
-
-              );
-
-
-
-
-
-              break;
-
-
-
-
-
-
-            case "moderating":
-
-
-
-
-
-              setIsPaymentComplete(
-
-
-
-
-                true
-
-
-
-
-              );
-
-
-
-
-
-              setPaymentMessage(
-
-
-
-
-                "Платёж подтверждён. Заказ обрабатывается..."
-
-
-
-
-              );
-
-
-
-
-
-              break;
-
-
-
-
-
-
-            case "refunding":
-
-
-
-
-
-            case "refund_pending":
-
-
-
-
-
-              setIsPaymentComplete(
-
-
-
-
-                true
-
-
-
-
-              );
-
-
-
-
-
-              setPaymentMessage(
-
-
-
-
-                "Возврат оплаты оформляется..."
-
-
-
-
-              );
-
-
-
-
-
-              break;
-
-
-
-
-
-
-            case "refunded":
-
-
-
-
-
-              setIsPaymentComplete(
-
-
-
-
-                true
-
-
-
-
-              );
-
-
-
-
-
-              setPaymentMessage(
-
-
-
-
-                "Возврат оплаты оформлен. Срок зачисления зависит от банка."
-
-
-
-
-              );
-
-
-
-
-
-              clearUrgentOrderSession();
-
-
-
-
-
-              return;
-
-
-
-
-
-
-            case "manual_review":
-
-
-
-
-
-              setIsPaymentComplete(
-
-
-
-
-                true
-
-
-
-
-              );
-
-
-
-
-
-              setPaymentMessage(
-
-
-
-
-                "Заказ принят и требует ручной обработки."
-
-
-
-
-              );
-
-
-
-
-
-              return;
-
-
-
-
-
-
-            case "test_paid":
-
-
-
-
-
-              setIsPaymentComplete(
-
-
-
-
-                true
-
-
-
-
-              );
-
-
-
-
-
-              setPaymentMessage(
-
-
-
-
-                "Тестовый платёж подтверждён."
-
-
-
-
-              );
-
-
-
-
-
-              return;
-
-
-
-
-
-
-            case "pending_payment":
-
-
-
-
-
-              if (
-
-
-
-
-                !savedOrder
-
-
-
-
-                  .transactionId
-
-
-
-
-              ) {
-
-
-
-
-
-                clearUrgentOrderSession();
-
-
-
-
-
-                setPaymentMessage("");
-
-
-
-
-
-                return;
-
-
-
-
-
-              }
-
-
-
-
-
-
-              setIsPaymentComplete(
-
-
-
-
-                true
-
-
-
-
-              );
-
-
-
-
-
-              setPaymentMessage(
-
-
-
-
-                "Платёж выполнен. Восстанавливаем заказ..."
-
-
-
-
-              );
-
-
-
-
-
-              break;
-
-
-
-
-
-
-            default:
-
-
-
-
-
-              break;
-
-
-
-
-
-          }
-
-
-
-
-
-
-          await sleep(
-
-
-
-
-            2000
-
-
-
-
-          );
-
-
-
-
-
-        }
-
-
-
-
-
-
-        if (!cancelled) {
-
-
-
-
-
-          setPaymentMessage(
-
-
-
-
-            "Заказ сохранён. Подготовка инструкции занимает больше обычного."
-
-
-
-
-          );
-
-
-
-
-
-        }
-
-
-
-
-
-      }
-
-
-
-
-
-
-      restoreOrder();
-
-
-
-
-
-
-      return () => {
-
-
-
-
-
-        cancelled =
-
-
-
-
-          true;
-
-
-
-
-
+      const promo = {
+        code:
+          normalizePromoCode(
+            data?.promo?.code ||
+            code
+          ),
+
+        originalAmount:
+          Number(
+            data.originalAmount
+          ),
+
+        amount:
+          Number(
+            data.amount
+          ),
+
+        discountAmount:
+          Number(
+            data.discountAmount
+          )
       };
 
 
+      setAppliedPromo(
+        promo
+      );
 
+      setPromoInput(
+        promo.code
+      );
 
+      setPromoMessageType(
+        "success"
+      );
 
-    },
+      setPromoMessage(
+        `Промокод ${promo.code} применён. Скидка ${formatAmount(
+          promo.discountAmount
+        )} ₽.`
+      );
 
+    }
+    catch {
 
+      setAppliedPromo(
+        null
+      );
 
+      setPromoMessageType(
+        "error"
+      );
 
-    []
+      setPromoMessage(
+        "Не удалось проверить промокод. Попробуйте ещё раз."
+      );
 
+    }
+    finally {
 
+      setIsPromoChecking(
+        false
+      );
 
+    }
 
-  );
-
-
-
-
+  }
 
 
   async function handleSubmit(event) {
@@ -2128,8 +405,20 @@ export default function UrgentGenerationPage() {
 
     setError("");
     setPaymentMessage("");
-    setGeneratedInstruction(null);
-    clearUrgentOrderSession();
+    setConsentError("");
+
+
+    if (
+      !offerAccepted ||
+      !personalDataAccepted
+    ) {
+
+      setConsentError(
+        "Для перехода к оплате отметьте оба обязательных согласия."
+      );
+
+      return;
+    }
 
 
     const normalizedProfession =
@@ -2155,16 +444,6 @@ export default function UrgentGenerationPage() {
 
     try {
 
-      /*
-       * Сначала создаём заказ на сервере.
-       *
-       * Только сервер определяет:
-       * - профессию после модерации;
-       * - сумму;
-       * - валюту;
-       * - orderId;
-       * - Public ID терминала.
-       */
       const orderResponse =
         await fetch(
           "/api/public-generation/orders",
@@ -2174,13 +453,37 @@ export default function UrgentGenerationPage() {
 
             headers: {
               "Content-Type":
-                "application/json"
+                "application/json",
+
+              ...(
+                getUserAuthToken()
+                  ? {
+                      Authorization:
+                        `Bearer ${getUserAuthToken()}`
+                    }
+                  : {}
+              )
             },
 
             body:
               JSON.stringify({
                 profession:
-                  normalizedProfession
+                  normalizedProfession,
+
+                offerAccepted:
+                  true,
+
+                personalDataConsentAccepted:
+                  true,
+
+                ...(
+                  appliedPromo?.code
+                    ? {
+                        promoCode:
+                          appliedPromo.code
+                      }
+                    : {}
+                )
               })
           }
         );
@@ -2195,16 +498,13 @@ export default function UrgentGenerationPage() {
 
 
       /*
-       * Инструкция уже существует —
-       * оплачивать её повторно не нужно.
+       * Уже опубликованную инструкцию
+       * повторно не продаём.
        */
       if (
         orderResponse.status === 409 &&
         order?.existingInstructionId
       ) {
-
-        clearUrgentOrderSession();
-
 
         navigate(
           `/instrukciya-po-ohrane-truda/${encodeURIComponent(
@@ -2216,9 +516,7 @@ export default function UrgentGenerationPage() {
       }
 
 
-      if (
-        !orderResponse.ok
-      ) {
+      if (!orderResponse.ok) {
 
         throw new Error(
           order?.error ||
@@ -2238,12 +536,6 @@ export default function UrgentGenerationPage() {
       } = order;
 
 
-        saveUrgentOrderSession(
-          orderId,
-          orderToken
-        );
-
-
       if (
         !orderId ||
         !orderToken ||
@@ -2261,10 +553,6 @@ export default function UrgentGenerationPage() {
       }
 
 
-      /*
-       * Загружаем официальный widget
-       * только после создания заказа.
-       */
       const cp =
         await loadCloudPayments();
 
@@ -2276,193 +564,116 @@ export default function UrgentGenerationPage() {
       const widgetResult =
         await widget.start({
 
-        publicTerminalId,
+          publicTerminalId,
 
-        description:
-          `Срочная инструкция по охране труда: ${normalizedProfession}`,
+          description:
+            `Срочная инструкция по охране труда: ${normalizedProfession}`,
 
-        paymentSchema:
-          "Single",
+          paymentSchema:
+            "Single",
 
-        amount:
-          Number(amount),
+          amount:
+            Number(amount),
 
-        currency,
+          currency,
 
-        culture:
-          "ru-RU",
+          culture:
+            "ru-RU",
 
-        skin:
-          "classic",
+          skin:
+            "classic",
 
-        /*
-         * Серверный orderId возвращается
-         * в CloudPayments и сохраняется как InvoiceId.
-         */
-        externalId:
-          externalId ||
-          orderId
-      });
-
-
-        /*
-         * Успешный ответ widget сам по себе
-         * НЕ является доказательством оплаты.
-         *
-         * Из браузера берём только transactionId.
-         * Backend самостоятельно проверяет
-         * транзакцию через CloudPayments API.
-         */
-        if (
-          widgetResult?.status !==
-            "success" ||
-          !widgetResult?.data
-            ?.transactionId
-        ) {
-
-          throw new Error(
-            widgetResult?.message ||
-            "Оплата не завершена."
-          );
-        }
-
-
-        const transactionId =
-          String(
-            widgetResult
-              .data
-              .transactionId
-          );
-
-          saveUrgentOrderSession(
+          externalId:
+            externalId ||
             orderId,
-            orderToken,
-            transactionId
-          );
+
+          successRedirectUrl:
+            `https://boykovdocs.ru/thanks/?orderId=${encodeURIComponent(
+              orderId
+            )}`,
+
+          failRedirectUrl:
+            "https://boykovdocs.ru/srochnaya-generaciya-instrukcii"
+
+        });
 
 
-        setIsPaymentComplete(
-          true
+      if (
+        widgetResult?.status !==
+          "success" ||
+        !widgetResult?.data
+          ?.transactionId
+      ) {
+
+        throw new Error(
+          widgetResult?.message ||
+          "Оплата не завершена."
+        );
+      }
+
+
+      const transactionId =
+        String(
+          widgetResult
+            .data
+            .transactionId
         );
 
-        setPaymentMessage(
-          "Платёж выполнен. Проверяем транзакцию в CloudPayments..."
-        );
+
+      setIsPaymentComplete(
+        true
+      );
+
+      setPaymentMessage(
+        "Платёж выполнен. Проверяем транзакцию в CloudPayments..."
+      );
 
 
-        let paymentConfirmed =
-          false;
-
-        let confirmationData =
-          null;
+      let paymentConfirmed =
+        false;
 
 
-        /*
-         * После закрытия формы транзакция может
-         * появиться в API CloudPayments
-         * с небольшой задержкой.
-         */
-        for (
-          let attempt = 0;
-          attempt < 8;
-          attempt += 1
-        ) {
+      /*
+       * После оплаты транзакция может появиться
+       * в API CloudPayments с небольшой задержкой.
+       */
+      for (
+        let attempt = 0;
+        attempt < 8;
+        attempt += 1
+      ) {
 
-          let confirmResponse;
+        let confirmResponse;
 
 
-          try {
+        try {
 
-            confirmResponse =
-              await fetch(
-                `/api/public-generation/orders/${encodeURIComponent(
-                  orderId
-                )}/confirm-payment`,
-                {
-                  method:
-                    "POST",
+          confirmResponse =
+            await fetch(
+              `/api/public-generation/orders/${encodeURIComponent(
+                orderId
+              )}/confirm-payment`,
+              {
+                method:
+                  "POST",
 
-                  headers: {
-                    "Content-Type":
-                      "application/json",
+                headers: {
+                  "Content-Type":
+                    "application/json",
 
-                    "x-order-token":
-                      orderToken
-                  },
+                  "x-order-token":
+                    orderToken
+                },
 
-                  body:
-                    JSON.stringify({
-                      transactionId
-                    })
-                }
-              );
-
-          }
-          catch {
-
-            await new Promise(
-              resolve =>
-                setTimeout(
-                  resolve,
-                  2000
-                )
+                body:
+                  JSON.stringify({
+                    transactionId
+                  })
+              }
             );
 
-            continue;
-          }
-
-
-          const confirmData =
-            await confirmResponse
-              .json()
-              .catch(
-                () => ({})
-              );
-
-
-          if (
-            confirmResponse.ok
-          ) {
-
-            paymentConfirmed =
-              true;
-
-            confirmationData =
-              confirmData;
-
-            break;
-          }
-
-
-          const canRetry =
-            confirmResponse.status ===
-              502 ||
-            confirmResponse.status ===
-              429 ||
-            (
-              confirmResponse.status ===
-                409 &&
-              String(
-                confirmData?.error ??
-                ""
-              )
-              .includes(
-                "пока не подтвердил"
-              )
-            );
-
-
-          if (!canRetry) {
-
-            console.error(
-              "[UrgentGeneration] payment confirmation rejected:",
-              confirmResponse.status,
-              confirmData
-            );
-
-            break;
-          }
-
+        }
+        catch {
 
           await new Promise(
             resolve =>
@@ -2471,348 +682,87 @@ export default function UrgentGenerationPage() {
                 2000
               )
           );
-        }
-
-
-        /*
-         * Платёж уже мог пройти.
-         * При проблеме проверки не предлагаем
-         * пользователю платить ещё раз.
-         */
-        if (
-          !paymentConfirmed
-        ) {
-
-          setPaymentMessage(
-            "Платёж выполнен, но автоматическое подтверждение пока не получено. Повторно оплачивать не нужно."
-          );
-
-          return;
-        }
-
-
-        if (
-          confirmationData?.status ===
-            "test_paid"
-        ) {
-
-          setPaymentMessage(
-            "Тестовый платёж подтверждён. Публикация в тестовом режиме отключена."
-          );
-
-          return;
-        }
-
-
-        if (
-            confirmationData?.status ===
-              "generated"
-          ) {
-
-            if (
-              showGeneratedInstruction(
-                confirmationData
-                  ?.instruction
-              )
-            ) {
-              return;
-            }
-
-
-            setPaymentMessage(
-              "Инструкция готова. Получаем документ..."
-            );
-
-          }
-
-
-          if (
-          confirmationData?.status ===
-            "manual_review"
-        ) {
-
-          setPaymentMessage(
-            "Платёж подтверждён. Заказ передан на ручную проверку. Повторно оплачивать не нужно."
-          );
-
-          return;
-        }
-
-
-        if (
-          confirmationData?.status ===
-            "published" &&
-          confirmationData
-            ?.instructionId
-        ) {
-
-          clearUrgentOrderSession();
-
-
-          navigate(
-            `/instrukciya-po-ohrane-truda/${encodeURIComponent(
-              confirmationData
-                .instructionId
-            )}`
-          );
-
-          return;
-        }
-
-
-        /*
-         * PUBLIC_REFUND_STATUS_UI_V3
-         */
-        switch (
-          confirmationData?.status
-        ) {
-
-          case "moderating":
-
-            setPaymentMessage(
-              "Платёж подтверждён. Проверяем допустимость запроса..."
-            );
-
-            break;
-
-
-          case "refunding":
-
-            setPaymentMessage(
-              "Запрос не прошёл дополнительную проверку. Оформляем возврат оплаты..."
-            );
-
-            break;
-
-
-          case "refund_pending":
-
-            setPaymentMessage(
-              "Запрос не прошёл дополнительную проверку. Возврат оплаты оформляется..."
-            );
-
-            break;
-
-
-          case "refunded":
-
-            setPaymentMessage(
-              "Запрос не прошёл дополнительную проверку. Возврат оплаты оформлен. Срок зачисления зависит от банка."
-            );
-
-            return;
-
-
-          default:
-
-            setPaymentMessage(
-              "Платёж подтверждён. Подготавливаем инструкцию..."
-            );
-
-            break;
-        }
-
-
-      const maxAttempts =
-        180;
-
-      const delayMs =
-        2000;
-
-
-      for (
-        let attempt = 0;
-        attempt < maxAttempts;
-        attempt += 1
-      ) {
-
-        await new Promise(
-          resolve =>
-            setTimeout(
-              resolve,
-              delayMs
-            )
-        );
-
-
-        let statusResponse;
-
-
-        try {
-
-          statusResponse =
-            await fetch(
-              `/api/public-generation/orders/${encodeURIComponent(
-                orderId
-              )}`,
-              {
-                headers: {
-                  "x-order-token":
-                    orderToken
-                },
-
-                cache:
-                  "no-store"
-              }
-            );
-
-        }
-        catch {
 
           continue;
         }
 
 
-        if (
-          !statusResponse.ok
-        ) {
-
-          continue;
-        }
-
-
-        const statusData =
-          await statusResponse
+        const confirmData =
+          await confirmResponse
             .json()
             .catch(
               () => ({})
             );
 
 
-        switch (
-          statusData?.status
+        if (
+          confirmResponse.ok
         ) {
 
-          case "pending_payment":
+          paymentConfirmed =
+            true;
 
-            setPaymentMessage(
-              "Ожидаем серверное подтверждение платежа..."
-            );
-
-            break;
-
-
-          case "paid":
-
-            setPaymentMessage(
-              "Платёж подтверждён. Запускаем подготовку инструкции..."
-            );
-
-            break;
-
-
-          case "moderating":
-
-            setPaymentMessage(
-              "Платёж подтверждён. Проверяем допустимость запроса..."
-            );
-
-            break;
-
-
-          case "generating":
-
-            setPaymentMessage(
-              "Платёж подтверждён. Инструкция формируется..."
-            );
-
-            break;
-
-
-          case "refunding":
-
-            setPaymentMessage(
-              "Запрос не прошёл дополнительную проверку. Оформляем возврат оплаты..."
-            );
-
-            break;
-
-
-          case "refund_pending":
-
-            setPaymentMessage(
-              "Запрос не прошёл дополнительную проверку. Возврат оплаты оформляется..."
-            );
-
-            break;
-
-
-          case "refunded":
-
-            setPaymentMessage(
-              "Запрос не прошёл дополнительную проверку. Возврат оплаты оформлен. Срок зачисления зависит от банка."
-            );
-
-            return;
-
-
-          case "generated":
-
-              if (
-                showGeneratedInstruction(
-                  statusData
-                    ?.instruction
-                )
-              ) {
-                return;
-              }
-
-
-              setPaymentMessage(
-                "Инструкция готова. Получаем документ..."
-              );
-
-              break;
-
-
-            case "published":
-
-            if (
-              statusData?.instructionId
-            ) {
-
-              clearUrgentOrderSession();
-
-
-              navigate(
-                `/instrukciya-po-ohrane-truda/${encodeURIComponent(
-                  statusData.instructionId
-                )}`
-              );
-
-              return;
-            }
-
-            break;
-
-
-          case "test_paid":
-
-            setPaymentMessage(
-              "Тестовый платёж принят. Публикация в тестовом режиме отключена."
-            );
-
-            return;
-
-
-          case "manual_review":
-
-            setPaymentMessage(
-              "Платёж подтверждён. Заказ передан на ручную проверку. Повторно оплачивать не нужно."
-            );
-
-            return;
-
-
-          default:
-            break;
+          break;
         }
+
+
+        const canRetry =
+          confirmResponse.status ===
+            502 ||
+          confirmResponse.status ===
+            429 ||
+          (
+            confirmResponse.status ===
+              409 &&
+            String(
+              confirmData?.error ??
+              ""
+            )
+              .includes(
+                "пока не подтвердил"
+              )
+          );
+
+
+        if (!canRetry) {
+
+          console.error(
+            "[UrgentGeneration] payment confirmation rejected:",
+            confirmResponse.status,
+            confirmData
+          );
+
+          break;
+        }
+
+
+        await new Promise(
+          resolve =>
+            setTimeout(
+              resolve,
+              2000
+            )
+        );
       }
 
 
-      setPaymentMessage(
-        "Платёж принят. Подготовка инструкции занимает больше обычного. Повторно оплачивать не нужно."
+      if (!paymentConfirmed) {
+
+        setPaymentMessage(
+          "Платёж выполнен, но автоматическое подтверждение пока не получено. Повторно оплачивать не нужно."
+        );
+
+        return;
+      }
+
+
+      window.location.replace(
+        `/thanks/?orderId=${encodeURIComponent(
+          orderId
+        )}`
       );
+
+      return;
 
     }
     catch (paymentError) {
@@ -2834,6 +784,31 @@ export default function UrgentGenerationPage() {
   }
 
 
+  const baseAmount =
+    500;
+
+
+  const displayOriginalAmount =
+    Number.isFinite(
+      appliedPromo?.originalAmount
+    )
+      ? appliedPromo.originalAmount
+      : baseAmount;
+
+
+  const displayAmount =
+    Number.isFinite(
+      appliedPromo?.amount
+    )
+      ? appliedPromo.amount
+      : baseAmount;
+
+
+  const hasPromoDiscount =
+    displayAmount <
+    displayOriginalAmount;
+
+
   return (
     <div
       className={
@@ -2842,7 +817,7 @@ export default function UrgentGenerationPage() {
     >
 
       <SEO
-        title="Срочная инструкция по охране труда за 50 ₽ | БОЙКОВГРУПП"
+        title="Срочная инструкция по охране труда за 500 ₽ | БОЙКОВГРУПП"
         description="Срочная подготовка проекта инструкции по охране труда для нужной профессии с опорой на требования законодательства РФ."
       />
 
@@ -2896,7 +871,7 @@ export default function UrgentGenerationPage() {
                 styles.eyebrow
               }
             >
-              [ срочная подготовка ]
+              [ профессия или вид работ ]
             </div>
 
 
@@ -2915,12 +890,12 @@ export default function UrgentGenerationPage() {
                 styles.lead
               }
             >
-              Укажите профессию —
-              подготовим проект инструкции
-              с опорой на требования
-              законодательства Российской
-              Федерации и принятую структуру
-              документов по охране труда.
+              Укажите профессию, должность
+              или вид работ — подготовим
+              проект инструкции с опорой
+              на требования законодательства
+              Российской Федерации и принятую
+              структуру документов по охране труда.
             </p>
 
 
@@ -2972,7 +947,37 @@ export default function UrgentGenerationPage() {
                 styles.price
               }
             >
-              50 ₽
+              {
+                hasPromoDiscount
+                  ? (
+                      <>
+                        <span
+                          className={
+                            styles.promoPriceOld
+                          }
+                        >
+                          {formatAmount(
+                            displayOriginalAmount
+                          )} ₽
+                        </span>
+
+                        {" "}
+
+                        <span
+                          className={
+                            styles.promoPriceNew
+                          }
+                        >
+                          {formatAmount(
+                            displayAmount
+                          )} ₽
+                        </span>
+                      </>
+                    )
+                  : `${formatAmount(
+                      displayAmount
+                    )} ₽`
+              }
             </div>
 
 
@@ -3002,15 +1007,6 @@ export default function UrgentGenerationPage() {
             }
           >
 
-            <div
-              className={
-                styles.orderNumber
-              }
-            >
-              01
-            </div>
-
-
             <div>
 
               <h2
@@ -3018,7 +1014,7 @@ export default function UrgentGenerationPage() {
                   styles.orderTitle
                 }
               >
-                Укажите профессию
+                Укажите профессию или вид работ
               </h2>
 
 
@@ -3028,9 +1024,9 @@ export default function UrgentGenerationPage() {
                 }
               >
                 Напишите точное название
-                профессии или вида работ,
-                для которых необходима
-                инструкция.
+                профессии, должности
+                или вида работ, для которых
+                необходима инструкция.
               </p>
 
             </div>
@@ -3053,7 +1049,7 @@ export default function UrgentGenerationPage() {
               }
               htmlFor="urgent-profession"
             >
-              Профессия
+              Профессия или вид работ
             </label>
 
 
@@ -3075,10 +1071,180 @@ export default function UrgentGenerationPage() {
                   setError("");
                 }
               }
-              placeholder="Например: электромонтёр по ремонту оборудования"
+              placeholder="Например: электромонтёр или при работе на высоте"
               autoComplete="off"
               maxLength={180}
             />
+
+
+            <div
+              className={
+                styles.generationScopeHint
+              }
+            >
+              <span>
+                Можно указать:
+              </span>{" "}
+
+              <strong>
+                профессию
+              </strong>{" "}
+
+              <span>
+                или
+              </span>{" "}
+
+              <strong>
+                конкретный вид работ
+              </strong>
+
+              <span
+                className={
+                  styles.generationScopeExamples
+                }
+              >
+                Например: водитель погрузчика · при работе на высоте · при эксплуатации электрооборудования
+              </span>
+            </div>
+
+
+            <div
+              className={
+                styles.promoCheckout
+              }
+            >
+
+              <label
+                className={
+                  styles.promoLabel
+                }
+                htmlFor="urgent-promo-code"
+              >
+                Промокод
+              </label>
+
+
+              <div
+                className={
+                  styles.promoRow
+                }
+              >
+
+                <input
+                  id="urgent-promo-code"
+                  className={
+                    styles.promoInput
+                  }
+                  type="text"
+                  value={
+                    promoInput
+                  }
+                  placeholder="Введите промокод"
+                  autoComplete="off"
+                  maxLength={40}
+                  spellCheck={false}
+                  onChange={
+                    (event) => {
+
+                      const value =
+                        event.target.value
+                          .toUpperCase();
+
+
+                      setPromoInput(
+                        value
+                      );
+
+
+                      if (
+                        appliedPromo &&
+                        normalizePromoCode(
+                          value
+                        ) !==
+                          appliedPromo.code
+                      ) {
+
+                        setAppliedPromo(
+                          null
+                        );
+
+                        setPromoMessage(
+                          ""
+                        );
+
+                        setPromoMessageType(
+                          ""
+                        );
+
+                      }
+
+                    }
+                  }
+                  onKeyDown={
+                    (event) => {
+
+                      if (
+                        event.key ===
+                          "Enter"
+                      ) {
+
+                        event.preventDefault();
+
+                        void handlePromoApply();
+
+                      }
+
+                    }
+                  }
+                />
+
+
+                <button
+                  type="button"
+                  className={
+                    styles.promoButton
+                  }
+                  disabled={
+                    isPromoChecking
+                  }
+                  onClick={
+                    () => {
+                      void handlePromoApply();
+                    }
+                  }
+                >
+                  {
+                    isPromoChecking
+                      ? "Проверяем..."
+                      : "Применить"
+                  }
+                </button>
+
+              </div>
+
+
+              <div
+                className={[
+                  styles.promoMessage,
+
+                  promoMessageType ===
+                    "success"
+                    ? styles.promoMessageSuccess
+                    : "",
+
+                  promoMessageType ===
+                    "error"
+                    ? styles.promoMessageError
+                    : ""
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                aria-live="polite"
+              >
+                {promoMessage}
+              </div>
+
+            </div>
 
 
             <div
@@ -3092,7 +1258,39 @@ export default function UrgentGenerationPage() {
               </span>
 
               <strong>
-                50 ₽
+                {
+                  hasPromoDiscount
+                    ? (
+                        <span
+                          className={
+                            styles.promoPrice
+                          }
+                        >
+                          <span
+                            className={
+                              styles.promoPriceOld
+                            }
+                          >
+                            {formatAmount(
+                              displayOriginalAmount
+                            )} ₽
+                          </span>
+
+                          <span
+                            className={
+                              styles.promoPriceNew
+                            }
+                          >
+                            {formatAmount(
+                              displayAmount
+                            )} ₽
+                          </span>
+                        </span>
+                      )
+                    : `${formatAmount(
+                        displayAmount
+                      )} ₽`
+                }
               </strong>
 
             </div>
@@ -3123,6 +1321,158 @@ export default function UrgentGenerationPage() {
             )}
 
 
+            <div
+              className={
+                styles.paymentConsents
+              }
+            >
+
+              <div
+                className={
+                  styles.paymentConsentsHeading
+                }
+              >
+                Перед оплатой
+              </div>
+
+
+              <div
+                className={
+                  styles.paymentConsentRows
+                }
+              >
+
+                <label
+                  className={
+                    styles.paymentConsentRow
+                  }
+                >
+
+                  <input
+                    type="checkbox"
+                    className={
+                      styles.paymentConsentCheckbox
+                    }
+                    checked={
+                      personalDataAccepted
+                    }
+                    onChange={
+                      (event) => {
+
+                        setPersonalDataAccepted(
+                          event.target.checked
+                        );
+
+                        setConsentError("");
+
+                      }
+                    }
+                  />
+
+                  <span
+                    className={
+                      styles.paymentConsentBox
+                    }
+                  />
+
+                  <span
+                    className={
+                      styles.paymentConsentText
+                    }
+                  >
+                    Я даю{" "}
+                    <a
+                      href="/personal-data-consent/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      согласие на обработку персональных данных
+                    </a>
+                    .
+                  </span>
+
+                </label>
+
+
+                <label
+                  className={
+                    styles.paymentConsentRow
+                  }
+                >
+
+                  <input
+                    type="checkbox"
+                    className={
+                      styles.paymentConsentCheckbox
+                    }
+                    checked={
+                      offerAccepted
+                    }
+                    onChange={
+                      (event) => {
+
+                        setOfferAccepted(
+                          event.target.checked
+                        );
+
+                        setConsentError("");
+
+                      }
+                    }
+                  />
+
+                  <span
+                    className={
+                      styles.paymentConsentBox
+                    }
+                  />
+
+                  <span
+                    className={
+                      styles.paymentConsentText
+                    }
+                  >
+                    Я ознакомился и принимаю условия{" "}
+                    <a
+                      href="/offer/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Публичной оферты
+                    </a>
+                    .
+                  </span>
+
+                </label>
+
+              </div>
+
+
+              <p
+                className={
+                  styles.paymentConsentNote
+                }
+              >
+                Оба согласия обязательны для перехода к оплате.
+              </p>
+
+
+              {
+                consentError &&
+                (
+                  <p
+                    className={
+                      styles.paymentConsentError
+                    }
+                  >
+                    {consentError}
+                  </p>
+                )
+              }
+
+            </div>
+
+
             <button
               type="submit"
               className={
@@ -3130,7 +1480,9 @@ export default function UrgentGenerationPage() {
               }
               disabled={
                 isPaying ||
-                isPaymentComplete
+                isPaymentComplete ||
+                !offerAccepted ||
+                !personalDataAccepted
               }
             >
               {
@@ -3151,7 +1503,9 @@ export default function UrgentGenerationPage() {
               Сумма оплаты:
               {" "}
               <strong>
-                50 российских рублей
+                {formatAmount(
+                  displayAmount
+                )} российских рублей
               </strong>
             </p>
 
@@ -3160,66 +1514,8 @@ export default function UrgentGenerationPage() {
         </section>
 
       
-          {
-            generatedInstruction &&
-            (
-              <section
-                id="urgent-generated-instruction"
-                className={
-                  styles.generatedResult
-                }
-              >
 
-                <div
-                  className={
-                    styles.generatedResultHeader
-                  }
-                >
-
-                  <div
-                    className={
-                      styles.generatedResultEyebrow
-                    }
-                  >
-                    [ оплачено · готово ]
-                  </div>
-
-
-                  <h2
-                    className={
-                      styles.generatedResultTitle
-                    }
-                  >
-                    Ваша инструкция готова
-                  </h2>
-
-
-                  <p
-                    className={
-                      styles.generatedResultText
-                    }
-                  >
-                    Документ доступен вам сразу.
-                    Решение о публикации в общем
-                    каталоге принимается
-                    администратором отдельно.
-                  </p>
-
-                </div>
-
-
-                <PrivateInstructionView
-                  instruction={
-                    generatedInstruction
-                  }
-                />
-
-              </section>
-            )
-          }
-
-
-</main>
+      </main>
 
     </div>
   );

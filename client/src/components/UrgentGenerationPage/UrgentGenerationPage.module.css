@@ -989,7 +989,7 @@
 
 
 /*
- * Карточка 50 ₽ располагается
+ * Карточка 500 ₽ располагается
  * непосредственно под профилем.
  */
 .priceCard {
@@ -1136,7 +1136,7 @@
 
 
 /*
- * Карточка 50 ₽ располагается
+ * Карточка 500 ₽ располагается
  * непосредственно под профилем.
  */
 .priceCard {
@@ -1208,60 +1208,612 @@
 
 }
 
-
 /*
  * ============================================================
- * PRIVATE_PAID_RESULT_UI_V1
+ * PAYMENT CONSENTS
+ * Reconstructed from production patch.
  * ============================================================
  */
 
-.generatedResult {
-  margin-top: 72px;
-  padding: 36px;
-  border: var(--border-hair);
-  border-radius: 14px;
-  background: var(--color-bg);
-  scroll-margin-top: 30px;
+.paymentConsents {
+  margin:
+    22px
+    0
+    18px;
+
+  padding:
+    18px
+    20px;
+
+  border:
+    1px solid
+    #dfe4ec;
+
+  border-radius:
+    12px;
+
+  background:
+    #f8fafc;
 }
 
-.generatedResultHeader {
-  margin-bottom: 34px;
-  padding-bottom: 28px;
-  border-bottom: var(--border-hair);
+
+.paymentConsentsHeading {
+  margin-bottom:
+    13px;
+
+  color:
+    #172033;
+
+  font-size:
+    14px;
+
+  font-weight:
+    800;
 }
 
-.generatedResultEyebrow {
-  margin-bottom: 12px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--color-primary);
+
+.paymentConsentRows {
+  display:
+    grid;
+
+  gap:
+    12px;
 }
 
-.generatedResultTitle {
-  margin: 0 0 12px;
-  font-family: "Comfortaa", sans-serif;
-  font-size: 30px;
-  line-height: 1.2;
-  color: var(--color-text);
+
+.paymentConsentRow {
+  display:
+    grid;
+
+  grid-template-columns:
+    22px
+    minmax(0, 1fr);
+
+  gap:
+    11px;
+
+  align-items:
+    start;
+
+  cursor:
+    pointer;
 }
 
-.generatedResultText {
-  max-width: 700px;
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.65;
-  color: var(--color-text-muted);
+
+.paymentConsentCheckbox {
+  position:
+    absolute;
+
+  width:
+    1px;
+
+  height:
+    1px;
+
+  opacity:
+    0;
+
+  pointer-events:
+    none;
 }
 
-@media (max-width: 700px) {
-  .generatedResult {
-    margin-top: 48px;
-    padding: 22px;
+
+.paymentConsentBox {
+  position:
+    relative;
+
+  box-sizing:
+    border-box;
+
+  width:
+    20px;
+
+  height:
+    20px;
+
+  margin-top:
+    1px;
+
+  border:
+    1.5px solid
+    #a8b1c0;
+
+  border-radius:
+    5px;
+
+  background:
+    #fff;
+
+  transition:
+    border-color .15s ease,
+    background .15s ease;
+}
+
+
+.paymentConsentCheckbox:checked
++
+.paymentConsentBox {
+  border-color:
+    #172033;
+
+  background:
+    #172033;
+}
+
+
+.paymentConsentCheckbox:checked
++
+.paymentConsentBox::after {
+  content:
+    "";
+
+  position:
+    absolute;
+
+  left:
+    6px;
+
+  top:
+    3px;
+
+  width:
+    5px;
+
+  height:
+    9px;
+
+  border:
+    solid #fff;
+
+  border-width:
+    0 2px 2px 0;
+
+  transform:
+    rotate(45deg);
+}
+
+
+.paymentConsentCheckbox:focus-visible
++
+.paymentConsentBox {
+  outline:
+    3px solid
+    rgba(23, 32, 51, .12);
+
+  outline-offset:
+    2px;
+}
+
+
+.paymentConsentText {
+  color:
+    #475467;
+
+  font-size:
+    13px;
+
+  line-height:
+    1.5;
+}
+
+
+.paymentConsentText a {
+  color:
+    #172033;
+
+  font-weight:
+    700;
+
+  text-decoration:
+    underline;
+
+  text-underline-offset:
+    2px;
+}
+
+
+.paymentConsentNote {
+  margin:
+    12px
+    0
+    0
+    33px;
+
+  color:
+    #7a8494;
+
+  font-size:
+    11px;
+
+  line-height:
+    1.45;
+}
+
+
+.paymentConsentError {
+  margin:
+    10px
+    0
+    0
+    33px;
+
+  color:
+    #b42318;
+
+  font-size:
+    12px;
+
+  font-weight:
+    700;
+
+  line-height:
+    1.4;
+}
+
+
+@media (max-width: 600px) {
+
+  .paymentConsents {
+    padding:
+      16px;
   }
 
-  .generatedResultTitle {
-    font-size: 24px;
+
+  .paymentConsentNote,
+  .paymentConsentError {
+    margin-left:
+      0;
   }
+
+}
+
+/*
+ * ============================================================
+ * PROMO CODE CHECKOUT
+ * Reconstructed from production patch.
+ * ============================================================
+ */
+
+.promoCheckout {
+  margin-top:
+    18px;
+
+  padding-top:
+    18px;
+
+  border-top:
+    1px solid
+    rgba(20, 30, 50, 0.12);
+}
+
+
+.promoLabel {
+  display:
+    block;
+
+  margin-bottom:
+    9px;
+
+  font-family:
+    "Comfortaa",
+    sans-serif;
+
+  font-size:
+    13px;
+
+  font-weight:
+    700;
+}
+
+
+.promoRow {
+  display:
+    grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+
+  gap:
+    10px;
+}
+
+
+.promoInput {
+  width:
+    100%;
+
+  min-width:
+    0;
+
+  min-height:
+    48px;
+
+  padding:
+    0
+    14px;
+
+  box-sizing:
+    border-box;
+
+  border:
+    1px solid
+    rgba(20, 30, 50, 0.18);
+
+  border-radius:
+    10px;
+
+  outline:
+    none;
+
+  background:
+    #fff;
+
+  color:
+    inherit;
+
+  font:
+    inherit;
+
+  font-size:
+    14px;
+
+  text-transform:
+    uppercase;
+}
+
+
+.promoInput:focus {
+  border-color:
+    #4278d3;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(66, 120, 211, 0.08);
+}
+
+
+.promoButton {
+  min-height:
+    48px;
+
+  padding:
+    0
+    18px;
+
+  border:
+    1px solid
+    #1b2433;
+
+  border-radius:
+    10px;
+
+  background:
+    #fff;
+
+  color:
+    #1b2433;
+
+  cursor:
+    pointer;
+
+  font-family:
+    "Comfortaa",
+    sans-serif;
+
+  font-size:
+    13px;
+
+  font-weight:
+    700;
+}
+
+
+.promoButton:hover:not(:disabled) {
+  background:
+    #f4f6fa;
+}
+
+
+.promoButton:disabled {
+  cursor:
+    wait;
+
+  opacity:
+    0.55;
+}
+
+
+.promoMessage {
+  min-height:
+    18px;
+
+  margin-top:
+    8px;
+
+  font-size:
+    12px;
+
+  line-height:
+    1.5;
+}
+
+
+.promoMessageSuccess {
+  color:
+    #18723b;
+}
+
+
+.promoMessageError {
+  color:
+    #b42828;
+}
+
+
+.promoPrice {
+  display:
+    inline-flex;
+
+  flex-wrap:
+    wrap;
+
+  align-items:
+    baseline;
+
+  justify-content:
+    flex-end;
+
+  gap:
+    8px;
+}
+
+
+.promoPriceOld {
+  font-size:
+    0.72em;
+
+  font-weight:
+    500;
+
+  text-decoration:
+    line-through;
+
+  opacity:
+    0.45;
+}
+
+
+.promoPriceNew {
+  font-weight:
+    700;
+}
+
+
+@media (max-width: 520px) {
+
+  .promoRow {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .promoButton {
+    width:
+      100%;
+  }
+
+}
+
+/*
+ * ============================================================
+ * PAYMENT CONSENTS — PRODUCTION RESPONSIVE PARITY
+ * ============================================================
+ */
+
+@media (max-width: 640px) {
+
+  .paymentConsents {
+    width:
+      100%;
+
+    margin:
+      18px
+      0
+      16px;
+
+    padding:
+      15px;
+  }
+
+
+  .paymentConsentRow {
+    grid-template-columns:
+      22px
+      minmax(0, 1fr);
+
+    gap:
+      10px;
+  }
+
+
+  .paymentConsentText {
+    font-size:
+      12px;
+
+    line-height:
+      1.55;
+  }
+
+
+  .paymentConsentNote,
+  .paymentConsentError {
+    margin-left:
+      0;
+  }
+
+}
+
+
+@media (max-width: 390px) {
+
+  .paymentConsents {
+    padding:
+      13px;
+  }
+
+}
+
+/*
+ * ============================================================
+ * GENERATION PROFESSION / WORK SCOPE HINT
+ * ============================================================
+ */
+
+.generationScopeHint {
+  margin-top:
+    10px;
+
+  font-size:
+    12px;
+
+  line-height:
+    1.55;
+
+  color:
+    #70809a;
+}
+
+
+.generationScopeHint strong {
+  color:
+    #1a2233;
+
+  font-weight:
+    600;
+}
+
+
+.generationScopeExamples {
+  display:
+    block;
+
+  margin-top:
+    4px;
+
+  color:
+    #8793a6;
+}
+
+
+@media (max-width: 760px) {
+
+  .generationScopeHint {
+    margin-top:
+      8px;
+
+    font-size:
+      11px;
+  }
+
 }

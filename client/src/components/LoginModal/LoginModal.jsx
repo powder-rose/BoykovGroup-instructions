@@ -51,10 +51,41 @@ export default function LoginModal({
     useState("");
 
   const [
+    name,
+    setName
+  ] =
+    useState("");
+
+  const [
+    phone,
+    setPhone
+  ] =
+    useState("");
+
+  const [
     email,
     setEmail
   ] =
     useState("");
+
+
+  const [
+    userAgreementAccepted,
+    setUserAgreementAccepted
+  ] =
+    useState(false);
+
+  const [
+    personalDataConsentAccepted,
+    setPersonalDataConsentAccepted
+  ] =
+    useState(false);
+
+  const [
+    advertisingConsentAccepted,
+    setAdvertisingConsentAccepted
+  ] =
+    useState(false);
 
   const [
     password,
@@ -158,10 +189,23 @@ export default function LoginModal({
 
       const ok =
         await dispatch(
-          register(
+          register({
+            name:
+              name.trim(),
+
+            phone:
+              phone.trim(),
+
             email,
-            password
-          )
+
+            password,
+
+            userAgreementAccepted,
+
+            personalDataConsentAccepted,
+
+            advertisingConsentAccepted
+          })
         );
 
       if (ok) {
@@ -305,6 +349,94 @@ export default function LoginModal({
             styles.form
           }
         >
+          {
+            mode ===
+              "register" &&
+            (
+              <div
+                className={
+                  styles.profileFields
+                }
+              >
+
+                <label
+                  className={
+                    styles.profileField
+                  }
+                >
+
+                  <span
+                    className={
+                      styles.profileLabel
+                    }
+                  >
+                    Имя
+                  </span>
+
+                  <input
+                    className={
+                      styles.profileInput
+                    }
+                    type="text"
+                    value={
+                      name
+                    }
+                    onChange={
+                      (event) =>
+                        setName(
+                          event.target.value
+                        )
+                    }
+                    placeholder="Как к вам обращаться"
+                    autoComplete="name"
+                    required
+                    aria-required="true"
+                  />
+
+                </label>
+
+
+                <label
+                  className={
+                    styles.profileField
+                  }
+                >
+
+                  <span
+                    className={
+                      styles.profileLabel
+                    }
+                  >
+                    Телефон
+                  </span>
+
+                  <input
+                    className={
+                      styles.profileInput
+                    }
+                    type="tel"
+                    value={
+                      phone
+                    }
+                    onChange={
+                      (event) =>
+                        setPhone(
+                          event.target.value
+                        )
+                    }
+                    placeholder="+7 900 000-00-00"
+                    autoComplete="tel"
+                    required
+                    aria-required="true"
+                  />
+
+                </label>
+
+              </div>
+            )
+          }
+
+
           {mode ===
           "login" ? (
             <label
@@ -479,6 +611,171 @@ export default function LoginModal({
             </p>
           )}
 
+          {
+            mode ===
+              "register" &&
+            (
+              <div
+                className={
+                  styles.registrationConsents
+                }
+              >
+
+                <label
+                  className={[
+                    styles.registrationConsent,
+                    styles.registrationConsentRequired
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
+
+                  <input
+                    className={
+                      styles.registrationConsentCheckbox
+                    }
+                    type="checkbox"
+                    checked={
+                      userAgreementAccepted
+                    }
+                    onChange={
+                      (event) =>
+                        setUserAgreementAccepted(
+                          event.target.checked
+                        )
+                    }
+                    required
+                  />
+
+                  <span
+                    className={
+                      styles.registrationConsentContent
+                    }
+                  >
+                    <a
+                      className={
+                        styles.registrationConsentLink
+                      }
+                      href="/user-agreement/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Пользовательское соглашение
+                    </a>
+                  </span>
+
+                </label>
+
+
+                <label
+                  className={[
+                    styles.registrationConsent,
+                    styles.registrationConsentRequired
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                >
+
+                  <input
+                    className={
+                      styles.registrationConsentCheckbox
+                    }
+                    type="checkbox"
+                    checked={
+                      personalDataConsentAccepted
+                    }
+                    onChange={
+                      (event) =>
+                        setPersonalDataConsentAccepted(
+                          event.target.checked
+                        )
+                    }
+                    required
+                  />
+
+                  <span
+                    className={
+                      styles.registrationConsentContent
+                    }
+                  >
+                    <a
+                      className={
+                        styles.registrationConsentLink
+                      }
+                      href="/personal-data-consent/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Согласие на обработку персональных данных
+                    </a>
+                  </span>
+
+                </label>
+
+
+                <div
+                  className={
+                    styles.registrationConsentOptional
+                  }
+                >
+
+                  <label
+                    className={
+                      styles.registrationConsent
+                    }
+                  >
+
+                    <input
+                      className={
+                        styles.registrationConsentCheckbox
+                      }
+                      type="checkbox"
+                      checked={
+                        advertisingConsentAccepted
+                      }
+                      onChange={
+                        (event) =>
+                          setAdvertisingConsentAccepted(
+                            event.target.checked
+                          )
+                      }
+                    />
+
+                    <span
+                      className={
+                        styles.registrationConsentContent
+                      }
+                    >
+                      <a
+                        className={
+                          styles.registrationConsentLink
+                        }
+                        href="/advertising-consent/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Согласие на получение рекламных и информационных сообщений
+                      </a>
+                    </span>
+
+                  </label>
+
+
+                  <div
+                    className={
+                      styles.registrationConsentNote
+                    }
+                  >
+                    Предоставление настоящего Согласия является добровольным и не является обязательным условием регистрации на Сайте, использования личного кабинета, оформления Заказа, оплаты или получения услуг.
+                  </div>
+
+                </div>
+
+              </div>
+            )
+          }
+
+
           <button
             type="submit"
             className={
@@ -500,18 +797,6 @@ export default function LoginModal({
           </button>
         </form>
 
-        {mode ===
-          "login" && (
-          <p
-            className={
-              styles.adminHint
-            }
-          >
-            Администратор также
-            входит через эту форму
-            по своему логину.
-          </p>
-        )}
       </div>
     </div>
   );

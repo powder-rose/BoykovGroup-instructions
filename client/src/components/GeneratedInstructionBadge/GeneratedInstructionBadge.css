@@ -1,0 +1,139 @@
+
+/*
+ * ============================================================
+ * ADMIN — YANDEXGPT GENERATED BADGE
+ * ============================================================
+ */
+
+.boykovGeneratedBadge {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  width: fit-content;
+
+  margin:
+    2px
+    18px
+    12px;
+
+  padding:
+    6px
+    9px;
+
+  border:
+    1px solid
+    rgba(22, 163, 74, .24);
+
+  border-radius:
+    6px;
+
+  background:
+    rgba(22, 163, 74, .07);
+
+  color:
+    #15803d;
+
+  font-family:
+    "JetBrains Mono",
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Consolas,
+    monospace;
+
+  font-size:
+    10px;
+
+  font-weight:
+    600;
+
+  line-height:
+    1.2;
+
+  letter-spacing:
+    .01em;
+
+  pointer-events:
+    none;
+}
+
+
+.boykovGeneratedBadge__dot {
+  flex: 0 0 auto;
+
+  width: 6px;
+  height: 6px;
+
+  border-radius:
+    50%;
+
+  background:
+    #16a34a;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(22, 163, 74, .10);
+}
+
+
+/*
+ * В карточках каталога badge находится
+ * непосредственно внутри ссылки.
+ */
+a > .boykovGeneratedBadge {
+  margin:
+    8px
+    0
+    13px;
+}
+
+
+/* TABLET */
+
+@media (max-width: 900px) {
+
+  .boykovGeneratedBadge {
+    font-size:
+      9.5px;
+  }
+
+}
+
+
+/* MOBILE */
+
+@media (max-width: 640px) {
+
+  .boykovGeneratedBadge {
+    gap:
+      6px;
+
+    margin:
+      2px
+      14px
+      10px;
+
+    padding:
+      5px
+      8px;
+
+    font-size:
+      9px;
+  }
+
+
+  a > .boykovGeneratedBadge {
+    margin:
+      7px
+      0
+      11px;
+  }
+
+}
+
+
+/* ===== /ADMIN — YANDEXGPT GENERATED BADGE ===== */
+

@@ -4,36 +4,336 @@
   gap: 8px;
 }
 
+
 .badge {
+  padding: 10px 12px;
+
+  border: var(--border-ink);
+  border-radius: var(--radius-sm);
+
+  background: var(--color-surface);
+  color: var(--color-primary);
+
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-primary);
-  padding: 10px 12px;
-  border: var(--border-ink);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
+
   white-space: nowrap;
 }
 
+
 .logoutBtn,
 .loginBtn {
+  height: 50px;
+
+  padding: 10px 16px;
+
+  border: var(--border-ink);
+  border-radius: var(--radius-sm);
+
+  background: var(--color-surface);
+  color: var(--color-text);
+
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.01em;
-  color: var(--color-text);
-  background: var(--color-surface);
-  border: var(--border-ink);
-  border-radius: var(--radius-sm);
-  padding: 10px 16px;
-  height: 50px;
+
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+
+  transition:
+    background .15s ease,
+    color .15s ease;
 }
+
 
 .logoutBtn:hover,
 .loginBtn:hover {
   background: var(--color-text);
   color: #ffffff;
+}
+
+
+/*
+ * ============================================================
+ * USER ACCOUNT DROPDOWN
+ * ============================================================
+ */
+
+.accountDropdown {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+
+.accountTrigger {
+  height: 50px;
+
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  max-width: 310px;
+
+  padding: 10px 13px;
+
+  border: var(--border-ink);
+  border-radius: var(--radius-sm);
+
+  background: var(--color-surface);
+  color: var(--color-primary);
+
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background .15s ease,
+    color .15s ease,
+    box-shadow .15s ease;
+}
+
+
+.accountTrigger:hover,
+.accountTrigger[aria-expanded="true"] {
+  background: var(--color-text);
+  color: #fff;
+}
+
+
+.accountTrigger[aria-expanded="true"] {
+  box-shadow:
+    3px 3px 0
+    var(--color-primary);
+}
+
+
+.accountTriggerEmail {
+  min-width: 0;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+.accountTriggerChevron {
+  flex: 0 0 auto;
+
+  font-size: 10px;
+
+  transition:
+    transform .15s ease;
+}
+
+
+/*
+ * MENU
+ */
+
+.accountMenu[hidden] {
+  display: none;
+}
+
+
+.accountMenu {
+  position: absolute;
+
+  top:
+    calc(100% + 9px);
+
+  right: 0;
+
+  z-index: 500;
+
+  width: 260px;
+
+  overflow: hidden;
+
+  border: var(--border-ink);
+  border-radius: var(--radius-sm);
+
+  background: var(--color-surface);
+
+  box-shadow:
+    4px 4px 0
+    var(--color-primary);
+
+  animation:
+    accountMenuIn
+    .12s ease both;
+}
+
+
+@keyframes accountMenuIn {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0);
+  }
+
+}
+
+
+.accountMenuHead {
+  padding:
+    15px 16px 14px;
+}
+
+
+.accountMenuLabel {
+  margin-bottom: 6px;
+
+  color: var(--color-primary);
+
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+
+  letter-spacing: .06em;
+}
+
+
+.accountMenuEmail {
+  overflow: hidden;
+
+  color: var(--color-text);
+
+  font-family: var(--font-mono);
+  font-size: 11px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+.accountMenuDivider {
+  height: 1px;
+
+  background: var(--color-border);
+}
+
+
+.accountMenuItem {
+  width: 100%;
+
+  min-height: 45px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 10px 16px;
+
+  border: 0;
+  border-radius: 0;
+
+  background: transparent;
+  color: var(--color-text);
+
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+
+  text-align: left;
+  text-decoration: none;
+
+  cursor: pointer;
+
+  box-sizing: border-box;
+
+  transition:
+    background .12s ease,
+    color .12s ease;
+}
+
+
+.accountMenuItem
++
+.accountMenuItem {
+  border-top:
+    1px solid
+    var(--color-border);
+}
+
+
+.accountMenuItem:hover {
+  background:
+    var(--color-primary-light);
+
+  color:
+    var(--color-primary);
+}
+
+
+.accountMenuArrow {
+  font-size: 16px;
+}
+
+
+.accountMenuLogout {
+  color:
+    var(--color-text-muted);
+}
+
+
+/*
+ * MOBILE
+ */
+
+@media (max-width: 650px) {
+
+  .accountDropdown {
+    min-width: 0;
+  }
+
+
+  .accountTrigger {
+    max-width: 220px;
+
+    min-width: 0;
+  }
+
+
+  .accountMenu {
+    position: fixed;
+
+    top: auto;
+
+    right: 14px;
+    left: 14px;
+    bottom: 14px;
+
+    width: auto;
+    max-width: none;
+  }
+
+
+  .accountMenuItem {
+    min-height: 52px;
+
+    font-size: 12px;
+  }
+
 }

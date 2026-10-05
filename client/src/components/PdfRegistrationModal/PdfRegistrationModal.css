@@ -1,0 +1,1019 @@
+/* SOURCE: registration-profile-20260827-153258.css */
+/* ===== REGISTRATION PROFILE ===== */
+
+.boykovProfileFields {
+  display: grid;
+  gap: 11px;
+  width: 100%;
+  margin: 0 0 14px;
+}
+
+.boykovProfileField {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+
+.boykovProfileField__label {
+  color: #3d485b;
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.boykovProfileField__label::after {
+  content: " *";
+  color: #397bd9;
+}
+
+.boykovProfileField__input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+
+  padding:
+    10px 12px;
+
+  border:
+    1px solid #d8dee8;
+
+  border-radius:
+    8px;
+
+  outline:
+    none;
+
+  background:
+    #fff;
+
+  color:
+    #172033;
+
+  font:
+    inherit;
+
+  font-size:
+    14px;
+
+  transition:
+    border-color .16s ease,
+    box-shadow .16s ease;
+}
+
+.boykovProfileField__input::placeholder {
+  color: #9aa4b2;
+}
+
+.boykovProfileField__input:hover {
+  border-color: #b7c1cf;
+}
+
+.boykovProfileField__input:focus {
+  border-color: #397bd9;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(57,123,217,.10);
+}
+
+.boykovProfileField__input:user-invalid {
+  border-color:
+    rgba(196,58,58,.6);
+}
+
+@media (max-width: 650px) {
+
+  .boykovProfileFields {
+    gap: 9px;
+  }
+
+  .boykovProfileField__input {
+    min-height: 42px;
+    font-size: 13px;
+  }
+
+}
+
+/* ===== /REGISTRATION PROFILE ===== */
+
+/* SOURCE: registration-consents-refined-20260827-151938.css */
+/* ===== REGISTRATION CONSENTS ===== */
+.boykovRegistrationConsents {
+  display: grid;
+  gap: 11px;
+  margin: 4px 0 16px;
+}
+
+.boykovRegistrationConsent {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.boykovRegistrationConsent__checkbox {
+  width: 17px;
+  height: 17px;
+  margin: 2px 0 0;
+  accent-color: #397bd9;
+  cursor: pointer;
+}
+
+.boykovRegistrationConsent__content {
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #596579;
+}
+
+.boykovRegistrationConsent__link {
+  color: #397bd9;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.boykovRegistrationConsent__link:hover {
+  text-decoration: none;
+}
+
+.boykovRegistrationConsent__note {
+  margin: 5px 0 0 28px;
+  font-size: 10px;
+  line-height: 1.45;
+  color: #7a8494;
+}
+
+@media (max-width: 650px) {
+  .boykovRegistrationConsent__content {
+    font-size: 11px;
+  }
+
+  .boykovRegistrationConsent__note {
+    font-size: 9px;
+  }
+}
+/* ===== /REGISTRATION CONSENTS ===== */
+
+/* ==========================================================
+   REGISTRATION CONSENTS — REFINED FORM DESIGN
+   ========================================================== */
+
+.boykovRegistrationConsents {
+  display: grid !important;
+  gap: 9px !important;
+
+  margin:
+    16px 0 18px !important;
+
+  width: 100% !important;
+}
+
+
+/* каждая строка согласия */
+
+.boykovRegistrationConsent {
+  position: relative !important;
+
+  display: grid !important;
+
+  grid-template-columns:
+    20px minmax(0, 1fr) !important;
+
+  align-items: start !important;
+
+  gap: 11px !important;
+
+  width: 100% !important;
+
+  margin: 0 !important;
+
+  padding:
+    12px 13px !important;
+
+  border:
+    1px solid
+    #dde3ec !important;
+
+  border-radius:
+    9px !important;
+
+  background:
+    rgba(255,255,255,.82) !important;
+
+  cursor: pointer !important;
+
+  transition:
+    border-color .18s ease,
+    background .18s ease,
+    box-shadow .18s ease,
+    transform .18s ease !important;
+}
+
+
+.boykovRegistrationConsent:hover {
+  border-color:
+    rgba(57,123,217,.52) !important;
+
+  background:
+    #f8fbff !important;
+
+  box-shadow:
+    0 5px 16px
+    rgba(24,48,84,.055) !important;
+}
+
+
+/* ==========================================================
+   CUSTOM CHECKBOX
+   ========================================================== */
+
+.boykovRegistrationConsent__checkbox {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+
+  position: relative !important;
+
+  width: 18px !important;
+  height: 18px !important;
+
+  min-width: 18px !important;
+
+  margin:
+    1px 0 0 !important;
+
+  border:
+    1.5px solid
+    #aab4c3 !important;
+
+  border-radius:
+    5px !important;
+
+  background:
+    #ffffff !important;
+
+  cursor: pointer !important;
+
+  outline: none !important;
+
+  transition:
+    border-color .16s ease,
+    background .16s ease,
+    box-shadow .16s ease !important;
+}
+
+
+.boykovRegistrationConsent:hover
+.boykovRegistrationConsent__checkbox {
+  border-color:
+    #397bd9 !important;
+}
+
+
+.boykovRegistrationConsent__checkbox:checked {
+  border-color:
+    #397bd9 !important;
+
+  background:
+    #397bd9 !important;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(57,123,217,.10) !important;
+}
+
+
+.boykovRegistrationConsent__checkbox:checked::after {
+  content: "" !important;
+
+  position: absolute !important;
+
+  left: 5px !important;
+  top: 2px !important;
+
+  width: 4px !important;
+  height: 8px !important;
+
+  border:
+    solid #ffffff !important;
+
+  border-width:
+    0 2px 2px 0 !important;
+
+  transform:
+    rotate(45deg) !important;
+}
+
+
+.boykovRegistrationConsent__checkbox:focus-visible {
+  box-shadow:
+    0 0 0 3px
+    rgba(57,123,217,.16) !important;
+
+  border-color:
+    #397bd9 !important;
+}
+
+
+/* ==========================================================
+   TEXT
+   ========================================================== */
+
+.boykovRegistrationConsent__content {
+  min-width: 0 !important;
+
+  padding-top:
+    1px !important;
+
+  color:
+    #414c5f !important;
+
+  font-size:
+    12px !important;
+
+  line-height:
+    1.48 !important;
+
+  font-weight:
+    400 !important;
+}
+
+
+.boykovRegistrationConsent__link {
+  color:
+    #27364c !important;
+
+  text-decoration:
+    none !important;
+
+  border-bottom:
+    1px solid
+    rgba(57,123,217,.42) !important;
+
+  padding-bottom:
+    1px !important;
+
+  transition:
+    color .16s ease,
+    border-color .16s ease !important;
+}
+
+
+.boykovRegistrationConsent:hover
+.boykovRegistrationConsent__link,
+.boykovRegistrationConsent__link:hover {
+  color:
+    #397bd9 !important;
+
+  border-color:
+    #397bd9 !important;
+}
+
+
+/* ==========================================================
+   REQUIRED
+   ========================================================== */
+
+/*
+ * Для обязательных согласий маленькая синяя точка.
+ * Никаких дополнительных текстов не добавляется.
+ */
+
+.boykovRegistrationConsent--required::after {
+  content: "" !important;
+
+  position: absolute !important;
+
+  top: 10px !important;
+  right: 10px !important;
+
+  width: 5px !important;
+  height: 5px !important;
+
+  border-radius:
+    50% !important;
+
+  background:
+    rgba(57,123,217,.65) !important;
+}
+
+
+/* ==========================================================
+   OPTIONAL ADVERTISING CONSENT
+   ========================================================== */
+
+.boykovRegistrationConsentOptional {
+  position: relative !important;
+
+  border:
+    1px solid
+    #e4e8ef !important;
+
+  border-radius:
+    9px !important;
+
+  background:
+    #fafbfc !important;
+
+  transition:
+    border-color .18s ease,
+    background .18s ease !important;
+}
+
+
+.boykovRegistrationConsentOptional:hover {
+  border-color:
+    #d3dbe7 !important;
+
+  background:
+    #f8fafc !important;
+}
+
+
+.boykovRegistrationConsentOptional
+.boykovRegistrationConsent {
+  border:
+    0 !important;
+
+  border-radius:
+    9px 9px 0 0 !important;
+
+  background:
+    transparent !important;
+
+  box-shadow:
+    none !important;
+
+  padding-bottom:
+    7px !important;
+}
+
+
+.boykovRegistrationConsentOptional
+.boykovRegistrationConsent:hover {
+  transform:
+    none !important;
+
+  background:
+    transparent !important;
+
+  box-shadow:
+    none !important;
+}
+
+
+/* подпись о добровольности */
+
+.boykovRegistrationConsent__note {
+  margin:
+    0 13px 11px 44px !important;
+
+  padding-top:
+    8px !important;
+
+  border-top:
+    1px solid
+    #e6eaf0 !important;
+
+  color:
+    #7a8494 !important;
+
+  font-size:
+    10px !important;
+
+  line-height:
+    1.45 !important;
+}
+
+
+/* ==========================================================
+   INVALID STATE
+   ========================================================== */
+
+.boykovRegistrationConsent__checkbox:user-invalid {
+  border-color:
+    #c94c4c !important;
+}
+
+
+/* ==========================================================
+   MOBILE
+   ========================================================== */
+
+@media (max-width: 650px) {
+
+  .boykovRegistrationConsents {
+    gap:
+      8px !important;
+
+    margin:
+      14px 0 17px !important;
+  }
+
+  .boykovRegistrationConsent {
+    padding:
+      11px 12px !important;
+
+    grid-template-columns:
+      19px minmax(0,1fr) !important;
+
+    gap:
+      9px !important;
+  }
+
+  .boykovRegistrationConsent__checkbox {
+    width:
+      17px !important;
+
+    height:
+      17px !important;
+
+    min-width:
+      17px !important;
+  }
+
+  .boykovRegistrationConsent__content {
+    font-size:
+      11px !important;
+
+    line-height:
+      1.48 !important;
+  }
+
+  .boykovRegistrationConsent__note {
+    margin:
+      0 12px 10px 40px !important;
+
+    font-size:
+      9px !important;
+  }
+
+}
+
+
+/* ==========================================================
+   /REGISTRATION CONSENTS — REFINED FORM DESIGN
+   ========================================================== */
+
+/* SOURCE: instruction-pdf-guest-modal-20260827-155910.css */
+/* ==========================================================
+   PDF GUEST REGISTRATION MODAL
+   ========================================================== */
+
+.boykovPdfRegistration {
+  position:
+    fixed;
+
+  inset:
+    0;
+
+  z-index:
+    99999;
+
+  display:
+    flex;
+
+  align-items:
+    flex-start;
+
+  justify-content:
+    center;
+
+  padding:
+    54px 16px;
+
+  overflow-y:
+    auto;
+
+  background:
+    rgba(18, 29, 47, .55);
+
+  backdrop-filter:
+    blur(3px);
+}
+
+
+.boykovPdfRegistration__modal {
+  position:
+    relative;
+
+  width:
+    min(100%, 480px);
+
+  padding:
+    32px;
+
+  border:
+    1px solid #dce2eb;
+
+  border-top:
+    4px solid #397bd9;
+
+  border-radius:
+    12px;
+
+  background:
+    #ffffff;
+
+  color:
+    #172033;
+
+  box-shadow:
+    0 24px 70px
+    rgba(15, 31, 55, .22);
+
+  animation:
+    boykovPdfRegistrationIn
+    .18s ease both;
+}
+
+
+@keyframes boykovPdfRegistrationIn {
+
+  from {
+    opacity:
+      0;
+
+    transform:
+      translateY(8px);
+  }
+
+
+  to {
+    opacity:
+      1;
+
+    transform:
+      translateY(0);
+  }
+
+}
+
+
+.boykovPdfRegistration__close {
+  position:
+    absolute;
+
+  top:
+    14px;
+
+  right:
+    14px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  width:
+    34px;
+
+  height:
+    34px;
+
+  padding:
+    0;
+
+  border:
+    1px solid #d8dee8;
+
+  border-radius:
+    50%;
+
+  background:
+    #ffffff;
+
+  color:
+    #4b586b;
+
+  font-size:
+    21px;
+
+  line-height:
+    1;
+
+  cursor:
+    pointer;
+}
+
+
+.boykovPdfRegistration__close:hover {
+  border-color:
+    #397bd9;
+
+  color:
+    #397bd9;
+}
+
+
+.boykovPdfRegistration__eyebrow {
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  margin-bottom:
+    10px;
+
+  padding:
+    5px 8px;
+
+  border-radius:
+    5px;
+
+  background:
+    #eef4fd;
+
+  color:
+    #397bd9;
+
+  font-size:
+    10px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    .08em;
+}
+
+
+.boykovPdfRegistration__title {
+  margin:
+    0 42px 8px 0;
+
+  color:
+    #172033;
+
+  font-size:
+    24px;
+
+  line-height:
+    1.25;
+}
+
+
+.boykovPdfRegistration__description {
+  margin:
+    0 0 22px;
+
+  color:
+    #697589;
+
+  font-size:
+    13px;
+
+  line-height:
+    1.5;
+}
+
+
+.boykovPdfRegistration__form {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    12px;
+}
+
+
+.boykovPdfRegistration__field {
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  gap:
+    6px;
+}
+
+
+.boykovPdfRegistration__label {
+  color:
+    #3d485b;
+
+  font-size:
+    12px;
+
+  font-weight:
+    600;
+}
+
+
+.boykovPdfRegistration__label::after {
+  content:
+    " *";
+
+  color:
+    #397bd9;
+}
+
+
+.boykovPdfRegistration__input {
+  box-sizing:
+    border-box;
+
+  width:
+    100%;
+
+  min-height:
+    44px;
+
+  padding:
+    10px 12px;
+
+  border:
+    1px solid #d8dee8;
+
+  border-radius:
+    8px;
+
+  outline:
+    none;
+
+  background:
+    #fff;
+
+  color:
+    #172033;
+
+  font:
+    inherit;
+
+  font-size:
+    14px;
+
+  transition:
+    border-color .16s ease,
+    box-shadow .16s ease;
+}
+
+
+.boykovPdfRegistration__input:focus {
+  border-color:
+    #397bd9;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(57, 123, 217, .10);
+}
+
+
+.boykovPdfRegistration__submit {
+  min-height:
+    44px;
+
+  margin-top:
+    3px;
+
+  padding:
+    11px 18px;
+
+  border:
+    1px solid #397bd9;
+
+  border-radius:
+    8px;
+
+  background:
+    #397bd9;
+
+  color:
+    #ffffff;
+
+  font:
+    inherit;
+
+  font-size:
+    13px;
+
+  font-weight:
+    700;
+
+  cursor:
+    pointer;
+
+  transition:
+    background .16s ease,
+    border-color .16s ease,
+    transform .16s ease;
+}
+
+
+.boykovPdfRegistration__submit:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+
+  border-color:
+    #234f95;
+
+  background:
+    #234f95;
+}
+
+
+.boykovPdfRegistration__submit:disabled {
+  opacity:
+    .65;
+
+  cursor:
+    default;
+}
+
+
+.boykovPdfRegistration__status {
+  min-height:
+    18px;
+
+  color:
+    #697589;
+
+  font-size:
+    12px;
+
+  line-height:
+    1.45;
+}
+
+
+.boykovPdfRegistration__status--error {
+  color:
+    #b83c3c;
+}
+
+
+.boykovPdfRegistration__status--success {
+  color:
+    #287451;
+}
+
+
+/*
+ * Поля Имя/Телефон уже имеют свой дизайн.
+ * Внутри PDF modal немного выравниваем
+ * интервалы с Email/Пароль.
+ */
+
+.boykovPdfRegistration
+.boykovProfileFields {
+  margin:
+    0 !important;
+
+  gap:
+    12px !important;
+}
+
+
+.boykovPdfRegistration
+.boykovProfileField__input {
+  min-height:
+    44px !important;
+}
+
+
+/*
+ * Согласия сохраняют утверждённый
+ * ранее дизайн.
+ */
+
+.boykovPdfRegistration
+.boykovRegistrationConsents {
+  margin:
+    4px 0 2px !important;
+}
+
+
+@media (max-width: 650px) {
+
+  .boykovPdfRegistration {
+    padding:
+      20px 12px;
+  }
+
+
+  .boykovPdfRegistration__modal {
+    padding:
+      26px 18px;
+  }
+
+
+  .boykovPdfRegistration__title {
+    font-size:
+      21px;
+  }
+
+}
+
+
+/* ==========================================================
+   /PDF GUEST REGISTRATION MODAL
+   ========================================================== */

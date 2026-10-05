@@ -33,13 +33,46 @@ function authHeaders(token) {
  * Поиск инструкций — вся логика поиска выполняется на сервере,
  * клиент лишь передаёт текст запроса и номер страницы.
  */
-export function searchInstructions({ query = "", page = 1, pageSize = 6 } = {}) {
-  const params = new URLSearchParams({
-    q: query,
-    page: String(page),
-    pageSize: String(pageSize),
-  });
-  return request(`/api/instructions?${params.toString()}`);
+export function searchInstructions({
+  query = "",
+  page = 1,
+  pageSize = 11,
+  sort
+} = {}) {
+
+  const currentSort =
+    sort ||
+    (
+      typeof window !== "undefined" &&
+      new URLSearchParams(
+        window.location.search
+      ).get("sort") ===
+        "popular"
+        ? "popular"
+        : "newest"
+    );
+
+
+  const params =
+    new URLSearchParams({
+      q:
+        query,
+
+      page:
+        String(page),
+
+      pageSize:
+        String(pageSize),
+
+      sort:
+        currentSort
+    });
+
+
+  return request(
+    `/api/instructions?${params.toString()}`
+  );
+
 }
 
 export function getInstruction(id) {
@@ -83,6 +116,97 @@ export function deleteInstruction(id, token) {
     method: "DELETE",
     headers: authHeaders(token),
   });
+}
+
+
+
+export function updateInstruction(
+  id,
+  instruction,
+  token
+) {
+
+  return request(
+    `/api/instructions/${encodeURIComponent(id)}`,
+    {
+      method: "PUT",
+
+      headers:
+        authHeaders(token),
+
+      body:
+        JSON.stringify(
+          instruction
+        )
+    }
+  );
+
+}
+
+
+export function recordInstructionView(
+  id
+) {
+
+  return request(
+    `/api/instructions/${encodeURIComponent(id)}/view`,
+    {
+      method:
+        "POST"
+    }
+  );
+
+}
+
+
+export function getInstructionViews(
+  id,
+  token
+) {
+
+  return request(
+    `/api/instructions/${encodeURIComponent(id)}/views`,
+    {
+      headers:
+        authHeaders(token)
+    }
+  );
+
+}
+
+
+export function getInstructionHistory(
+  id,
+  token
+) {
+
+  return request(
+    `/api/instructions/${encodeURIComponent(id)}/history`,
+    {
+      headers:
+        authHeaders(token)
+    }
+  );
+
+}
+
+
+export function rollbackInstruction(
+  id,
+  token
+) {
+
+  return request(
+    `/api/instructions/${encodeURIComponent(id)}/rollback`,
+    {
+      method:
+        "POST",
+
+      headers:
+        authHeaders(token)
+    }
+  );
+
 }
 
 

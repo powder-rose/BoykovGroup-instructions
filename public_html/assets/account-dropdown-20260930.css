@@ -1,0 +1,432 @@
+/*
+ * ============================================================
+ * USER ACCOUNT DROPDOWN
+ * ============================================================
+ */
+
+.boykovAccountDropdown {
+  position:
+    relative !important;
+
+  display:
+    flex !important;
+
+  align-items:
+    center !important;
+}
+
+
+/*
+ * React-элементы не удаляем,
+ * чтобы его логика logout продолжала жить.
+ */
+
+.boykovAccountOriginalBadge,
+.boykovAccountOriginalLogout {
+  position:
+    absolute !important;
+
+  width:
+    1px !important;
+
+  height:
+    1px !important;
+
+  padding:
+    0 !important;
+
+  margin:
+    -1px !important;
+
+  overflow:
+    hidden !important;
+
+  clip:
+    rect(0,0,0,0) !important;
+
+  white-space:
+    nowrap !important;
+
+  border:
+    0 !important;
+}
+
+
+/*
+ * TRIGGER
+ */
+
+.boykovAccountTrigger {
+  height:
+    50px;
+
+  display:
+    inline-flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    10px;
+
+  max-width:
+    310px;
+
+  padding:
+    10px 13px;
+
+  border:
+    var(--border-ink);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface);
+
+  color:
+    var(--color-primary);
+
+  font-family:
+    var(--font-mono);
+
+  font-size:
+    12px;
+
+  font-weight:
+    600;
+
+  cursor:
+    pointer;
+
+  transition:
+    background .15s ease,
+    color .15s ease,
+    box-shadow .15s ease;
+}
+
+
+.boykovAccountTrigger:hover,
+.boykovAccountTrigger[aria-expanded="true"] {
+  background:
+    var(--color-text);
+
+  color:
+    #fff;
+}
+
+
+.boykovAccountTrigger[aria-expanded="true"] {
+  box-shadow:
+    3px 3px 0
+    var(--color-primary);
+}
+
+
+.boykovAccountTrigger__email {
+  min-width:
+    0;
+
+  overflow:
+    hidden;
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+}
+
+
+.boykovAccountTrigger__chevron {
+  flex:
+    0 0 auto;
+
+  font-size:
+    10px;
+
+  transition:
+    transform .15s ease;
+}
+
+
+.boykovAccountTrigger[
+  aria-expanded="true"
+]
+.boykovAccountTrigger__chevron {
+  transform:
+    rotate(180deg);
+}
+
+
+/*
+ * MENU
+ */
+
+.boykovAccountMenu[hidden] {
+  display:
+    none !important;
+}
+
+
+.boykovAccountMenu {
+  position:
+    absolute;
+
+  top:
+    calc(100% + 9px);
+
+  right:
+    0;
+
+  z-index:
+    500;
+
+  width:
+    260px;
+
+  overflow:
+    hidden;
+
+  border:
+    var(--border-ink);
+
+  border-radius:
+    var(--radius-sm);
+
+  background:
+    var(--color-surface);
+
+  box-shadow:
+    4px 4px 0
+    var(--color-primary);
+
+  animation:
+    boykovAccountMenuIn
+    .12s ease both;
+}
+
+
+@keyframes
+boykovAccountMenuIn {
+
+  from {
+    opacity:
+      0;
+
+    transform:
+      translateY(-4px);
+  }
+
+  to {
+    opacity:
+      1;
+
+    transform:
+      translateY(0);
+  }
+
+}
+
+
+.boykovAccountMenu__head {
+  padding:
+    15px 16px 14px;
+}
+
+
+.boykovAccountMenu__label {
+  margin-bottom:
+    6px;
+
+  color:
+    var(--color-primary);
+
+  font-family:
+    var(--font-mono);
+
+  font-size:
+    9px;
+
+  font-weight:
+    700;
+
+  letter-spacing:
+    .06em;
+}
+
+
+.boykovAccountMenu__email {
+  overflow:
+    hidden;
+
+  color:
+    var(--color-text);
+
+  font-family:
+    var(--font-mono);
+
+  font-size:
+    11px;
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
+}
+
+
+.boykovAccountMenu__divider {
+  height:
+    1px;
+
+  background:
+    var(--color-border);
+}
+
+
+.boykovAccountMenu__item {
+  width:
+    100%;
+
+  min-height:
+    45px;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    space-between;
+
+  gap:
+    20px;
+
+  padding:
+    10px 16px;
+
+  border:
+    0;
+
+  border-radius:
+    0;
+
+  background:
+    transparent;
+
+  color:
+    var(--color-text);
+
+  font-family:
+    var(--font-mono);
+
+  font-size:
+    11px;
+
+  font-weight:
+    600;
+
+  text-align:
+    left;
+
+  cursor:
+    pointer;
+
+  transition:
+    background .12s ease,
+    color .12s ease;
+}
+
+
+.boykovAccountMenu__item
++
+.boykovAccountMenu__item {
+  border-top:
+    1px solid
+    var(--color-border);
+}
+
+
+.boykovAccountMenu__item:hover {
+  background:
+    var(--color-primary-light);
+
+  color:
+    var(--color-primary);
+}
+
+
+.boykovAccountMenu__arrow {
+  font-size:
+    16px;
+}
+
+
+.boykovAccountMenu__logout {
+  color:
+    var(--color-text-muted);
+}
+
+
+/*
+ * MOBILE
+ */
+
+@media (
+  max-width: 650px
+) {
+
+  .boykovAccountDropdown {
+    min-width:
+      0 !important;
+  }
+
+
+  .boykovAccountTrigger {
+    max-width:
+      220px;
+
+    min-width:
+      0;
+  }
+
+
+  .boykovAccountMenu {
+    position:
+      fixed;
+
+    top:
+      auto;
+
+    right:
+      14px;
+
+    left:
+      14px;
+
+    bottom:
+      14px;
+
+    width:
+      auto;
+
+    max-width:
+      none;
+  }
+
+
+  .boykovAccountMenu__item {
+    min-height:
+      52px;
+
+    font-size:
+      12px;
+  }
+
+}

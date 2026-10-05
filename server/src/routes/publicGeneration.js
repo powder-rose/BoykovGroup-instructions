@@ -1187,53 +1187,6 @@ publicGenerationRouter.get(
 
 /*
  * ============================================================
- * ORDER STATUS
- * ============================================================
- */
-publicGenerationRouter.get(
-  "/orders/:id",
-
-  (req, res) => {
-
-    const accessToken =
-      String(
-        req.get(
-          "x-order-token"
-        ) ??
-        ""
-      );
-
-
-    const order =
-      getPublicGenerationOrderView(
-        req.params.id,
-        accessToken
-      );
-
-
-    if (!order) {
-
-      return res
-        .status(404)
-        .json({
-          error:
-            "Заказ не найден"
-        });
-
-    }
-
-
-    return res.json(
-      order
-    );
-
-  }
-);
-
-
-
-/*
- * ============================================================
  * ADMIN_PUBLICATION_ROUTES_V2
  * ============================================================
  */

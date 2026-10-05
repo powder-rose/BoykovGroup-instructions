@@ -13,8 +13,14 @@ import {
  * Поэтому его переименование сейчас могло бы
  * сломать административные запросы.
  */
-const TOKEN_STORAGE_KEY =
+const ADMIN_TOKEN_STORAGE_KEY =
   "boykovgroup_admin_token";
+
+const USER_TOKEN_STORAGE_KEY =
+  "boykovgroup_auth_token";
+
+const ACTIVE_ROLE_STORAGE_KEY =
+  "boykovgroup_active_auth_role";
 
 
 const AUTH_START =
@@ -148,10 +154,32 @@ function persistAuth(
   data,
   dispatch
 ) {
+
+  const role =
+    data.user?.role ===
+      "admin"
+      ? "admin"
+      : "user";
+
+
+  const storageKey =
+    role ===
+      "admin"
+      ? ADMIN_TOKEN_STORAGE_KEY
+      : USER_TOKEN_STORAGE_KEY;
+
+
   localStorage.setItem(
-    TOKEN_STORAGE_KEY,
+    storageKey,
     data.token
   );
+
+
+  sessionStorage.setItem(
+    ACTIVE_ROLE_STORAGE_KEY,
+    role
+  );
+
 
   dispatch(
     authSuccess(
@@ -159,6 +187,7 @@ function persistAuth(
       data.user
     )
   );
+
 }
 
 
@@ -209,39 +238,50 @@ export function login(
  * авторизует пользователя.
  */
 export function register(
-  email,
-  password
+  registration
 ) {
+
   return async (
     dispatch
   ) => {
+
     dispatch(
       authStart()
     );
 
+
     try {
+
       const data =
         await registerRequest(
-          email,
-          password
+          registration
         );
+
 
       persistAuth(
         data,
         dispatch
       );
 
+
       return true;
-    } catch (error) {
+
+    }
+    catch (error) {
+
       dispatch(
         authFail(
           error.message
         )
       );
 
+
       return false;
+
     }
+
   };
+
 }
 
 
@@ -254,18 +294,48 @@ export function clearAuthError() {
 
 
 export function logout() {
+
   return (
     dispatch
   ) => {
-    localStorage.removeItem(
-      TOKEN_STORAGE_KEY
+
+    const role =
+      sessionStorage.getItem(
+        ACTIVE_ROLE_STORAGE_KEY
+      );
+
+
+    if (
+      role ===
+      "user"
+    ) {
+
+      localStorage.removeItem(
+        USER_TOKEN_STORAGE_KEY
+      );
+
+    }
+    else {
+
+      localStorage.removeItem(
+        ADMIN_TOKEN_STORAGE_KEY
+      );
+
+    }
+
+
+    sessionStorage.removeItem(
+      ACTIVE_ROLE_STORAGE_KEY
     );
+
 
     dispatch({
       type:
         AUTH_LOGOUT
     });
+
   };
+
 }
 
 
@@ -274,28 +344,73 @@ export function logout() {
  * Работает одинаково для admin и user.
  */
 export function restoreSession() {
+
   return async (
     dispatch
   ) => {
-    const token =
-      localStorage.getItem(
-        TOKEN_STORAGE_KEY
+
+    const activeRole =
+      sessionStorage.getItem(
+        ACTIVE_ROLE_STORAGE_KEY
       );
 
+
+    const token =
+      activeRole ===
+        "user"
+        ? localStorage.getItem(
+            USER_TOKEN_STORAGE_KEY
+          )
+
+        : activeRole ===
+            "admin"
+          ? localStorage.getItem(
+              ADMIN_TOKEN_STORAGE_KEY
+            )
+
+          : (
+              localStorage.getItem(
+                ADMIN_TOKEN_STORAGE_KEY
+              )
+              ||
+              localStorage.getItem(
+                USER_TOKEN_STORAGE_KEY
+              )
+            );
+
+
     if (!token) {
+
       dispatch({
         type:
           AUTH_LOGOUT
       });
 
       return;
+
     }
 
+
     try {
+
       const data =
         await fetchMe(
           token
         );
+
+
+      const restoredRole =
+        data.user?.role ===
+          "admin"
+          ? "admin"
+          : "user";
+
+
+      sessionStorage.setItem(
+        ACTIVE_ROLE_STORAGE_KEY,
+        restoredRole
+      );
+
 
       dispatch(
         authSuccess(
@@ -303,17 +418,50 @@ export function restoreSession() {
           data.user
         )
       );
-    } catch {
-      localStorage.removeItem(
-        TOKEN_STORAGE_KEY
+
+    }
+    catch {
+
+      if (
+        localStorage.getItem(
+          ADMIN_TOKEN_STORAGE_KEY
+        ) === token
+      ) {
+
+        localStorage.removeItem(
+          ADMIN_TOKEN_STORAGE_KEY
+        );
+
+      }
+
+
+      if (
+        localStorage.getItem(
+          USER_TOKEN_STORAGE_KEY
+        ) === token
+      ) {
+
+        localStorage.removeItem(
+          USER_TOKEN_STORAGE_KEY
+        );
+
+      }
+
+
+      sessionStorage.removeItem(
+        ACTIVE_ROLE_STORAGE_KEY
       );
+
 
       dispatch({
         type:
           AUTH_LOGOUT
       });
+
     }
+
   };
+
 }
 
 

@@ -1,0 +1,137 @@
+/* ADMIN DASHBOARD TABS V1 */
+
+.boykovAdminDashboardTabs {
+  width: 100%;
+  box-sizing: border-box;
+
+  margin: 0 0 24px;
+
+  border: 1px solid
+    rgba(24, 36, 58, 0.14);
+
+  background: #fff;
+}
+
+.boykovAdminDashboardTabs__inner {
+  display: flex;
+  align-items: stretch;
+
+  min-height: 52px;
+
+  overflow-x: auto;
+
+  scrollbar-width: none;
+}
+
+.boykovAdminDashboardTabs__inner::-webkit-scrollbar {
+  display: none;
+}
+
+.boykovAdminDashboardTabs__button {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 150px;
+
+  padding: 0 26px;
+
+  border: 0;
+  border-right: 1px solid
+    rgba(24, 36, 58, 0.09);
+
+  background: transparent;
+
+  font: inherit;
+
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 500;
+
+  color: #78859a;
+
+  cursor: pointer;
+
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.boykovAdminDashboardTabs__button:hover {
+  color: #172136;
+
+  background:
+    rgba(244, 247, 252, 0.65);
+}
+
+.boykovAdminDashboardTabs__button::after {
+  content: "";
+
+  position: absolute;
+
+  left: 22px;
+  right: 22px;
+  bottom: 0;
+
+  height: 2px;
+
+  background: transparent;
+}
+
+.boykovAdminDashboardTabs__button--active {
+  color: #1763d6;
+
+  background:
+    rgba(36, 104, 216, 0.035);
+}
+
+.boykovAdminDashboardTabs__button--active::after {
+  background: #1763d6;
+}
+
+
+/*
+ * Существующие React/JS-блоки
+ * не удаляем и не переносим.
+ * Только скрываем неактивные.
+ */
+.boykovAdminDashboardSection--hidden {
+  display: none !important;
+}
+
+
+/*
+ * После появления вкладок самим
+ * разделам больше не нужен большой
+ * внешний верхний отступ.
+ */
+[data-boykov-admin-tab-section] {
+  margin-top: 0 !important;
+}
+
+
+@media (max-width: 650px) {
+  .boykovAdminDashboardTabs {
+    margin-bottom: 18px;
+  }
+
+  .boykovAdminDashboardTabs__inner {
+    min-height: 48px;
+  }
+
+  .boykovAdminDashboardTabs__button {
+    min-width: 125px;
+
+    padding:
+      0 18px;
+
+    font-size: 12px;
+  }
+
+  .boykovAdminDashboardTabs__button::after {
+    left: 16px;
+    right: 16px;
+  }
+}

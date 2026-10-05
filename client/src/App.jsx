@@ -2,10 +2,10 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { useDispatch, useSelector } from "react-redux";
 import InstructionPage from "./components/InstructionPage/InstructionPage.jsx";
 import UrgentGenerationPage from "./components/UrgentGenerationPage/UrgentGenerationPage.jsx";
-import UrgentGenerationHint from "./components/UrgentGenerationHint/UrgentGenerationHint.jsx";
 import Header from "./components/Header/Header.jsx";
 import InstructionsCatalog from "./components/InstructionCatalog/InstructionsCatalog.jsx";
 import InstructionList from "./components/InstructionList/InstructionList.jsx";
+import InstructionSort from "./components/InstructionSort/InstructionSort.jsx";
 import Loader from "./components/Loader/Loader.jsx";
 import EmptyState from "./components/EmptyState/EmptyState.jsx";
 import HeroPortrait from "./components/HeroPortrait/HeroPortrait.jsx";
@@ -18,10 +18,17 @@ import {
   deleteInstruction,
 } from "./store/instructionsSlice.js";
 import Navigation from "./components/Navigation/Navigation.jsx";
-import { restoreSession, selectIsAdmin } from "./store/authSlice.js";
+import {
+  restoreSession,
+  selectAuthToken,
+  selectIsAdmin
+} from "./store/authSlice.js";
 import { PAGE_SIZE } from "./constants.js";
 import styles from "./App.module.css";
 import EditInstructionModal from "./components/EditInstructionModal/EditInstructionModal.jsx";
+import {
+  updateInstruction
+} from "./api/instructionsApi.js";
 
 import {
   Routes,
@@ -29,6 +36,9 @@ import {
   useLocation
 } from "react-router-dom";
 import AdminPanel from "./components/AdminPanel/AdminPanel.jsx";
+import SiteFooter from "./components/SiteFooter/SiteFooter.jsx";
+import CookieConsent from "./components/CookieConsent/CookieConsent.jsx";
+import VisitorTracker from "./components/VisitorTracker/VisitorTracker.jsx";
 
 
 
@@ -37,7 +47,16 @@ export default function App() {
 
   const location =
     useLocation();
-  const isAdmin = useSelector(selectIsAdmin);
+  const isAdmin =
+    useSelector(
+      selectIsAdmin
+    );
+
+  const authToken =
+    useSelector(
+      selectAuthToken
+    );
+
   const [importId,setImportId] = useState(null);
   const [queryInput, setQueryInput] = useState(
     () =>
@@ -500,40 +519,52 @@ loadMoreLockRef.current ||
 
   async function handleEditSave(updated) {
 
-  const response = await fetch(
-    `/api/instructions/${updated.id}`,
-    {
-      method: "PUT",
-
-     headers:{
-  "Content-Type":"application/json",
-  "Authorization": `Bearer ${localStorage.getItem("boykovgroup_admin_token")}`
-},
-
-      body: JSON.stringify(updated)
+    if (
+      !isAdmin ||
+      !authToken
+    ) {
+      return;
     }
-  );
 
 
-  if (response.ok) {
+    try {
 
-    const saved = await response.json();
+      await updateInstruction(
+        updated.id,
+        updated,
+        authToken
+      );
 
 
-    setEditingInstruction(null);
+      setEditingInstruction(
+        null
+      );
 
 
-    dispatch(
-      searchInstructions({
-        query: debouncedQuery,
-        page: 1,
-        pageSize: PAGE_SIZE
-      })
-    );
+      dispatch(
+        searchInstructions({
+          query:
+            debouncedQuery,
+
+          page:
+            1,
+
+          pageSize:
+            PAGE_SIZE
+        })
+      );
+
+    }
+    catch(error) {
+
+      console.error(
+        "Instruction save error:",
+        error
+      );
+
+    }
 
   }
-
-}
 
   const showEmptyState = !isSearching && !searchError && debouncedQuery.trim() && items.length === 0;
 
@@ -550,6 +581,11 @@ loadMoreLockRef.current ||
 }
 
  return (
+  <>
+
+    <VisitorTracker />
+
+
   <Routes>
 
     <Route
@@ -760,8 +796,13 @@ loadMoreLockRef.current ||
                 </div>
 
 
+<InstructionSort />
+
+
 <InstructionList
   instructions={items}
+  total={total}
+  query={debouncedQuery}
   isAdmin={isAdmin}
   onDelete={handleDelete}
   onEdit={handleEditOpen}
@@ -834,7 +875,6 @@ loadMoreLockRef.current ||
             )}
 
           </main>
-<UrgentGenerationHint />
 
           {editingInstruction && (
 
@@ -869,5 +909,14 @@ loadMoreLockRef.current ||
 
 
   </Routes>
+
+
+    <SiteFooter />
+
+
+    <CookieConsent />
+
+
+  </>
 );
 }

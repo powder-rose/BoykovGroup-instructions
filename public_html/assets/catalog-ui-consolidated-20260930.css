@@ -1,0 +1,1975 @@
+/*
+ * ============================================================
+ * BOYKOVDOCS CATALOG UI — CONSOLIDATED 2026-09-30
+ *
+ * Содержимое перенесено из старых production override-файлов
+ * в исходном cascade-порядке.
+ * ============================================================
+ */
+
+
+/*
+ * ------------------------------------------------------------
+ * SOURCE: cards-hover-shadow-20260828-120355.css
+ * ------------------------------------------------------------
+ */
+
+/*
+ * ============================================================
+ * PROFESSION / WORK CARDS — HOVER SHADOW
+ * ============================================================
+ *
+ * Default:
+ *   original card style.
+ *
+ * Hover:
+ *   sharp blue shadow inspired by search.
+ */
+
+
+/*
+ * Никакой дополнительной тени
+ * в обычном состоянии.
+ */
+
+.boykovCardSearchShadow {
+  box-shadow:
+    none !important;
+
+  transform:
+    none !important;
+
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease !important;
+}
+
+
+/*
+ * Тень появляется только при hover.
+ *
+ * Чёткая, без blur/glow.
+ */
+
+.boykovCardSearchShadow:hover {
+
+  border-color:
+    rgba(66, 120, 211, .48) !important;
+
+  box-shadow:
+    4px 4px 0
+    rgba(66, 120, 211, .22) !important;
+
+  transform:
+    none !important;
+}
+
+
+/*
+ * Не добавляем hover-эффект
+ * на touch-устройствах.
+ */
+
+@media (hover: none) {
+
+  .boykovCardSearchShadow:hover {
+    box-shadow:
+      none !important;
+
+    transform:
+      none !important;
+  }
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * SOURCE: cards-hover-shadow-strong-20260828-120604.css
+ * ------------------------------------------------------------
+ */
+
+/*
+ * ============================================================
+ * STRONG SHARP BLUE HOVER SHADOW
+ * ============================================================
+ */
+
+
+/*
+ * Обычное состояние:
+ * никакой дополнительной тени.
+ */
+
+.boykovCardSearchShadow {
+  box-shadow: none !important;
+
+  transform: none !important;
+
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease !important;
+}
+
+
+/*
+ * Hover:
+ * чёткая насыщенная синяя тень
+ * вправо и вниз.
+ */
+
+@media (hover: hover) {
+
+  .boykovCardSearchShadow:hover {
+
+    border-color:
+      #2f6fd6 !important;
+
+    box-shadow:
+      5px 5px 0
+      #2f6fd6 !important;
+
+    transform:
+      none !important;
+  }
+
+}
+
+
+/*
+ * На touch-устройствах hover не оставляем.
+ */
+
+@media (hover: none) {
+
+  .boykovCardSearchShadow,
+  .boykovCardSearchShadow:hover {
+
+    box-shadow:
+      none !important;
+
+    transform:
+      none !important;
+  }
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * SOURCE: cards-white-hover-20260828-121845.css
+ * ------------------------------------------------------------
+ */
+
+/*
+ * ============================================================
+ * PROFESSION CARDS — WHITE HOVER V1
+ * ============================================================
+ *
+ * Hover:
+ * - white surface
+ * - dark navy text
+ * - blue link / arrow
+ * - sharp blue shadow
+ *
+ * Generation CTA is excluded.
+ */
+
+
+/*
+ * Плавно меняем только визуальные свойства.
+ */
+
+.boykovCardSearchShadow {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease !important;
+}
+
+
+/*
+ * Только обычные карточки инструкций.
+ */
+
+@media (hover: hover) {
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover {
+    background:
+      #ffffff !important;
+
+    color:
+      #172b45 !important;
+
+    border-color:
+      #2f6fd6 !important;
+
+    box-shadow:
+      5px 5px 0
+      #2f6fd6 !important;
+
+    transform:
+      none !important;
+  }
+
+
+  /*
+   * Если исходный CSS при hover
+   * красит дочерний текст в белый —
+   * принудительно возвращаем тёмный.
+   */
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover * {
+    color:
+      #172b45 !important;
+  }
+
+
+  /*
+   * Ссылку и стрелку оставляем синими.
+   */
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover a,
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover a * {
+    color:
+      #2f6fd6 !important;
+  }
+
+}
+
+
+/*
+ * Touch:
+ * никакого зависшего hover.
+ */
+
+@media (hover: none) {
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover {
+    box-shadow:
+      none !important;
+
+    transform:
+      none !important;
+  }
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * SOURCE: cards-white-hover-v2-20260828-122006.css
+ * ------------------------------------------------------------
+ */
+
+/*
+ * ============================================================
+ * CARD WHITE HOVER V2
+ * ============================================================
+ *
+ * Проблема V1:
+ * синий background находился на внутреннем
+ * слое карточки, а не только на outer card.
+ */
+
+
+/*
+ * Обычное состояние не меняем.
+ */
+
+.boykovCardSearchShadow {
+  transform: none !important;
+
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease !important;
+}
+
+
+/*
+ * ============================================================
+ * DESKTOP HOVER
+ * ============================================================
+ */
+
+@media (hover: hover) {
+
+  /*
+   * Внешняя карточка.
+   */
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover {
+    background:
+      #ffffff !important;
+
+    border-color:
+      #2f6fd6 !important;
+
+    box-shadow:
+      5px 5px 0
+      #2f6fd6 !important;
+
+    transform:
+      none !important;
+  }
+
+
+  /*
+   * ВАЖНО:
+   * убираем синий background
+   * со внутренних layout-слоёв.
+   */
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover > *,
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover > * > * {
+    background-color:
+      transparent !important;
+
+    background-image:
+      none !important;
+  }
+
+
+  /*
+   * Если заливка сделана псевдоэлементом.
+   */
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover::before,
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover::after,
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover > *::before,
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover > *::after {
+    background:
+      transparent !important;
+  }
+
+
+  /*
+   * Основной текст.
+   */
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover,
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover span,
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover p,
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover h2,
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover h3 {
+    color:
+      #172b45 !important;
+  }
+
+
+  /*
+   * Ссылка и стрелка.
+   */
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover a,
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover a span {
+    color:
+      #2f6fd6 !important;
+  }
+
+
+  /*
+   * Номер карточки делаем спокойнее.
+   */
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover
+  [class*="index"] {
+    color:
+      #7c91ad !important;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * TOUCH
+ * ============================================================
+ */
+
+@media (hover: none) {
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover {
+    box-shadow:
+      none !important;
+
+    transform:
+      none !important;
+  }
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * SOURCE: generation-cta-native-20260828-122144.css
+ * ------------------------------------------------------------
+ */
+
+/*
+ * ============================================================
+ * GENERATION CTA NATIVE V1
+ * ============================================================
+ *
+ * CTA становится частью той же системы,
+ * что карточки инструкций:
+ *
+ * default:
+ *   white surface
+ *   dark navy border
+ *
+ * accents:
+ *   blue badge
+ *   blue primary button
+ *
+ * hover:
+ *   sharp solid blue shadow
+ */
+
+
+/*
+ * ============================================================
+ * CARD
+ * ============================================================
+ */
+
+.generationListCard {
+  position: relative;
+
+  overflow: visible !important;
+
+  background:
+    #ffffff !important;
+
+  color:
+    #172b45 !important;
+
+  border:
+    2px solid
+    #172b45 !important;
+
+  border-radius:
+    11px !important;
+
+  box-shadow:
+    none !important;
+
+  transform:
+    none !important;
+
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease !important;
+}
+
+
+/*
+ * Старая синяя заливка находится
+ * также на внутренних слоях.
+ */
+
+.generationListCard > *,
+.generationListCardInner,
+.generationListBody {
+  background:
+    transparent !important;
+
+  background-image:
+    none !important;
+}
+
+
+/*
+ * Убираем старые декоративные overlays,
+ * если они создавали синюю поверхность.
+ */
+
+.generationListCard::before,
+.generationListCard::after,
+.generationListCardInner::before,
+.generationListCardInner::after {
+  background:
+    transparent !important;
+}
+
+
+/*
+ * ============================================================
+ * INNER LAYOUT
+ * ============================================================
+ */
+
+.generationListCardInner {
+  height: 100%;
+
+  color:
+    #172b45 !important;
+}
+
+
+.generationListBody {
+  height: 100%;
+
+  display: flex !important;
+  flex-direction: column;
+  align-items: flex-start;
+
+  color:
+    #172b45 !important;
+}
+
+
+/*
+ * ============================================================
+ * EYEBROW / BADGE
+ * ============================================================
+ */
+
+.generationListEyebrow {
+  display: inline-flex !important;
+
+  align-items: center;
+
+  width: fit-content;
+
+  margin-bottom:
+    16px !important;
+
+  padding:
+    4px
+    8px !important;
+
+  color:
+    #2f6fd6 !important;
+
+  background:
+    rgba(47, 111, 214, .07) !important;
+
+  border:
+    1px solid
+    rgba(47, 111, 214, .30) !important;
+
+  border-radius:
+    999px !important;
+
+  font-size:
+    9px !important;
+
+  line-height:
+    1 !important;
+
+  font-weight:
+    700 !important;
+
+  letter-spacing:
+    .055em !important;
+
+  text-transform:
+    uppercase;
+}
+
+
+/*
+ * ============================================================
+ * TITLE
+ * ============================================================
+ */
+
+.generationListTitle {
+  display: block;
+
+  margin-bottom:
+    9px !important;
+
+  color:
+    #172b45 !important;
+
+  font-weight:
+    600 !important;
+}
+
+
+/*
+ * ============================================================
+ * DESCRIPTION
+ * ============================================================
+ */
+
+.generationListText {
+  display: block;
+
+  margin-bottom:
+    18px !important;
+
+  color:
+    #667b96 !important;
+
+  font-size:
+    13px !important;
+
+  line-height:
+    1.45 !important;
+}
+
+
+/*
+ * ============================================================
+ * BUTTON
+ * ============================================================
+ */
+
+.generationListButton {
+  display: inline-flex !important;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height:
+    38px;
+
+  margin-top:
+    auto !important;
+
+  padding:
+    9px
+    14px !important;
+
+  color:
+    #ffffff !important;
+
+  background:
+    #2f6fd6 !important;
+
+  border:
+    1px solid
+    #2f6fd6 !important;
+
+  border-radius:
+    8px !important;
+
+  box-shadow:
+    none !important;
+
+  font-weight:
+    600 !important;
+
+  text-decoration:
+    none !important;
+
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease !important;
+}
+
+
+.generationListButton *,
+.generationListCard:hover .generationListButton,
+.generationListCard:hover .generationListButton * {
+  color:
+    #ffffff !important;
+}
+
+
+/*
+ * Button hover.
+ */
+
+@media (hover: hover) {
+
+  .generationListButton:hover {
+    background:
+      #245fbe !important;
+
+    border-color:
+      #245fbe !important;
+
+    box-shadow:
+      3px 3px 0
+      rgba(47, 111, 214, .22) !important;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * CARD HOVER
+ * ============================================================
+ */
+
+@media (hover: hover) {
+
+  .generationListCard:hover {
+    background:
+      #ffffff !important;
+
+    border-color:
+      #2f6fd6 !important;
+
+    /*
+     * Та же логика, которую сейчас
+     * используем у карточек профессий.
+     */
+    box-shadow:
+      5px 5px 0
+      #2f6fd6 !important;
+
+    transform:
+      none !important;
+  }
+
+
+  .generationListCard:hover
+  .generationListTitle {
+    color:
+      #172b45 !important;
+  }
+
+
+  .generationListCard:hover
+  .generationListText {
+    color:
+      #667b96 !important;
+  }
+
+
+  .generationListCard:hover
+  .generationListEyebrow {
+    color:
+      #2f6fd6 !important;
+
+    background:
+      rgba(47, 111, 214, .07) !important;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * TOUCH
+ * ============================================================
+ */
+
+@media (hover: none) {
+
+  .generationListCard,
+  .generationListCard:hover {
+    box-shadow:
+      none !important;
+
+    transform:
+      none !important;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * MOBILE
+ * ============================================================
+ */
+
+@media (max-width: 600px) {
+
+  .generationListCard {
+    border-radius:
+      10px !important;
+  }
+
+
+  .generationListEyebrow {
+    margin-bottom:
+      13px !important;
+  }
+
+
+  .generationListText {
+    margin-bottom:
+      15px !important;
+
+    font-size:
+      12px !important;
+  }
+
+
+  .generationListButton {
+    min-height:
+      36px;
+
+    padding:
+      8px
+      12px !important;
+  }
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * SOURCE: generation-cta-button-fix-20260828-122244.css
+ * ------------------------------------------------------------
+ */
+
+/*
+ * ============================================================
+ * GENERATION CTA BUTTON HOVER FIX V1
+ * ============================================================
+ */
+
+
+/*
+ * Кнопка всегда существует поверх
+ * внутренних hover-слоёв карточки.
+ */
+
+.generationListCard .generationListButton,
+.generationListCard:hover .generationListButton {
+
+  display: inline-flex !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: auto !important;
+  min-width: 0 !important;
+  min-height: 38px !important;
+
+  margin-top: auto !important;
+
+  padding:
+    9px
+    14px !important;
+
+  position: relative !important;
+
+  z-index: 10 !important;
+
+  visibility: visible !important;
+
+  opacity: 1 !important;
+
+  pointer-events: auto !important;
+
+  color:
+    #ffffff !important;
+
+  background:
+    #2f6fd6 !important;
+
+  background-color:
+    #2f6fd6 !important;
+
+  background-image:
+    none !important;
+
+  border:
+    1px solid
+    #2f6fd6 !important;
+
+  border-radius:
+    8px !important;
+
+  box-shadow:
+    none !important;
+
+  transform:
+    none !important;
+
+  text-decoration:
+    none !important;
+
+  font-weight:
+    600 !important;
+
+  white-space:
+    nowrap !important;
+}
+
+
+/*
+ * Любые вложенные span / стрелка
+ * тоже остаются белыми.
+ */
+
+.generationListCard .generationListButton *,
+.generationListCard:hover .generationListButton * {
+
+  visibility:
+    visible !important;
+
+  opacity:
+    1 !important;
+
+  color:
+    #ffffff !important;
+
+  background:
+    transparent !important;
+
+  transform:
+    none !important;
+}
+
+
+/*
+ * Даже если старый hover задаёт
+ * transparent всему внутреннему слою,
+ * возвращаем кнопке её поверхность.
+ */
+
+.generationListCard:hover
+.generationListButton {
+
+  background:
+    #2f6fd6 !important;
+
+  background-color:
+    #2f6fd6 !important;
+
+  border-color:
+    #2f6fd6 !important;
+
+  color:
+    #ffffff !important;
+}
+
+
+/*
+ * Hover самой кнопки.
+ */
+
+@media (hover: hover) {
+
+  .generationListCard:hover
+  .generationListButton:hover {
+
+    background:
+      #245fbe !important;
+
+    background-color:
+      #245fbe !important;
+
+    border-color:
+      #245fbe !important;
+
+    color:
+      #ffffff !important;
+
+    box-shadow:
+      3px 3px 0
+      #8bb0ed !important;
+  }
+
+}
+
+
+/*
+ * Защищаем layout CTA:
+ * кнопка должна прижиматься вниз.
+ */
+
+.generationListCard
+.generationListBody {
+
+  display:
+    flex !important;
+
+  flex-direction:
+    column !important;
+
+  align-items:
+    flex-start !important;
+
+  height:
+    100% !important;
+}
+
+
+/*
+ * Touch
+ */
+
+@media (max-width: 600px) {
+
+  .generationListCard .generationListButton,
+  .generationListCard:hover .generationListButton {
+
+    min-height:
+      36px !important;
+
+    padding:
+      8px
+      12px !important;
+  }
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * SOURCE: remove-sorting-line-20260828-122448.css
+ * ------------------------------------------------------------
+ */
+
+/*
+ * REMOVE SORTING SEPARATOR V1
+ *
+ * Убираем лишнюю горизонтальную линию
+ * между сортировкой и карточками.
+ */
+
+.boykovInstructionSort {
+  border-bottom: 0 !important;
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * SOURCE: generation-cta-no-top-accent-20260828-122721.css
+ * ------------------------------------------------------------
+ */
+
+/*
+ * ============================================================
+ * GENERATION CTA — REMOVE LEGACY TOP ACCENT
+ * ============================================================
+ *
+ * Старый базовый CSS создаёт:
+ *
+ * .generationListCard::before
+ * height: 3px
+ *
+ * и на hover / focus-within задаёт ему gradient.
+ *
+ * Полностью отключаем этот декоративный слой.
+ */
+
+.generationListCard::before,
+.generationListCard:hover::before,
+.generationListCard:focus-within::before {
+  content: none !important;
+
+  display: none !important;
+
+  width: 0 !important;
+  height: 0 !important;
+
+  background: none !important;
+  background-image: none !important;
+
+  border: 0 !important;
+
+  box-shadow: none !important;
+}
+
+
+/*
+ * Не трогаем геометрию самой карточки.
+ * Остаются:
+ *
+ * - белый фон;
+ * - основная рамка;
+ * - синяя hover-тень.
+ */
+
+@media (hover: hover) {
+
+  .generationListCard:hover {
+    border-color:
+      #2f6fd6 !important;
+
+    box-shadow:
+      5px 5px 0
+      #2f6fd6 !important;
+
+    transform:
+      none !important;
+  }
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * SOURCE: generation-cta-final-20260828-123138.css
+ * ------------------------------------------------------------
+ */
+
+/*
+ * ============================================================
+ * GENERATION CTA — FINAL DESIGN V1
+ * ============================================================
+ *
+ * Approved:
+ *
+ * Не нашли нужную инструкцию?
+ * Создадим её за 2 минуты!
+ *
+ * Visual system:
+ * soft blue surface
+ * blue border
+ * sharp blue shadow
+ */
+
+
+/*
+ * ============================================================
+ * CARD
+ * ============================================================
+ */
+
+.generationListCard {
+  position: relative !important;
+
+  overflow: visible !important;
+
+  background:
+    #f2f7ff !important;
+
+  background-color:
+    #f2f7ff !important;
+
+  background-image:
+    none !important;
+
+  color:
+    #172b45 !important;
+
+  border:
+    2px solid
+    #78a8ee !important;
+
+  border-radius:
+    11px !important;
+
+  /*
+   * Небольшая постоянная
+   * чёткая синяя тень.
+   */
+  box-shadow:
+    3px 3px 0
+    rgba(47, 111, 214, .16) !important;
+
+  transform:
+    none !important;
+
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease !important;
+}
+
+
+/*
+ * ============================================================
+ * REMOVE LEGACY DECOR
+ * ============================================================
+ */
+
+.generationListCard::before,
+.generationListCard::after,
+.generationListCard:hover::before,
+.generationListCard:hover::after,
+.generationListCard:focus-within::before,
+.generationListCard:focus-within::after {
+  content:
+    none !important;
+
+  display:
+    none !important;
+
+  background:
+    none !important;
+
+  background-image:
+    none !important;
+
+  width:
+    0 !important;
+
+  height:
+    0 !important;
+
+  border:
+    0 !important;
+
+  box-shadow:
+    none !important;
+}
+
+
+/*
+ * Внутренние слои не должны
+ * возвращать старую синюю заливку.
+ */
+
+.generationListCard > *,
+.generationListCardInner,
+.generationListBody {
+  background:
+    transparent !important;
+
+  background-color:
+    transparent !important;
+
+  background-image:
+    none !important;
+}
+
+
+/*
+ * ============================================================
+ * BODY
+ * ============================================================
+ */
+
+.generationListCardInner {
+  height:
+    100% !important;
+
+  color:
+    #172b45 !important;
+}
+
+
+.generationListBody {
+  display:
+    flex !important;
+
+  flex-direction:
+    column !important;
+
+  align-items:
+    flex-start !important;
+
+  height:
+    100% !important;
+
+  color:
+    #172b45 !important;
+}
+
+
+/*
+ * ============================================================
+ * BADGE
+ * ============================================================
+ */
+
+.generationListEyebrow {
+  display:
+    inline-flex !important;
+
+  align-items:
+    center !important;
+
+  width:
+    fit-content !important;
+
+  margin-bottom:
+    15px !important;
+
+  padding:
+    4px
+    8px !important;
+
+  color:
+    #2f6fd6 !important;
+
+  background:
+    #e7f0ff !important;
+
+  border:
+    1px solid
+    #a9c7f5 !important;
+
+  border-radius:
+    999px !important;
+
+  font-size:
+    9px !important;
+
+  line-height:
+    1 !important;
+
+  font-weight:
+    700 !important;
+
+  letter-spacing:
+    .055em !important;
+
+  text-transform:
+    uppercase !important;
+}
+
+
+/*
+ * ============================================================
+ * TITLE
+ * ============================================================
+ */
+
+.generationListTitle {
+  display:
+    block !important;
+
+  margin-bottom:
+    9px !important;
+
+  color:
+    #172b45 !important;
+
+  font-weight:
+    600 !important;
+}
+
+
+/*
+ * ============================================================
+ * DESCRIPTION
+ * ============================================================
+ */
+
+.generationListText {
+  display:
+    block !important;
+
+  margin-bottom:
+    18px !important;
+
+  color:
+    #627996 !important;
+
+  font-size:
+    13px !important;
+
+  line-height:
+    1.45 !important;
+
+  font-weight:
+    500 !important;
+}
+
+
+/*
+ * ============================================================
+ * BUTTON
+ * ============================================================
+ */
+
+.generationListCard
+.generationListButton,
+.generationListCard:hover
+.generationListButton {
+
+  position:
+    relative !important;
+
+  z-index:
+    10 !important;
+
+  display:
+    inline-flex !important;
+
+  align-items:
+    center !important;
+
+  justify-content:
+    center !important;
+
+  width:
+    auto !important;
+
+  min-height:
+    38px !important;
+
+  margin-top:
+    auto !important;
+
+  padding:
+    9px
+    14px !important;
+
+  visibility:
+    visible !important;
+
+  opacity:
+    1 !important;
+
+  pointer-events:
+    auto !important;
+
+  color:
+    #ffffff !important;
+
+  background:
+    #2f6fd6 !important;
+
+  background-color:
+    #2f6fd6 !important;
+
+  background-image:
+    none !important;
+
+  border:
+    1px solid
+    #2f6fd6 !important;
+
+  border-radius:
+    8px !important;
+
+  box-shadow:
+    none !important;
+
+  transform:
+    none !important;
+
+  text-decoration:
+    none !important;
+
+  font-weight:
+    600 !important;
+
+  white-space:
+    nowrap !important;
+}
+
+
+.generationListCard
+.generationListButton *,
+.generationListCard:hover
+.generationListButton * {
+
+  color:
+    #ffffff !important;
+
+  background:
+    transparent !important;
+
+  visibility:
+    visible !important;
+
+  opacity:
+    1 !important;
+}
+
+
+/*
+ * ============================================================
+ * CARD HOVER
+ * ============================================================
+ */
+
+@media (hover: hover) {
+
+  .generationListCard:hover {
+
+    /*
+     * На hover становится чуть светлее,
+     * но сохраняет голубой характер.
+     */
+    background:
+      #ffffff !important;
+
+    background-color:
+      #ffffff !important;
+
+    border-color:
+      #2f6fd6 !important;
+
+    box-shadow:
+      5px 5px 0
+      #2f6fd6 !important;
+
+    transform:
+      none !important;
+  }
+
+
+  .generationListCard:hover
+  .generationListTitle {
+
+    color:
+      #172b45 !important;
+  }
+
+
+  .generationListCard:hover
+  .generationListText {
+
+    color:
+      #627996 !important;
+  }
+
+
+  .generationListCard:hover
+  .generationListEyebrow {
+
+    color:
+      #2f6fd6 !important;
+
+    background:
+      #e7f0ff !important;
+
+    border-color:
+      #a9c7f5 !important;
+  }
+
+
+  /*
+   * Hover непосредственно кнопки.
+   */
+
+  .generationListCard
+  .generationListButton:hover {
+
+    color:
+      #ffffff !important;
+
+    background:
+      #245fbe !important;
+
+    background-color:
+      #245fbe !important;
+
+    border-color:
+      #245fbe !important;
+
+    box-shadow:
+      3px 3px 0
+      #9dbcf0 !important;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * FOCUS
+ * ============================================================
+ */
+
+.generationListButton:focus-visible {
+  outline:
+    2px solid
+    rgba(47, 111, 214, .55) !important;
+
+  outline-offset:
+    3px !important;
+}
+
+
+/*
+ * ============================================================
+ * TOUCH
+ * ============================================================
+ */
+
+@media (hover: none) {
+
+  .generationListCard,
+  .generationListCard:hover {
+
+    background:
+      #f2f7ff !important;
+
+    border-color:
+      #78a8ee !important;
+
+    box-shadow:
+      3px 3px 0
+      rgba(47, 111, 214, .16) !important;
+
+    transform:
+      none !important;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * MOBILE
+ * ============================================================
+ */
+
+@media (max-width: 600px) {
+
+  .generationListCard {
+    border-radius:
+      10px !important;
+
+    box-shadow:
+      3px 3px 0
+      rgba(47, 111, 214, .15) !important;
+  }
+
+
+  .generationListEyebrow {
+    margin-bottom:
+      13px !important;
+  }
+
+
+  .generationListText {
+    margin-bottom:
+      15px !important;
+
+    font-size:
+      12px !important;
+  }
+
+
+  .generationListCard
+  .generationListButton,
+  .generationListCard:hover
+  .generationListButton {
+
+    min-height:
+      36px !important;
+
+    padding:
+      8px
+      12px !important;
+  }
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * SOURCE: remove-results-middle-line-20260828-123339.css
+ * ------------------------------------------------------------
+ */
+
+/*
+ * REMOVE RESULTS MIDDLE SEPARATOR
+ *
+ * Убираем линию между:
+ *
+ * "Всего инструкций"
+ *
+ * и
+ *
+ * "Сортировка"
+ */
+
+._resultsHead_znied_35 {
+  border-bottom:
+    0 !important;
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * SOURCE: catalog-no-separators-20260828-123501.css
+ * ------------------------------------------------------------
+ */
+
+/*
+ * ============================================================
+ * CATALOG SEPARATORS FINAL FIX
+ * ============================================================
+ *
+ * Убираем линии:
+ *
+ * Всего инструкций
+ * ----------------  <- убрать
+ * Сортировка
+ */
+
+
+/*
+ * Блок количества инструкций.
+ */
+
+._resultsHead_znied_35 {
+  border-bottom:
+    0 !important;
+}
+
+
+/*
+ * Именно эта граница оставалась
+ * после предыдущего исправления.
+ */
+
+.boykovInstructionSort {
+  border-top:
+    0 !important;
+
+  border-bottom:
+    0 !important;
+}
+
+
+/*
+ * На случай вложенного элемента,
+ * которому старые стили передали border.
+ */
+
+#boykov-instruction-sort {
+  border-top:
+    0 !important;
+
+  border-bottom:
+    0 !important;
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * SOURCE: hide-sorting-label-20260828-123618.css
+ * ------------------------------------------------------------
+ */
+
+/*
+ * HIDE SORTING LABEL
+ *
+ * Оставляем только:
+ *
+ * Сначала новые   Популярные
+ */
+
+.boykovInstructionSort__label {
+  display: none !important;
+}
+
+
+/*
+ * После удаления label
+ * прижимаем controls вправо.
+ */
+
+.boykovInstructionSort {
+  justify-content: flex-end !important;
+}
+
+
+/*
+ * Mobile — тоже без лишнего пустого места.
+ */
+
+@media (max-width: 700px) {
+
+  .boykovInstructionSort {
+    justify-content: flex-end !important;
+  }
+
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * SOURCE: cards-no-blue-after-hover-20260828-123752.css
+ * ------------------------------------------------------------
+ */
+
+/*
+ * ============================================================
+ * NORMAL CARDS — REMOVE LEGACY BLUE OVERLAY
+ * ============================================================
+ *
+ * Старый card component использует:
+ *
+ * clickArea::before {
+ *   background: blue;
+ *   opacity: 0;
+ *   transition: opacity .45s;
+ * }
+ *
+ * hover -> opacity: 1
+ *
+ * Поэтому после ухода курсора синий слой
+ * некоторое время продолжал затухать.
+ *
+ * В новой дизайн-системе этот overlay
+ * больше вообще не нужен.
+ */
+
+
+/*
+ * Полностью выключаем старый синий overlay
+ * ТОЛЬКО у обычных карточек инструкций.
+ */
+
+.boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard)
+[class*="_clickArea_"]::before {
+
+  content: none !important;
+
+  display: none !important;
+
+  opacity: 0 !important;
+
+  visibility: hidden !important;
+
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+
+  transition: none !important;
+
+  animation: none !important;
+
+  pointer-events: none !important;
+}
+
+
+/*
+ * На всякий случай перекрываем
+ * старое hover/focus правило.
+ */
+
+.boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard)
+[class*="_clickArea_"]:hover::before,
+
+.boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard)
+[class*="_clickArea_"]:focus-visible::before {
+
+  content: none !important;
+
+  display: none !important;
+
+  opacity: 0 !important;
+
+  background: none !important;
+
+  transition: none !important;
+}
+
+
+/*
+ * Сам внутренний clickArea больше
+ * не должен менять фон или цвет
+ * с задержкой после hover.
+ */
+
+.boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard)
+[class*="_clickArea_"] {
+
+  background:
+    transparent !important;
+
+  color:
+    #172b45 !important;
+
+  transition:
+    none !important;
+}
+
+
+/*
+ * Заголовок остаётся тёмным постоянно.
+ */
+
+.boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard)
+[class*="_title_"] {
+
+  color:
+    #172b45 !important;
+
+  transition:
+    none !important;
+}
+
+
+/*
+ * Номер остаётся синим,
+ * без белого промежуточного состояния.
+ */
+
+.boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard)
+[class*="_index_"] {
+
+  color:
+    #2f6fd6 !important;
+
+  transition:
+    none !important;
+}
+
+
+/*
+ * Стрелка.
+ */
+
+.boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard)
+[class*="_arrow_"] {
+
+  transition:
+    color 150ms ease !important;
+}
+
+
+/*
+ * Новый hover:
+ * только белая карточка +
+ * чёткая синяя рамка и тень.
+ */
+
+@media (hover: hover) {
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover {
+
+    background:
+      #ffffff !important;
+
+    border-color:
+      #2f6fd6 !important;
+
+    box-shadow:
+      5px 5px 0
+      #2f6fd6 !important;
+
+    transform:
+      none !important;
+  }
+
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover
+  [class*="_clickArea_"] {
+
+    background:
+      transparent !important;
+
+    color:
+      #172b45 !important;
+  }
+
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover
+  [class*="_title_"] {
+
+    color:
+      #172b45 !important;
+  }
+
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover
+  [class*="_index_"] {
+
+    color:
+      #2f6fd6 !important;
+  }
+
+
+  .boykovCardSearchShadow:not(.generationListCard):not(.generationCatalogCard):hover
+  [class*="_arrow_"] {
+
+    color:
+      #2f6fd6 !important;
+
+    transform:
+      none !important;
+  }
+
+}
+

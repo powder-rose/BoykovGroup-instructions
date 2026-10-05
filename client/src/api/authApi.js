@@ -80,18 +80,30 @@ export function login(
 /*
  * Регистрация обычного пользователя.
  */
-export function register(
+export function register({
+  name,
+  phone,
   email,
-  password
-) {
+  password,
+  userAgreementAccepted,
+  personalDataConsentAccepted,
+  advertisingConsentAccepted
+}) {
   return request(
     "/api/auth/register",
     {
       method: "POST",
-      body: JSON.stringify({
-        email,
-        password
-      })
+
+      body:
+        JSON.stringify({
+          name,
+          phone,
+          email,
+          password,
+          userAgreementAccepted,
+          personalDataConsentAccepted,
+          advertisingConsentAccepted
+        })
     }
   );
 }

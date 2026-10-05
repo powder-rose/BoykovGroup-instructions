@@ -1,0 +1,2696 @@
+/* SOURCE: site-footer-no-brand-20260827-150630.css */
+/* ===== BOYKOVDOCS SITE FOOTER ===== */
+.boykovSiteFooter{
+  width:100%;
+  margin-top:56px;
+  border-top:1px solid #d9dee7;
+  background:rgba(247,249,252,.96);
+  color:#172033;
+}
+.boykovSiteFooter__inner{
+  width:min(1120px,calc(100% - 40px));
+  margin:0 auto;
+  padding:24px 0 26px;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:28px 42px;
+  align-items:center;
+}
+.boykovSiteFooter__brand{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  min-height:40px;
+  padding:7px 12px;
+  border:1px solid #cfd6e1;
+  border-radius:8px;
+  background:#fff;
+  color:#25334b;
+  text-decoration:none;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.035em;
+  transition:border-color .15s ease,background .15s ease,transform .15s ease;
+}
+.boykovSiteFooter__brand:hover{
+  transform:translateY(-1px);
+  border-color:#9eabbc;
+  background:#f9fbfd;
+}
+.boykovSiteFooter__mark{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:24px;
+  height:24px;
+  border:1px solid #7ea7df;
+  border-radius:5px;
+  color:#397bd9;
+  font-size:12px;
+  line-height:1;
+  font-weight:800;
+}
+.boykovSiteFooter__links{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:9px 0;
+}
+.boykovSiteFooter__link{
+  position:relative;
+  color:#5d6879;
+  text-decoration:none;
+  font-size:12px;
+  line-height:1.4;
+  transition:color .15s ease;
+}
+.boykovSiteFooter__link:hover{color:#397bd9}
+.boykovSiteFooter__link:not(:last-child)::after{
+  content:"";
+  display:inline-block;
+  width:1px;
+  height:13px;
+  margin:0 13px;
+  vertical-align:-2px;
+  background:#d6dce5;
+}
+@media(max-width:760px){
+  .boykovSiteFooter{margin-top:38px}
+  .boykovSiteFooter__inner{
+    width:calc(100% - 24px);
+    padding:20px 0 22px;
+    grid-template-columns:1fr;
+    gap:18px;
+  }
+  .boykovSiteFooter__brand{justify-self:start}
+  .boykovSiteFooter__links{
+    justify-content:flex-start;
+    align-items:flex-start;
+    flex-direction:column;
+    gap:10px;
+  }
+  .boykovSiteFooter__link:not(:last-child)::after{display:none}
+}
+/* ===== /BOYKOVDOCS SITE FOOTER ===== */
+
+/* ===== FOOTER WITHOUT BRAND ===== */
+
+.boykovSiteFooter__inner {
+  grid-template-columns: 1fr !important;
+}
+
+.boykovSiteFooter__links {
+  justify-content: center !important;
+}
+
+@media (max-width: 760px) {
+  .boykovSiteFooter__links {
+    justify-content: flex-start !important;
+  }
+}
+
+/* ===== /FOOTER WITHOUT BRAND ===== */
+
+/* SOURCE: footer-requisites-native-20260828-114636.css */
+/*
+ * ============================================================
+ * FOOTER REQUISITES
+ * Compact BoykovDocs style
+ * ============================================================
+ */
+
+.boykovFooterReq {
+  width: 100%;
+
+  margin-top: 30px;
+  padding: 27px 0 26px;
+
+  border-top:
+    1px solid
+    rgba(255, 255, 255, .09);
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, .07);
+
+  color: inherit;
+}
+
+
+.boykovFooterReq__inner {
+  width:
+    min(
+      calc(100% - 40px),
+      1180px
+    );
+
+  margin:
+    0 auto;
+}
+
+
+.boykovFooterReq__head {
+  margin-bottom: 19px;
+}
+
+
+.boykovFooterReq__eyebrow {
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      .48
+    );
+
+  font-family:
+    Comfortaa,
+    sans-serif;
+
+  font-size: 10px;
+  line-height: 1.3;
+  font-weight: 600;
+
+  letter-spacing: .085em;
+
+  text-transform: uppercase;
+}
+
+
+.boykovFooterReq__grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.12fr)
+    minmax(0, .88fr)
+    minmax(0, 1.25fr);
+
+  gap: 0;
+}
+
+
+.boykovFooterReq__column {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+
+  padding:
+    0 27px;
+}
+
+
+.boykovFooterReq__column:first-child {
+  padding-left: 0;
+}
+
+
+.boykovFooterReq__column:last-child {
+  padding-right: 0;
+}
+
+
+.boykovFooterReq__column
++
+.boykovFooterReq__column {
+  border-left:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      .075
+    );
+}
+
+
+.boykovFooterReq__item {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  gap: 4px;
+}
+
+
+.boykovFooterReq__numbers,
+.boykovFooterReq__contactRow {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 16px;
+}
+
+
+.boykovFooterReq__label {
+  display: block;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      .40
+    );
+
+  font-family:
+    Comfortaa,
+    sans-serif;
+
+  font-size: 8px;
+  line-height: 1.35;
+  font-weight: 600;
+
+  letter-spacing: .075em;
+
+  text-transform: uppercase;
+}
+
+
+.boykovFooterReq__value {
+  margin: 0;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      .86
+    );
+
+  font-family:
+    Comfortaa,
+    sans-serif;
+
+  font-size: 11px;
+  line-height: 1.55;
+  font-weight: 500;
+
+  font-style: normal;
+
+  overflow-wrap: anywhere;
+}
+
+
+strong.boykovFooterReq__value {
+  color: #fff;
+
+  font-weight: 600;
+}
+
+
+.boykovFooterReq__link {
+  position: relative;
+
+  width: fit-content;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      .92
+    );
+
+  text-decoration: none;
+
+  transition:
+    color .18s ease,
+    opacity .18s ease;
+}
+
+
+.boykovFooterReq__link::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 1px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      .34
+    );
+
+  transform:
+    scaleX(0);
+
+  transform-origin:
+    left center;
+
+  transition:
+    transform .18s ease;
+}
+
+
+.boykovFooterReq__link:hover {
+  color: #fff;
+}
+
+
+.boykovFooterReq__link:hover::after {
+  transform:
+    scaleX(1);
+}
+
+
+.boykovFooterReq__address {
+  max-width: 430px;
+}
+
+
+/*
+ * ============================================================
+ * TABLET
+ * ============================================================
+ */
+
+@media (
+  max-width: 900px
+) {
+
+  .boykovFooterReq {
+    padding:
+      24px 0;
+  }
+
+
+  .boykovFooterReq__grid {
+    grid-template-columns:
+      1fr 1fr;
+
+    row-gap: 25px;
+  }
+
+
+  .boykovFooterReq__column {
+    padding:
+      0 22px;
+  }
+
+
+  .boykovFooterReq__column:nth-child(1) {
+    padding-left: 0;
+  }
+
+
+  .boykovFooterReq__column:nth-child(2) {
+    padding-right: 0;
+  }
+
+
+  .boykovFooterReq__column:nth-child(3) {
+    grid-column:
+      1 / -1;
+
+    padding:
+      23px 0 0;
+
+    border-left: 0;
+
+    border-top:
+      1px solid
+      rgba(
+        255,
+        255,
+        255,
+        .075
+      );
+  }
+
+
+  .boykovFooterReq__contactRow {
+    max-width: 540px;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * MOBILE
+ * ============================================================
+ */
+
+@media (
+  max-width: 600px
+) {
+
+  .boykovFooterReq {
+    margin-top: 24px;
+
+    padding:
+      21px 0;
+  }
+
+
+  .boykovFooterReq__inner {
+    width:
+      min(
+        calc(100% - 32px),
+        1180px
+      );
+  }
+
+
+  .boykovFooterReq__head {
+    margin-bottom: 16px;
+  }
+
+
+  .boykovFooterReq__eyebrow {
+    font-size: 9px;
+  }
+
+
+  .boykovFooterReq__grid {
+    display: block;
+  }
+
+
+  .boykovFooterReq__column {
+    gap: 12px;
+
+    padding: 0;
+  }
+
+
+  .boykovFooterReq__column
+  +
+  .boykovFooterReq__column {
+    margin-top: 18px;
+
+    padding-top: 18px;
+
+    border-left: 0;
+
+    border-top:
+      1px solid
+      rgba(
+        255,
+        255,
+        255,
+        .075
+      );
+  }
+
+
+  .boykovFooterReq__numbers,
+  .boykovFooterReq__contactRow {
+    gap: 12px;
+  }
+
+
+  .boykovFooterReq__label {
+    font-size: 7.5px;
+  }
+
+
+  .boykovFooterReq__value {
+    font-size: 10px;
+
+    line-height: 1.55;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * VERY SMALL MOBILE
+ * ============================================================
+ */
+
+@media (
+  max-width: 390px
+) {
+
+  .boykovFooterReq__numbers,
+  .boykovFooterReq__contactRow {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * FOOTER REQUISITES CONTRAST V2
+ * Light BoykovDocs footer
+ * ============================================================
+ */
+
+.boykovFooterReq {
+  color: #27364a;
+
+  border-top:
+    1px solid
+    rgba(31, 48, 72, .11);
+
+  border-bottom:
+    1px solid
+    rgba(31, 48, 72, .09);
+}
+
+
+/*
+ * Заголовок блока
+ */
+
+.boykovFooterReq__eyebrow {
+  color: #718096;
+
+  font-weight: 700;
+}
+
+
+/*
+ * Вертикальные разделители
+ */
+
+.boykovFooterReq__column
++
+.boykovFooterReq__column {
+  border-left:
+    1px solid
+    rgba(31, 48, 72, .10);
+}
+
+
+/*
+ * Маленькие подписи:
+ * ИНН, КПП, ТЕЛЕФОН и т.д.
+ */
+
+.boykovFooterReq__label {
+  color: #8793a5;
+
+  font-weight: 700;
+}
+
+
+/*
+ * Основной текст
+ */
+
+.boykovFooterReq__value {
+  color: #33445a;
+
+  font-weight: 500;
+}
+
+
+/*
+ * Название организации
+ */
+
+strong.boykovFooterReq__value {
+  color: #1d2c40;
+
+  font-weight: 700;
+}
+
+
+/*
+ * Телефон / email
+ */
+
+.boykovFooterReq__link {
+  color: #315f96;
+
+  font-weight: 600;
+}
+
+
+.boykovFooterReq__link::after {
+  background:
+    rgba(49, 95, 150, .42);
+}
+
+
+.boykovFooterReq__link:hover {
+  color: #174b87;
+}
+
+
+/*
+ * Планшетные разделители
+ */
+
+@media (max-width: 900px) {
+
+  .boykovFooterReq__column:nth-child(3) {
+    border-top:
+      1px solid
+      rgba(31, 48, 72, .10);
+  }
+
+}
+
+
+/*
+ * Мобильные разделители
+ */
+
+@media (max-width: 600px) {
+
+  .boykovFooterReq__column
+  +
+  .boykovFooterReq__column {
+    border-top:
+      1px solid
+      rgba(31, 48, 72, .10);
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * FOOTER REQUISITES CARDS V3
+ * ============================================================
+ *
+ * Светлый footer BoykovDocs:
+ * - без лишней верхней линии;
+ * - три выровненные карточки;
+ * - тонкая синяя рамка;
+ * - мягкая фирменная синяя тень;
+ * - одинаковая геометрия колонок.
+ */
+
+
+/*
+ * ------------------------------------------------------------
+ * SECTION
+ * ------------------------------------------------------------
+ */
+
+.boykovFooterReq {
+  margin-top: 0;
+
+  padding:
+    30px
+    0
+    28px;
+
+  /*
+   * Убираем лишнюю горизонтальную
+   * линию сверху.
+   */
+  border-top: 0 !important;
+
+  /*
+   * Нижнюю границу тоже делаем
+   * практически незаметной —
+   * ниже уже расположен отдельный
+   * блок юридических ссылок.
+   */
+  border-bottom:
+    1px solid
+    rgba(66, 120, 211, .08);
+}
+
+
+.boykovFooterReq__inner {
+  width:
+    min(
+      calc(100% - 48px),
+      1180px
+    );
+
+  margin:
+    0 auto;
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * HEADING
+ * ------------------------------------------------------------
+ */
+
+.boykovFooterReq__head {
+  margin-bottom: 17px;
+}
+
+
+.boykovFooterReq__eyebrow {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+
+  gap: 8px;
+
+  color: #637895;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: .09em;
+}
+
+
+.boykovFooterReq__eyebrow::before {
+  content: "";
+
+  width: 6px;
+  height: 6px;
+
+  flex: 0 0 auto;
+
+  border-radius: 50%;
+
+  background: #4278d3;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(66, 120, 211, .08);
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * GRID
+ * ------------------------------------------------------------
+ */
+
+.boykovFooterReq__grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.08fr)
+    minmax(0, .82fr)
+    minmax(0, 1.18fr);
+
+  align-items: stretch;
+
+  gap: 14px;
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * CARDS / COLUMNS
+ * ------------------------------------------------------------
+ */
+
+.boykovFooterReq__column {
+  position: relative;
+
+  min-width: 0;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: stretch;
+
+  gap: 15px;
+
+  padding:
+    18px
+    19px
+    19px;
+
+  border:
+    1px solid
+    rgba(66, 120, 211, .15) !important;
+
+  border-radius: 14px;
+
+  background:
+    rgba(255, 255, 255, .64);
+
+  box-shadow:
+    0 8px 28px
+    rgba(66, 120, 211, .065),
+    0 2px 8px
+    rgba(31, 59, 99, .035);
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    transform .2s ease;
+}
+
+
+/*
+ * Убираем старые правила,
+ * которые давали вертикальные линии.
+ */
+
+.boykovFooterReq__column:first-child,
+.boykovFooterReq__column:last-child,
+.boykovFooterReq__column:nth-child(2),
+.boykovFooterReq__column:nth-child(3) {
+  padding:
+    18px
+    19px
+    19px;
+}
+
+
+.boykovFooterReq__column
++
+.boykovFooterReq__column {
+  border-left:
+    1px solid
+    rgba(66, 120, 211, .15) !important;
+}
+
+
+/*
+ * Едва заметный синий верхний акцент.
+ */
+
+.boykovFooterReq__column::before {
+  content: "";
+
+  position: absolute;
+
+  top: -1px;
+  left: 18px;
+  right: 18px;
+
+  height: 2px;
+
+  border-radius:
+    0
+    0
+    2px
+    2px;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(66, 120, 211, .10),
+      rgba(66, 120, 211, .55),
+      rgba(66, 120, 211, .10)
+    );
+}
+
+
+/*
+ * Совсем лёгкий hover —
+ * без ощущения "кликабельной карточки".
+ */
+
+.boykovFooterReq__column:hover {
+  border-color:
+    rgba(66, 120, 211, .24) !important;
+
+  box-shadow:
+    0 11px 32px
+    rgba(66, 120, 211, .09),
+    0 3px 10px
+    rgba(31, 59, 99, .045);
+
+  transform:
+    translateY(-1px);
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * CONTENT
+ * ------------------------------------------------------------
+ */
+
+.boykovFooterReq__item {
+  gap: 5px;
+}
+
+
+.boykovFooterReq__label {
+  color: #8392a7;
+
+  font-size: 8px;
+  line-height: 1.35;
+
+  font-weight: 700;
+
+  letter-spacing: .08em;
+}
+
+
+.boykovFooterReq__value {
+  color: #263951;
+
+  font-size: 10.5px;
+  line-height: 1.52;
+
+  font-weight: 500;
+}
+
+
+strong.boykovFooterReq__value {
+  color: #172c46;
+
+  font-weight: 650;
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * NUMBERS
+ * ------------------------------------------------------------
+ */
+
+.boykovFooterReq__numbers {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr);
+
+  gap: 14px;
+
+  padding-bottom: 14px;
+
+  border-bottom:
+    1px solid
+    rgba(66, 120, 211, .09);
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * CONTACTS
+ * ------------------------------------------------------------
+ */
+
+.boykovFooterReq__contactRow {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, .8fr)
+    minmax(0, 1.2fr);
+
+  gap: 16px;
+
+  padding-bottom: 14px;
+
+  border-bottom:
+    1px solid
+    rgba(66, 120, 211, .09);
+}
+
+
+.boykovFooterReq__link {
+  color: #356aa8;
+
+  font-weight: 600;
+}
+
+
+.boykovFooterReq__link:hover {
+  color: #1f5798;
+}
+
+
+.boykovFooterReq__link::after {
+  background:
+    rgba(53, 106, 168, .45);
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * ADDRESS
+ * ------------------------------------------------------------
+ */
+
+.boykovFooterReq__address {
+  max-width: none;
+}
+
+
+/*
+ * Чуть больше пространства между
+ * адресными строками третьей карточки.
+ */
+
+.boykovFooterReq__column:nth-child(3) {
+  gap: 16px;
+}
+
+
+/*
+ * ============================================================
+ * TABLET
+ * ============================================================
+ */
+
+@media (max-width: 900px) {
+
+  .boykovFooterReq {
+    padding:
+      25px
+      0;
+  }
+
+
+  .boykovFooterReq__grid {
+    grid-template-columns:
+      1fr
+      1fr;
+
+    gap: 13px;
+  }
+
+
+  .boykovFooterReq__column {
+    padding:
+      17px
+      18px
+      18px !important;
+  }
+
+
+  .boykovFooterReq__column:nth-child(3) {
+    grid-column:
+      1 / -1;
+
+    /*
+     * Старый tablet CSS добавлял
+     * border-top — убираем.
+     */
+    border-top:
+      1px solid
+      rgba(66, 120, 211, .15) !important;
+  }
+
+
+  .boykovFooterReq__contactRow {
+    max-width: none;
+
+    grid-template-columns:
+      1fr
+      1fr;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * MOBILE
+ * ============================================================
+ */
+
+@media (max-width: 600px) {
+
+  .boykovFooterReq {
+    margin-top: 0;
+
+    padding:
+      21px
+      0
+      23px;
+  }
+
+
+  .boykovFooterReq__inner {
+    width:
+      min(
+        calc(100% - 30px),
+        1180px
+      );
+  }
+
+
+  .boykovFooterReq__head {
+    margin-bottom: 14px;
+  }
+
+
+  .boykovFooterReq__grid {
+    display: grid;
+
+    grid-template-columns:
+      1fr;
+
+    gap: 10px;
+  }
+
+
+  .boykovFooterReq__column,
+  .boykovFooterReq__column:first-child,
+  .boykovFooterReq__column:last-child,
+  .boykovFooterReq__column:nth-child(2),
+  .boykovFooterReq__column:nth-child(3) {
+    margin: 0;
+
+    padding:
+      15px
+      16px
+      16px !important;
+
+    border:
+      1px solid
+      rgba(66, 120, 211, .14) !important;
+
+    border-radius: 12px;
+
+    box-shadow:
+      0 6px 20px
+      rgba(66, 120, 211, .06);
+  }
+
+
+  .boykovFooterReq__column
+  +
+  .boykovFooterReq__column {
+    margin-top: 0;
+
+    border-top:
+      1px solid
+      rgba(66, 120, 211, .14) !important;
+  }
+
+
+  .boykovFooterReq__column:hover {
+    transform: none;
+  }
+
+
+  .boykovFooterReq__label {
+    font-size: 7.5px;
+  }
+
+
+  .boykovFooterReq__value {
+    font-size: 10px;
+  }
+
+
+  .boykovFooterReq__numbers,
+  .boykovFooterReq__contactRow {
+    padding-bottom: 12px;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * SMALL MOBILE
+ * ============================================================
+ */
+
+@media (max-width: 390px) {
+
+  .boykovFooterReq__numbers,
+  .boykovFooterReq__contactRow {
+    grid-template-columns: 1fr;
+
+    gap: 11px;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * SHARP TOP BORDER V4
+ * ============================================================
+ */
+
+/*
+ * Чёткая верхняя граница самой карточки.
+ */
+
+.boykovFooterReq__column {
+  border:
+    1px solid
+    rgba(66, 120, 211, .18) !important;
+
+  border-top:
+    2px solid
+    #6f9fe8 !important;
+}
+
+
+/*
+ * Старый градиентный верхний акцент отключаем.
+ */
+
+.boykovFooterReq__column::before {
+  display: none !important;
+}
+
+
+/*
+ * На hover верхняя линия становится
+ * немного насыщеннее.
+ */
+
+.boykovFooterReq__column:hover {
+  border-color:
+    rgba(66, 120, 211, .25) !important;
+
+  border-top-color:
+    #4278d3 !important;
+}
+
+
+/*
+ * Mobile — сохраняем такую же геометрию.
+ */
+
+@media (max-width: 600px) {
+
+  .boykovFooterReq__column,
+  .boykovFooterReq__column:first-child,
+  .boykovFooterReq__column:last-child,
+  .boykovFooterReq__column:nth-child(2),
+  .boykovFooterReq__column:nth-child(3) {
+
+    border:
+      1px solid
+      rgba(66, 120, 211, .16) !important;
+
+    border-top:
+      2px solid
+      #6f9fe8 !important;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * FOOTER REQUISITES — NATIVE BOYKOVDOCS STYLE V5
+ *
+ * Один общий блок вместо трех отдельных карточек.
+ * ============================================================
+ */
+
+
+/*
+ * SECTION
+ */
+
+.boykovFooterReq {
+  margin-top: 0;
+
+  padding:
+    27px
+    0
+    25px;
+
+  border-top: 0 !important;
+
+  border-bottom:
+    1px solid
+    rgba(40, 63, 94, .07);
+}
+
+
+.boykovFooterReq__inner {
+  width:
+    min(
+      calc(100% - 48px),
+      1180px
+    );
+
+  margin: 0 auto;
+}
+
+
+/*
+ * HEADING
+ */
+
+.boykovFooterReq__head {
+  margin-bottom: 14px;
+}
+
+
+.boykovFooterReq__eyebrow {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 8px;
+
+  color: #657b99;
+
+  font-size: 10px;
+  line-height: 1.3;
+
+  font-weight: 600;
+
+  letter-spacing: .075em;
+
+  text-transform: uppercase;
+}
+
+
+.boykovFooterReq__eyebrow::before {
+  content: "";
+
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+
+  background: #4278d3;
+
+  box-shadow:
+    0 0 0 4px
+    rgba(66, 120, 211, .07);
+}
+
+
+/*
+ * ============================================================
+ * ЕДИНЫЙ КОНТЕЙНЕР
+ * ============================================================
+ */
+
+.boykovFooterReq__grid {
+  position: relative;
+
+  overflow: hidden;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.08fr)
+    minmax(0, .82fr)
+    minmax(0, 1.18fr);
+
+  gap: 0;
+
+  align-items: stretch;
+
+  border:
+    1px solid
+    rgba(66, 120, 211, .12);
+
+  border-top:
+    2px solid
+    rgba(66, 120, 211, .65);
+
+  border-radius: 15px;
+
+  background:
+    rgba(255, 255, 255, .38);
+
+  box-shadow:
+    0 8px 30px
+    rgba(49, 91, 150, .045);
+}
+
+
+/*
+ * Убираем ВСЮ карточность с колонок.
+ */
+
+.boykovFooterReq__column,
+.boykovFooterReq__column:first-child,
+.boykovFooterReq__column:last-child,
+.boykovFooterReq__column:nth-child(2),
+.boykovFooterReq__column:nth-child(3) {
+  position: relative;
+
+  height: auto;
+
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 14px;
+
+  margin: 0;
+
+  padding:
+    19px
+    21px
+    20px !important;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+
+  background: transparent !important;
+
+  box-shadow: none !important;
+
+  transform: none !important;
+}
+
+
+/*
+ * Старый синий декоративный border.
+ */
+
+.boykovFooterReq__column::before {
+  display: none !important;
+}
+
+
+/*
+ * Hover карточек полностью выключаем.
+ */
+
+.boykovFooterReq__column:hover {
+  border: 0 !important;
+
+  box-shadow: none !important;
+
+  transform: none !important;
+}
+
+
+/*
+ * Только внутренние тонкие разделители.
+ */
+
+.boykovFooterReq__column
++
+.boykovFooterReq__column {
+  border-left:
+    1px solid
+    rgba(66, 120, 211, .095) !important;
+}
+
+
+/*
+ * ============================================================
+ * TYPOGRAPHY
+ * ============================================================
+ */
+
+.boykovFooterReq__item {
+  gap: 4px;
+}
+
+
+.boykovFooterReq__label {
+  color: #8997aa;
+
+  font-size: 8px;
+  line-height: 1.35;
+
+  font-weight: 600;
+
+  letter-spacing: .07em;
+
+  text-transform: uppercase;
+}
+
+
+.boykovFooterReq__value {
+  color: #263950;
+
+  font-size: 10.5px;
+  line-height: 1.55;
+
+  font-weight: 500;
+}
+
+
+strong.boykovFooterReq__value {
+  color: #172b44;
+
+  font-weight: 600;
+}
+
+
+/*
+ * ============================================================
+ * INNER GROUPS
+ * ============================================================
+ */
+
+.boykovFooterReq__numbers {
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    1fr;
+
+  gap: 16px;
+
+  padding-bottom: 13px;
+
+  border-bottom:
+    1px solid
+    rgba(66, 120, 211, .075);
+}
+
+
+.boykovFooterReq__contactRow {
+  display: grid;
+
+  grid-template-columns:
+    .8fr
+    1.2fr;
+
+  gap: 16px;
+
+  padding-bottom: 13px;
+
+  border-bottom:
+    1px solid
+    rgba(66, 120, 211, .075);
+}
+
+
+/*
+ * LINKS
+ */
+
+.boykovFooterReq__link {
+  color: #356ba8;
+
+  font-weight: 500;
+
+  text-decoration: none;
+}
+
+
+.boykovFooterReq__link:hover {
+  color: #245c9d;
+}
+
+
+.boykovFooterReq__link::after {
+  height: 1px;
+
+  background:
+    rgba(53, 107, 168, .38);
+}
+
+
+/*
+ * ADDRESS
+ */
+
+.boykovFooterReq__address {
+  max-width: none;
+}
+
+
+/*
+ * ============================================================
+ * TABLET
+ * ============================================================
+ */
+
+@media (max-width: 900px) {
+
+  .boykovFooterReq__grid {
+    grid-template-columns:
+      1fr
+      1fr;
+  }
+
+
+  .boykovFooterReq__column,
+  .boykovFooterReq__column:first-child,
+  .boykovFooterReq__column:last-child,
+  .boykovFooterReq__column:nth-child(2),
+  .boykovFooterReq__column:nth-child(3) {
+    padding:
+      18px
+      19px !important;
+  }
+
+
+  .boykovFooterReq__column:nth-child(3) {
+    grid-column:
+      1 / -1;
+
+    border-left: 0 !important;
+
+    border-top:
+      1px solid
+      rgba(66, 120, 211, .095) !important;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * MOBILE
+ * ============================================================
+ */
+
+@media (max-width: 600px) {
+
+  .boykovFooterReq {
+    padding:
+      21px
+      0;
+  }
+
+
+  .boykovFooterReq__inner {
+    width:
+      calc(100% - 30px);
+  }
+
+
+  .boykovFooterReq__grid {
+    display: block;
+
+    border-radius: 13px;
+  }
+
+
+  .boykovFooterReq__column,
+  .boykovFooterReq__column:first-child,
+  .boykovFooterReq__column:last-child,
+  .boykovFooterReq__column:nth-child(2),
+  .boykovFooterReq__column:nth-child(3) {
+    padding:
+      16px !important;
+
+    border: 0 !important;
+  }
+
+
+  .boykovFooterReq__column
+  +
+  .boykovFooterReq__column {
+    border-top:
+      1px solid
+      rgba(66, 120, 211, .09) !important;
+
+    border-left: 0 !important;
+  }
+
+
+  .boykovFooterReq__value {
+    font-size: 10px;
+  }
+
+}
+
+
+/*
+ * SMALL MOBILE
+ */
+
+@media (max-width: 390px) {
+
+  .boykovFooterReq__numbers,
+  .boykovFooterReq__contactRow {
+    grid-template-columns: 1fr;
+
+    gap: 11px;
+  }
+
+}
+
+/* SOURCE: footer-unified-20260930.css */
+/*
+ * BOYKOVDOCS FOOTER — UNIFIED
+ * Consolidated 2026-09-30
+ */
+
+
+/*
+ * ============================================================
+ * FOOTER — UNIFIED BOYKOVDOCS STYLE V2
+ * ============================================================
+ *
+ * Reference:
+ * - header
+ * - search
+ * - instruction cards
+ *
+ * White surface
+ * dark navy border
+ * sharp blue shadow
+ */
+
+
+/*
+ * ============================================================
+ * FOOTER SECTION
+ * ============================================================
+ */
+
+.boykovFooterReq {
+  margin: 0 !important;
+
+  padding:
+    34px
+    0
+    24px !important;
+
+  border:
+    0 !important;
+
+  background:
+    transparent !important;
+}
+
+
+/*
+ * Точно такая же ширина,
+ * как у основного header.
+ */
+
+.boykovFooterReq__inner {
+  width:
+    100% !important;
+
+  max-width:
+    1280px !important;
+
+  margin:
+    0 auto !important;
+
+  padding:
+    0 30px !important;
+
+  box-sizing:
+    border-box !important;
+}
+
+
+/*
+ * ============================================================
+ * HEADING
+ * ============================================================
+ */
+
+.boykovFooterReq__head {
+  margin:
+    0
+    0
+    16px !important;
+}
+
+
+.boykovFooterReq__eyebrow {
+  display:
+    inline-flex !important;
+
+  align-items:
+    center !important;
+
+  gap:
+    8px !important;
+
+  color:
+    #657a96 !important;
+
+  font-size:
+    10px !important;
+
+  line-height:
+    1.3 !important;
+
+  font-weight:
+    600 !important;
+
+  letter-spacing:
+    .065em !important;
+
+  text-transform:
+    uppercase !important;
+}
+
+
+/*
+ * Та же маленькая синяя точка,
+ * что используется в интерфейсе.
+ */
+
+.boykovFooterReq__eyebrow::before {
+  content:
+    "" !important;
+
+  display:
+    block !important;
+
+  width:
+    5px !important;
+
+  height:
+    5px !important;
+
+  flex:
+    0 0 5px !important;
+
+  border-radius:
+    50% !important;
+
+  background:
+    #2f6fd6 !important;
+
+  box-shadow:
+    none !important;
+}
+
+
+/*
+ * ============================================================
+ * MAIN PANEL
+ * ============================================================
+ */
+
+.boykovFooterReq__grid {
+  position:
+    relative !important;
+
+  overflow:
+    hidden !important;
+
+  display:
+    grid !important;
+
+  grid-template-columns:
+    minmax(0, 1.1fr)
+    minmax(0, .83fr)
+    minmax(0, 1.17fr) !important;
+
+  align-items:
+    stretch !important;
+
+  gap:
+    0 !important;
+
+  /*
+   * Теперь тот же характер,
+   * что у карточек инструкций.
+   */
+  border:
+    2px solid
+    #172b45 !important;
+
+  border-radius:
+    11px !important;
+
+  background:
+    #ffffff !important;
+
+  background-image:
+    none !important;
+
+  /*
+   * Чёткая синяя тень,
+   * без blur.
+   */
+  box-shadow:
+    4px 4px 0
+    rgba(47, 111, 214, .24) !important;
+}
+
+
+/*
+ * Убираем все старые отдельные
+ * border-top / декоративные accents.
+ */
+
+.boykovFooterReq__grid::before,
+.boykovFooterReq__grid::after {
+  content:
+    none !important;
+
+  display:
+    none !important;
+}
+
+
+/*
+ * ============================================================
+ * COLUMNS
+ * ============================================================
+ */
+
+.boykovFooterReq__column,
+.boykovFooterReq__column:first-child,
+.boykovFooterReq__column:last-child,
+.boykovFooterReq__column:nth-child(2),
+.boykovFooterReq__column:nth-child(3) {
+
+  min-width:
+    0 !important;
+
+  height:
+    auto !important;
+
+  margin:
+    0 !important;
+
+  padding:
+    20px
+    22px
+    21px !important;
+
+  display:
+    flex !important;
+
+  flex-direction:
+    column !important;
+
+  gap:
+    15px !important;
+
+  border:
+    0 !important;
+
+  border-radius:
+    0 !important;
+
+  background:
+    transparent !important;
+
+  box-shadow:
+    none !important;
+
+  transform:
+    none !important;
+}
+
+
+/*
+ * Только аккуратные внутренние
+ * разделители.
+ */
+
+.boykovFooterReq__column
++
+.boykovFooterReq__column {
+
+  border-left:
+    1px solid
+    rgba(23, 43, 69, .10) !important;
+}
+
+
+/*
+ * Старые hover / decoration
+ * для footer отключаем.
+ */
+
+.boykovFooterReq__column:hover {
+  border-radius:
+    0 !important;
+
+  background:
+    transparent !important;
+
+  box-shadow:
+    none !important;
+
+  transform:
+    none !important;
+}
+
+
+.boykovFooterReq__column::before,
+.boykovFooterReq__column::after {
+  content:
+    none !important;
+
+  display:
+    none !important;
+}
+
+
+/*
+ * ============================================================
+ * ITEMS
+ * ============================================================
+ */
+
+.boykovFooterReq__item {
+  display:
+    flex !important;
+
+  flex-direction:
+    column !important;
+
+  align-items:
+    flex-start !important;
+
+  gap:
+    4px !important;
+}
+
+
+/*
+ * Подписи:
+ * Полное наименование / ИНН / Email...
+ */
+
+.boykovFooterReq__label {
+  color:
+    #8796aa !important;
+
+  font-size:
+    9px !important;
+
+  line-height:
+    1.35 !important;
+
+  font-weight:
+    600 !important;
+
+  letter-spacing:
+    .055em !important;
+
+  text-transform:
+    uppercase !important;
+}
+
+
+/*
+ * Основные значения.
+ */
+
+.boykovFooterReq__value {
+  margin:
+    0 !important;
+
+  color:
+    #263950 !important;
+
+  font-size:
+    11px !important;
+
+  line-height:
+    1.55 !important;
+
+  font-weight:
+    500 !important;
+
+  font-style:
+    normal !important;
+}
+
+
+strong.boykovFooterReq__value {
+  color:
+    #172b45 !important;
+
+  font-weight:
+    600 !important;
+}
+
+
+/*
+ * ============================================================
+ * INTERNAL ROWS
+ * ============================================================
+ */
+
+.boykovFooterReq__numbers,
+.boykovFooterReq__contactRow {
+
+  display:
+    grid !important;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    ) !important;
+
+  gap:
+    16px !important;
+
+  margin:
+    0 !important;
+
+  padding:
+    0
+    0
+    14px !important;
+
+  border-bottom:
+    1px solid
+    rgba(23, 43, 69, .08) !important;
+}
+
+
+/*
+ * ============================================================
+ * LINKS
+ * ============================================================
+ */
+
+.boykovFooterReq__link {
+  color:
+    #2f6fd6 !important;
+
+  font-weight:
+    500 !important;
+
+  text-decoration:
+    none !important;
+
+  transition:
+    color 150ms ease !important;
+}
+
+
+.boykovFooterReq__link::after {
+  display:
+    none !important;
+}
+
+
+.boykovFooterReq__link:hover {
+  color:
+    #245fbe !important;
+}
+
+
+/*
+ * ============================================================
+ * ADDRESSES
+ * ============================================================
+ */
+
+.boykovFooterReq__address {
+  max-width:
+    none !important;
+}
+
+
+/*
+ * ============================================================
+ * LEGAL LINKS AREA
+ * ============================================================
+ *
+ * Юридические ссылки больше не должны
+ * ощущаться отдельным блоком далеко снизу.
+ */
+
+footer {
+  color:
+    #657a96;
+}
+
+
+/*
+ * Все ссылки footer,
+ * кроме телефона / email реквизитов.
+ */
+
+footer a:not(.boykovFooterReq__link) {
+  color:
+    #657a96 !important;
+
+  text-decoration:
+    none !important;
+
+  transition:
+    color 150ms ease !important;
+}
+
+
+footer a:not(.boykovFooterReq__link):hover {
+  color:
+    #2f6fd6 !important;
+}
+
+
+/*
+ * Нижний legal-блок:
+ * уменьшаем лишнее вертикальное пространство.
+ */
+
+.boykovFooterReq
++
+* {
+  margin-top:
+    0 !important;
+}
+
+
+/*
+ * ============================================================
+ * TABLET
+ * ============================================================
+ */
+
+@media (max-width: 900px) {
+
+  .boykovFooterReq__inner {
+    padding:
+      0 22px !important;
+  }
+
+
+  .boykovFooterReq__grid {
+    grid-template-columns:
+      1fr
+      1fr !important;
+  }
+
+
+  .boykovFooterReq__column:nth-child(3) {
+    grid-column:
+      1 / -1 !important;
+
+    border-left:
+      0 !important;
+
+    border-top:
+      1px solid
+      rgba(23, 43, 69, .10) !important;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * MOBILE
+ * ============================================================
+ */
+
+@media (max-width: 600px) {
+
+  .boykovFooterReq {
+    padding:
+      25px
+      0
+      20px !important;
+  }
+
+
+  .boykovFooterReq__inner {
+    padding:
+      0 18px !important;
+  }
+
+
+  .boykovFooterReq__head {
+    margin-bottom:
+      13px !important;
+  }
+
+
+  .boykovFooterReq__grid {
+    display:
+      block !important;
+
+    border-radius:
+      10px !important;
+
+    box-shadow:
+      3px 3px 0
+      rgba(47, 111, 214, .22) !important;
+  }
+
+
+  .boykovFooterReq__column,
+  .boykovFooterReq__column:first-child,
+  .boykovFooterReq__column:last-child,
+  .boykovFooterReq__column:nth-child(2),
+  .boykovFooterReq__column:nth-child(3) {
+
+    padding:
+      17px
+      16px !important;
+
+    border:
+      0 !important;
+  }
+
+
+  .boykovFooterReq__column
+  +
+  .boykovFooterReq__column {
+
+    border-left:
+      0 !important;
+
+    border-top:
+      1px solid
+      rgba(23, 43, 69, .09) !important;
+  }
+
+
+  .boykovFooterReq__label {
+    font-size:
+      9px !important;
+  }
+
+
+  .boykovFooterReq__value {
+    font-size:
+      11px !important;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * SMALL MOBILE
+ * ============================================================
+ */
+
+@media (max-width: 390px) {
+
+  .boykovFooterReq__numbers,
+  .boykovFooterReq__contactRow {
+
+    grid-template-columns:
+      1fr !important;
+
+    gap:
+      11px !important;
+  }
+
+}
+
+/*
+ * ============================================================
+ * FOOTER — SHARP SHADOW MATCH CARDS
+ * ============================================================
+ *
+ * Та же тень, что у карточек:
+ *
+ * 5px 5px 0 #2f6fd6
+ */
+
+
+/*
+ * Desktop
+ */
+
+.boykovFooterReq__grid {
+  box-shadow:
+    5px 5px 0
+    #2f6fd6 !important;
+}
+
+
+/*
+ * Mobile — сохраняем тот же характер,
+ * но чуть уменьшаем вынос, чтобы
+ * тень не давила на узком экране.
+ */
+
+@media (max-width: 600px) {
+
+  .boykovFooterReq__grid {
+    box-shadow:
+      4px 4px 0
+      #2f6fd6 !important;
+  }
+
+}
+
+/* SOURCE: footer-compact-20260930.css */
+/*
+ * BOYKOVDOCS FOOTER — COMPACT
+ * Consolidated 2026-09-30
+ */
+
+
+/* BOYKOVDOCS COMPACT FOOTER START */
+
+.bg-footer-compact-root {
+  padding-top: 24px !important;
+  padding-bottom: 22px !important;
+}
+
+/* Старый заголовок "Реквизиты юридического лица" */
+.bg-footer-original-heading {
+  display: none !important;
+}
+
+/* Новый компактный блок */
+.bg-footer-compact {
+  width: calc(100% - 48px);
+  max-width: 1220px;
+  margin: 0 auto;
+}
+
+.bg-footer-compact-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+
+  padding: 15px 0;
+
+  border-top: 1px solid rgba(31, 102, 209, 0.18);
+  border-bottom: 1px solid rgba(31, 102, 209, 0.18);
+
+  font-size: 13px;
+  line-height: 1.55;
+  color: #53627a;
+}
+
+.bg-footer-compact-company {
+  color: #1a2233;
+  font-weight: 600;
+}
+
+.bg-footer-compact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.bg-footer-compact-label {
+  color: #8995a8;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bg-footer-compact a {
+  color: #1f66d1;
+  text-decoration: none;
+}
+
+.bg-footer-compact a:hover {
+  text-decoration: underline;
+}
+
+/* Раскрывающиеся реквизиты */
+.bg-footer-requisites-details {
+  margin: 0;
+}
+
+.bg-footer-requisites-details > summary {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 44px;
+  padding: 0;
+
+  cursor: pointer;
+  list-style: none;
+
+  color: #63718a;
+  font-size: 12px;
+  font-weight: 500;
+  user-select: none;
+}
+
+.bg-footer-requisites-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.bg-footer-requisites-details > summary::after {
+  content: "+";
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 24px;
+  height: 24px;
+
+  border: 1px solid #d8dfeb;
+  border-radius: 50%;
+
+  color: #1f66d1;
+  font-size: 17px;
+  line-height: 1;
+
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.bg-footer-requisites-details[open] > summary::after {
+  transform: rotate(45deg);
+  background: #eef4ff;
+}
+
+/*
+  Убираем тяжёлую карточку, но сохраняем её содержимое
+  после раскрытия.
+*/
+.bg-footer-requisites-card {
+  margin: 0 !important;
+  margin-top: 4px !important;
+
+  padding-top: 18px !important;
+  padding-bottom: 18px !important;
+
+  border: 0 !important;
+  border-top: 1px solid #e4e9f1 !important;
+  border-radius: 0 !important;
+
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Снимаем декоративные псевдоэлементы старой карточки */
+.bg-footer-requisites-card::before,
+.bg-footer-requisites-card::after {
+  box-shadow: none !important;
+}
+
+/* Компактная строка юридических документов */
+.bg-footer-legal-links {
+  margin-top: 12px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+
+  gap: 7px 14px !important;
+
+  font-size: 12px !important;
+  line-height: 1.45 !important;
+}
+
+.bg-footer-legal-links a {
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .bg-footer-compact {
+    width: calc(100% - 32px);
+  }
+
+  .bg-footer-compact-line {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+
+    padding: 14px 0;
+  }
+
+  .bg-footer-compact-item {
+    width: 100%;
+  }
+
+  .bg-footer-requisites-details > summary {
+    min-height: 42px;
+  }
+
+  .bg-footer-legal-links {
+    justify-content: flex-start !important;
+    gap: 8px 12px !important;
+  }
+}
+
+/* BOYKOVDOCS COMPACT FOOTER END */
+
+/* BOYKOVDOCS FOOTER — REMOVE EXCESS SEPARATORS */
+
+/* Убираем две горизонтальные линии вокруг основной строки */
+.bg-footer-compact-line {
+  border-top: 0 !important;
+  border-bottom: 0 !important;
+
+  padding-top: 10px !important;
+  padding-bottom: 6px !important;
+}
+
+/* Чуть больше воздуха перед раскрытием реквизитов */
+.bg-footer-requisites-details {
+  margin-top: 2px !important;
+}
+
+/* Само "Все реквизиты компании" без разделительной полосы */
+.bg-footer-requisites-details > summary {
+  border: 0 !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+/* У раскрытого полного блока оставляем только воздух */
+.bg-footer-requisites-card {
+  border: 0 !important;
+  margin-top: 8px !important;
+}
+
+/* Убираем любые вертикальные линии между юридическими ссылками */
+.bg-footer-legal-links,
+.bg-footer-legal-links > *,
+.bg-footer-legal-links a {
+  border-left: 0 !important;
+  border-right: 0 !important;
+}
+
+/* Если разделители сделаны через псевдоэлементы */
+.bg-footer-legal-links > *::before,
+.bg-footer-legal-links > *::after,
+.bg-footer-legal-links a::before,
+.bg-footer-legal-links a::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Документы разделяем только расстоянием */
+.bg-footer-legal-links {
+  gap: 10px 26px !important;
+  margin-top: 24px !important;
+}
+
+/* Немного уменьшаем пустую высоту футера */
+.bg-footer-compact-root {
+  padding-top: 18px !important;
+  padding-bottom: 18px !important;
+}
+
+@media (max-width: 760px) {
+  .bg-footer-legal-links {
+    gap: 10px 18px !important;
+    margin-top: 18px !important;
+  }
+
+  .bg-footer-compact-line {
+    padding-top: 6px !important;
+  }
+}

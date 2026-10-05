@@ -1,134 +1,549 @@
 .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position:
+    fixed;
+
+  inset:
+    0;
+
+  z-index:
+    1000;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  padding:
+    16px;
+
+  background:
+    rgba(0, 0, 0, .45);
 }
 
 
 .modal {
+  position:
+    relative;
 
-    width: 900px;
-    max-width: 90vw;
+  width:
+    900px;
 
-    max-height: 90vh;
+  max-width:
+    90vw;
 
-    overflow-y: auto;
+  max-height:
+    90vh;
 
-    background: white;
+  overflow-y:
+    auto;
 
-    border-radius: 20px;
+  padding:
+    35px;
 
-    padding: 35px;
+  border-radius:
+    20px;
 
+  background:
+    #ffffff;
+}
+
+
+.editorFullModal {
+  width:
+    min(
+      1050px,
+      calc(100vw - 32px)
+    );
+
+  max-width:
+    1050px;
+
+  max-height:
+    calc(100vh - 32px);
+
+  overflow-y:
+    auto;
+
+  overscroll-behavior:
+    contain;
 }
 
 
 .close {
+  float:
+    right;
 
-    float: right;
+  border:
+    0;
 
-    border: none;
+  background:
+    transparent;
 
-    background: transparent;
+  font-size:
+    28px;
 
-    font-size: 28px;
-
-    cursor: pointer;
-
+  cursor:
+    pointer;
 }
 
 
 .modal h2 {
+  margin-bottom:
+    25px;
 
-    font-family: "Comfortaa", sans-serif;
-
-    margin-bottom: 25px;
-
+  font-family:
+    "Comfortaa",
+    sans-serif;
 }
 
 
+.editorField {
+  display:
+    block;
 
-.modal label {
+  margin:
+    0
+    0
+    20px;
 
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 8px;
-
-    margin-bottom: 20px;
-
-    font-size: 14px;
-
+  font-weight:
+    700;
 }
 
 
+.editorField input,
+.editorField textarea {
+  display:
+    block;
 
-.modal input,
-.modal textarea {
+  box-sizing:
+    border-box;
 
-    width: 100%;
+  width:
+    100%;
 
-    padding: 12px;
+  margin-top:
+    8px;
 
-    border: 1px solid #ddd;
+  padding:
+    12px
+    14px;
 
-    border-radius: 10px;
+  border:
+    1px solid
+    #d5d9e0;
 
-    font-family: inherit;
+  border-radius:
+    8px;
 
+  background:
+    #ffffff;
+
+  font:
+    inherit;
+
+  line-height:
+    1.55;
 }
 
 
+.editorField textarea {
+  min-height:
+    110px;
 
-.modal textarea {
-
-    min-height: 100px;
-
-    resize: vertical;
-
+  resize:
+    vertical;
 }
 
 
+.editorSection {
+  margin:
+    28px
+    0;
 
-.section {
+  padding:
+    20px;
 
-    margin-top: 30px;
+  border:
+    1px solid
+    #e2e5ea;
 
-    padding-top: 20px;
+  border-radius:
+    12px;
 
-    border-top: 1px solid #eee;
-
+  background:
+    #f8f9fb;
 }
 
 
+.editorSectionHeader {
+  display:
+    flex;
 
-.section textarea {
+  align-items:
+    center;
 
-    margin-bottom: 12px;
+  justify-content:
+    space-between;
 
+  gap:
+    16px;
+
+  margin-bottom:
+    16px;
 }
 
 
+.editorSectionHeader h3 {
+  margin:
+    0;
+}
+
+
+.editorDangerButton {
+  padding:
+    9px
+    12px;
+
+  border:
+    0;
+
+  border-radius:
+    8px;
+
+  background:
+    #f9e7e7;
+
+  color:
+    #9a2525;
+
+  cursor:
+    pointer;
+
+  font:
+    inherit;
+
+  font-weight:
+    700;
+}
+
+
+.editorDangerButton:hover {
+  background:
+    #f4dada;
+}
+
+
+.editorAddSectionButton {
+  width:
+    100%;
+
+  margin:
+    8px
+    0
+    24px;
+
+  padding:
+    14px
+    18px;
+
+  border:
+    1px dashed
+    #aeb7c2;
+
+  border-radius:
+    8px;
+
+  background:
+    #ffffff;
+
+  color:
+    #19212c;
+
+  cursor:
+    pointer;
+
+  font:
+    inherit;
+
+  font-weight:
+    700;
+}
+
+
+.editorAddSectionButton:hover {
+  filter:
+    brightness(.97);
+}
+
+
+/*
+ * ============================================================
+ * ONE TEXTAREA PER SECTION
+ * ============================================================
+ */
+
+.editorUnifiedSection {
+  margin-bottom:
+    28px;
+}
+
+
+.editorUnifiedSectionField {
+  display:
+    block;
+
+  margin-top:
+    18px;
+}
+
+
+.editorUnifiedSectionLabel {
+  display:
+    block;
+
+  margin-bottom:
+    8px;
+
+  font-weight:
+    700;
+}
+
+
+.editorUnifiedSectionTextarea {
+  display:
+    block;
+
+  box-sizing:
+    border-box;
+
+  width:
+    100%;
+
+  min-height:
+    420px;
+
+  padding:
+    16px;
+
+  border:
+    1px solid
+    #cfd5dc;
+
+  border-radius:
+    10px;
+
+  resize:
+    vertical;
+
+  outline:
+    none;
+
+  background:
+    #ffffff;
+
+  color:
+    #172033;
+
+  font:
+    inherit;
+
+  font-size:
+    14px;
+
+  line-height:
+    1.65;
+}
+
+
+.editorUnifiedSectionTextarea:focus {
+  border-color:
+    #397bd9;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(57, 123, 217, .10);
+}
+
+
+.editorUnifiedSectionHint {
+  display:
+    block;
+
+  margin-top:
+    7px;
+
+  color:
+    #788395;
+
+  font-size:
+    12px;
+}
+
+
+/*
+ * ============================================================
+ * ROLLBACK
+ * ============================================================
+ */
+
+.rollbackButton {
+  display:
+    block;
+
+  box-sizing:
+    border-box;
+
+  width:
+    100%;
+
+  margin:
+    12px
+    0;
+
+  padding:
+    13px
+    18px;
+
+  border:
+    1px solid
+    #c8ced8;
+
+  border-radius:
+    8px;
+
+  background:
+    #ffffff;
+
+  color:
+    #344054;
+
+  cursor:
+    pointer;
+
+  font:
+    inherit;
+
+  font-weight:
+    700;
+}
+
+
+.rollbackButton:hover:not(:disabled) {
+  border-color:
+    #98a2b3;
+
+  background:
+    #f4f6f8;
+}
+
+
+.rollbackButton:disabled {
+  opacity:
+    .55;
+
+  cursor:
+    default;
+}
+
+
+/*
+ * ============================================================
+ * SAVE
+ * ============================================================
+ */
 
 .save {
+  margin-top:
+    25px;
 
-    margin-top: 25px;
+  padding:
+    12px
+    24px;
 
-    padding: 12px 24px;
+  border:
+    0;
 
-    border-radius: 12px;
+  border-radius:
+    12px;
 
-    border: none;
+  background:
+    #4278d3;
 
-    background: #4278d3;
+  color:
+    #ffffff;
 
-    color: white;
+  cursor:
+    pointer;
+}
 
-    cursor: pointer;
+
+.save:disabled {
+  opacity:
+    .55;
+
+  cursor:
+    default;
+}
+
+
+/*
+ * ============================================================
+ * MOBILE
+ * ============================================================
+ */
+
+@media (
+  max-width: 700px
+) {
+
+  .overlay {
+    padding:
+      8px;
+  }
+
+
+  .editorFullModal {
+    width:
+      calc(100vw - 16px);
+
+    max-width:
+      calc(100vw - 16px);
+
+    max-height:
+      calc(100vh - 16px);
+  }
+
+
+  .modal {
+    padding:
+      24px
+      18px;
+  }
+
+
+  .editorSection {
+    padding:
+      14px;
+  }
+
+
+  .editorSectionHeader {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+  }
+
+
+  .editorUnifiedSectionTextarea {
+    min-height:
+      300px;
+  }
 
 }

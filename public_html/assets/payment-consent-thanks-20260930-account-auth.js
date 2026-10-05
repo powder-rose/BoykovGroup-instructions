@@ -6,12 +6,6 @@
   const URGENT_PATH =
     "/srochnaya-generaciya-instrukcii";
 
-  const ORDER_STORAGE_KEY =
-    "boykovgroup_urgent_generation_order_v1";
-
-  const THANKS_STORAGE_KEY =
-    "boykovdocs_thanks_order_v1";
-
   const CONSENT_ROOT_ID =
     "boykov-payment-consents";
 
@@ -21,6 +15,35 @@
 
   let personalDataAccepted =
     false;
+
+
+  /*
+   * LEGACY ORDER STORAGE CLEANUP
+   *
+   * Заказы теперь принадлежат аккаунту.
+   * sessionStorage для восстановления больше не используется.
+   */
+  if (
+    window.location.pathname ===
+      URGENT_PATH
+  ) {
+
+    try {
+
+      window.sessionStorage.removeItem(
+        "boykovgroup_urgent_generation_order_v1"
+      );
+
+      window.sessionStorage.removeItem(
+        "boykovdocs_thanks_order_v1"
+      );
+
+    }
+    catch {
+      /* no-op */
+    }
+
+  }
 
 
   /*
@@ -287,127 +310,6 @@
   }
 
 
-  function readExistingOrderSession() {
-
-    try {
-
-      const raw =
-        window.sessionStorage
-          .getItem(
-            ORDER_STORAGE_KEY
-          );
-
-
-      if (!raw) {
-        return null;
-      }
-
-
-      return JSON.parse(
-        raw
-      );
-
-    }
-    catch {
-
-      return null;
-
-    }
-
-  }
-
-
-  function saveThanksOrder({
-    orderId,
-    orderToken,
-    transactionId
-  }) {
-
-    if (
-      !orderId ||
-      !orderToken
-    ) {
-      return;
-    }
-
-
-    const payload = {
-      orderId:
-        String(
-          orderId
-        ),
-
-      orderToken:
-        String(
-          orderToken
-        ),
-
-      transactionId:
-        transactionId
-          ? String(
-              transactionId
-            )
-          : null,
-
-      savedAt:
-        new Date()
-          .toISOString()
-    };
-
-
-    try {
-
-      window.sessionStorage
-        .setItem(
-          THANKS_STORAGE_KEY,
-          JSON.stringify(
-            payload
-          )
-        );
-
-    }
-    catch {
-
-      /* payment must not fail because storage is unavailable */
-
-    }
-
-  }
-
-
-  function parseTransactionId(
-    init
-  ) {
-
-    try {
-
-      if (
-        typeof init?.body !==
-        "string"
-      ) {
-        return null;
-      }
-
-
-      return (
-        JSON.parse(
-          init.body
-        )
-        ?.transactionId
-        ??
-        null
-      );
-
-    }
-    catch {
-
-      return null;
-
-    }
-
-  }
-
-
   window.fetch =
     async function(
       input,
@@ -607,53 +509,36 @@
               : null;
 
 
-          const headers =
-            getHeaders(
-              input,
-              init
+          if (orderId) {
+
+            /*
+             * Старые sessionStorage-ключи больше
+             * не участвуют в checkout.
+             *
+             * Удаляем их у пользователей,
+             * которые заходят после обновления.
+             */
+            try {
+
+              window.sessionStorage.removeItem(
+                "boykovgroup_urgent_generation_order_v1"
+              );
+
+              window.sessionStorage.removeItem(
+                "boykovdocs_thanks_order_v1"
+              );
+
+            }
+            catch {
+              /* no-op */
+            }
+
+
+            window.location.replace(
+              `/thanks/?orderId=${encodeURIComponent(orderId)}`
             );
 
-
-          const existing =
-            readExistingOrderSession();
-
-
-          const orderToken =
-            headers.get(
-              "x-order-token"
-            )
-            ||
-            existing?.orderToken
-            ||
-            null;
-
-
-          const transactionId =
-            parseTransactionId(
-              init
-            )
-            ||
-            existing?.transactionId
-            ||
-            null;
-
-
-          saveThanksOrder({
-            orderId,
-            orderToken,
-            transactionId
-          });
-
-
-          /*
-           * ВАЖНО:
-           * navigation запускается до того,
-           * как старый React-код получит управление
-           * после await confirm-payment.
-           */
-          window.location.replace(
-            "/thanks"
-          );
+          }
 
         }
 

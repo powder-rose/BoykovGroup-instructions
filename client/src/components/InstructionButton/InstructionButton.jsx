@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./InstructionButton.module.css";
+import GeneratedInstructionBadge from "../GeneratedInstructionBadge/GeneratedInstructionBadge.jsx";
 
 export default function InstructionButton({
   instruction,
@@ -15,7 +16,9 @@ export default function InstructionButton({
 
   return (
 
-    <div className={styles.card}>
+    <div
+      className={`${styles.card} boykovCardSearchShadow`}
+    >
 
 
       <Link
@@ -55,6 +58,14 @@ export default function InstructionButton({
       </Link>
 
 
+      {
+        isAdmin &&
+        instruction?.source ===
+          "generated" &&
+        (
+          <GeneratedInstructionBadge />
+        )
+      }
 
 
       {isAdmin && (

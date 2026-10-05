@@ -1,0 +1,378 @@
+
+/* ===== ADMIN TOP 10 INSTRUCTIONS ===== */
+
+.boykovTop10 {
+  box-sizing: border-box;
+
+  width: 100%;
+
+  margin: 34px 0;
+  padding: 26px;
+
+  border: 1px solid #e2e7ee;
+  border-radius: 16px;
+
+  background: #fff;
+
+  box-shadow:
+    0 8px 26px
+    rgba(23, 32, 51, .05);
+}
+
+
+.boykovTop10__header {
+  display: flex;
+
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  margin-bottom: 24px;
+}
+
+
+.boykovTop10__eyebrow {
+  margin-bottom: 5px;
+
+  color: #667085;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: .12em;
+}
+
+
+.boykovTop10__title {
+  margin: 0;
+
+  color: #172033;
+
+  font-size: 25px;
+  line-height: 1.2;
+}
+
+
+.boykovTop10__description {
+  margin:
+    7px
+    0
+    0;
+
+  color: #667085;
+
+  font-size: 14px;
+}
+
+
+.boykovTop10__tabs {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 7px;
+}
+
+
+.boykovTop10__tab {
+  padding:
+    9px
+    13px;
+
+  border: 1px solid #d8dee8;
+  border-radius: 9px;
+
+  background: #fff;
+  color: #475467;
+
+  cursor: pointer;
+
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+
+  transition:
+    background .15s ease,
+    border-color .15s ease,
+    color .15s ease;
+}
+
+
+.boykovTop10__tab:hover {
+  background: #f6f8fb;
+}
+
+
+.boykovTop10__tab--active {
+  border-color: #172033;
+
+  background: #172033;
+  color: #fff;
+}
+
+
+.boykovTop10__tableWrap {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border:
+    1px solid #e7ebf0;
+
+  border-radius: 12px;
+}
+
+
+.boykovTop10__table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  background: #fff;
+}
+
+
+.boykovTop10__table th {
+  padding:
+    13px
+    14px;
+
+  border-bottom:
+    1px solid #e7ebf0;
+
+  background:
+    #f7f9fc;
+
+  color:
+    #667085;
+
+  font-size:
+    12px;
+
+  font-weight:
+    700;
+
+  text-align:
+    left;
+
+  white-space:
+    nowrap;
+}
+
+
+.boykovTop10__table td {
+  padding:
+    14px;
+
+  border-bottom:
+    1px solid #eef1f4;
+
+  vertical-align:
+    middle;
+}
+
+
+.boykovTop10__table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+
+.boykovTop10__table tbody tr:hover {
+  background:
+    #fafbfc;
+}
+
+
+.boykovTop10__rank {
+  width: 46px;
+}
+
+
+.boykovTop10__rankBadge {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+
+  border-radius: 50%;
+
+  background:
+    #f0f2f5;
+
+  color:
+    #667085;
+
+  font-size:
+    12px;
+
+  font-weight:
+    800;
+}
+
+
+.boykovTop10__rankBadge--1 {
+  background:
+    #fff4cc;
+
+  color:
+    #7a5a00;
+}
+
+
+.boykovTop10__rankBadge--2 {
+  background:
+    #edf0f3;
+
+  color:
+    #4e5968;
+}
+
+
+.boykovTop10__rankBadge--3 {
+  background:
+    #f5e4d8;
+
+  color:
+    #80502e;
+}
+
+
+.boykovTop10__instruction {
+  min-width:
+    320px;
+}
+
+
+.boykovTop10__link {
+  color:
+    #172033;
+
+  font-size:
+    14px;
+
+  font-weight:
+    700;
+
+  line-height:
+    1.4;
+
+  text-decoration:
+    none;
+}
+
+
+.boykovTop10__link:hover {
+  text-decoration:
+    underline;
+}
+
+
+.boykovTop10__number {
+  min-width:
+    76px;
+
+  color:
+    #475467;
+
+  font-size:
+    14px;
+
+  font-weight:
+    600;
+
+  text-align:
+    right;
+
+  white-space:
+    nowrap;
+}
+
+
+.boykovTop10__number--active {
+  color:
+    #172033;
+
+  font-size:
+    17px;
+
+  font-weight:
+    800;
+}
+
+
+.boykovTop10__loading,
+.boykovTop10__empty,
+.boykovTop10__error {
+  padding:
+    34px
+    18px;
+
+  border:
+    1px solid #e7ebf0;
+
+  border-radius:
+    12px;
+
+  text-align:
+    center;
+}
+
+
+.boykovTop10__loading,
+.boykovTop10__empty {
+  color:
+    #667085;
+}
+
+
+.boykovTop10__error {
+  color:
+    #b42318;
+
+  background:
+    #fff6f5;
+}
+
+
+@media (max-width: 800px) {
+
+  .boykovTop10 {
+    margin:
+      24px 0;
+
+    padding:
+      18px;
+  }
+
+
+  .boykovTop10__header {
+    align-items:
+      flex-start;
+
+    flex-direction:
+      column;
+  }
+
+
+  .boykovTop10__tabs {
+    width: 100%;
+  }
+
+
+  .boykovTop10__tab {
+    flex:
+      1 1 auto;
+  }
+
+
+  .boykovTop10__instruction {
+    min-width:
+      250px;
+  }
+
+}
+
+/* ===== /ADMIN TOP 10 INSTRUCTIONS ===== */

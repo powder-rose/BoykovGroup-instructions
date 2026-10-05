@@ -1,0 +1,332 @@
+.boykovPromoAdmin {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 28px 0;
+}
+
+.boykovPromoAdmin__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+.boykovPromoAdmin__eyebrow {
+  margin-bottom: 7px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  opacity: .5;
+}
+
+.boykovPromoAdmin__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.boykovPromoAdmin__description {
+  max-width: 720px;
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  opacity: .62;
+}
+
+.boykovPromoAdmin__count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 10px;
+  box-sizing: border-box;
+  border: 1px solid #dedede;
+  background: #fff;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.boykovPromoAdmin__create {
+  margin-bottom: 30px;
+  padding: 22px;
+  border: 1px solid #e1e4e9;
+  background: #fff;
+}
+
+.boykovPromoAdmin__createTitle {
+  margin: 0 0 18px;
+  font-size: 16px;
+}
+
+.boykovPromoAdmin__grid {
+  display: grid;
+  grid-template-columns:
+    minmax(150px, 1.2fr)
+    minmax(150px, 1fr)
+    minmax(110px, .8fr)
+    minmax(110px, .8fr)
+    minmax(180px, 1fr);
+  gap: 14px;
+}
+
+.boykovPromoAdmin__field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.boykovPromoAdmin__label {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: .58;
+}
+
+.boykovPromoAdmin__input,
+.boykovPromoAdmin__select {
+  width: 100%;
+  height: 40px;
+  box-sizing: border-box;
+  padding: 0 11px;
+  border: 1px solid #d9dde5;
+  border-radius: 0;
+  outline: none;
+  background: #fff;
+  color: #172136;
+  font: inherit;
+  font-size: 13px;
+}
+
+.boykovPromoAdmin__input:focus,
+.boykovPromoAdmin__select:focus {
+  border-color: #1763d6;
+}
+
+.boykovPromoAdmin__createActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.boykovPromoAdmin__checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.boykovPromoAdmin__checkbox input {
+  width: 16px;
+  height: 16px;
+}
+
+.boykovPromoAdmin__button {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid #d8dce3;
+  background: #fff;
+  color: #172136;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.boykovPromoAdmin__button:hover:not(:disabled) {
+  background: #f5f7fa;
+}
+
+.boykovPromoAdmin__button:disabled {
+  cursor: wait;
+  opacity: .48;
+}
+
+.boykovPromoAdmin__button--primary {
+  border-color: #172136;
+  background: #172136;
+  color: #fff;
+}
+
+.boykovPromoAdmin__button--primary:hover:not(:disabled) {
+  background: #26344d;
+}
+
+.boykovPromoAdmin__button--danger {
+  color: #b22b2b;
+}
+
+.boykovPromoAdmin__message {
+  display: none;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid #dfe3e9;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.boykovPromoAdmin__message--visible {
+  display: block;
+}
+
+.boykovPromoAdmin__message--success {
+  border-color: rgba(25, 135, 84, .3);
+  background: rgba(25, 135, 84, .05);
+  color: #197347;
+}
+
+.boykovPromoAdmin__message--error {
+  border-color: rgba(190, 45, 45, .28);
+  background: rgba(190, 45, 45, .05);
+  color: #ad2727;
+}
+
+.boykovPromoAdmin__list {
+  border-top: 1px solid #e6e8ec;
+}
+
+.boykovPromoAdmin__empty {
+  padding: 26px 0;
+  font-size: 13px;
+  opacity: .55;
+}
+
+.boykovPromoCard {
+  padding: 22px 0;
+  border-bottom: 1px solid #e6e8ec;
+}
+
+.boykovPromoCard__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.boykovPromoCard__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.boykovPromoCard__code {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.boykovPromoCard__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid #d9dde3;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.boykovPromoCard__badge--active {
+  border-color: rgba(25, 135, 84, .28);
+  color: #197347;
+}
+
+.boykovPromoCard__badge--disabled {
+  color: #9a3030;
+}
+
+.boykovPromoCard__meta {
+  margin-top: 7px;
+  font-size: 11px;
+  opacity: .52;
+}
+
+.boykovPromoCard__usage {
+  flex: none;
+  text-align: right;
+}
+
+.boykovPromoCard__usageValue {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.boykovPromoCard__usageLabel {
+  margin-top: 4px;
+  font-size: 10px;
+  opacity: .5;
+}
+
+.boykovPromoCard__grid {
+  display: grid;
+  grid-template-columns:
+    minmax(150px, 1.2fr)
+    minmax(150px, 1fr)
+    minmax(110px, .8fr)
+    minmax(110px, .8fr)
+    minmax(180px, 1fr);
+  gap: 14px;
+}
+
+.boykovPromoCard__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.boykovPromoCard__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 1050px) {
+  .boykovPromoAdmin__grid,
+  .boykovPromoCard__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 650px) {
+  .boykovPromoAdmin {
+    padding-top: 18px;
+  }
+
+  .boykovPromoAdmin__header,
+  .boykovPromoCard__top {
+    flex-direction: column;
+  }
+
+  .boykovPromoAdmin__grid,
+  .boykovPromoCard__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .boykovPromoCard__usage {
+    text-align: left;
+  }
+
+  .boykovPromoAdmin__createActions,
+  .boykovPromoCard__footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .boykovPromoAdmin__button {
+    width: 100%;
+  }
+
+  .boykovPromoCard__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}

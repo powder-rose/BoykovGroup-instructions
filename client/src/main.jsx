@@ -8,6 +8,7 @@ import { store } from "./store/index.js";
 
 import "./styles/variables.css";
 import "./styles/global.css";
+import "./styles/production-parity.css";
 
 
 ReactDOM.createRoot(

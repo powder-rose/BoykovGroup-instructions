@@ -1,0 +1,697 @@
+/*
+ * BOYKOVDOCS FOOTER — UNIFIED
+ * Consolidated 2026-09-30
+ */
+
+
+/*
+ * ============================================================
+ * FOOTER — UNIFIED BOYKOVDOCS STYLE V2
+ * ============================================================
+ *
+ * Reference:
+ * - header
+ * - search
+ * - instruction cards
+ *
+ * White surface
+ * dark navy border
+ * sharp blue shadow
+ */
+
+
+/*
+ * ============================================================
+ * FOOTER SECTION
+ * ============================================================
+ */
+
+.boykovFooterReq {
+  margin: 0 !important;
+
+  padding:
+    34px
+    0
+    24px !important;
+
+  border:
+    0 !important;
+
+  background:
+    transparent !important;
+}
+
+
+/*
+ * Точно такая же ширина,
+ * как у основного header.
+ */
+
+.boykovFooterReq__inner {
+  width:
+    100% !important;
+
+  max-width:
+    1280px !important;
+
+  margin:
+    0 auto !important;
+
+  padding:
+    0 30px !important;
+
+  box-sizing:
+    border-box !important;
+}
+
+
+/*
+ * ============================================================
+ * HEADING
+ * ============================================================
+ */
+
+.boykovFooterReq__head {
+  margin:
+    0
+    0
+    16px !important;
+}
+
+
+.boykovFooterReq__eyebrow {
+  display:
+    inline-flex !important;
+
+  align-items:
+    center !important;
+
+  gap:
+    8px !important;
+
+  color:
+    #657a96 !important;
+
+  font-size:
+    10px !important;
+
+  line-height:
+    1.3 !important;
+
+  font-weight:
+    600 !important;
+
+  letter-spacing:
+    .065em !important;
+
+  text-transform:
+    uppercase !important;
+}
+
+
+/*
+ * Та же маленькая синяя точка,
+ * что используется в интерфейсе.
+ */
+
+.boykovFooterReq__eyebrow::before {
+  content:
+    "" !important;
+
+  display:
+    block !important;
+
+  width:
+    5px !important;
+
+  height:
+    5px !important;
+
+  flex:
+    0 0 5px !important;
+
+  border-radius:
+    50% !important;
+
+  background:
+    #2f6fd6 !important;
+
+  box-shadow:
+    none !important;
+}
+
+
+/*
+ * ============================================================
+ * MAIN PANEL
+ * ============================================================
+ */
+
+.boykovFooterReq__grid {
+  position:
+    relative !important;
+
+  overflow:
+    hidden !important;
+
+  display:
+    grid !important;
+
+  grid-template-columns:
+    minmax(0, 1.1fr)
+    minmax(0, .83fr)
+    minmax(0, 1.17fr) !important;
+
+  align-items:
+    stretch !important;
+
+  gap:
+    0 !important;
+
+  /*
+   * Теперь тот же характер,
+   * что у карточек инструкций.
+   */
+  border:
+    2px solid
+    #172b45 !important;
+
+  border-radius:
+    11px !important;
+
+  background:
+    #ffffff !important;
+
+  background-image:
+    none !important;
+
+  /*
+   * Чёткая синяя тень,
+   * без blur.
+   */
+  box-shadow:
+    4px 4px 0
+    rgba(47, 111, 214, .24) !important;
+}
+
+
+/*
+ * Убираем все старые отдельные
+ * border-top / декоративные accents.
+ */
+
+.boykovFooterReq__grid::before,
+.boykovFooterReq__grid::after {
+  content:
+    none !important;
+
+  display:
+    none !important;
+}
+
+
+/*
+ * ============================================================
+ * COLUMNS
+ * ============================================================
+ */
+
+.boykovFooterReq__column,
+.boykovFooterReq__column:first-child,
+.boykovFooterReq__column:last-child,
+.boykovFooterReq__column:nth-child(2),
+.boykovFooterReq__column:nth-child(3) {
+
+  min-width:
+    0 !important;
+
+  height:
+    auto !important;
+
+  margin:
+    0 !important;
+
+  padding:
+    20px
+    22px
+    21px !important;
+
+  display:
+    flex !important;
+
+  flex-direction:
+    column !important;
+
+  gap:
+    15px !important;
+
+  border:
+    0 !important;
+
+  border-radius:
+    0 !important;
+
+  background:
+    transparent !important;
+
+  box-shadow:
+    none !important;
+
+  transform:
+    none !important;
+}
+
+
+/*
+ * Только аккуратные внутренние
+ * разделители.
+ */
+
+.boykovFooterReq__column
++
+.boykovFooterReq__column {
+
+  border-left:
+    1px solid
+    rgba(23, 43, 69, .10) !important;
+}
+
+
+/*
+ * Старые hover / decoration
+ * для footer отключаем.
+ */
+
+.boykovFooterReq__column:hover {
+  border-radius:
+    0 !important;
+
+  background:
+    transparent !important;
+
+  box-shadow:
+    none !important;
+
+  transform:
+    none !important;
+}
+
+
+.boykovFooterReq__column::before,
+.boykovFooterReq__column::after {
+  content:
+    none !important;
+
+  display:
+    none !important;
+}
+
+
+/*
+ * ============================================================
+ * ITEMS
+ * ============================================================
+ */
+
+.boykovFooterReq__item {
+  display:
+    flex !important;
+
+  flex-direction:
+    column !important;
+
+  align-items:
+    flex-start !important;
+
+  gap:
+    4px !important;
+}
+
+
+/*
+ * Подписи:
+ * Полное наименование / ИНН / Email...
+ */
+
+.boykovFooterReq__label {
+  color:
+    #8796aa !important;
+
+  font-size:
+    9px !important;
+
+  line-height:
+    1.35 !important;
+
+  font-weight:
+    600 !important;
+
+  letter-spacing:
+    .055em !important;
+
+  text-transform:
+    uppercase !important;
+}
+
+
+/*
+ * Основные значения.
+ */
+
+.boykovFooterReq__value {
+  margin:
+    0 !important;
+
+  color:
+    #263950 !important;
+
+  font-size:
+    11px !important;
+
+  line-height:
+    1.55 !important;
+
+  font-weight:
+    500 !important;
+
+  font-style:
+    normal !important;
+}
+
+
+strong.boykovFooterReq__value {
+  color:
+    #172b45 !important;
+
+  font-weight:
+    600 !important;
+}
+
+
+/*
+ * ============================================================
+ * INTERNAL ROWS
+ * ============================================================
+ */
+
+.boykovFooterReq__numbers,
+.boykovFooterReq__contactRow {
+
+  display:
+    grid !important;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    ) !important;
+
+  gap:
+    16px !important;
+
+  margin:
+    0 !important;
+
+  padding:
+    0
+    0
+    14px !important;
+
+  border-bottom:
+    1px solid
+    rgba(23, 43, 69, .08) !important;
+}
+
+
+/*
+ * ============================================================
+ * LINKS
+ * ============================================================
+ */
+
+.boykovFooterReq__link {
+  color:
+    #2f6fd6 !important;
+
+  font-weight:
+    500 !important;
+
+  text-decoration:
+    none !important;
+
+  transition:
+    color 150ms ease !important;
+}
+
+
+.boykovFooterReq__link::after {
+  display:
+    none !important;
+}
+
+
+.boykovFooterReq__link:hover {
+  color:
+    #245fbe !important;
+}
+
+
+/*
+ * ============================================================
+ * ADDRESSES
+ * ============================================================
+ */
+
+.boykovFooterReq__address {
+  max-width:
+    none !important;
+}
+
+
+/*
+ * ============================================================
+ * LEGAL LINKS AREA
+ * ============================================================
+ *
+ * Юридические ссылки больше не должны
+ * ощущаться отдельным блоком далеко снизу.
+ */
+
+footer {
+  color:
+    #657a96;
+}
+
+
+/*
+ * Все ссылки footer,
+ * кроме телефона / email реквизитов.
+ */
+
+footer a:not(.boykovFooterReq__link) {
+  color:
+    #657a96 !important;
+
+  text-decoration:
+    none !important;
+
+  transition:
+    color 150ms ease !important;
+}
+
+
+footer a:not(.boykovFooterReq__link):hover {
+  color:
+    #2f6fd6 !important;
+}
+
+
+/*
+ * Нижний legal-блок:
+ * уменьшаем лишнее вертикальное пространство.
+ */
+
+.boykovFooterReq
++
+* {
+  margin-top:
+    0 !important;
+}
+
+
+/*
+ * ============================================================
+ * TABLET
+ * ============================================================
+ */
+
+@media (max-width: 900px) {
+
+  .boykovFooterReq__inner {
+    padding:
+      0 22px !important;
+  }
+
+
+  .boykovFooterReq__grid {
+    grid-template-columns:
+      1fr
+      1fr !important;
+  }
+
+
+  .boykovFooterReq__column:nth-child(3) {
+    grid-column:
+      1 / -1 !important;
+
+    border-left:
+      0 !important;
+
+    border-top:
+      1px solid
+      rgba(23, 43, 69, .10) !important;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * MOBILE
+ * ============================================================
+ */
+
+@media (max-width: 600px) {
+
+  .boykovFooterReq {
+    padding:
+      25px
+      0
+      20px !important;
+  }
+
+
+  .boykovFooterReq__inner {
+    padding:
+      0 18px !important;
+  }
+
+
+  .boykovFooterReq__head {
+    margin-bottom:
+      13px !important;
+  }
+
+
+  .boykovFooterReq__grid {
+    display:
+      block !important;
+
+    border-radius:
+      10px !important;
+
+    box-shadow:
+      3px 3px 0
+      rgba(47, 111, 214, .22) !important;
+  }
+
+
+  .boykovFooterReq__column,
+  .boykovFooterReq__column:first-child,
+  .boykovFooterReq__column:last-child,
+  .boykovFooterReq__column:nth-child(2),
+  .boykovFooterReq__column:nth-child(3) {
+
+    padding:
+      17px
+      16px !important;
+
+    border:
+      0 !important;
+  }
+
+
+  .boykovFooterReq__column
+  +
+  .boykovFooterReq__column {
+
+    border-left:
+      0 !important;
+
+    border-top:
+      1px solid
+      rgba(23, 43, 69, .09) !important;
+  }
+
+
+  .boykovFooterReq__label {
+    font-size:
+      9px !important;
+  }
+
+
+  .boykovFooterReq__value {
+    font-size:
+      11px !important;
+  }
+
+}
+
+
+/*
+ * ============================================================
+ * SMALL MOBILE
+ * ============================================================
+ */
+
+@media (max-width: 390px) {
+
+  .boykovFooterReq__numbers,
+  .boykovFooterReq__contactRow {
+
+    grid-template-columns:
+      1fr !important;
+
+    gap:
+      11px !important;
+  }
+
+}
+
+/*
+ * ============================================================
+ * FOOTER — SHARP SHADOW MATCH CARDS
+ * ============================================================
+ *
+ * Та же тень, что у карточек:
+ *
+ * 5px 5px 0 #2f6fd6
+ */
+
+
+/*
+ * Desktop
+ */
+
+.boykovFooterReq__grid {
+  box-shadow:
+    5px 5px 0
+    #2f6fd6 !important;
+}
+
+
+/*
+ * Mobile — сохраняем тот же характер,
+ * но чуть уменьшаем вынос, чтобы
+ * тень не давила на узком экране.
+ */
+
+@media (max-width: 600px) {
+
+  .boykovFooterReq__grid {
+    box-shadow:
+      4px 4px 0
+      #2f6fd6 !important;
+  }
+
+}

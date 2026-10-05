@@ -2,66 +2,225 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   >
+
   <meta
     name="robots"
     content="noindex,nofollow"
   >
-  <title>Личный кабинет | БОЙКОВГРУПП</title>
+
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="/favicon.svg"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <script
+    src="/account/account-auth-guard-20260930.js"
+  ></script>
+
+  <title>
+    Личный кабинет | БОЙКОВГРУПП
+  </title>
+
+  <!-- Точная базовая дизайн-система основного сайта -->
+  <link
+    rel="stylesheet"
+    href="/assets/index-generation-first-20260827-145204.css"
+  >
 
   <link
     rel="stylesheet"
-    href="/account/account-20260930.css"
+    href="/assets/boykovdocs-design-foundation-20260828-115813.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="/account/account-design-v2-20260930.css"
   >
 </head>
 
+
 <body>
 
-  <header class="accountHeader">
-    <a
-      class="accountLogo"
-      href="/"
-    >
-      БОЙКОВГРУПП
-    </a>
+  <!-- ======================================================
+       HEADER
+       ====================================================== -->
 
-    <a
-      class="accountBack"
-      href="/"
-    >
-      ← На сайт
-    </a>
+  <header class="accountSiteHeader">
+
+    <div class="accountSiteHeader__inner">
+
+      <div class="accountSiteHeader__controls">
+
+        <form
+          class="accountSearch"
+          action="/"
+          method="get"
+        >
+          <svg
+            class="accountSearch__icon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <circle
+              cx="11"
+              cy="11"
+              r="7"
+              stroke="currentColor"
+              stroke-width="2"
+            ></circle>
+
+            <line
+              x1="16.5"
+              y1="16.5"
+              x2="21"
+              y2="21"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            ></line>
+          </svg>
+
+          <input
+            class="accountSearch__input"
+            type="search"
+            name="q"
+            placeholder="Поиск инструкций..."
+            aria-label="Поиск инструкций"
+          >
+        </form>
+
+
+        <div class="accountSiteHeader__actions">
+
+          <a
+            class="accountHeaderAccount"
+            href="/"
+          >
+            Главная
+          </a>
+
+
+          <a
+            class="accountBrand"
+            href="https://boykovgroup.ru"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              class="accountBrand__icon"
+              src="/brand/logo-icon.png"
+              alt=""
+              width="34"
+              height="34"
+            >
+
+            <span class="accountBrand__text">
+
+              <span class="accountBrand__title">
+                БОЙКОВГРУПП
+              </span>
+
+              <span class="accountBrand__subtitle">
+                ООО «Спецконс»
+              </span>
+
+            </span>
+          </a>
+
+        </div>
+
+      </div>
+
+
+      <nav
+        class="accountNavigation"
+        aria-label="Основная навигация"
+      >
+
+        <a href="https://boykovgroup.ru/ohrana-truda">
+          Охрана труда
+        </a>
+
+        <a href="https://boykovgroup.ru/pozharnaya-bezopasnost">
+          Пожарная безопасность
+        </a>
+
+        <a href="https://boykovgroup.ru/rospotrebnadzor">
+          Роспотребнадзор
+        </a>
+
+        <a href="https://boykovgroup.ru/go-chs">
+          ГО и ЧС
+        </a>
+
+        <a href="https://boykovgroup.ru/antiterror">
+          Антитеррористическая безопасность
+        </a>
+
+      </nav>
+
+    </div>
+
   </header>
 
+
+  <!-- ======================================================
+       ACCOUNT
+       ====================================================== -->
 
   <main class="accountPage">
 
     <section class="accountHero">
 
-      <div>
+      <div class="accountHero__copy">
+
         <div class="accountEyebrow">
-          [ личный кабинет ]
+          [ ЛИЧНЫЙ КАБИНЕТ ]
         </div>
 
-        <h1>
+        <h1 class="accountTitle">
           Мои инструкции
         </h1>
 
         <p class="accountLead">
-          Здесь хранятся ваши заказы и готовые инструкции.
+          Оплаченные инструкции сохраняются в вашем аккаунте
+          и доступны с любого устройства.
         </p>
+
       </div>
 
 
-      <div
+      <aside
         id="account-profile"
         class="accountProfile"
       >
         Загружаем профиль...
-      </div>
+      </aside>
 
     </section>
 
@@ -76,16 +235,27 @@
     <section class="accountOrders">
 
       <div class="accountOrders__head">
-        <h2>
-          Заказы
-        </h2>
+
+        <div>
+
+          <div class="accountSectionEyebrow">
+            [ ДОКУМЕНТЫ ]
+          </div>
+
+          <h2>
+            Ваши инструкции
+          </h2>
+
+        </div>
+
 
         <a
           href="/srochnaya-generaciya-instrukcii"
           class="accountNewOrder"
         >
-          + Новая инструкция
+          Сгенерировать новую →
         </a>
+
       </div>
 
 
@@ -93,9 +263,11 @@
         id="account-orders"
         class="accountOrders__list"
       >
+
         <div class="accountLoading">
-          Загружаем заказы...
+          [ загружаем инструкции... ]
         </div>
+
       </div>
 
     </section>
@@ -103,23 +275,38 @@
   </main>
 
 
+  <!-- ======================================================
+       INSTRUCTION MODAL
+       ====================================================== -->
+
   <div
     id="instruction-modal"
     class="instructionModal"
     hidden
   >
+
     <div class="instructionModal__overlay"></div>
+
 
     <div class="instructionModal__dialog">
 
-      <button
-        id="instruction-modal-close"
-        class="instructionModal__close"
-        type="button"
-        aria-label="Закрыть"
-      >
-        ×
-      </button>
+      <div class="instructionModal__top">
+
+        <span class="instructionModal__eyebrow">
+          [ ВАША ИНСТРУКЦИЯ ]
+        </span>
+
+        <button
+          id="instruction-modal-close"
+          class="instructionModal__close"
+          type="button"
+          aria-label="Закрыть"
+        >
+          ×
+        </button>
+
+      </div>
+
 
       <div
         id="instruction-modal-content"
@@ -127,6 +314,7 @@
       ></div>
 
     </div>
+
   </div>
 
 
