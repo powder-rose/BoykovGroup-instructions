@@ -72,6 +72,12 @@ export default function VisitorTracker() {
 
     lastLocationRef.current = locationKey;
 
+    /*
+     * keepalive нужен намеренно: запрос статистики должен иметь шанс
+     * завершиться даже при навигации или закрытии страницы.
+     * AbortController противоречил бы этому поведению.
+     */
+    // eslint-disable-next-line @eslint-react/web-api-no-leaked-fetch -- keepalive analytics delivery
     fetch('/api/visitor-stats/visit', {
       method: 'POST',
 
