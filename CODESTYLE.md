@@ -150,7 +150,9 @@ Run the complete local quality gate:
 
     npm run quality:check
 
-The quality gate checks formatting, ESLint, backend tests and the frontend production build.
+The local quality gate checks formatting, ESLint, backend tests and the frontend production build.
+
+GitHub Actions runs the same source checks and additionally verifies the production API container lifecycle: Docker image build, API health, Node as PID 1 and graceful SIGTERM shutdown.
 
 Formatting and semantic fixes should normally be committed separately.
 
