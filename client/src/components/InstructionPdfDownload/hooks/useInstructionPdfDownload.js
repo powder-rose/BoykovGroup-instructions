@@ -31,9 +31,9 @@ export default function useInstructionPdfDownload(instructionId) {
 
   const isRestoring = useSelector(selectIsRestoringSession);
 
-  const [isRegistrationOpen, setRegistrationOpen] = useState(false);
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
 
-  const [isDownloading, setDownloading] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const [message, setMessage] = useState(null);
 
@@ -75,7 +75,7 @@ export default function useInstructionPdfDownload(instructionId) {
       return;
     }
 
-    setDownloading(true);
+    setIsDownloading(true);
 
     try {
       const response = await fetch(`/api/instructions/${encodeURIComponent(instructionId)}/pdf`, {
@@ -144,7 +144,7 @@ export default function useInstructionPdfDownload(instructionId) {
 
       showMessage(error?.message || 'Не удалось скачать PDF');
     } finally {
-      setDownloading(false);
+      setIsDownloading(false);
     }
   }
 
@@ -154,7 +154,7 @@ export default function useInstructionPdfDownload(instructionId) {
     }
 
     if (!user || !token) {
-      setRegistrationOpen(true);
+      setIsRegistrationOpen(true);
 
       return;
     }
@@ -168,7 +168,7 @@ export default function useInstructionPdfDownload(instructionId) {
     user,
     isRestoring,
     isRegistrationOpen,
-    setRegistrationOpen,
+    setRegistrationOpen: setIsRegistrationOpen,
     isDownloading,
     message,
     isLockedUser,

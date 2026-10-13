@@ -48,7 +48,7 @@ export default function GenerateInstructionModal({ onClose }) {
           ×
         </button>
 
-        <span className={styles.eyebrow}>// AI GENERATION</span>
+        <span className={styles.eyebrow}>{'// AI GENERATION'}</span>
 
         <h2 className={styles.title}>Генерация через YandexGPT</h2>
 

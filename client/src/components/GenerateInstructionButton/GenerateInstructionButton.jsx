@@ -11,19 +11,19 @@ import styles from './GenerateInstructionButton.module.css';
  */
 export default function GenerateInstructionButton() {
   const isAdmin = useSelector(selectIsAdmin);
-  const [isModalOpen, setModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (!isAdmin) return null;
 
   return (
     <>
-      <button type="button" className={styles.generateBtn} onClick={() => setModalOpen(true)}>
+      <button type="button" className={styles.generateBtn} onClick={() => setIsModalOpen(true)}>
         <span aria-hidden="true" className={styles.plus}>
           +
         </span>{' '}
         сгенерировать инструкцию
       </button>
-      {isModalOpen && <GenerateInstructionModal onClose={() => setModalOpen(false)} />}
+      {isModalOpen && <GenerateInstructionModal onClose={() => setIsModalOpen(false)} />}
     </>
   );
 }
