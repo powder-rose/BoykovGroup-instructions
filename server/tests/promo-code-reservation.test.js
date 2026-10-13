@@ -8,15 +8,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const repositoryRoot = path.resolve(__dirname, '../..');
+const serverRoot = path.resolve(__dirname, '..');
 
-const promoServicePath = path.join(
-  repositoryRoot,
-  'server',
-  'src',
-  'services',
-  'promoCodeService.js',
-);
+const promoServicePath = path.join(serverRoot, 'src', 'services', 'promoCodeService.js');
 
 function loadIsolatedPromoService() {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'boykovdocs-promo-reservation-'));
@@ -244,13 +238,7 @@ async function withIsolatedOrderService(callback) {
 
   const modulePath = path.join(directory, 'publicGenerationOrderService.mjs');
 
-  const sourcePath = path.join(
-    repositoryRoot,
-    'server',
-    'src',
-    'services',
-    'publicGenerationOrderService.js',
-  );
+  const sourcePath = path.join(serverRoot, 'src', 'services', 'publicGenerationOrderService.js');
 
   const originalSource = fs.readFileSync(sourcePath, 'utf8');
 
