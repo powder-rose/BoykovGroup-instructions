@@ -1,0 +1,31 @@
+node_modules/
+client/node_modules/
+server/node_modules/
+
+client/dist/
+dist/
+
+# Production / historical compiled artifacts.
+public_html/
+
+# Runtime and private data.
+server/uploads/
+server/data/
+server/tmp/
+server/logs/
+
+server/src/data/instructions/
+server/src/data/publicGenerationOrders/
+server/src/data/analytics/
+server/src/data/instruction-history/
+server/src/data/deleted-instructions/
+
+*.jsonl
+*.log
+*.bak
+*.backup
+
+# Generated dependency locks are not manually formatted.
+package-lock.json
+client/package-lock.json
+server/package-lock.json
