@@ -6,8 +6,7 @@ import {
 
 
 const CRON_EXPRESSION =
-  process.env.DAILY_STATS_CRON
-  ||
+  process.env.DAILY_STATS_CRON ||
   "0 * * * *";
 
 const TIMEZONE =
@@ -15,58 +14,136 @@ const TIMEZONE =
 
 
 async function runDailySiteStats() {
+
   try {
+
     const result =
       await sendDailySiteStatsEmailIfDue();
+
 
     console.log(
       "[DailySiteStats]",
       result.status,
       result.reason || ""
     );
+
   }
   catch (error) {
+
     console.error(
       "[DailySiteStats] Error:",
       error
     );
+
   }
+
 }
 
 
 export function startDailySiteStatsEmailJob() {
+
   if (
     !cron.validate(
       CRON_EXPRESSION
     )
   ) {
+
     console.error(
       `[DailySiteStats] Invalid cron: "${CRON_EXPRESSION}"`
     );
 
-    return;
+
+    return async () => {};
+
   }
 
-  cron.schedule(
-    CRON_EXPRESSION,
-    runDailySiteStats,
-    {
-      timezone:
-        TIMEZONE
-    }
-  );
 
-  /*
-   * Если Passenger был перезапущен
-   * уже после 08:00, проверяем отчёт
-   * через 5 секунд после старта.
-   */
-  setTimeout(
-    runDailySiteStats,
-    5000
-  );
+  const activeRuns =
+    new Set();
+
+
+  function startTrackedRun() {
+
+    const promise =
+      runDailySiteStats();
+
+
+    activeRuns.add(
+      promise
+    );
+
+
+    promise.then(
+      () =>
+        activeRuns.delete(
+          promise
+        ),
+
+      () =>
+        activeRuns.delete(
+          promise
+        )
+    );
+
+
+    return promise;
+
+  }
+
+
+  const task =
+    cron.schedule(
+      CRON_EXPRESSION,
+      () => {
+
+        void startTrackedRun();
+
+      },
+      {
+        timezone:
+          TIMEZONE
+      }
+    );
+
+
+  const startupTimer =
+    setTimeout(
+      () => {
+
+        void startTrackedRun();
+
+      },
+      5000
+    );
+
 
   console.log(
     `[DailySiteStats] Cron registered: "${CRON_EXPRESSION}", timezone=${TIMEZONE}`
   );
+
+
+  return async () => {
+
+    clearTimeout(
+      startupTimer
+    );
+
+
+    task.stop();
+
+
+    while (
+      activeRuns.size > 0
+    ) {
+
+      await Promise.allSettled(
+        [
+          ...activeRuns
+        ]
+      );
+
+    }
+
+  };
+
 }

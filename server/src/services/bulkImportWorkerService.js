@@ -661,3 +661,19 @@ export async function ensureBulkImportWorker() {
 
   return true;
 }
+
+
+export async function waitForBulkImportWorker() {
+
+  if (
+    !workerPromise
+  ) {
+
+    return;
+
+  }
+
+
+  await workerPromise;
+
+}
