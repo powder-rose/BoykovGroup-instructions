@@ -1,3 +1,5 @@
+import { serializeJsonLd } from '../../lib/jsonLd.js';
+
 export default function StructuredData({ instruction }) {
   const schema = {
     '@context': 'https://schema.org',
@@ -13,12 +15,5 @@ export default function StructuredData({ instruction }) {
     },
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify(schema),
-      }}
-    />
-  );
+  return <script type="application/ld+json">{serializeJsonLd(schema)}</script>;
 }
