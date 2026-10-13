@@ -81,9 +81,9 @@ export default function useAuthControl() {
 
   const isRestoring = useSelector(selectIsRestoringSession);
 
-  const [isModalOpen, setModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const dropdownRef = useRef(null);
 
@@ -102,13 +102,13 @@ export default function useAuthControl() {
 
     function handleDocumentClick(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setMenuOpen(false);
+        setIsMenuOpen(false);
       }
     }
 
     function handleKeyDown(event) {
       if (event.key === 'Escape') {
-        setMenuOpen(false);
+        setIsMenuOpen(false);
       }
     }
 
@@ -124,7 +124,7 @@ export default function useAuthControl() {
   }, [isMenuOpen]);
 
   useEffect(() => {
-    setMenuOpen(false);
+    setIsMenuOpen(false);
   }, [user]);
 
   /*
@@ -222,7 +222,7 @@ export default function useAuthControl() {
     if (!user) {
       authReturnOpenedRef.current = true;
 
-      setModalOpen(true);
+      setIsModalOpen(true);
     }
   }, [isRestoring, user]);
 
@@ -256,9 +256,9 @@ export default function useAuthControl() {
     user,
     isRestoring,
     isModalOpen,
-    setModalOpen,
+    setModalOpen: setIsModalOpen,
     isMenuOpen,
-    setMenuOpen,
+    setMenuOpen: setIsMenuOpen,
     dropdownRef,
   };
 }

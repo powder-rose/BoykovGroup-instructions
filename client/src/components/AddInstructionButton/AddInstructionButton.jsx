@@ -12,25 +12,25 @@ import styles from './AddInstructionButton.module.css';
  */
 export default function AddInstructionButton({ onImportCreated }) {
   const isAdmin = useSelector(selectIsAdmin);
-  const [isModalOpen, setModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (!isAdmin) return null;
 
   return (
     <div className={styles.wrapper}>
-      <button type="button" className={styles.addBtn} onClick={() => setModalOpen(true)}>
+      <button type="button" className={styles.addBtn} onClick={() => setIsModalOpen(true)}>
         <span className={styles.plus}>+</span>
         добавить инструкцию
       </button>
 
       {isModalOpen && (
         <AddInstructionModal
-          onClose={() => setModalOpen(false)}
+          onClose={() => setIsModalOpen(false)}
 
           onImportCreated={id => {
             onImportCreated(id);
 
-            setModalOpen(false);
+            setIsModalOpen(false);
           }}
         />
       )}

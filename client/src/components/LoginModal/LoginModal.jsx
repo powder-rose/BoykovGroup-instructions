@@ -53,7 +53,7 @@ export default function LoginModal({ onClose }) {
         </button>
 
         <span className={styles.eyebrow}>
-          //
+          {'//'}
           {mode === 'login' ? ' авторизация' : ' регистрация'}
         </span>
 
