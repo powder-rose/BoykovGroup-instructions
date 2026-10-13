@@ -6,6 +6,8 @@ import morgan from 'morgan';
 
 import { attachUser } from './middleware/auth.js';
 
+import { createRateLimiters } from './middleware/rateLimits.js';
+
 import { authRouter } from './routes/auth.js';
 
 import { cloudPaymentsWebhookRouter } from './routes/cloudPaymentsWebhook.js';
@@ -41,6 +43,19 @@ export function createApp({
 } = {}) {
   const app = express();
 
+  /*
+   * Production topology:
+   *
+   * Internet -> system nginx -> Docker nginx -> Node.
+   *
+   * Trust exactly the two reverse-proxy hops nearest
+   * the application. The edge nginx is responsible
+   * for replacing untrusted client X-Forwarded-For.
+   */
+  app.set('trust proxy', 2);
+
+  const rateLimits = createRateLimiters();
+
   app.use(
     cors({
       origin: clientOrigin,
@@ -54,6 +69,30 @@ export function createApp({
   app.use(morgan('dev'));
 
   app.use(attachUser);
+
+  /*
+   * Public abuse controls.
+   *
+   * CloudPayments webhook is intentionally not included:
+   * its authenticity is enforced separately with HMAC.
+   */
+  app.post('/api/auth/login', rateLimits.loginIp, rateLimits.loginIdentity);
+
+  app.post('/api/auth/register', rateLimits.registration);
+
+  app.post('/api/auth/resend-verification', rateLimits.resendVerification);
+
+  app.post('/api/promo-codes/validate', rateLimits.promoValidation);
+
+  app.post('/api/public-generation/validate', rateLimits.publicGenerationValidation);
+
+  app.post('/api/public-generation/orders', rateLimits.publicOrderCreation);
+
+  app.post('/api/public-generation/orders/:id/confirm-payment', rateLimits.paymentConfirmation);
+
+  app.post('/api/visitor-stats/visit', rateLimits.analyticsWrite);
+
+  app.post('/api/instructions/:id/view', rateLimits.analyticsWrite);
 
   app.use('/api/imports', importsRouter);
 
