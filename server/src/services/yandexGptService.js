@@ -165,7 +165,7 @@ function parseSectionParagraphs(text, sectionNumber) {
         }
       }
     }
-  } catch (err) {
+  } catch {
     // Это нормально: основной ожидаемый формат — обычный текст.
   }
 
@@ -688,8 +688,6 @@ export async function generateInstructionWithYandexGpt(profession, options = {})
    */
   const generationId = createGenerationUsageId(options?.source || 'generation');
 
-  let title = null;
-  let intro = null;
   const sections = [];
 
   for (const sectionDef of SECTION_DEFINITIONS) {
@@ -719,11 +717,6 @@ export async function generateInstructionWithYandexGpt(profession, options = {})
       includeTitleAndIntro,
       generationId,
     );
-
-    if (includeTitleAndIntro) {
-      title = result.title;
-      intro = buildInstructionIntro(title || result.title);
-    }
 
     sections.push(result.section);
   }

@@ -4,8 +4,6 @@ import { normalizeUploadedFilename } from '../utils/uploadedFilename.js';
 
 import { extractTextFromUpload, splitIntoParagraphs } from './documentTextExtractor.js';
 
-import { checkInstructionDuplicate } from './instructionDuplicateService.js';
-
 import { createInstructionHash } from './instructionHashService.js';
 
 import { compareInstruction } from './instructionVersionService.js';
