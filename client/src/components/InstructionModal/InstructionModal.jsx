@@ -34,8 +34,8 @@ export default function InstructionModal({ instruction, isLoading, error, onClos
                 <h2 className={styles.sectionHeading}>
                   {section.number}. {section.heading}
                 </h2>
-                {section.paragraphs.map((paragraph, idx) => (
-                  <p key={idx} className={styles.paragraph}>
+                {section.paragraphs.map(paragraph => (
+                  <p key={`${section.number}:${paragraph}`} className={styles.paragraph}>
                     {paragraph}
                   </p>
                 ))}

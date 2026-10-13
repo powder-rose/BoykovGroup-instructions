@@ -1,5 +1,21 @@
 import styles from './PrivateInstructionView.module.css';
 
+function makeStableTextEntries(values, prefix) {
+  const occurrences = new Map();
+
+  return values.map(value => {
+    const text = String(value ?? '');
+    const occurrence = occurrences.get(text) ?? 0;
+
+    occurrences.set(text, occurrence + 1);
+
+    return {
+      key: `${prefix}:${text}:${occurrence}`,
+      value,
+    };
+  });
+}
+
 function normalizeLines(section) {
   const source = section?.paragraphs ?? section?.content ?? section?.items ?? section?.text ?? [];
 
@@ -46,16 +62,23 @@ export default function PrivateInstructionView({ instruction, compact = false })
       </header>
 
       <div className={styles.sections}>
-        {sections.map((section, sectionIndex) => {
+        {sections.map(section => {
           const lines = normalizeLines(section);
 
+          const sectionKey =
+            section.id ??
+            section.number ??
+            section.title ??
+            section.heading ??
+            `section:${lines.join('|')}`;
+
           return (
-            <section className={styles.section} key={section.id ?? section.number ?? sectionIndex}>
+            <section className={styles.section} key={sectionKey}>
               {section.title && <h3 className={styles.sectionTitle}>{section.title}</h3>}
 
-              {lines.map((line, lineIndex) => (
-                <p className={styles.paragraph} key={lineIndex}>
-                  {line}
+              {makeStableTextEntries(lines, `section-${sectionKey}:line`).map(entry => (
+                <p className={styles.paragraph} key={entry.key}>
+                  {entry.value}
                 </p>
               ))}
             </section>

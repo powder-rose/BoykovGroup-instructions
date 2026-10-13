@@ -22,7 +22,7 @@ export default function InstructionsCatalogPagination({
         ←
       </button>
 
-      {paginationItems.map((item, index) =>
+      {paginationItems.map(item =>
         typeof item === 'number' ? (
           <button
             key={`page-${item}`}
@@ -36,7 +36,7 @@ export default function InstructionsCatalogPagination({
             {item}
           </button>
         ) : (
-          <span key={`dots-${item}-${index}`} className={styles.paginationDots}>
+          <span key={`dots-${item}`} className={styles.paginationDots}>
             …
           </span>
         ),
