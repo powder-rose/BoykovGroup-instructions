@@ -2,6 +2,13 @@ import assert from 'node:assert/strict';
 import test, { after, before } from 'node:test';
 
 import { createApp } from '../src/app.js';
+import { importsRouter } from '../src/routes/imports.js';
+import { issueAdminToken } from '../src/services/authService.js';
+import {
+  createImport,
+  removeImport,
+  updateImportFile,
+} from '../src/services/importHistoryService.js';
 
 let server = null;
 let baseUrl = '';
@@ -77,4 +84,53 @@ test('configured frontend origin is allowed by CORS', async () => {
   assert.equal(response.status, 200);
 
   assert.equal(response.headers.get('access-control-allow-origin'), 'http://localhost:5173');
+});
+
+test('POST /api/imports/:id/retry does not register duplicate retry routes', async () => {
+  const importTask = createImport([
+    {
+      originalname: 'missing-retry-test.docx',
+    },
+  ]);
+
+  const file = importTask.files[0];
+
+  updateImportFile(importTask.id, file.id, {
+    status: 'failed',
+    error: 'test failure',
+  });
+
+  const countRetryRoutes = () =>
+    importsRouter.stack.filter(
+      layer => layer.route?.path === '/:id/retry' && layer.route.methods?.post,
+    ).length;
+
+  const retryRoutesBefore = countRetryRoutes();
+
+  try {
+    const response = await fetch(
+      `${baseUrl}/api/imports/${encodeURIComponent(importTask.id)}/retry`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${issueAdminToken()}`,
+        },
+      },
+    );
+
+    assert.equal(response.status, 200);
+
+    const body = await response.json();
+
+    assert.equal(body.message, 'Повторная обработка завершена');
+    assert.equal(body.count, 1);
+
+    assert.equal(
+      countRetryRoutes(),
+      retryRoutesBefore,
+      'retry request must not register another Express route',
+    );
+  } finally {
+    removeImport(importTask.id);
+  }
 });

@@ -50,25 +50,16 @@ importsRouter.post('/:id/retry', requireAdmin, async (req, res) => {
     });
   }
 
-  failedFiles.forEach(file => {
-    importsRouter.post('/:id/retry', requireAdmin, async (req, res) => {
-      try {
-        await retryFailedImport(req.params.id);
+  try {
+    await retryFailedImport(req.params.id);
 
-        res.json({
-          message: 'Повторная обработка завершена',
-        });
-      } catch (error) {
-        res.status(400).json({
-          error: error.message,
-        });
-      }
+    return res.json({
+      message: 'Повторная обработка завершена',
+      count: failedFiles.length,
     });
-  });
-
-  res.json({
-    message: 'Файлы поставлены на повторную обработку',
-
-    count: failedFiles.length,
-  });
+  } catch (error) {
+    return res.status(400).json({
+      error: error.message,
+    });
+  }
 });

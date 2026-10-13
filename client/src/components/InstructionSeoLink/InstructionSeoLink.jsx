@@ -1,5 +1,3 @@
-import React from 'react';
-
 /**
  * SEO-friendly link to an instruction.
  *

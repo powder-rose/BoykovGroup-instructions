@@ -382,7 +382,7 @@ function renderCategoryNav() {
   return `
     <nav class="CategoryNav_nav" aria-label="Разделы услуг">
       ${items
-        .map((item, idx) => {
+        .map(item => {
           if (item.divider) {
             return `<span class="CategoryNav_divider" aria-hidden="true"></span>`;
           }
@@ -441,32 +441,6 @@ function renderMainHero({ headingTag = 'h1' } = {}) {
       </div>
       ${renderHeroPortrait()}
     </section>`;
-}
-
-function renderInstructionCards(instructions) {
-  return instructions
-    .map(
-      instruction => `
-        <li>
-          <div class="InstructionButton_card">
-            <a
-              class="InstructionButton_clickArea"
-              href="/instrukciya-po-ohrane-truda/${encodeURIComponent(instruction.id)}"
-            >
-              <span class="InstructionButton_index" aria-hidden="true"></span>
-
-              <span class="InstructionButton_body">
-                <span class="InstructionButton_title">
-                  ${escapeHtml(instruction.title)}
-                </span>
-              </span>
-
-              <span class="InstructionButton_arrow" aria-hidden="true">→</span>
-            </a>
-          </div>
-        </li>`,
-    )
-    .join('\n');
 }
 
 function renderSections(instruction) {
@@ -596,86 +570,6 @@ function redirectTrailingSlash(req, res) {
   res.redirect(301, target);
 
   return true;
-}
-
-/* SEO_PRODUCTION_STYLES_V3 */
-
-/*
- * Серверная SEO-страница должна использовать
- * тот же набор CSS, который подключён
- * в production public_html/index.html.
- */
-function loadProductionStylesheetLinks() {
-  try {
-    const productionIndexUrl = new URL('../../../public_html/index.html', import.meta.url);
-
-    const html = fs.readFileSync(productionIndexUrl, 'utf-8');
-
-    const links = String(html).match(/<link\b[^>]*>/giu) ?? [];
-
-    return links
-      .filter(tag => /\brel=["']stylesheet["']/iu.test(tag))
-      .filter(tag => !/fonts\.googleapis\.com/iu.test(tag))
-      .join('\n');
-  } catch (error) {
-    console.error('[SEO] Production CSS load error:', error);
-
-    return '';
-  }
-}
-
-function renderHtmlHead({
-  title,
-  description,
-  canonical,
-  schema,
-  robots = 'index, follow, max-image-preview:large',
-  ogType = 'website',
-}) {
-  /*
-   * Production SPA CSS нужны только серверному каталогу.
-   *
-   * Страницы конкретных инструкций имеют собственную
-   * серверную разметку и EXACT_SITE_CSS. Подключение
-   * production CSS к ним ломает внешний вид при прямом
-   * открытии или обновлении страницы.
-   */
-  const productionStylesheetLinks = /\/instrukcii-po-ohrane-truda\/?$/u.test(
-    String(canonical || ''),
-  )
-    ? loadProductionStylesheetLinks()
-    : '';
-
-  return `
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link
-  href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&display=swap"
-  rel="stylesheet"
-/>
-
-  <title>${escapeHtml(title)}</title>
-  <meta name="description" content="${escapeHtml(description)}">
-  <meta name="robots" content="${escapeHtml(robots)}">
-  <link rel="canonical" href="${escapeHtml(canonical)}">
-
-  <meta property="og:type" content="${escapeHtml(ogType)}">
-  <meta property="og:locale" content="ru_RU">
-  <meta property="og:title" content="${escapeHtml(title)}">
-  <meta property="og:description" content="${escapeHtml(description)}">
-  <meta property="og:url" content="${escapeHtml(canonical)}">
-  <meta property="og:site_name" content="${BRAND_NAME}">
-
-  <script type="application/ld+json">${jsonForHtml(schema)}</script>
-
-  <style>${EXACT_SITE_CSS}</style>
-  ${productionStylesheetLinks}
-</head>`;
 }
 
 function renderInstructionsCatalogPage(req, instructions, query = '') {
@@ -1011,9 +905,7 @@ function renderInstructionPage(req, instruction) {
   return productionHtml;
 }
 
-function renderNotFoundPage(req) {
-  const siteUrl = getSiteUrl(req);
-
+function renderNotFoundPage() {
   return `<!doctype html>
 <html lang="ru">
 <head>
@@ -1101,7 +993,7 @@ router.get('/instrukciya-po-ohrane-truda/:id', (req, res, next) => {
     const instruction = instructionsRepository.getById(req.params.id);
 
     if (!instruction) {
-      return res.status(404).type('html').send(renderNotFoundPage(req));
+      return res.status(404).type('html').send(renderNotFoundPage());
     }
 
     res
