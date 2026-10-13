@@ -1,23 +1,20 @@
-import { buildInstructionIntro } from "../utils/instructionIntro.js";
-import fetch from "node-fetch";
+import { buildInstructionIntro } from '../utils/instructionIntro.js';
+import fetch from 'node-fetch';
 import {
   SECTION_DEFINITIONS,
   buildSystemPrompt,
   buildSectionUserPrompt,
-} from "../prompts/generateInstructionPrompt.js";
-import { getProfessionGenitive } from "../utils/professionGenitive.js";
+} from '../prompts/generateInstructionPrompt.js';
+import { getProfessionGenitive } from '../utils/professionGenitive.js';
 
-import {
-  createGenerationUsageId,
-  recordGenerationUsageCall
-} from "./generationUsageService.js";
+import { createGenerationUsageId, recordGenerationUsageCall } from './generationUsageService.js';
 
-const YANDEX_GPT_URL = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion";
+const YANDEX_GPT_URL = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion';
 
 function getConfig() {
   const apiKey = process.env.YANDEX_API_KEY;
   const folderId = process.env.YANDEX_FOLDER_ID;
-  const model = process.env.YANDEX_GPT_MODEL || "yandexgpt/latest";
+  const model = process.env.YANDEX_GPT_MODEL || 'yandexgpt/latest';
   return { apiKey, folderId, model };
 }
 
@@ -27,27 +24,22 @@ export function isYandexGptConfigured() {
 }
 
 /**
- *         
- *    (     200 , 
- *    ).    /  
+ *
+ *    (     200 ,
+ *    ).    /
  *  maxTokens   .
  */
 function estimateMaxTokens(requiredCount) {
   return String(Math.min(8000, 300 * requiredCount + 500));
 }
 
-async function callYandexGpt(
-  messages,
-  { apiKey, folderId, model },
-  maxTokens,
-  usageMeta = {}
-) {
+async function callYandexGpt(messages, { apiKey, folderId, model }, maxTokens, usageMeta = {}) {
   const response = await fetch(YANDEX_GPT_URL, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Api-Key ${apiKey}`,
-      "x-folder-id": folderId,
+      'x-folder-id': folderId,
     },
     body: JSON.stringify({
       modelUri: `gpt://${folderId}/${model}`,
@@ -61,33 +53,28 @@ async function callYandexGpt(
   });
 
   if (!response.ok) {
-    const errText = await response.text().catch(() => "");
+    const errText = await response.text().catch(() => '');
     throw new Error(`YandexGPT API   ${response.status}: ${errText}`);
   }
 
   const data = await response.json();
   const text = data?.result?.alternatives?.[0]?.message?.text;
   if (!text) {
-    throw new Error("YandexGPT API   ");
+    throw new Error('YandexGPT API   ');
   }
 
   recordGenerationUsageCall({
-    generationId:
-      usageMeta.generationId,
+    generationId: usageMeta.generationId,
 
-    profession:
-      usageMeta.profession,
+    profession: usageMeta.profession,
 
     model,
 
-    sectionNumber:
-      usageMeta.sectionNumber,
+    sectionNumber: usageMeta.sectionNumber,
 
-    attempt:
-      usageMeta.attempt,
+    attempt: usageMeta.attempt,
 
-    usage:
-      data?.result?.usage
+    usage: data?.result?.usage,
   });
 
   return text;
@@ -100,16 +87,16 @@ function parseTitleIntroSection(text) {
   const sectionMatch = text.match(/###\s*\s*###\s*([\s\S]*)$/i);
 
   return {
-    title: titleMatch ? titleMatch[1].trim().replace(/\s+/g, " ") : null,
-    intro: introMatch ? introMatch[1].trim().replace(/\s+/g, " ") : null,
+    title: titleMatch ? titleMatch[1].trim().replace(/\s+/g, ' ') : null,
+    intro: introMatch ? introMatch[1].trim().replace(/\s+/g, ' ') : null,
     sectionText: sectionMatch ? sectionMatch[1].trim() : text.trim(),
   };
 }
 
 /**        N.M.          . */
 function parseSectionParagraphs(text, sectionNumber) {
-  const normalized = String(text ?? "")
-    .replace(/\r\n/g, "\n")
+  const normalized = String(text ?? '')
+    .replace(/\r\n/g, '\n')
     .trim();
 
   if (!normalized) return [];
@@ -133,34 +120,27 @@ function parseSectionParagraphs(text, sectionNumber) {
   try {
     let jsonCandidate = normalized;
 
-    const fencedMatch = normalized.match(
-      /```(?:json)?\s*([\s\S]*?)```/i
-    );
+    const fencedMatch = normalized.match(/```(?:json)?\s*([\s\S]*?)```/i);
 
     if (fencedMatch) {
       jsonCandidate = fencedMatch[1].trim();
     } else {
-      const firstBrace = normalized.indexOf("{");
-      const lastBrace = normalized.lastIndexOf("}");
+      const firstBrace = normalized.indexOf('{');
+      const lastBrace = normalized.lastIndexOf('}');
 
       if (firstBrace !== -1 && lastBrace > firstBrace) {
-        jsonCandidate = normalized.slice(
-          firstBrace,
-          lastBrace + 1
-        );
+        jsonCandidate = normalized.slice(firstBrace, lastBrace + 1);
       }
     }
 
-    if (jsonCandidate.startsWith("{")) {
+    if (jsonCandidate.startsWith('{')) {
       const parsed = JSON.parse(jsonCandidate);
 
       let section = null;
 
       if (Array.isArray(parsed.sections)) {
         section =
-          parsed.sections.find(
-            (item) => Number(item?.number) === Number(sectionNumber)
-          ) ??
+          parsed.sections.find(item => Number(item?.number) === Number(sectionNumber)) ??
           parsed.sections[0] ??
           null;
       } else if (Array.isArray(parsed.paragraphs)) {
@@ -169,16 +149,16 @@ function parseSectionParagraphs(text, sectionNumber) {
 
       if (section && Array.isArray(section.paragraphs)) {
         const paragraphs = section.paragraphs
-          .map((paragraph) =>
-            String(paragraph ?? "")
+          .map(paragraph =>
+            String(paragraph ?? '')
               .trim()
-              .replace(/\s+/g, " ")
+              .replace(/\s+/g, ' '),
           )
           .filter(Boolean);
 
         if (paragraphs.length > 0) {
           console.warn(
-            `[YandexGPT] Раздел ${sectionNumber} пришёл как JSON; paragraphs восстановлены автоматически.`
+            `[YandexGPT] Раздел ${sectionNumber} пришёл как JSON; paragraphs восстановлены автоматически.`,
           );
 
           return paragraphs;
@@ -196,19 +176,14 @@ function parseSectionParagraphs(text, sectionNumber) {
    * 1.2. Второй пункт
    * ...
    */
-  const markerRegex = new RegExp(
-    `(?:^|\\n)[ \\t]*(${sectionNumber}\\.\\d+\\.)`,
-    "g"
-  );
+  const markerRegex = new RegExp(`(?:^|\\n)[ \\t]*(${sectionNumber}\\.\\d+\\.)`, 'g');
 
   const markerStarts = [];
 
   let match;
 
   while ((match = markerRegex.exec(normalized)) !== null) {
-    markerStarts.push(
-      match.index + match[0].indexOf(match[1])
-    );
+    markerStarts.push(match.index + match[0].indexOf(match[1]));
   }
 
   if (markerStarts.length === 0) {
@@ -220,15 +195,9 @@ function parseSectionParagraphs(text, sectionNumber) {
   for (let i = 0; i < markerStarts.length; i++) {
     const start = markerStarts[i];
 
-    const end =
-      i + 1 < markerStarts.length
-        ? markerStarts[i + 1]
-        : normalized.length;
+    const end = i + 1 < markerStarts.length ? markerStarts[i + 1] : normalized.length;
 
-    const chunk = normalized
-      .slice(start, end)
-      .trim()
-      .replace(/\s+/g, " ");
+    const chunk = normalized.slice(start, end).trim().replace(/\s+/g, ' ');
 
     if (chunk) {
       paragraphs.push(chunk);
@@ -237,7 +206,6 @@ function parseSectionParagraphs(text, sectionNumber) {
 
   return paragraphs;
 }
-
 
 /*
  * STRICT_GENERATED_SECTION_VALIDATION_V1
@@ -249,83 +217,46 @@ function parseSectionParagraphs(text, sectionNumber) {
 const MIN_GENERATED_PARAGRAPH_CHARS = 200;
 const MAX_SECTION_GENERATION_ATTEMPTS = 3;
 
-
-function validateGeneratedSection(
-  paragraphs,
-  sectionDef
-) {
+function validateGeneratedSection(paragraphs, sectionDef) {
   const issues = [];
 
   if (!Array.isArray(paragraphs)) {
-    return ["PARAGRAPHS_NOT_ARRAY"];
+    return ['PARAGRAPHS_NOT_ARRAY'];
   }
 
-  if (
-    paragraphs.length !==
-    sectionDef.requiredCount
-  ) {
-    issues.push(
-      `COUNT:${paragraphs.length}/${sectionDef.requiredCount}`
-    );
+  if (paragraphs.length !== sectionDef.requiredCount) {
+    issues.push(`COUNT:${paragraphs.length}/${sectionDef.requiredCount}`);
   }
 
-  for (
-    let index = 0;
-    index < sectionDef.requiredCount;
-    index += 1
-  ) {
-    const paragraph =
-      String(
-        paragraphs[index] ?? ""
-      )
-        .replace(/\s+/gu, " ")
-        .trim();
+  for (let index = 0; index < sectionDef.requiredCount; index += 1) {
+    const paragraph = String(paragraphs[index] ?? '')
+      .replace(/\s+/gu, ' ')
+      .trim();
 
-    const expectedPrefix =
-      `${sectionDef.number}.${index + 1}.`;
+    const expectedPrefix = `${sectionDef.number}.${index + 1}.`;
 
-    if (
-      !paragraph.startsWith(
-        expectedPrefix
-      )
-    ) {
-      issues.push(
-        `${expectedPrefix} NUMBERING`
-      );
+    if (!paragraph.startsWith(expectedPrefix)) {
+      issues.push(`${expectedPrefix} NUMBERING`);
 
       continue;
     }
 
-    const body =
-      paragraph
-        .slice(
-          expectedPrefix.length
-        )
-        .trim();
+    const body = paragraph.slice(expectedPrefix.length).trim();
 
-    if (
-      body.length <
-      MIN_GENERATED_PARAGRAPH_CHARS
-    ) {
-      issues.push(
-        `${expectedPrefix} LENGTH:${body.length}`
-      );
+    if (body.length < MIN_GENERATED_PARAGRAPH_CHARS) {
+      issues.push(`${expectedPrefix} LENGTH:${body.length}`);
     }
   }
 
   return issues;
 }
 
-
-function buildStrictRetryPrompt(
-  sectionDef,
-  issues
-) {
+function buildStrictRetryPrompt(sectionDef, issues) {
   return `
 Предыдущий ответ НЕ соответствует обязательным требованиям.
 
 Обнаруженные нарушения:
-${issues.join("; ")}
+${issues.join('; ')}
 
 Перепиши ВЕСЬ текущий раздел заново.
 
@@ -344,7 +275,6 @@ ${issues.join("; ")}
 `;
 }
 
-
 /* TARGETED_PARAGRAPH_REPAIR_V4 */
 async function tryTargetedParagraphRepair(
   paragraphs,
@@ -353,7 +283,7 @@ async function tryTargetedParagraphRepair(
   profession,
   sectionDef,
   generationId,
-  sectionAttempt
+  sectionAttempt,
 ) {
   if (
     !Array.isArray(paragraphs) ||
@@ -364,41 +294,28 @@ async function tryTargetedParagraphRepair(
     return null;
   }
 
-  const lengthMarker = " LENGTH:";
+  const lengthMarker = ' LENGTH:';
   const sectionPrefix = `${sectionDef.number}.`;
   const indexes = [];
 
   for (const issue of issues) {
-    const issueText =
-      String(issue ?? "").trim();
+    const issueText = String(issue ?? '').trim();
 
-    const markerPosition =
-      issueText.indexOf(lengthMarker);
+    const markerPosition = issueText.indexOf(lengthMarker);
 
     if (markerPosition === -1) {
       return null;
     }
 
-    const numberPart =
-      issueText
-        .slice(0, markerPosition)
-        .trim();
+    const numberPart = issueText.slice(0, markerPosition).trim();
 
-    if (
-      !numberPart.startsWith(sectionPrefix) ||
-      !numberPart.endsWith(".")
-    ) {
+    if (!numberPart.startsWith(sectionPrefix) || !numberPart.endsWith('.')) {
       return null;
     }
 
-    const subsectionText =
-      numberPart.slice(
-        sectionPrefix.length,
-        -1
-      );
+    const subsectionText = numberPart.slice(sectionPrefix.length, -1);
 
-    const subsectionNumber =
-      Number(subsectionText);
+    const subsectionNumber = Number(subsectionText);
 
     if (
       !Number.isInteger(subsectionNumber) ||
@@ -408,180 +325,121 @@ async function tryTargetedParagraphRepair(
       return null;
     }
 
-    indexes.push(
-      subsectionNumber - 1
-    );
+    indexes.push(subsectionNumber - 1);
   }
 
-  const uniqueIndexes =
-    [...new Set(indexes)];
+  const uniqueIndexes = [...new Set(indexes)];
 
   if (uniqueIndexes.length === 0) {
     return null;
   }
 
-  const tasks =
-    uniqueIndexes
-      .map(index => {
-        const prefix = `${sectionDef.number}.${index + 1}.`;
+  const tasks = uniqueIndexes
+    .map(index => {
+      const prefix = `${sectionDef.number}.${index + 1}.`;
 
-        return [
-          `ПОДПУНКТ ${prefix}`,
-          `Требование: ${String(sectionDef.checklist[index] ?? "").trim()}`,
-          `Текущий короткий текст: ${String(paragraphs[index] ?? "").split(/\s+/u).join(" ").trim()}`
-        ].join("\n");
-      })
-      .join("\n\n");
+      return [
+        `ПОДПУНКТ ${prefix}`,
+        `Требование: ${String(sectionDef.checklist[index] ?? '').trim()}`,
+        `Текущий короткий текст: ${String(paragraphs[index] ?? '')
+          .split(/\s+/u)
+          .join(' ')
+          .trim()}`,
+      ].join('\n');
+    })
+    .join('\n\n');
 
   const repairMessages = [
     {
-      role: "system",
+      role: 'system',
       text:
-        "Исправь только перечисленные подпункты инструкции по охране труда. " +
-        "Сохрани исходные номера. Пиши профессиональным официально-деловым русским языком. " +
-        "Не добавляй заголовки, Markdown, комментарии или другие подпункты."
+        'Исправь только перечисленные подпункты инструкции по охране труда. ' +
+        'Сохрани исходные номера. Пиши профессиональным официально-деловым русским языком. ' +
+        'Не добавляй заголовки, Markdown, комментарии или другие подпункты.',
     },
     {
-      role: "user",
+      role: 'user',
       text: [
         `Профессия или вид работ: ${profession}.`,
         `Раздел: ${sectionDef.heading}.`,
         tasks,
         `Каждый исправленный подпункт должен содержать НЕ МЕНЕЕ ${MIN_GENERATED_PARAGRAPH_CHARS} СИМВОЛОВ текста после номера.`,
-        "Целевой объем — 350-500 символов.",
-        "Верни только исправленные подпункты с их точными номерами.",
-        "Не повторяй остальные подпункты раздела."
-      ].join("\n\n")
-    }
+        'Целевой объем — 350-500 символов.',
+        'Верни только исправленные подпункты с их точными номерами.',
+        'Не повторяй остальные подпункты раздела.',
+      ].join('\n\n'),
+    },
   ];
 
-  const repairMaxTokens =
-    String(
-      Math.min(
-        1800,
-        650 * uniqueIndexes.length + 250
-      )
-    );
+  const repairMaxTokens = String(Math.min(1800, 650 * uniqueIndexes.length + 250));
 
   console.warn(
-    "[YandexGPT] Точечный repair раздела " +
+    '[YandexGPT] Точечный repair раздела ' +
       sectionDef.number +
-      " для \"" +
+      ' для "' +
       profession +
-      "\": " +
-      uniqueIndexes
-        .map(
-          index =>
-            `${sectionDef.number}.${index + 1}`
-        )
-        .join(", ")
+      '": ' +
+      uniqueIndexes.map(index => `${sectionDef.number}.${index + 1}`).join(', '),
   );
 
-  const rawText =
-    await callYandexGpt(
-      repairMessages,
-      config,
-      repairMaxTokens,
-      {
-        generationId,
-        profession,
-        sectionNumber:
-          sectionDef.number,
-        attempt:
-          sectionAttempt,
-        mode:
-          "targeted-paragraph-repair"
-      }
-    );
+  const rawText = await callYandexGpt(repairMessages, config, repairMaxTokens, {
+    generationId,
+    profession,
+    sectionNumber: sectionDef.number,
+    attempt: sectionAttempt,
+    mode: 'targeted-paragraph-repair',
+  });
 
-  const clean =
-    String(rawText ?? "")
-      .replaceAll("\r", "")
-      .replaceAll("```", "")
-      .trim();
+  const clean = String(rawText ?? '')
+    .replaceAll('\r', '')
+    .replaceAll('```', '')
+    .trim();
 
-  const found =
-    uniqueIndexes.map(index => {
-      const prefix = `${sectionDef.number}.${index + 1}.`;
+  const found = uniqueIndexes.map(index => {
+    const prefix = `${sectionDef.number}.${index + 1}.`;
 
-      return {
-        index,
-        prefix,
-        position:
-          clean.indexOf(prefix)
-      };
-    });
+    return {
+      index,
+      prefix,
+      position: clean.indexOf(prefix),
+    };
+  });
 
-  if (
-    found.some(
-      item =>
-        item.position === -1
-    )
-  ) {
-    console.warn(
-      "[YandexGPT] Точечный repair не вернул все требуемые номера"
-    );
+  if (found.some(item => item.position === -1)) {
+    console.warn('[YandexGPT] Точечный repair не вернул все требуемые номера');
 
     return null;
   }
 
-  found.sort(
-    (a, b) =>
-      a.position - b.position
-  );
+  found.sort((a, b) => a.position - b.position);
 
-  const repaired =
-    [...paragraphs];
+  const repaired = [...paragraphs];
 
-  for (
-    let position = 0;
-    position < found.length;
-    position += 1
-  ) {
-    const item =
-      found[position];
+  for (let position = 0; position < found.length; position += 1) {
+    const item = found[position];
 
-    const end =
-      position + 1 < found.length
-        ? found[position + 1].position
-        : clean.length;
+    const end = position + 1 < found.length ? found[position + 1].position : clean.length;
 
-    const paragraph =
-      clean
-        .slice(item.position, end)
-        .split(/\s+/u)
-        .join(" ")
-        .trim();
+    const paragraph = clean.slice(item.position, end).split(/\s+/u).join(' ').trim();
 
-    if (
-      !paragraph.startsWith(
-        item.prefix
-      )
-    ) {
+    if (!paragraph.startsWith(item.prefix)) {
       return null;
     }
 
-    const body =
-      paragraph
-        .slice(item.prefix.length)
-        .trim();
+    const body = paragraph.slice(item.prefix.length).trim();
 
-    if (
-      body.length <
-        MIN_GENERATED_PARAGRAPH_CHARS
-    ) {
+    if (body.length < MIN_GENERATED_PARAGRAPH_CHARS) {
       console.warn(
-        "[YandexGPT] Точечный repair снова слишком короткий: " +
+        '[YandexGPT] Точечный repair снова слишком короткий: ' +
           item.prefix +
-          " LENGTH:" +
-          body.length
+          ' LENGTH:' +
+          body.length,
       );
 
       return null;
     }
 
-    repaired[item.index] =
-      `${item.prefix} ${body}`;
+    repaired[item.index] = `${item.prefix} ${body}`;
   }
 
   return repaired;
@@ -593,138 +451,88 @@ async function generateSection(
   profession,
   sectionDef,
   includeTitleAndIntro,
-  generationId
+  generationId,
 ) {
-  const userPrompt =
-    buildSectionUserPrompt(
-      profession,
-      sectionDef,
-      {
-        includeTitleAndIntro
-      }
-    );
+  const userPrompt = buildSectionUserPrompt(profession, sectionDef, {
+    includeTitleAndIntro,
+  });
 
   /*
    * FRESH_RETRY_CONTEXT_V1
    *
    * Retry не получает предыдущий сгенерированный ответ.
    */
-  const systemMessage =
-    messages.find(
-      message =>
-        message?.role === "system"
-    ) ?? {
-      role: "system",
-      text: buildSystemPrompt()
-    };
+  const systemMessage = messages.find(message => message?.role === 'system') ?? {
+    role: 'system',
+    text: buildSystemPrompt(),
+  };
 
   const baseMessages = [
     systemMessage,
     {
-      role: "user",
-      text: userPrompt
-    }
+      role: 'user',
+      text: userPrompt,
+    },
   ];
 
-  const maxTokens =
-    estimateMaxTokens(
-      sectionDef.requiredCount
-    );
+  const maxTokens = estimateMaxTokens(sectionDef.requiredCount);
 
   let lastIssues = [];
 
-  for (
-    let attempt = 1;
-    attempt <=
-      MAX_SECTION_GENERATION_ATTEMPTS;
-    attempt += 1
-  ) {
+  for (let attempt = 1; attempt <= MAX_SECTION_GENERATION_ATTEMPTS; attempt += 1) {
     const attemptMessages =
       attempt === 1
         ? baseMessages
         : [
             systemMessage,
             {
-              role: "user",
-              text:
-                userPrompt +
-                "\n\n" +
-                buildStrictRetryPrompt(
-                  sectionDef,
-                  lastIssues
-                )
-            }
+              role: 'user',
+              text: userPrompt + '\n\n' + buildStrictRetryPrompt(sectionDef, lastIssues),
+            },
           ];
 
-    const rawText =
-      await callYandexGpt(
-        attemptMessages,
-        config,
-        maxTokens,
-        {
-          generationId,
-          profession,
-          sectionNumber:
-            sectionDef.number,
-          attempt
-        }
-      );
+    const rawText = await callYandexGpt(attemptMessages, config, maxTokens, {
+      generationId,
+      profession,
+      sectionNumber: sectionDef.number,
+      attempt,
+    });
 
     let title = null;
     let intro = null;
     let sectionText = rawText;
 
     if (includeTitleAndIntro) {
-      const parsed =
-        parseTitleIntroSection(
-          rawText
-        );
+      const parsed = parseTitleIntroSection(rawText);
 
       title = parsed.title;
       intro = parsed.intro;
-      sectionText =
-        parsed.sectionText;
+      sectionText = parsed.sectionText;
     }
 
-    let paragraphs =
-      parseSectionParagraphs(
-        sectionText,
-        sectionDef.number
-      );
+    let paragraphs = parseSectionParagraphs(sectionText, sectionDef.number);
 
-    let issues =
-      validateGeneratedSection(
-        paragraphs,
-        sectionDef
-      );
+    let issues = validateGeneratedSection(paragraphs, sectionDef);
 
     if (issues.length > 0) {
-      const repairedParagraphs =
-        await tryTargetedParagraphRepair(
-          paragraphs,
-          issues,
-          config,
-          profession,
-          sectionDef,
-          generationId,
-          attempt
-        );
+      const repairedParagraphs = await tryTargetedParagraphRepair(
+        paragraphs,
+        issues,
+        config,
+        profession,
+        sectionDef,
+        generationId,
+        attempt,
+      );
 
       if (repairedParagraphs) {
-        paragraphs =
-          repairedParagraphs;
+        paragraphs = repairedParagraphs;
 
-        issues =
-          validateGeneratedSection(
-            paragraphs,
-            sectionDef
-          );
+        issues = validateGeneratedSection(paragraphs, sectionDef);
 
         if (issues.length === 0) {
           console.log(
-            "[YandexGPT] Раздел " +
-              sectionDef.number +
-              ": короткие подпункты исправлены точечно"
+            '[YandexGPT] Раздел ' + sectionDef.number + ': короткие подпункты исправлены точечно',
           );
         }
       }
@@ -735,12 +543,10 @@ async function generateSection(
         title,
         intro,
         section: {
-          number:
-            sectionDef.number,
-          heading:
-            sectionDef.heading,
-          paragraphs
-        }
+          number: sectionDef.number,
+          heading: sectionDef.heading,
+          paragraphs,
+        },
       };
     }
 
@@ -748,25 +554,20 @@ async function generateSection(
 
     console.warn(
       `[YandexGPT] Раздел ${sectionDef.number} для "${profession}" ` +
-      `не прошёл строгую проверку, попытка ${attempt}: ` +
-      issues.join("; ")
+        `не прошёл строгую проверку, попытка ${attempt}: ` +
+        issues.join('; '),
     );
 
-    if (
-      attempt >=
-      MAX_SECTION_GENERATION_ATTEMPTS
-    ) {
+    if (attempt >= MAX_SECTION_GENERATION_ATTEMPTS) {
       break;
     }
-
-
   }
 
   throw new Error(
     `YandexGPT: раздел ${sectionDef.number} для "${profession}" ` +
-    `не соответствует обязательной структуре после ` +
-    `${MAX_SECTION_GENERATION_ATTEMPTS} попыток: ` +
-    lastIssues.join("; ")
+      `не соответствует обязательной структуре после ` +
+      `${MAX_SECTION_GENERATION_ATTEMPTS} попыток: ` +
+      lastIssues.join('; '),
   );
 }
 
@@ -781,80 +582,52 @@ async function generateSection(
 export async function generateInstructionSectionsWithYandexGpt(
   profession,
   sectionNumbers,
-  options = {}
+  options = {},
 ) {
-
-  const {
-    apiKey,
-    folderId,
-    model
-  } = getConfig();
+  const { apiKey, folderId, model } = getConfig();
 
   if (!apiKey || !folderId) {
     throw new Error(
-      "YandexGPT не настроен: отсутствует YANDEX_API_KEY или YANDEX_FOLDER_ID в server/.env"
+      'YandexGPT не настроен: отсутствует YANDEX_API_KEY или YANDEX_FOLDER_ID в server/.env',
     );
   }
 
-  const requestedNumbers =
-    [
-      ...new Set(
-        (Array.isArray(sectionNumbers)
-          ? sectionNumbers
-          : [sectionNumbers]
-        )
-          .map(Number)
-          .filter(Number.isFinite)
-      )
-    ];
+  const requestedNumbers = [
+    ...new Set(
+      (Array.isArray(sectionNumbers) ? sectionNumbers : [sectionNumbers])
+        .map(Number)
+        .filter(Number.isFinite),
+    ),
+  ];
 
   if (requestedNumbers.length === 0) {
     return {
       profession,
-      sections: []
+      sections: [],
     };
   }
 
-  const sectionDefinitions =
-    requestedNumbers.map(
-      number => {
+  const sectionDefinitions = requestedNumbers.map(number => {
+    const definition = SECTION_DEFINITIONS.find(item => Number(item.number) === number);
 
-        const definition =
-          SECTION_DEFINITIONS.find(
-            item =>
-              Number(item.number) ===
-              number
-          );
+    if (!definition) {
+      throw new Error(`Неизвестный раздел инструкции: ${number}`);
+    }
 
-        if (!definition) {
-          throw new Error(
-            `Неизвестный раздел инструкции: ${number}`
-          );
-        }
-
-        return definition;
-      }
-    );
+    return definition;
+  });
 
   const config = {
     apiKey,
     folderId,
-    model
+    model,
   };
 
-  const generationId =
-    createGenerationUsageId(
-      options?.source ||
-      "generation"
-    );
+  const generationId = createGenerationUsageId(options?.source || 'generation');
 
   const sections = [];
 
-  for (
-    const sectionDef
-    of sectionDefinitions
-  ) {
-
+  for (const sectionDef of sectionDefinitions) {
     /*
      * ВАЖНО:
      * новый короткий контекст на каждый раздел.
@@ -864,55 +637,46 @@ export async function generateInstructionSectionsWithYandexGpt(
      */
     const messages = [
       {
-        role: "system",
-        text: buildSystemPrompt()
-      }
+        role: 'system',
+        text: buildSystemPrompt(),
+      },
     ];
 
-    const result =
-      await generateSection(
-        messages,
-        config,
-        profession,
-        sectionDef,
-        false,
-        generationId
-      );
-
-    sections.push(
-      result.section
+    const result = await generateSection(
+      messages,
+      config,
+      profession,
+      sectionDef,
+      false,
+      generationId,
     );
+
+    sections.push(result.section);
   }
 
   return {
     profession,
-    sections
+    sections,
   };
 }
-
 
 /**
  *     YandexGPT (Yandex Foundation Models).
  *    prompts/generateInstructionPrompt.js    .
  *
- *      ,  5   
- *    ,         
- *     200   17/10/14/13/11   
+ *      ,  5
+ *    ,
+ *     200   17/10/14/13/11
  *        it    .
  * .    prompts/generateInstructionPrompt.js.
  *
  * @param {string} profession
  * @returns {Promise<{title:string, profession:string, intro:string, sections:Array}>}
  */
-export async function generateInstructionWithYandexGpt(
-  profession,
-  options = {}
-) {
+export async function generateInstructionWithYandexGpt(profession, options = {}) {
   const { apiKey, folderId, model } = getConfig();
   if (!apiKey || !folderId) {
-    throw new Error(
-      "YandexGPT  :  YANDEX_API_KEY  YANDEX_FOLDER_ID  server/.env"
-    );
+    throw new Error('YandexGPT  :  YANDEX_API_KEY  YANDEX_FOLDER_ID  server/.env');
   }
   const config = { apiKey, folderId, model };
 
@@ -922,19 +686,13 @@ export async function generateInstructionWithYandexGpt(
    * Все 5 разделов и retry-запросы
    * будут объединены в одну генерацию.
    */
-  const generationId =
-    createGenerationUsageId(
-      options?.source ||
-      "generation"
-    );
-
-
+  const generationId = createGenerationUsageId(options?.source || 'generation');
 
   let title = null;
   let intro = null;
   const sections = [];
 
-    for (const sectionDef of SECTION_DEFINITIONS) {
+  for (const sectionDef of SECTION_DEFINITIONS) {
     /*
      * FRESH_CONTEXT_PER_SECTION_V1
      *
@@ -948,9 +706,9 @@ export async function generateInstructionWithYandexGpt(
      */
     const messages = [
       {
-        role: "system",
-        text: buildSystemPrompt()
-      }
+        role: 'system',
+        text: buildSystemPrompt(),
+      },
     ];
     const includeTitleAndIntro = sectionDef.number === 1;
     const result = await generateSection(
@@ -959,16 +717,12 @@ export async function generateInstructionWithYandexGpt(
       profession,
       sectionDef,
       includeTitleAndIntro,
-      generationId
+      generationId,
     );
 
     if (includeTitleAndIntro) {
       title = result.title;
-      intro =
-        buildInstructionIntro(
-          title ||
-          result.title
-        );
+      intro = buildInstructionIntro(title || result.title);
     }
 
     sections.push(result.section);
@@ -991,20 +745,11 @@ export async function generateInstructionWithYandexGpt(
    * getProfessionGenitive(), поскольку это
    * не название профессии.
    */
-  const normalizedSubject =
-    String(
-      profession ?? ""
-    )
-      .replace(
-        /\s+/g,
-        " "
-      )
-      .trim();
+  const normalizedSubject = String(profession ?? '')
+    .replace(/\s+/g, ' ')
+    .trim();
 
-  const isWorkScope =
-    /^при(?=\s|$)/iu.test(
-      normalizedSubject
-    );
+  const isWorkScope = /^при(?=\s|$)/iu.test(normalizedSubject);
 
   let finalTitle;
 
@@ -1017,31 +762,18 @@ export async function generateInstructionWithYandexGpt(
      * при эксплуатации...
      * при выполнении...
      */
-    finalTitle =
-      `Инструкция по охране труда ${normalizedSubject}`;
-  }
-  else {
+    finalTitle = `Инструкция по охране труда ${normalizedSubject}`;
+  } else {
     /*
      * Для профессии / должности сохраняем
      * существующую логику склонения.
      */
-    const professionGenitive =
-      String(
-        getProfessionGenitive(
-          normalizedSubject
-        )
-        ??
-        normalizedSubject
-      )
-        .trim()
-        .replace(
-          /^(?:для\s+)+/iu,
-          ""
-        )
-        .trim();
+    const professionGenitive = String(getProfessionGenitive(normalizedSubject) ?? normalizedSubject)
+      .trim()
+      .replace(/^(?:для\s+)+/iu, '')
+      .trim();
 
-    finalTitle =
-      `Инструкция по охране труда для ${professionGenitive}`;
+    finalTitle = `Инструкция по охране труда для ${professionGenitive}`;
   }
 
   /*
@@ -1051,20 +783,14 @@ export async function generateInstructionWithYandexGpt(
    * Благодаря этому один helper корректно
    * работает и для профессии, и для вида работ.
    */
-  const finalIntro =
-    buildInstructionIntro(
-      finalTitle
-    );
+  const finalIntro = buildInstructionIntro(finalTitle);
 
   return {
-    title:
-      finalTitle,
+    title: finalTitle,
 
-    profession:
-      normalizedSubject,
+    profession: normalizedSubject,
 
-    intro:
-      finalIntro,
+    intro: finalIntro,
 
     sections,
   };

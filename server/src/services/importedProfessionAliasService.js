@@ -1,11 +1,6 @@
-import {
-  IMPORTED_PROFESSION_ALIASES
-} from "../data/importedProfessionAliases.js";
+import { IMPORTED_PROFESSION_ALIASES } from '../data/importedProfessionAliases.js';
 
-import {
-  PROFESSION_GENITIVE_OVERRIDES
-} from "../data/professionGenitiveOverrides.js";
-
+import { PROFESSION_GENITIVE_OVERRIDES } from '../data/professionGenitiveOverrides.js';
 
 /*
  * Нормализуем только технические различия.
@@ -14,21 +9,15 @@ import {
  * не удаляем дефисы из профессии.
  */
 function normalizeSpaces(value) {
-  return String(value ?? "")
-    .replace(/\u00a0/gu, " ")
-    .replace(/\s+/gu, " ")
+  return String(value ?? '')
+    .replace(/\u00a0/gu, ' ')
+    .replace(/\s+/gu, ' ')
     .trim();
 }
 
-
 function normalizeDashes(value) {
-  return String(value ?? "")
-    .replace(
-      /[\p{Pd}\u2212]/gu,
-      "-"
-    );
+  return String(value ?? '').replace(/[\p{Pd}\u2212]/gu, '-');
 }
-
 
 /*
  * Нормализация только ДЛЯ СРАВНЕНИЯ.
@@ -44,18 +33,10 @@ function normalizeDashes(value) {
  * этой функцией не формируется.
  */
 function normalizeForCompare(value) {
-  return normalizeSpaces(
-    normalizeDashes(value)
-  )
-    .replace(
-      /\s*-\s*/gu,
-      "-"
-    )
-    .toLocaleLowerCase(
-      "ru-RU"
-    );
+  return normalizeSpaces(normalizeDashes(value))
+    .replace(/\s*-\s*/gu, '-')
+    .toLocaleLowerCase('ru-RU');
 }
-
 
 /*
  * Имя, которое реально попадёт
@@ -63,14 +44,9 @@ function normalizeForCompare(value) {
  *
  * Здесь дефисы сохраняются.
  */
-function normalizeReturnedProfession(
-  value
-) {
-  return normalizeSpaces(
-    normalizeDashes(value)
-  );
+function normalizeReturnedProfession(value) {
+  return normalizeSpaces(normalizeDashes(value));
 }
-
 
 /*
  * Убираем путь и расширение.
@@ -83,23 +59,12 @@ function normalizeReturnedProfession(
  */
 function getFilenameStem(filename) {
   const base =
-    String(filename ?? "")
+    String(filename ?? '')
       .split(/[\\/]/u)
-      .pop() ?? "";
+      .pop() ?? '';
 
-  return normalizeSpaces(
-    base
-      .replace(
-        /\.[^/.\\]+$/u,
-        ""
-      )
-      .replace(
-        /_/gu,
-        " "
-      )
-  );
+  return normalizeSpaces(base.replace(/\.[^/.\\]+$/u, '').replace(/_/gu, ' '));
 }
-
 
 /*
  * Если filename уже содержит готовую
@@ -118,25 +83,11 @@ function getFilenameStem(filename) {
  * возвращаем null и НЕ пытаемся
  * склонять их эвристикой.
  */
-function findCanonicalByGenitive(
-  profession
-) {
-  const target =
-    normalizeForCompare(
-      profession
-    );
+function findCanonicalByGenitive(profession) {
+  const target = normalizeForCompare(profession);
 
-  for (
-    const [canonical, genitive]
-    of Object.entries(
-      PROFESSION_GENITIVE_OVERRIDES
-    )
-  ) {
-    if (
-      normalizeForCompare(
-        genitive
-      ) === target
-    ) {
+  for (const [canonical, genitive] of Object.entries(PROFESSION_GENITIVE_OVERRIDES)) {
+    if (normalizeForCompare(genitive) === target) {
       return canonical;
     }
   }
@@ -144,28 +95,19 @@ function findCanonicalByGenitive(
   return null;
 }
 
-
 /*
  * Обрабатываем уже извлечённую
  * часть filename.
  */
-function finalizeProfession(
-  value
-) {
-  let extracted =
-    normalizeReturnedProfession(
-      value
-    )
-      /*
-       * Защита от:
-       *
-       * ИОТ для для оператора...
-       */
-      .replace(
-        /^(?:для\s+)+/iu,
-        ""
-      )
-      .trim();
+function finalizeProfession(value) {
+  let extracted = normalizeReturnedProfession(value)
+    /*
+     * Защита от:
+     *
+     * ИОТ для для оператора...
+     */
+    .replace(/^(?:для\s+)+/iu, '')
+    .trim();
 
   /*
    * TRAILING TECHNICAL PLUS
@@ -180,19 +122,11 @@ function finalizeProfession(
    * Удаляем только плюс, перед которым есть
    * пробел. Поэтому C++ остаётся C++.
    */
-  extracted =
-    extracted
-      .replace(
-        /\s+\++\s*$/u,
-        ""
-      )
-      .trim();
-
+  extracted = extracted.replace(/\s+\++\s*$/u, '').trim();
 
   if (!extracted) {
     return null;
   }
-
 
   /*
    * Если мы точно знаем именительную
@@ -201,15 +135,11 @@ function finalizeProfession(
    * автослесаря -> автослесарь
    * автомаляра  -> автомаляр
    */
-  const canonical =
-    findCanonicalByGenitive(
-      extracted
-    );
+  const canonical = findCanonicalByGenitive(extracted);
 
   if (canonical) {
     return canonical;
   }
-
 
   /*
    * ВАЖНО.
@@ -231,7 +161,6 @@ function finalizeProfession(
   return `для ${extracted}`;
 }
 
-
 /*
  * ============================================================
  * ГЛАВНЫЙ FILENAME-FIRST ПАРСЕР
@@ -251,34 +180,23 @@ function finalizeProfession(
  *
  *   ИОТ для для оператора штабелеукладчика.docx
  */
-function extractStandardProfession(
-  filename
-) {
-  const stem =
-    getFilenameStem(
-      filename
-    );
+function extractStandardProfession(filename) {
+  const stem = getFilenameStem(filename);
 
   if (!stem) {
     return null;
   }
 
-
-  const match =
-    stem.match(
-      /^(?:иот|инструкция\s+по\s+охране\s+труда)\s*(?:[:\-–—]\s*)?(?:для\s+)+(.+)$/iu
-    );
+  const match = stem.match(
+    /^(?:иот|инструкция\s+по\s+охране\s+труда)\s*(?:[:\-–—]\s*)?(?:для\s+)+(.+)$/iu,
+  );
 
   if (!match) {
     return null;
   }
 
-
-  return finalizeProfession(
-    match[1]
-  );
+  return finalizeProfession(match[1]);
 }
-
 
 /*
  * ============================================================
@@ -292,78 +210,34 @@ function extractStandardProfession(
  * 370 существующих aliases
  * продолжают работать.
  */
-const aliases =
-  [...IMPORTED_PROFESSION_ALIASES]
-    .sort(
-      (a, b) => {
-        const cleanA =
-          normalizeForCompare(
-            a.replace(
-              /\*$/u,
-              ""
-            )
-          );
+const aliases = [...IMPORTED_PROFESSION_ALIASES].sort((a, b) => {
+  const cleanA = normalizeForCompare(a.replace(/\*$/u, ''));
 
-        const cleanB =
-          normalizeForCompare(
-            b.replace(
-              /\*$/u,
-              ""
-            )
-          );
+  const cleanB = normalizeForCompare(b.replace(/\*$/u, ''));
 
-        return (
-          cleanB.length -
-          cleanA.length
-        );
-      }
-    );
+  return cleanB.length - cleanA.length;
+});
 
+function aliasMatches(alias, candidate) {
+  const isPrefix = alias.endsWith('*');
 
-function aliasMatches(
-  alias,
-  candidate
-) {
-  const isPrefix =
-    alias.endsWith("*");
+  const aliasValue = normalizeForCompare(isPrefix ? alias.slice(0, -1) : alias);
 
-  const aliasValue =
-    normalizeForCompare(
-      isPrefix
-        ? alias.slice(0, -1)
-        : alias
-    );
-
-  const candidateValue =
-    normalizeForCompare(
-      candidate
-    );
+  const candidateValue = normalizeForCompare(candidate);
 
   if (isPrefix) {
-    return candidateValue.startsWith(
-      aliasValue
-    );
+    return candidateValue.startsWith(aliasValue);
   }
 
-  return (
-    candidateValue ===
-    aliasValue
-  );
+  return candidateValue === aliasValue;
 }
 
-
-function extractFromLegacyDictionary(
-  filename
-) {
-  const stem =
-    getFilenameStem(
-      filename
-    );
+function extractFromLegacyDictionary(filename) {
+  const stem = getFilenameStem(filename);
 
   if (!stem) {
     return null;
   }
-
 
   /*
    * Например:
@@ -372,64 +246,37 @@ function extractFromLegacyDictionary(
    *
    * без слова "для".
    */
-  const withoutIot =
-    normalizeSpaces(
-      stem.replace(
-        /^иот\s+/iu,
-        ""
-      )
-    );
+  const withoutIot = normalizeSpaces(stem.replace(/^иот\s+/iu, ''));
 
-
-  const matchedAlias =
-    aliases.find(
-      alias =>
-        aliasMatches(
-          alias,
-          withoutIot
-        )
-    );
-
+  const matchedAlias = aliases.find(alias => aliasMatches(alias, withoutIot));
 
   if (!matchedAlias) {
     return null;
   }
 
-
-  return finalizeProfession(
-    withoutIot
-  );
+  return finalizeProfession(withoutIot);
 }
-
 
 /*
  * Эту функцию вызывает normalizeProfession()
  * ПЕРЕД старым анализом текста.
  */
-export function getImportedProfessionFromFilename(
-  filename
-) {
+export function getImportedProfessionFromFilename(filename) {
   /*
    * 1. Стандартный filename —
    *    источник истины.
    *
    *    Никакого словаря.
    */
-  const standard =
-    extractStandardProfession(
-      filename
-    );
+  const standard = extractStandardProfession(filename);
 
   if (standard) {
     return standard;
   }
 
-
   /*
    * 2. Только для нестандартных
    *    filename пробуем старый словарь.
    */
-  return extractFromLegacyDictionary(
-    filename
-  );
+  return extractFromLegacyDictionary(filename);
 }

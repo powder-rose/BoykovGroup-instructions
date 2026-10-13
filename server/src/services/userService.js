@@ -1,119 +1,69 @@
-import fs from "fs";
-import path from "path";
-import crypto from "crypto";
-import { fileURLToPath } from "url";
-import bcrypt from "bcryptjs";
-import { nanoid } from "nanoid";
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
+import { fileURLToPath } from 'url';
+import bcrypt from 'bcryptjs';
+import { nanoid } from 'nanoid';
 
-const __filename =
-  fileURLToPath(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
 
-const __dirname =
-  path.dirname(__filename);
+const __dirname = path.dirname(__filename);
 
-const DATA_DIR =
-  path.resolve(
-    __dirname,
-    "../../data"
-  );
+const DATA_DIR = path.resolve(__dirname, '../../data');
 
-const USERS_FILE =
-  path.join(
-    DATA_DIR,
-    "users.json"
-  );
+const USERS_FILE = path.join(DATA_DIR, 'users.json');
 
-const EMAIL_PATTERN =
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const VERIFICATION_TTL_MS =
-  24 * 60 * 60 * 1000;
+const VERIFICATION_TTL_MS = 24 * 60 * 60 * 1000;
 
-const VERIFICATION_RESEND_COOLDOWN_MS =
-  60 * 1000;
-
+const VERIFICATION_RESEND_COOLDOWN_MS = 60 * 1000;
 
 function ensureStorage() {
-  fs.mkdirSync(
-    DATA_DIR,
-    {
-      recursive: true
-    }
-  );
+  fs.mkdirSync(DATA_DIR, {
+    recursive: true,
+  });
 
-  if (
-    !fs.existsSync(
-      USERS_FILE
-    )
-  ) {
-    fs.writeFileSync(
-      USERS_FILE,
-      "[]\n",
-      {
-        encoding: "utf8",
-        mode: 0o600
-      }
-    );
+  if (!fs.existsSync(USERS_FILE)) {
+    fs.writeFileSync(USERS_FILE, '[]\n', {
+      encoding: 'utf8',
+      mode: 0o600,
+    });
   }
 }
-
 
 function readUsers() {
   ensureStorage();
 
   try {
-    const raw =
-      fs.readFileSync(
-        USERS_FILE,
-        "utf8"
-      );
+    const raw = fs.readFileSync(USERS_FILE, 'utf8');
 
-    const parsed =
-      JSON.parse(raw);
+    const parsed = JSON.parse(raw);
 
-    if (
-      !Array.isArray(parsed)
-    ) {
-      throw new Error(
-        "users.json must contain an array"
-      );
+    if (!Array.isArray(parsed)) {
+      throw new Error('users.json must contain an array');
     }
 
     return parsed;
   } catch (error) {
-    console.error(
-      "Unable to read users storage:",
-      error
-    );
+    console.error('Unable to read users storage:', error);
 
-    throw new Error(
-      "Не удалось прочитать базу пользователей"
-    );
+    throw new Error('Не удалось прочитать базу пользователей');
   }
 }
-
 
 function writeUsers(users) {
   ensureStorage();
 
-  const temporaryFile =
-    `${USERS_FILE}.${process.pid}.${Date.now()}.tmp`;
+  const temporaryFile = `${USERS_FILE}.${process.pid}.${Date.now()}.tmp`;
 
-  fs.writeFileSync(
-    temporaryFile,
-    `${JSON.stringify(users, null, 2)}\n`,
-    {
-      encoding: "utf8",
-      mode: 0o600
-    }
-  );
+  fs.writeFileSync(temporaryFile, `${JSON.stringify(users, null, 2)}\n`, {
+    encoding: 'utf8',
+    mode: 0o600,
+  });
 
-  fs.renameSync(
-    temporaryFile,
-    USERS_FILE
-  );
+  fs.renameSync(temporaryFile, USERS_FILE);
 }
-
 
 function publicUser(user) {
   if (!user) {
@@ -121,231 +71,130 @@ function publicUser(user) {
   }
 
   return {
-    id:
-      user.id,
-    email:
-      user.email,
+    id: user.id,
+    email: user.email,
 
-    name:
-      user.name ?? "",
+    name: user.name ?? '',
 
-    phone:
-      user.phone ?? "",
+    phone: user.phone ?? '',
 
-    role:
-      "user",
-    emailVerified:
-      user.emailVerified === true,
-    verifiedAt:
-      user.verifiedAt ?? null
+    role: 'user',
+    emailVerified: user.emailVerified === true,
+    verifiedAt: user.verifiedAt ?? null,
   };
 }
 
-
-function hashVerificationToken(
-  token
-) {
-  return crypto
-    .createHash("sha256")
-    .update(
-      String(token)
-    )
-    .digest("hex");
+function hashVerificationToken(token) {
+  return crypto.createHash('sha256').update(String(token)).digest('hex');
 }
 
-
 export function normalizeEmail(value) {
-  return String(
-    value ?? ""
-  )
+  return String(value ?? '')
     .trim()
     .toLowerCase();
 }
 
+export function validateRegistration(email, password) {
+  const normalizedEmail = normalizeEmail(email);
 
-export function validateRegistration(
-  email,
-  password
-) {
-  const normalizedEmail =
-    normalizeEmail(email);
-
-  if (
-    !EMAIL_PATTERN.test(
-      normalizedEmail
-    )
-  ) {
+  if (!EMAIL_PATTERN.test(normalizedEmail)) {
     return {
       ok: false,
-      error:
-        "Укажите корректный email"
+      error: 'Укажите корректный email',
     };
   }
 
-  if (
-    typeof password !== "string" ||
-    password.length < 8
-  ) {
+  if (typeof password !== 'string' || password.length < 8) {
     return {
       ok: false,
-      error:
-        "Пароль должен содержать не менее 8 символов"
+      error: 'Пароль должен содержать не менее 8 символов',
     };
   }
 
-  if (
-    password.length > 128
-  ) {
+  if (password.length > 128) {
     return {
       ok: false,
-      error:
-        "Пароль слишком длинный"
+      error: 'Пароль слишком длинный',
     };
   }
 
   return {
     ok: true,
-    email:
-      normalizedEmail
+    email: normalizedEmail,
   };
 }
 
+export function createUser(email, password, name, phone) {
+  const normalizedName = String(name ?? '')
+    .trim()
+    .replace(/\s+/g, ' ');
 
-export function createUser(
-  email,
-  password,
-  name,
-  phone
-) {
-  const normalizedName =
-    String(
-      name ?? ""
-    )
-      .trim()
-      .replace(
-        /\s+/g,
-        " "
-      );
-
-  const normalizedPhone =
-    String(
-      phone ?? ""
-    ).trim();
+  const normalizedPhone = String(phone ?? '').trim();
 
   if (!normalizedName) {
+    const error = new Error('Укажите имя');
 
-    const error =
-      new Error(
-        "Укажите имя"
-      );
-
-    error.code =
-      "VALIDATION_ERROR";
+    error.code = 'VALIDATION_ERROR';
 
     throw error;
   }
 
   if (!normalizedPhone) {
+    const error = new Error('Укажите телефон');
 
-    const error =
-      new Error(
-        "Укажите телефон"
-      );
-
-    error.code =
-      "VALIDATION_ERROR";
+    error.code = 'VALIDATION_ERROR';
 
     throw error;
   }
 
+  const validation = validateRegistration(email, password);
 
-  const validation =
-    validateRegistration(
-      email,
-      password
-    );
+  if (!validation.ok) {
+    const error = new Error(validation.error);
 
-  if (
-    !validation.ok
-  ) {
-    const error =
-      new Error(
-        validation.error
-      );
-
-    error.code =
-      "VALIDATION_ERROR";
+    error.code = 'VALIDATION_ERROR';
 
     throw error;
   }
 
-  const normalizedEmail =
-    validation.email;
+  const normalizedEmail = validation.email;
 
-  const users =
-    readUsers();
+  const users = readUsers();
 
-  const exists =
-    users.some(
-      user =>
-        normalizeEmail(
-          user.email
-        ) ===
-        normalizedEmail
-    );
+  const exists = users.some(user => normalizeEmail(user.email) === normalizedEmail);
 
   if (exists) {
-    const error =
-      new Error(
-        "Пользователь с таким email уже зарегистрирован"
-      );
+    const error = new Error('Пользователь с таким email уже зарегистрирован');
 
-    error.code =
-      "USER_EXISTS";
+    error.code = 'USER_EXISTS';
 
     throw error;
   }
 
   const user = {
-    id:
-      nanoid(18),
+    id: nanoid(18),
 
-    name:
-      normalizedName,
+    name: normalizedName,
 
-    phone:
-      normalizedPhone,
+    phone: normalizedPhone,
 
-    email:
-      normalizedEmail,
+    email: normalizedEmail,
 
-    passwordHash:
-      bcrypt.hashSync(
-        password,
-        12
-      ),
+    passwordHash: bcrypt.hashSync(password, 12),
 
-    role:
-      "user",
+    role: 'user',
 
-    emailVerified:
-      false,
+    emailVerified: false,
 
-    verifiedAt:
-      null,
+    verifiedAt: null,
 
-    verificationTokenHash:
-      null,
+    verificationTokenHash: null,
 
-    verificationTokenExpiresAt:
-      null,
+    verificationTokenExpiresAt: null,
 
-    verificationEmailSentAt:
-      null,
+    verificationEmailSentAt: null,
 
-    createdAt:
-      new Date()
-        .toISOString()
+    createdAt: new Date().toISOString(),
   };
 
   users.push(user);
@@ -355,67 +204,35 @@ export function createUser(
   return publicUser(user);
 }
 
-
-export function getUserById(
-  id
-) {
+export function getUserById(id) {
   if (!id) {
     return null;
   }
 
-  const users =
-    readUsers();
+  const users = readUsers();
 
-  const user =
-    users.find(
-      item =>
-        item.id === id
-    );
+  const user = users.find(item => item.id === id);
 
   return publicUser(user);
 }
 
+export function verifyUserCredentials(email, password) {
+  const normalizedEmail = normalizeEmail(email);
 
-export function verifyUserCredentials(
-  email,
-  password
-) {
-  const normalizedEmail =
-    normalizeEmail(email);
-
-  if (
-    !normalizedEmail ||
-    typeof password !== "string"
-  ) {
+  if (!normalizedEmail || typeof password !== 'string') {
     return null;
   }
 
-  const users =
-    readUsers();
+  const users = readUsers();
 
-  const user =
-    users.find(
-      item =>
-        normalizeEmail(
-          item.email
-        ) ===
-        normalizedEmail
-    );
+  const user = users.find(item => normalizeEmail(item.email) === normalizedEmail);
 
-  if (
-    !user ||
-    !user.passwordHash
-  ) {
+  if (!user || !user.passwordHash) {
     return null;
   }
 
   try {
-    if (
-      !bcrypt.compareSync(
-        password,
-        user.passwordHash
-      )
-    ) {
+    if (!bcrypt.compareSync(password, user.passwordHash)) {
       return null;
     }
   } catch {
@@ -425,68 +242,37 @@ export function verifyUserCredentials(
   return publicUser(user);
 }
 
+export function createEmailVerificationToken(userId) {
+  const users = readUsers();
 
-export function createEmailVerificationToken(
-  userId
-) {
-  const users =
-    readUsers();
+  const index = users.findIndex(user => user.id === userId);
 
-  const index =
-    users.findIndex(
-      user =>
-        user.id === userId
-    );
+  if (index === -1) {
+    const error = new Error('Пользователь не найден');
 
-  if (
-    index === -1
-  ) {
-    const error =
-      new Error(
-        "Пользователь не найден"
-      );
-
-    error.code =
-      "USER_NOT_FOUND";
+    error.code = 'USER_NOT_FOUND';
 
     throw error;
   }
 
-  if (
-    users[index].emailVerified === true
-  ) {
-    const error =
-      new Error(
-        "Email уже подтверждён"
-      );
+  if (users[index].emailVerified === true) {
+    const error = new Error('Email уже подтверждён');
 
-    error.code =
-      "EMAIL_ALREADY_VERIFIED";
+    error.code = 'EMAIL_ALREADY_VERIFIED';
 
     throw error;
   }
 
-  const token =
-    crypto
-      .randomBytes(32)
-      .toString("hex");
+  const token = crypto.randomBytes(32).toString('hex');
 
-  const expiresAt =
-    new Date(
-      Date.now() +
-      VERIFICATION_TTL_MS
-    ).toISOString();
+  const expiresAt = new Date(Date.now() + VERIFICATION_TTL_MS).toISOString();
 
   users[index] = {
     ...users[index],
 
-    verificationTokenHash:
-      hashVerificationToken(
-        token
-      ),
+    verificationTokenHash: hashVerificationToken(token),
 
-    verificationTokenExpiresAt:
-      expiresAt
+    verificationTokenExpiresAt: expiresAt,
   };
 
   writeUsers(users);
@@ -494,38 +280,23 @@ export function createEmailVerificationToken(
   return {
     token,
     expiresAt,
-    user:
-      publicUser(
-        users[index]
-      )
+    user: publicUser(users[index]),
   };
 }
 
+export function markVerificationEmailSent(userId) {
+  const users = readUsers();
 
-export function markVerificationEmailSent(
-  userId
-) {
-  const users =
-    readUsers();
+  const index = users.findIndex(user => user.id === userId);
 
-  const index =
-    users.findIndex(
-      user =>
-        user.id === userId
-    );
-
-  if (
-    index === -1
-  ) {
+  if (index === -1) {
     return false;
   }
 
   users[index] = {
     ...users[index],
 
-    verificationEmailSentAt:
-      new Date()
-        .toISOString()
+    verificationEmailSentAt: new Date().toISOString(),
   };
 
   writeUsers(users);
@@ -533,168 +304,92 @@ export function markVerificationEmailSent(
   return true;
 }
 
+export function getVerificationResendDelay(userId) {
+  const users = readUsers();
 
-export function getVerificationResendDelay(
-  userId
-) {
-  const users =
-    readUsers();
+  const user = users.find(item => item.id === userId);
 
-  const user =
-    users.find(
-      item =>
-        item.id === userId
-    );
-
-  if (
-    !user ||
-    !user.verificationEmailSentAt
-  ) {
+  if (!user || !user.verificationEmailSentAt) {
     return 0;
   }
 
-  const sentAt =
-    new Date(
-      user.verificationEmailSentAt
-    ).getTime();
+  const sentAt = new Date(user.verificationEmailSentAt).getTime();
 
-  if (
-    !Number.isFinite(sentAt)
-  ) {
+  if (!Number.isFinite(sentAt)) {
     return 0;
   }
 
-  const remaining =
-    VERIFICATION_RESEND_COOLDOWN_MS -
-    (
-      Date.now() -
-      sentAt
-    );
+  const remaining = VERIFICATION_RESEND_COOLDOWN_MS - (Date.now() - sentAt);
 
-  if (
-    remaining <= 0
-  ) {
+  if (remaining <= 0) {
     return 0;
   }
 
-  return Math.ceil(
-    remaining / 1000
-  );
+  return Math.ceil(remaining / 1000);
 }
 
+export function verifyEmailToken(token) {
+  const normalizedToken = String(token ?? '').trim();
 
-export function verifyEmailToken(
-  token
-) {
-  const normalizedToken =
-    String(
-      token ?? ""
-    ).trim();
+  if (!normalizedToken) {
+    const error = new Error('Некорректная ссылка подтверждения');
 
-  if (
-    !normalizedToken
-  ) {
-    const error =
-      new Error(
-        "Некорректная ссылка подтверждения"
-      );
-
-    error.code =
-      "INVALID_VERIFICATION_TOKEN";
+    error.code = 'INVALID_VERIFICATION_TOKEN';
 
     throw error;
   }
 
-  const tokenHash =
-    hashVerificationToken(
-      normalizedToken
-    );
+  const tokenHash = hashVerificationToken(normalizedToken);
 
-  const users =
-    readUsers();
+  const users = readUsers();
 
-  const index =
-    users.findIndex(
-      user =>
-        user.verificationTokenHash ===
-        tokenHash
-    );
+  const index = users.findIndex(user => user.verificationTokenHash === tokenHash);
 
-  if (
-    index === -1
-  ) {
-    const error =
-      new Error(
-        "Ссылка подтверждения недействительна"
-      );
+  if (index === -1) {
+    const error = new Error('Ссылка подтверждения недействительна');
 
-    error.code =
-      "INVALID_VERIFICATION_TOKEN";
+    error.code = 'INVALID_VERIFICATION_TOKEN';
 
     throw error;
   }
 
-  const expiresAt =
-    new Date(
-      users[index]
-        .verificationTokenExpiresAt
-    ).getTime();
+  const expiresAt = new Date(users[index].verificationTokenExpiresAt).getTime();
 
-  if (
-    !Number.isFinite(
-      expiresAt
-    ) ||
-    expiresAt <
-      Date.now()
-  ) {
+  if (!Number.isFinite(expiresAt) || expiresAt < Date.now()) {
     users[index] = {
       ...users[index],
 
-      verificationTokenHash:
-        null,
+      verificationTokenHash: null,
 
-      verificationTokenExpiresAt:
-        null
+      verificationTokenExpiresAt: null,
     };
 
     writeUsers(users);
 
-    const error =
-      new Error(
-        "Срок действия ссылки подтверждения истёк"
-      );
+    const error = new Error('Срок действия ссылки подтверждения истёк');
 
-    error.code =
-      "VERIFICATION_TOKEN_EXPIRED";
+    error.code = 'VERIFICATION_TOKEN_EXPIRED';
 
     throw error;
   }
 
-  const verifiedAt =
-    new Date()
-      .toISOString();
+  const verifiedAt = new Date().toISOString();
 
   users[index] = {
     ...users[index],
 
-    emailVerified:
-      true,
+    emailVerified: true,
 
     verifiedAt,
 
-    verificationTokenHash:
-      null,
+    verificationTokenHash: null,
 
-    verificationTokenExpiresAt:
-      null,
+    verificationTokenExpiresAt: null,
 
-    verificationEmailSentAt:
-      null
+    verificationEmailSentAt: null,
   };
 
   writeUsers(users);
 
-  return publicUser(
-    users[index]
-  );
+  return publicUser(users[index]);
 }
