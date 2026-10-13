@@ -16,9 +16,9 @@
   margin-bottom: 7px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  opacity: .5;
+  opacity: 0.5;
 }
 
 .boykovPromoAdmin__title {
@@ -32,7 +32,7 @@
   margin: 8px 0 0;
   font-size: 13px;
   line-height: 1.55;
-  opacity: .62;
+  opacity: 0.62;
 }
 
 .boykovPromoAdmin__count {
@@ -67,8 +67,8 @@
   grid-template-columns:
     minmax(150px, 1.2fr)
     minmax(150px, 1fr)
-    minmax(110px, .8fr)
-    minmax(110px, .8fr)
+    minmax(110px, 0.8fr)
+    minmax(110px, 0.8fr)
     minmax(180px, 1fr);
   gap: 14px;
 }
@@ -83,7 +83,7 @@
 .boykovPromoAdmin__label {
   font-size: 11px;
   font-weight: 600;
-  opacity: .58;
+  opacity: 0.58;
 }
 
 .boykovPromoAdmin__input,
@@ -144,7 +144,7 @@
 
 .boykovPromoAdmin__button:disabled {
   cursor: wait;
-  opacity: .48;
+  opacity: 0.48;
 }
 
 .boykovPromoAdmin__button--primary {
@@ -175,14 +175,14 @@
 }
 
 .boykovPromoAdmin__message--success {
-  border-color: rgba(25, 135, 84, .3);
-  background: rgba(25, 135, 84, .05);
+  border-color: rgba(25, 135, 84, 0.3);
+  background: rgba(25, 135, 84, 0.05);
   color: #197347;
 }
 
 .boykovPromoAdmin__message--error {
-  border-color: rgba(190, 45, 45, .28);
-  background: rgba(190, 45, 45, .05);
+  border-color: rgba(190, 45, 45, 0.28);
+  background: rgba(190, 45, 45, 0.05);
   color: #ad2727;
 }
 
@@ -193,7 +193,7 @@
 .boykovPromoAdmin__empty {
   padding: 26px 0;
   font-size: 13px;
-  opacity: .55;
+  opacity: 0.55;
 }
 
 .boykovPromoCard {
@@ -217,7 +217,7 @@
 }
 
 .boykovPromoCard__code {
-  font-family: "JetBrains Mono", monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 16px;
   font-weight: 700;
 }
@@ -233,7 +233,7 @@
 }
 
 .boykovPromoCard__badge--active {
-  border-color: rgba(25, 135, 84, .28);
+  border-color: rgba(25, 135, 84, 0.28);
   color: #197347;
 }
 
@@ -244,7 +244,7 @@
 .boykovPromoCard__meta {
   margin-top: 7px;
   font-size: 11px;
-  opacity: .52;
+  opacity: 0.52;
 }
 
 .boykovPromoCard__usage {
@@ -260,7 +260,7 @@
 .boykovPromoCard__usageLabel {
   margin-top: 4px;
   font-size: 10px;
-  opacity: .5;
+  opacity: 0.5;
 }
 
 .boykovPromoCard__grid {
@@ -268,8 +268,8 @@
   grid-template-columns:
     minmax(150px, 1.2fr)
     minmax(150px, 1fr)
-    minmax(110px, .8fr)
-    minmax(110px, .8fr)
+    minmax(110px, 0.8fr)
+    minmax(110px, 0.8fr)
     minmax(180px, 1fr);
   gap: 14px;
 }

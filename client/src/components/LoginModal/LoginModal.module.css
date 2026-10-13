@@ -49,7 +49,9 @@
   line-height: 1;
   color: var(--color-text);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .close:hover {
@@ -105,7 +107,9 @@
   border: var(--border-ink);
   border-radius: var(--radius-sm);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .input:focus {
@@ -126,7 +130,9 @@
   letter-spacing: 0.02em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .submit:hover:not(:disabled) {
@@ -144,7 +150,6 @@
   color: var(--color-danger);
   font-size: 13px;
 }
-
 
 /*
  * USER_AUTH_UI_V1
@@ -225,7 +230,7 @@
 }
 
 .profileLabel::after {
-  content: " *";
+  content: ' *';
   color: #397bd9;
 }
 
@@ -248,8 +253,8 @@
   font-size: 14px;
 
   transition:
-    border-color .16s ease,
-    box-shadow .16s ease;
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
 .profileInput::placeholder {
@@ -263,11 +268,8 @@
 .profileInput:focus {
   border-color: #397bd9;
 
-  box-shadow:
-    0 0 0 3px
-    rgba(57, 123, 217, .10);
+  box-shadow: 0 0 0 3px rgba(57, 123, 217, 0.1);
 }
-
 
 /*
  * ============================================================
@@ -281,8 +283,7 @@
 
   width: 100%;
 
-  margin:
-    16px 0 18px;
+  margin: 16px 0 18px;
 }
 
 .registrationConsent {
@@ -290,8 +291,7 @@
 
   display: grid;
 
-  grid-template-columns:
-    20px minmax(0, 1fr);
+  grid-template-columns: 20px minmax(0, 1fr);
 
   align-items: start;
 
@@ -301,35 +301,28 @@
 
   margin: 0;
 
-  padding:
-    12px 13px;
+  padding: 12px 13px;
 
-  border:
-    1px solid #dde3ec;
+  border: 1px solid #dde3ec;
 
   border-radius: 9px;
 
-  background:
-    rgba(255, 255, 255, .82);
+  background: rgba(255, 255, 255, 0.82);
 
   cursor: pointer;
 
   transition:
-    border-color .18s ease,
-    background .18s ease,
-    box-shadow .18s ease;
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .registrationConsent:hover {
-  border-color:
-    rgba(57, 123, 217, .52);
+  border-color: rgba(57, 123, 217, 0.52);
 
-  background:
-    #f8fbff;
+  background: #f8fbff;
 
-  box-shadow:
-    0 5px 16px
-    rgba(24, 48, 84, .055);
+  box-shadow: 0 5px 16px rgba(24, 48, 84, 0.055);
 }
 
 .registrationConsentCheckbox {
@@ -343,11 +336,9 @@
 
   min-width: 18px;
 
-  margin:
-    1px 0 0;
+  margin: 1px 0 0;
 
-  border:
-    1.5px solid #aab4c3;
+  border: 1.5px solid #aab4c3;
 
   border-radius: 5px;
 
@@ -357,31 +348,25 @@
   outline: none;
 
   transition:
-    border-color .16s ease,
-    background .16s ease,
-    box-shadow .16s ease;
+    border-color 0.16s ease,
+    background 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
-.registrationConsent:hover
-.registrationConsentCheckbox {
-  border-color:
-    #397bd9;
+.registrationConsent:hover .registrationConsentCheckbox {
+  border-color: #397bd9;
 }
 
 .registrationConsentCheckbox:checked {
-  border-color:
-    #397bd9;
+  border-color: #397bd9;
 
-  background:
-    #397bd9;
+  background: #397bd9;
 
-  box-shadow:
-    0 0 0 3px
-    rgba(57, 123, 217, .10);
+  box-shadow: 0 0 0 3px rgba(57, 123, 217, 0.1);
 }
 
 .registrationConsentCheckbox:checked::after {
-  content: "";
+  content: '';
 
   position: absolute;
 
@@ -391,23 +376,17 @@
   width: 4px;
   height: 8px;
 
-  border:
-    solid #ffffff;
+  border: solid #ffffff;
 
-  border-width:
-    0 2px 2px 0;
+  border-width: 0 2px 2px 0;
 
-  transform:
-    rotate(45deg);
+  transform: rotate(45deg);
 }
 
 .registrationConsentCheckbox:focus-visible {
-  border-color:
-    #397bd9;
+  border-color: #397bd9;
 
-  box-shadow:
-    0 0 0 3px
-    rgba(57, 123, 217, .16);
+  box-shadow: 0 0 0 3px rgba(57, 123, 217, 0.16);
 }
 
 .registrationConsentContent {
@@ -426,29 +405,24 @@
 
   text-decoration: none;
 
-  border-bottom:
-    1px solid
-    rgba(57, 123, 217, .42);
+  border-bottom: 1px solid rgba(57, 123, 217, 0.42);
 
   padding-bottom: 1px;
 
   transition:
-    color .16s ease,
-    border-color .16s ease;
+    color 0.16s ease,
+    border-color 0.16s ease;
 }
 
-.registrationConsent:hover
-.registrationConsentLink,
+.registrationConsent:hover .registrationConsentLink,
 .registrationConsentLink:hover {
-  color:
-    #397bd9;
+  color: #397bd9;
 
-  border-color:
-    #397bd9;
+  border-color: #397bd9;
 }
 
 .registrationConsentRequired::after {
-  content: "";
+  content: '';
 
   position: absolute;
 
@@ -460,29 +434,23 @@
 
   border-radius: 50%;
 
-  background:
-    rgba(57, 123, 217, .65);
+  background: rgba(57, 123, 217, 0.65);
 }
 
 .registrationConsentOptional {
-  border:
-    1px solid #e4e8ef;
+  border: 1px solid #e4e8ef;
 
   border-radius: 9px;
 
-  background:
-    #fafbfc;
+  background: #fafbfc;
 }
 
-.registrationConsentOptional
-.registrationConsent {
+.registrationConsentOptional .registrationConsent {
   border: 0;
 
-  border-radius:
-    9px 9px 0 0;
+  border-radius: 9px 9px 0 0;
 
-  background:
-    transparent;
+  background: transparent;
 
   box-shadow: none;
 
@@ -490,24 +458,19 @@
 }
 
 .registrationConsentNote {
-  margin:
-    0 13px 11px 44px;
+  margin: 0 13px 11px 44px;
 
   padding-top: 8px;
 
-  border-top:
-    1px solid #e6eaf0;
+  border-top: 1px solid #e6eaf0;
 
-  color:
-    #7a8494;
+  color: #7a8494;
 
   font-size: 10px;
   line-height: 1.45;
 }
 
-
 @media (max-width: 650px) {
-
   .profileFields {
     gap: 9px;
   }
@@ -521,16 +484,13 @@
   .registrationConsents {
     gap: 8px;
 
-    margin:
-      14px 0 17px;
+    margin: 14px 0 17px;
   }
 
   .registrationConsent {
-    padding:
-      11px 12px;
+    padding: 11px 12px;
 
-    grid-template-columns:
-      19px minmax(0, 1fr);
+    grid-template-columns: 19px minmax(0, 1fr);
 
     gap: 9px;
   }
@@ -548,14 +508,11 @@
   }
 
   .registrationConsentNote {
-    margin:
-      0 12px 10px 40px;
+    margin: 0 12px 10px 40px;
 
     font-size: 9px;
   }
-
 }
-
 
 /* AUTH INPUT FOCUS */
 .form input:focus-visible {

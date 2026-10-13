@@ -1,318 +1,126 @@
-import {
-  useEffect,
-  useState
-} from "react";
+import { useEffect, useState } from 'react';
 
+export default function useAdminPublicationInbox({ isAdmin, token }) {
+  const [publicationInbox, setPublicationInbox] = useState([]);
 
-export default function useAdminPublicationInbox({
+  const [publicationInboxLoading, setPublicationInboxLoading] = useState(false);
 
-  isAdmin,
-  token
+  const [publicationInboxError, setPublicationInboxError] = useState('');
 
-}) {
+  const [publicationReviewBusy, setPublicationReviewBusy] = useState(null);
 
-  const [
-    publicationInbox,
-    setPublicationInbox
-  ] =
-    useState([]);
+  const [selectedPublicationInstruction, setSelectedPublicationInstruction] = useState(null);
 
-  const [
-    publicationInboxLoading,
-    setPublicationInboxLoading
-  ] =
-    useState(false);
-
-  const [
-    publicationInboxError,
-    setPublicationInboxError
-  ] =
-    useState("");
-
-  const [
-    publicationReviewBusy,
-    setPublicationReviewBusy
-  ] =
-    useState(null);
-
-  const [
-    selectedPublicationInstruction,
-    setSelectedPublicationInstruction
-  ] =
-    useState(null);
-
-
-  async function loadPublicationInbox(
-    silent = false
-  ) {
-
-    if (
-      !isAdmin ||
-      !token
-    ) {
-
+  async function loadPublicationInbox(silent = false) {
+    if (!isAdmin || !token) {
       setPublicationInbox([]);
 
       return;
-
     }
-
 
     if (!silent) {
-
-      setPublicationInboxLoading(
-        true
-      );
-
+      setPublicationInboxLoading(true);
     }
-
 
     try {
+      const response = await fetch('/api/public-generation/admin/inbox', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
 
-      const response =
-        await fetch(
-          "/api/public-generation/admin/inbox",
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`
-            },
+        cache: 'no-store',
+      });
 
-            cache:
-              "no-store"
-          }
-        );
-
-
-      const data =
-        await response
-          .json()
-          .catch(
-            () => ({})
-          );
-
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-
-        throw new Error(
-          data?.error ||
-          "Не удалось загрузить ящик публикаций."
-        );
-
+        throw new Error(data?.error || 'Не удалось загрузить ящик публикаций.');
       }
 
+      setPublicationInbox(Array.isArray(data?.items) ? data.items : []);
 
-      setPublicationInbox(
-        Array.isArray(
-          data?.items
-        )
-          ? data.items
-          : []
-      );
-
-      setPublicationInboxError(
-        ""
-      );
-
-    }
-    catch(error) {
-
-      setPublicationInboxError(
-        error?.message ||
-        "Не удалось загрузить ящик публикаций."
-      );
-
-    }
-    finally {
-
+      setPublicationInboxError('');
+    } catch (error) {
+      setPublicationInboxError(error?.message || 'Не удалось загрузить ящик публикаций.');
+    } finally {
       if (!silent) {
-
-        setPublicationInboxLoading(
-          false
-        );
-
+        setPublicationInboxLoading(false);
       }
-
     }
-
   }
 
+  useEffect(() => {
+    if (!isAdmin || !token) {
+      setPublicationInbox([]);
 
-  useEffect(
-    () => {
-
-      if (
-        !isAdmin ||
-        !token
-      ) {
-
-        setPublicationInbox([]);
-
-        return undefined;
-
-      }
-
-
-      loadPublicationInbox();
-
-
-      const timer =
-        setInterval(
-          () => {
-
-            loadPublicationInbox(
-              true
-            );
-
-          },
-          15000
-        );
-
-
-      return () => {
-
-        clearInterval(
-          timer
-        );
-
-      };
-
-    },
-    [
-      isAdmin,
-      token
-    ]
-  );
-
-
-  async function reviewPublication(
-    orderId,
-    action
-  ) {
-
-    if (
-      !token ||
-      !orderId
-    ) {
-
-      return;
-
+      return undefined;
     }
 
+    loadPublicationInbox();
 
-    const isApprove =
-      action ===
-        "approve";
+    const timer = setInterval(() => {
+      loadPublicationInbox(true);
+    }, 15000);
 
+    return () => {
+      clearInterval(timer);
+    };
+  }, [isAdmin, token]);
 
-    const confirmed =
-      window.confirm(
-        isApprove
-          ? "Опубликовать эту инструкцию в общем каталоге?"
-          : "Отклонить публикацию этой инструкции?"
-      );
+  async function reviewPublication(orderId, action) {
+    if (!token || !orderId) {
+      return;
+    }
 
+    const isApprove = action === 'approve';
+
+    const confirmed = window.confirm(
+      isApprove
+        ? 'Опубликовать эту инструкцию в общем каталоге?'
+        : 'Отклонить публикацию этой инструкции?',
+    );
 
     if (!confirmed) {
-
       return;
-
     }
 
+    setPublicationReviewBusy(orderId);
 
-    setPublicationReviewBusy(
-      orderId
-    );
-
-    setPublicationInboxError(
-      ""
-    );
-
+    setPublicationInboxError('');
 
     try {
+      const response = await fetch(
+        `/api/public-generation/admin/orders/${encodeURIComponent(orderId)}/${action}`,
+        {
+          method: 'POST',
 
-      const response =
-        await fetch(
-          `/api/public-generation/admin/orders/${encodeURIComponent(
-            orderId
-          )}/${action}`,
-          {
-            method:
-              "POST",
+          headers: {
+            'Content-Type': 'application/json',
 
-            headers: {
-              "Content-Type":
-                "application/json",
+            Authorization: `Bearer ${token}`,
+          },
 
-              Authorization:
-                `Bearer ${token}`
-            },
+          body: JSON.stringify({}),
+        },
+      );
 
-            body:
-              JSON.stringify({})
-          }
-        );
-
-
-      const data =
-        await response
-          .json()
-          .catch(
-            () => ({})
-          );
-
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-
-        throw new Error(
-          data?.error ||
-          "Не удалось изменить статус публикации."
-        );
-
+        throw new Error(data?.error || 'Не удалось изменить статус публикации.');
       }
 
+      setPublicationInbox(current => current.filter(item => item.id !== orderId));
 
-      setPublicationInbox(
-        current =>
-          current.filter(
-            item =>
-              item.id !==
-                orderId
-          )
-      );
-
-
-      if (
-        selectedPublicationInstruction
-          ?.orderId ===
-        orderId
-      ) {
-
-        setSelectedPublicationInstruction(
-          null
-        );
-
+      if (selectedPublicationInstruction?.orderId === orderId) {
+        setSelectedPublicationInstruction(null);
       }
-
+    } catch (error) {
+      setPublicationInboxError(error?.message || 'Не удалось изменить статус публикации.');
+    } finally {
+      setPublicationReviewBusy(null);
     }
-    catch(error) {
-
-      setPublicationInboxError(
-        error?.message ||
-        "Не удалось изменить статус публикации."
-      );
-
-    }
-    finally {
-
-      setPublicationReviewBusy(
-        null
-      );
-
-    }
-
   }
-
 
   return {
     publicationInbox,
@@ -323,7 +131,6 @@ export default function useAdminPublicationInbox({
     selectedPublicationInstruction,
     setSelectedPublicationInstruction,
 
-    reviewPublication
+    reviewPublication,
   };
-
 }

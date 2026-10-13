@@ -1,305 +1,131 @@
-import {
-  useEffect,
-  useRef,
-  useState
-} from "react";
+import { useEffect, useRef, useState } from 'react';
 
-import {
-  useSelector
-} from "react-redux";
+import { useSelector } from 'react-redux';
 
 import {
   selectAuthUser,
   selectIsAdmin,
-  selectIsRestoringSession
-} from "../../../store/authSlice.js";
+  selectIsRestoringSession,
+} from '../../../store/authSlice.js';
 
+const USER_TOKEN_KEY = 'boykovgroup_auth_token';
 
-const USER_TOKEN_KEY =
-  "boykovgroup_auth_token";
+const AUTH_NEXT_KEY = 'boykovdocs_auth_next_v1';
 
-const AUTH_NEXT_KEY =
-  "boykovdocs_auth_next_v1";
+const ACTIVE_ROLE_KEY = 'boykovgroup_active_auth_role';
 
-const ACTIVE_ROLE_KEY =
-  "boykovgroup_active_auth_role";
-
-
-function safeAuthNext(
-  value
-) {
-
+function safeAuthNext(value) {
   try {
+    const target = new URL(String(value || '/account/'), window.location.origin);
 
-    const target =
-      new URL(
-        String(
-          value ||
-          "/account/"
-        ),
-        window.location.origin
-      );
-
-
-    if (
-      target.origin !==
-      window.location.origin
-    ) {
-
-      return "/account/";
-
+    if (target.origin !== window.location.origin) {
+      return '/account/';
     }
 
-
-    return (
-      target.pathname +
-      target.search +
-      target.hash
-    );
-
+    return target.pathname + target.search + target.hash;
+  } catch {
+    return '/account/';
   }
-  catch {
-
-    return "/account/";
-
-  }
-
 }
-
 
 function getUserToken() {
-
   try {
-
-    return window.localStorage
-      .getItem(
-        USER_TOKEN_KEY
-      );
-
-  }
-  catch {
-
+    return window.localStorage.getItem(USER_TOKEN_KEY);
+  } catch {
     return null;
-
   }
-
 }
-
 
 function clearBrokenUserToken() {
-
   try {
+    window.localStorage.removeItem(USER_TOKEN_KEY);
 
-    window.localStorage
-      .removeItem(
-        USER_TOKEN_KEY
-      );
-
-
-    if (
-      window.sessionStorage
-        .getItem(
-          ACTIVE_ROLE_KEY
-        ) ===
-        "user"
-    ) {
-
-      window.sessionStorage
-        .removeItem(
-          ACTIVE_ROLE_KEY
-        );
-
+    if (window.sessionStorage.getItem(ACTIVE_ROLE_KEY) === 'user') {
+      window.sessionStorage.removeItem(ACTIVE_ROLE_KEY);
     }
-
-  }
-  catch {
+  } catch {
     /* storage unavailable */
   }
-
 }
 
-
-async function verifyUserToken(
-  token
-) {
-
+async function verifyUserToken(token) {
   if (!token) {
     return false;
   }
 
-
   try {
+    const response = await fetch('/api/auth/me', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
 
-    const response =
-      await fetch(
-        "/api/auth/me",
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`
-          },
-
-          cache:
-            "no-store"
-        }
-      );
-
+      cache: 'no-store',
+    });
 
     if (!response.ok) {
       return false;
     }
 
+    const data = await response.json();
 
-    const data =
-      await response.json();
-
-
-    return (
-      data?.user?.role ===
-      "user"
-    );
-
-  }
-  catch {
-
+    return data?.user?.role === 'user';
+  } catch {
     return false;
-
   }
-
 }
 
-
 export default function useAuthControl() {
+  const isAdmin = useSelector(selectIsAdmin);
 
-  const isAdmin =
-    useSelector(
-      selectIsAdmin
-    );
+  const user = useSelector(selectAuthUser);
 
-  const user =
-    useSelector(
-      selectAuthUser
-    );
+  const isRestoring = useSelector(selectIsRestoringSession);
 
-  const isRestoring =
-    useSelector(
-      selectIsRestoringSession
-    );
+  const [isModalOpen, setModalOpen] = useState(false);
 
-  const [
-    isModalOpen,
-    setModalOpen
-  ] =
-    useState(false);
+  const [isMenuOpen, setMenuOpen] = useState(false);
 
-  const [
-    isMenuOpen,
-    setMenuOpen
-  ] =
-    useState(false);
+  const dropdownRef = useRef(null);
 
-  const dropdownRef =
-    useRef(null);
+  const authReturnActiveRef = useRef(false);
 
+  const authReturnNextRef = useRef('/account/');
 
-  const authReturnActiveRef =
-    useRef(false);
+  const authReturnOpenedRef = useRef(false);
 
-  const authReturnNextRef =
-    useRef("/account/");
-
-  const authReturnOpenedRef =
-    useRef(false);
-
-  const authReturnRedirectedRef =
-    useRef(false);
-
+  const authReturnRedirectedRef = useRef(false);
 
   useEffect(() => {
-
     if (!isMenuOpen) {
       return undefined;
     }
 
-
-    function handleDocumentClick(
-      event
-    ) {
-
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(
-          event.target
-        )
-      ) {
-
-        setMenuOpen(
-          false
-        );
-
+    function handleDocumentClick(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setMenuOpen(false);
       }
-
     }
 
-
-    function handleKeyDown(
-      event
-    ) {
-
-      if (
-        event.key ===
-        "Escape"
-      ) {
-
-        setMenuOpen(
-          false
-        );
-
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
       }
-
     }
 
+    document.addEventListener('click', handleDocumentClick);
 
-    document.addEventListener(
-      "click",
-      handleDocumentClick
-    );
-
-    document.addEventListener(
-      "keydown",
-      handleKeyDown
-    );
-
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
+      document.removeEventListener('click', handleDocumentClick);
 
-      document.removeEventListener(
-        "click",
-        handleDocumentClick
-      );
-
-      document.removeEventListener(
-        "keydown",
-        handleKeyDown
-      );
-
+      document.removeEventListener('keydown', handleKeyDown);
     };
-
-  }, [
-    isMenuOpen
-  ]);
-
+  }, [isMenuOpen]);
 
   useEffect(() => {
-
-    setMenuOpen(
-      false
-    );
-
-  }, [
-    user
-  ]);
-
+    setMenuOpen(false);
+  }, [user]);
 
   /*
    * ==========================================================
@@ -310,137 +136,62 @@ export default function useAuthControl() {
    * account-auth-return-20260930.js
    */
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
 
-    const params =
-      new URLSearchParams(
-        window.location.search
-      );
-
-
-    if (
-      params.get(
-        "auth"
-      ) !==
-      "1"
-    ) {
-
+    if (params.get('auth') !== '1') {
       return undefined;
-
     }
 
+    const next = safeAuthNext(params.get('next'));
 
-    const next =
-      safeAuthNext(
-        params.get(
-          "next"
-        )
-      );
+    authReturnActiveRef.current = true;
 
-
-    authReturnActiveRef.current =
-      true;
-
-    authReturnNextRef.current =
-      next;
-
+    authReturnNextRef.current = next;
 
     try {
-
-      window.sessionStorage
-        .setItem(
-          AUTH_NEXT_KEY,
-          next
-        );
-
-    }
-    catch {
+      window.sessionStorage.setItem(AUTH_NEXT_KEY, next);
+    } catch {
       /* storage unavailable */
     }
 
-
-    let cancelled =
-      false;
-
+    let cancelled = false;
 
     async function start() {
+      const token = getUserToken();
 
-      const token =
-        getUserToken();
-
-
-      if (
-        token &&
-        await verifyUserToken(
-          token
-        )
-      ) {
-
+      if (token && (await verifyUserToken(token))) {
         if (cancelled) {
           return;
         }
 
+        authReturnRedirectedRef.current = true;
 
-        authReturnRedirectedRef.current =
-          true;
-
-
-        let destination =
-          next;
-
+        let destination = next;
 
         try {
+          destination = safeAuthNext(window.sessionStorage.getItem(AUTH_NEXT_KEY) || next);
 
-          destination =
-            safeAuthNext(
-              window.sessionStorage
-                .getItem(
-                  AUTH_NEXT_KEY
-                ) ||
-              next
-            );
-
-
-          window.sessionStorage
-            .removeItem(
-              AUTH_NEXT_KEY
-            );
-
-        }
-        catch {
+          window.sessionStorage.removeItem(AUTH_NEXT_KEY);
+        } catch {
           /* storage unavailable */
         }
 
-
-        window.location.replace(
-          destination
-        );
+        window.location.replace(destination);
 
         return;
-
       }
-
 
       if (token) {
-
         clearBrokenUserToken();
-
       }
-
     }
-
 
     void start();
 
-
     return () => {
-
-      cancelled =
-        true;
-
+      cancelled = true;
     };
-
   }, []);
-
 
   /*
    * Когда React закончил восстановление сессии
@@ -450,51 +201,30 @@ export default function useAuthControl() {
    * Один раз, как production patch.
    */
   useEffect(() => {
-
     if (
       !authReturnActiveRef.current ||
       authReturnRedirectedRef.current ||
       authReturnOpenedRef.current ||
       isRestoring
     ) {
-
       return;
-
     }
-
 
     /*
      * Если активен admin — production patch
      * тоже не находил пользовательскую кнопку
      * login, поэтому этот случай не меняем.
      */
-    if (
-      user &&
-      user.role !==
-        "user"
-    ) {
-
+    if (user && user.role !== 'user') {
       return;
-
     }
-
 
     if (!user) {
+      authReturnOpenedRef.current = true;
 
-      authReturnOpenedRef.current =
-        true;
-
-      setModalOpen(
-        true
-      );
-
+      setModalOpen(true);
     }
-
-  }, [
-    isRestoring,
-    user
-  ]);
-
+  }, [isRestoring, user]);
 
   /*
    * После успешного login/register Redux уже
@@ -502,58 +232,24 @@ export default function useAuthControl() {
    * Возвращаем его туда, откуда пришёл auth=1.
    */
   useEffect(() => {
-
-    if (
-      !authReturnActiveRef.current ||
-      authReturnRedirectedRef.current ||
-      user?.role !==
-        "user"
-    ) {
-
+    if (!authReturnActiveRef.current || authReturnRedirectedRef.current || user?.role !== 'user') {
       return;
-
     }
 
+    authReturnRedirectedRef.current = true;
 
-    authReturnRedirectedRef.current =
-      true;
-
-
-    let destination =
-      authReturnNextRef.current;
-
+    let destination = authReturnNextRef.current;
 
     try {
+      destination = safeAuthNext(window.sessionStorage.getItem(AUTH_NEXT_KEY) || destination);
 
-      destination =
-        safeAuthNext(
-          window.sessionStorage
-            .getItem(
-              AUTH_NEXT_KEY
-            ) ||
-          destination
-        );
-
-
-      window.sessionStorage
-        .removeItem(
-          AUTH_NEXT_KEY
-        );
-
-    }
-    catch {
+      window.sessionStorage.removeItem(AUTH_NEXT_KEY);
+    } catch {
       /* storage unavailable */
     }
 
-
-    window.location.replace(
-      destination
-    );
-
-  }, [
-    user
-  ]);
-
+    window.location.replace(destination);
+  }, [user]);
 
   return {
     isAdmin,
@@ -563,7 +259,6 @@ export default function useAuthControl() {
     setModalOpen,
     isMenuOpen,
     setMenuOpen,
-    dropdownRef
+    dropdownRef,
   };
-
 }

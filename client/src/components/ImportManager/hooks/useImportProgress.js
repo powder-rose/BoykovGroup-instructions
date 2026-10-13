@@ -1,164 +1,68 @@
-import {
-    useEffect,
-    useState
-} from "react";
+import { useEffect, useState } from 'react';
 
-import {
-    useSelector
-} from "react-redux";
+import { useSelector } from 'react-redux';
 
-import {
-    selectAuthToken
-} from "../../../store/authSlice.js";
+import { selectAuthToken } from '../../../store/authSlice.js';
 
+export default function useImportProgress({ importId, onComplete }) {
+  const token = useSelector(selectAuthToken);
 
-export default function useImportProgress({
-    importId,
-    onComplete
-}) {
+  const [progress, setProgress] = useState(null);
 
-    const token =
-        useSelector(
-            selectAuthToken
-        );
+  const [error, setError] = useState('');
 
+  useEffect(() => {
+    if (!importId) {
+      return;
+    }
 
-    const [
-        progress,
-        setProgress
-    ] =
-        useState(null);
+    let timer;
 
+    async function loadProgress() {
+      try {
+        const response = await fetch(`/api/instructions/imports/${importId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-    const [
-        error,
-        setError
-    ] =
-        useState("");
-
-
-    useEffect(() => {
-
-        if (!importId) {
-            return;
+        if (!response.ok) {
+          throw new Error('Не удалось получить статус импорта');
         }
 
+        const data = await response.json();
 
-        let timer;
+        setProgress(data);
 
+        if (data.status === 'completed') {
+          clearInterval(timer);
 
-        async function loadProgress() {
-
-            try {
-
-                const response =
-                    await fetch(
-                        `/api/instructions/imports/${importId}`,
-                        {
-                            headers: {
-                                Authorization:
-                                    `Bearer ${token}`
-                            }
-                        }
-                    );
-
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        "Не удалось получить статус импорта"
-                    );
-
-                }
-
-
-                const data =
-                    await response.json();
-
-
-                setProgress(
-                    data
-                );
-
-
-                if (
-                    data.status ===
-                    "completed"
-                ) {
-
-                    clearInterval(
-                        timer
-                    );
-
-
-                    setTimeout(
-                        () => {
-
-                            if (
-                                onComplete
-                            ) {
-
-                                onComplete();
-
-                            }
-
-                        },
-                        2000
-                    );
-
-                }
-
-
-                if (
-                    data.status ===
-                    "failed"
-                ) {
-
-                    clearInterval(
-                        timer
-                    );
-
-                }
-
+          setTimeout(() => {
+            if (onComplete) {
+              onComplete();
             }
-            catch (err) {
-
-                setError(
-                    err.message
-                );
-
-            }
-
+          }, 2000);
         }
 
+        if (data.status === 'failed') {
+          clearInterval(timer);
+        }
+      } catch (err) {
+        setError(err.message);
+      }
+    }
 
-        loadProgress();
+    loadProgress();
 
+    timer = setInterval(loadProgress, 2000);
 
-        timer =
-            setInterval(
-                loadProgress,
-                2000
-            );
-
-
-        return () => {
-
-            clearInterval(
-                timer
-            );
-
-        };
-
-    }, [
-        importId,
-        token
-    ]);
-
-
-    return {
-        progress,
-        error
+    return () => {
+      clearInterval(timer);
     };
+  }, [importId, token]);
 
+  return {
+    progress,
+    error,
+  };
 }

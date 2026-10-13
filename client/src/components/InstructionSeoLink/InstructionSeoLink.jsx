@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 /**
  * SEO-friendly link to an instruction.
@@ -9,27 +9,18 @@ import React from "react";
  * Search robots / open in new tab / Ctrl / Cmd / Shift click:
  *   use the real server URL /instructions/:id.
  */
-export default function InstructionSeoLink({
-  instruction,
-  onSelect,
-  className,
-  children,
-}) {
+export default function InstructionSeoLink({ instruction, onSelect, className, children }) {
   if (!instruction?.id) {
     return children ?? instruction?.title ?? null;
   }
 
   const href = `/instructions/${encodeURIComponent(instruction.id)}`;
 
-  const handleClick = (event) => {
+  const handleClick = event => {
     const isModifiedClick =
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey ||
-      event.button !== 0;
+      event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
 
-    if (isModifiedClick || typeof onSelect !== "function") {
+    if (isModifiedClick || typeof onSelect !== 'function') {
       return;
     }
 
@@ -39,13 +30,8 @@ export default function InstructionSeoLink({
   };
 
   return (
-    <a
-      href={href}
-      className={className}
-      onClick={handleClick}
-    >
+    <a href={href} className={className} onClick={handleClick}>
       {children ?? instruction.title}
     </a>
   );
 }
-

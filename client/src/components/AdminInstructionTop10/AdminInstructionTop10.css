@@ -1,4 +1,3 @@
-
 /* ===== ADMIN TOP 10 INSTRUCTIONS ===== */
 
 .boykovTop10 {
@@ -14,11 +13,8 @@
 
   background: #fff;
 
-  box-shadow:
-    0 8px 26px
-    rgba(23, 32, 51, .05);
+  box-shadow: 0 8px 26px rgba(23, 32, 51, 0.05);
 }
-
 
 .boykovTop10__header {
   display: flex;
@@ -31,7 +27,6 @@
   margin-bottom: 24px;
 }
 
-
 .boykovTop10__eyebrow {
   margin-bottom: 5px;
 
@@ -40,9 +35,8 @@
   font-size: 11px;
   font-weight: 800;
 
-  letter-spacing: .12em;
+  letter-spacing: 0.12em;
 }
-
 
 .boykovTop10__title {
   margin: 0;
@@ -53,18 +47,13 @@
   line-height: 1.2;
 }
 
-
 .boykovTop10__description {
-  margin:
-    7px
-    0
-    0;
+  margin: 7px 0 0;
 
   color: #667085;
 
   font-size: 14px;
 }
-
 
 .boykovTop10__tabs {
   display: flex;
@@ -73,11 +62,8 @@
   gap: 7px;
 }
 
-
 .boykovTop10__tab {
-  padding:
-    9px
-    13px;
+  padding: 9px 13px;
 
   border: 1px solid #d8dee8;
   border-radius: 9px;
@@ -92,16 +78,14 @@
   font-weight: 700;
 
   transition:
-    background .15s ease,
-    border-color .15s ease,
-    color .15s ease;
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
-
 
 .boykovTop10__tab:hover {
   background: #f6f8fb;
 }
-
 
 .boykovTop10__tab--active {
   border-color: #172033;
@@ -110,18 +94,15 @@
   color: #fff;
 }
 
-
 .boykovTop10__tableWrap {
   width: 100%;
 
   overflow-x: auto;
 
-  border:
-    1px solid #e7ebf0;
+  border: 1px solid #e7ebf0;
 
   border-radius: 12px;
 }
-
 
 .boykovTop10__table {
   width: 100%;
@@ -131,62 +112,43 @@
   background: #fff;
 }
 
-
 .boykovTop10__table th {
-  padding:
-    13px
-    14px;
+  padding: 13px 14px;
 
-  border-bottom:
-    1px solid #e7ebf0;
+  border-bottom: 1px solid #e7ebf0;
 
-  background:
-    #f7f9fc;
+  background: #f7f9fc;
 
-  color:
-    #667085;
+  color: #667085;
 
-  font-size:
-    12px;
+  font-size: 12px;
 
-  font-weight:
-    700;
+  font-weight: 700;
 
-  text-align:
-    left;
+  text-align: left;
 
-  white-space:
-    nowrap;
+  white-space: nowrap;
 }
-
 
 .boykovTop10__table td {
-  padding:
-    14px;
+  padding: 14px;
 
-  border-bottom:
-    1px solid #eef1f4;
+  border-bottom: 1px solid #eef1f4;
 
-  vertical-align:
-    middle;
+  vertical-align: middle;
 }
-
 
 .boykovTop10__table tbody tr:last-child td {
   border-bottom: 0;
 }
 
-
 .boykovTop10__table tbody tr:hover {
-  background:
-    #fafbfc;
+  background: #fafbfc;
 }
-
 
 .boykovTop10__rank {
   width: 46px;
 }
-
 
 .boykovTop10__rankBadge {
   display: inline-flex;
@@ -199,180 +161,122 @@
 
   border-radius: 50%;
 
-  background:
-    #f0f2f5;
+  background: #f0f2f5;
 
-  color:
-    #667085;
+  color: #667085;
 
-  font-size:
-    12px;
+  font-size: 12px;
 
-  font-weight:
-    800;
+  font-weight: 800;
 }
-
 
 .boykovTop10__rankBadge--1 {
-  background:
-    #fff4cc;
+  background: #fff4cc;
 
-  color:
-    #7a5a00;
+  color: #7a5a00;
 }
-
 
 .boykovTop10__rankBadge--2 {
-  background:
-    #edf0f3;
+  background: #edf0f3;
 
-  color:
-    #4e5968;
+  color: #4e5968;
 }
-
 
 .boykovTop10__rankBadge--3 {
-  background:
-    #f5e4d8;
+  background: #f5e4d8;
 
-  color:
-    #80502e;
+  color: #80502e;
 }
-
 
 .boykovTop10__instruction {
-  min-width:
-    320px;
+  min-width: 320px;
 }
-
 
 .boykovTop10__link {
-  color:
-    #172033;
+  color: #172033;
 
-  font-size:
-    14px;
+  font-size: 14px;
 
-  font-weight:
-    700;
+  font-weight: 700;
 
-  line-height:
-    1.4;
+  line-height: 1.4;
 
-  text-decoration:
-    none;
+  text-decoration: none;
 }
-
 
 .boykovTop10__link:hover {
-  text-decoration:
-    underline;
+  text-decoration: underline;
 }
-
 
 .boykovTop10__number {
-  min-width:
-    76px;
+  min-width: 76px;
 
-  color:
-    #475467;
+  color: #475467;
 
-  font-size:
-    14px;
+  font-size: 14px;
 
-  font-weight:
-    600;
+  font-weight: 600;
 
-  text-align:
-    right;
+  text-align: right;
 
-  white-space:
-    nowrap;
+  white-space: nowrap;
 }
-
 
 .boykovTop10__number--active {
-  color:
-    #172033;
+  color: #172033;
 
-  font-size:
-    17px;
+  font-size: 17px;
 
-  font-weight:
-    800;
+  font-weight: 800;
 }
-
 
 .boykovTop10__loading,
 .boykovTop10__empty,
 .boykovTop10__error {
-  padding:
-    34px
-    18px;
+  padding: 34px 18px;
 
-  border:
-    1px solid #e7ebf0;
+  border: 1px solid #e7ebf0;
 
-  border-radius:
-    12px;
+  border-radius: 12px;
 
-  text-align:
-    center;
+  text-align: center;
 }
-
 
 .boykovTop10__loading,
 .boykovTop10__empty {
-  color:
-    #667085;
+  color: #667085;
 }
-
 
 .boykovTop10__error {
-  color:
-    #b42318;
+  color: #b42318;
 
-  background:
-    #fff6f5;
+  background: #fff6f5;
 }
 
-
 @media (max-width: 800px) {
-
   .boykovTop10 {
-    margin:
-      24px 0;
+    margin: 24px 0;
 
-    padding:
-      18px;
+    padding: 18px;
   }
-
 
   .boykovTop10__header {
-    align-items:
-      flex-start;
+    align-items: flex-start;
 
-    flex-direction:
-      column;
+    flex-direction: column;
   }
-
 
   .boykovTop10__tabs {
     width: 100%;
   }
 
-
   .boykovTop10__tab {
-    flex:
-      1 1 auto;
+    flex: 1 1 auto;
   }
-
 
   .boykovTop10__instruction {
-    min-width:
-      250px;
+    min-width: 250px;
   }
-
 }
 
 /* ===== /ADMIN TOP 10 INSTRUCTIONS ===== */

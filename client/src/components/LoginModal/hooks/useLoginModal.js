@@ -1,210 +1,99 @@
-import {
-  useEffect,
-  useState
-} from "react";
+import { useEffect, useState } from 'react';
 
-import {
-  useDispatch,
-  useSelector
-} from "react-redux";
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
   clearAuthError,
   login,
   register,
   selectAuthError,
-  selectIsAuthenticating
-} from "../../../store/authSlice.js";
+  selectIsAuthenticating,
+} from '../../../store/authSlice.js';
 
+export default function useLoginModal({ onClose }) {
+  const dispatch = useDispatch();
 
-export default function useLoginModal({
-  onClose
-}) {
+  const isAuthenticating = useSelector(selectIsAuthenticating);
 
-  const dispatch =
-    useDispatch();
+  const error = useSelector(selectAuthError);
 
-  const isAuthenticating =
-    useSelector(
-      selectIsAuthenticating
-    );
+  const [mode, setMode] = useState('login');
 
-  const error =
-    useSelector(
-      selectAuthError
-    );
+  const [loginValue, setLoginValue] = useState('');
 
-  const [
-    mode,
-    setMode
-  ] =
-    useState(
-      "login"
-    );
+  const [name, setName] = useState('');
 
-  const [
-    loginValue,
-    setLoginValue
-  ] =
-    useState("");
+  const [phone, setPhone] = useState('');
 
-  const [
-    name,
-    setName
-  ] =
-    useState("");
+  const [email, setEmail] = useState('');
 
-  const [
-    phone,
-    setPhone
-  ] =
-    useState("");
+  const [userAgreementAccepted, setUserAgreementAccepted] = useState(false);
 
-  const [
-    email,
-    setEmail
-  ] =
-    useState("");
+  const [personalDataConsentAccepted, setPersonalDataConsentAccepted] = useState(false);
 
+  const [advertisingConsentAccepted, setAdvertisingConsentAccepted] = useState(false);
 
-  const [
-    userAgreementAccepted,
-    setUserAgreementAccepted
-  ] =
-    useState(false);
+  const [password, setPassword] = useState('');
 
-  const [
-    personalDataConsentAccepted,
-    setPersonalDataConsentAccepted
-  ] =
-    useState(false);
+  const [passwordConfirm, setPasswordConfirm] = useState('');
 
-  const [
-    advertisingConsentAccepted,
-    setAdvertisingConsentAccepted
-  ] =
-    useState(false);
+  const [localError, setLocalError] = useState('');
 
-  const [
-    password,
-    setPassword
-  ] =
-    useState("");
-
-  const [
-    passwordConfirm,
-    setPasswordConfirm
-  ] =
-    useState("");
-
-  const [
-    localError,
-    setLocalError
-  ] =
-    useState("");
-
-
-  useEffect(
-    () => {
-      function handleKeyDown(
-        event
-      ) {
-        if (
-          event.key ===
-          "Escape"
-        ) {
-          onClose();
-        }
+  useEffect(() => {
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        onClose();
       }
+    }
 
-      document.addEventListener(
-        "keydown",
-        handleKeyDown
-      );
+    document.addEventListener('keydown', handleKeyDown);
 
-      return () =>
-        document.removeEventListener(
-          "keydown",
-          handleKeyDown
-        );
-    },
-    [
-      onClose
-    ]
-  );
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
+  useEffect(() => {
+    return () => {
+      dispatch(clearAuthError());
+    };
+  }, [dispatch]);
 
-  useEffect(
-    () => {
-      return () => {
-        dispatch(
-          clearAuthError()
-        );
-      };
-    },
-    [
-      dispatch
-    ]
-  );
+  function switchMode(nextMode) {
+    setMode(nextMode);
 
+    setLocalError('');
 
-  function switchMode(
-    nextMode
-  ) {
-    setMode(
-      nextMode
-    );
-
-    setLocalError("");
-
-    dispatch(
-      clearAuthError()
-    );
+    dispatch(clearAuthError());
   }
 
-
-  async function handleSubmit(
-    event
-  ) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
-    setLocalError("");
+    setLocalError('');
 
-    if (
-      mode ===
-      "register"
-    ) {
-      if (
-        password !==
-        passwordConfirm
-      ) {
-        setLocalError(
-          "Пароли не совпадают"
-        );
+    if (mode === 'register') {
+      if (password !== passwordConfirm) {
+        setLocalError('Пароли не совпадают');
 
         return;
       }
 
-      const ok =
-        await dispatch(
-          register({
-            name:
-              name.trim(),
+      const ok = await dispatch(
+        register({
+          name: name.trim(),
 
-            phone:
-              phone.trim(),
+          phone: phone.trim(),
 
-            email,
+          email,
 
-            password,
+          password,
 
-            userAgreementAccepted,
+          userAgreementAccepted,
 
-            personalDataConsentAccepted,
+          personalDataConsentAccepted,
 
-            advertisingConsentAccepted
-          })
-        );
+          advertisingConsentAccepted,
+        }),
+      );
 
       if (ok) {
         onClose();
@@ -213,24 +102,14 @@ export default function useLoginModal({
       return;
     }
 
-    const ok =
-      await dispatch(
-        login(
-          loginValue,
-          password
-        )
-      );
+    const ok = await dispatch(login(loginValue, password));
 
     if (ok) {
       onClose();
     }
   }
 
-
-  const visibleError =
-    localError ||
-    error;
-
+  const visibleError = localError || error;
 
   return {
     mode,
@@ -261,7 +140,6 @@ export default function useLoginModal({
     visibleError,
 
     switchMode,
-    handleSubmit
+    handleSubmit,
   };
-
 }

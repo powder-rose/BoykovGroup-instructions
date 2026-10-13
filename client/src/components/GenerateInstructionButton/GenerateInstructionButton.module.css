@@ -13,7 +13,9 @@
   padding: 10px 16px;
   height: 50px;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .generateBtn:hover {
@@ -80,7 +82,9 @@
   line-height: 1;
   color: var(--color-text);
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .close:hover {
@@ -143,7 +147,9 @@
   border: var(--border-ink);
   border-radius: var(--radius-sm);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .input:focus {
@@ -164,7 +170,9 @@
   letter-spacing: 0.02em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .submit:hover:not(:disabled) {

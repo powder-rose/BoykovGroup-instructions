@@ -1,71 +1,75 @@
 /* SOURCE: site-footer-no-brand-20260827-150630.css */
 /* ===== BOYKOVDOCS SITE FOOTER ===== */
-.boykovSiteFooter{
-  width:100%;
-  margin-top:56px;
-  border-top:1px solid #d9dee7;
-  background:rgba(247,249,252,.96);
-  color:#172033;
+.boykovSiteFooter {
+  width: 100%;
+  margin-top: 56px;
+  border-top: 1px solid #d9dee7;
+  background: rgba(247, 249, 252, 0.96);
+  color: #172033;
 }
-.boykovSiteFooter__inner{
-  width:min(1120px,calc(100% - 40px));
-  margin:0 auto;
-  padding:24px 0 26px;
-  display:grid;
-  grid-template-columns:1fr;
-  gap:28px 42px;
-  align-items:center;
+.boykovSiteFooter__inner {
+  width: min(1120px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 24px 0 26px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px 42px;
+  align-items: center;
 }
-.boykovSiteFooter__links{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:9px 0;
+.boykovSiteFooter__links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 9px 0;
 }
-.boykovSiteFooter__link{
-  position:relative;
-  color:#5d6879;
-  text-decoration:none;
-  font-size:12px;
-  line-height:1.4;
-  transition:color .15s ease;
+.boykovSiteFooter__link {
+  position: relative;
+  color: #5d6879;
+  text-decoration: none;
+  font-size: 12px;
+  line-height: 1.4;
+  transition: color 0.15s ease;
 }
-.boykovSiteFooter__link:hover{color:#397bd9}
-.boykovSiteFooter__link:not(:last-child)::after{
-  content:"";
-  display:inline-block;
-  width:1px;
-  height:13px;
-  margin:0 13px;
-  vertical-align:-2px;
-  background:#d6dce5;
+.boykovSiteFooter__link:hover {
+  color: #397bd9;
 }
-@media(max-width:760px){
-  .boykovSiteFooter{margin-top:38px}
-  .boykovSiteFooter__inner{
-    width:calc(100% - 24px);
-    padding:20px 0 22px;
-    grid-template-columns:1fr;
-    gap:18px;
+.boykovSiteFooter__link:not(:last-child)::after {
+  content: '';
+  display: inline-block;
+  width: 1px;
+  height: 13px;
+  margin: 0 13px;
+  vertical-align: -2px;
+  background: #d6dce5;
+}
+@media (max-width: 760px) {
+  .boykovSiteFooter {
+    margin-top: 38px;
   }
-  .boykovSiteFooter__links{
-    justify-content:flex-start;
-    align-items:flex-start;
-    flex-direction:column;
-    gap:10px;
+  .boykovSiteFooter__inner {
+    width: calc(100% - 24px);
+    padding: 20px 0 22px;
+    grid-template-columns: 1fr;
+    gap: 18px;
   }
-  .boykovSiteFooter__link:not(:last-child)::after{display:none}
+  .boykovSiteFooter__links {
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .boykovSiteFooter__link:not(:last-child)::after {
+    display: none;
+  }
 }
 /* ===== /BOYKOVDOCS SITE FOOTER ===== */
-
 
 /* SOURCE: footer-unified-20260930.css */
 /*
  * BOYKOVDOCS FOOTER — UNIFIED
  * Consolidated 2026-09-30
  */
-
 
 /*
  * ============================================================
@@ -82,7 +86,6 @@
  * sharp blue shadow
  */
 
-
 /*
  * ============================================================
  * FOOTER SECTION
@@ -90,26 +93,18 @@
  */
 
 .boykovFooterReq {
-  width:
-    100%;
+  width: 100%;
 
   margin: 0 !important;
 
-  padding:
-    34px
-    0
-    24px !important;
+  padding: 34px 0 24px !important;
 
-  border:
-    0 !important;
+  border: 0 !important;
 
-  background:
-    transparent !important;
+  background: transparent !important;
 
-  color:
-    #27364a;
+  color: #27364a;
 }
-
 
 /*
  * Точно такая же ширина,
@@ -117,22 +112,16 @@
  */
 
 .boykovFooterReq__inner {
-  width:
-    100% !important;
+  width: 100% !important;
 
-  max-width:
-    1280px !important;
+  max-width: 1280px !important;
 
-  margin:
-    0 auto !important;
+  margin: 0 auto !important;
 
-  padding:
-    0 30px !important;
+  padding: 0 30px !important;
 
-  box-sizing:
-    border-box !important;
+  box-sizing: border-box !important;
 }
-
 
 /*
  * ============================================================
@@ -141,49 +130,32 @@
  */
 
 .boykovFooterReq__head {
-  margin:
-    0
-    0
-    16px !important;
+  margin: 0 0 16px !important;
 }
-
 
 .boykovFooterReq__eyebrow {
-  position:
-    relative;
+  position: relative;
 
-  font-family:
-    Comfortaa,
-    sans-serif;
+  font-family: Comfortaa, sans-serif;
 
-  display:
-    inline-flex !important;
+  display: inline-flex !important;
 
-  align-items:
-    center !important;
+  align-items: center !important;
 
-  gap:
-    8px !important;
+  gap: 8px !important;
 
-  color:
-    #657a96 !important;
+  color: #657a96 !important;
 
-  font-size:
-    10px !important;
+  font-size: 10px !important;
 
-  line-height:
-    1.3 !important;
+  line-height: 1.3 !important;
 
-  font-weight:
-    600 !important;
+  font-weight: 600 !important;
 
-  letter-spacing:
-    .065em !important;
+  letter-spacing: 0.065em !important;
 
-  text-transform:
-    uppercase !important;
+  text-transform: uppercase !important;
 }
-
 
 /*
  * Та же маленькая синяя точка,
@@ -191,31 +163,22 @@
  */
 
 .boykovFooterReq__eyebrow::before {
-  content:
-    "" !important;
+  content: '' !important;
 
-  display:
-    block !important;
+  display: block !important;
 
-  width:
-    5px !important;
+  width: 5px !important;
 
-  height:
-    5px !important;
+  height: 5px !important;
 
-  flex:
-    0 0 5px !important;
+  flex: 0 0 5px !important;
 
-  border-radius:
-    50% !important;
+  border-radius: 50% !important;
 
-  background:
-    #2f6fd6 !important;
+  background: #2f6fd6 !important;
 
-  box-shadow:
-    none !important;
+  box-shadow: none !important;
 }
-
 
 /*
  * ============================================================
@@ -224,52 +187,39 @@
  */
 
 .boykovFooterReq__grid {
-  position:
-    relative !important;
+  position: relative !important;
 
-  overflow:
-    hidden !important;
+  overflow: hidden !important;
 
-  display:
-    grid !important;
+  display: grid !important;
 
   grid-template-columns:
     minmax(0, 1.1fr)
-    minmax(0, .83fr)
+    minmax(0, 0.83fr)
     minmax(0, 1.17fr) !important;
 
-  align-items:
-    stretch !important;
+  align-items: stretch !important;
 
-  gap:
-    0 !important;
+  gap: 0 !important;
 
   /*
    * Теперь тот же характер,
    * что у карточек инструкций.
    */
-  border:
-    2px solid
-    #172b45 !important;
+  border: 2px solid #172b45 !important;
 
-  border-radius:
-    11px !important;
+  border-radius: 11px !important;
 
-  background:
-    #ffffff !important;
+  background: #ffffff !important;
 
-  background-image:
-    none !important;
+  background-image: none !important;
 
   /*
    * Чёткая синяя тень,
    * без blur.
    */
-  box-shadow:
-    4px 4px 0
-    rgba(47, 111, 214, .24) !important;
+  box-shadow: 4px 4px 0 rgba(47, 111, 214, 0.24) !important;
 }
-
 
 /*
  * Убираем все старые отдельные
@@ -278,13 +228,10 @@
 
 .boykovFooterReq__grid::before,
 .boykovFooterReq__grid::after {
-  content:
-    none !important;
+  content: none !important;
 
-  display:
-    none !important;
+  display: none !important;
 }
-
 
 /*
  * ============================================================
@@ -293,79 +240,54 @@
  */
 
 .boykovFooterReq__column {
-  position:
-    relative;
+  position: relative;
 
-  align-items:
-    stretch;
+  align-items: stretch;
 
   transition:
-    border-color .2s ease,
-    box-shadow .2s ease,
-    transform .2s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
-
 
 .boykovFooterReq__column,
 .boykovFooterReq__column:first-child,
 .boykovFooterReq__column:last-child,
 .boykovFooterReq__column:nth-child(2),
 .boykovFooterReq__column:nth-child(3) {
+  min-width: 0 !important;
 
-  min-width:
-    0 !important;
+  height: auto !important;
 
-  height:
-    auto !important;
+  margin: 0 !important;
 
-  margin:
-    0 !important;
+  padding: 20px 22px 21px !important;
 
-  padding:
-    20px
-    22px
-    21px !important;
+  display: flex !important;
 
-  display:
-    flex !important;
+  flex-direction: column !important;
 
-  flex-direction:
-    column !important;
+  gap: 15px !important;
 
-  gap:
-    15px !important;
+  border: 0 !important;
 
-  border:
-    0 !important;
+  border-radius: 0 !important;
 
-  border-radius:
-    0 !important;
+  background: transparent !important;
 
-  background:
-    transparent !important;
+  box-shadow: none !important;
 
-  box-shadow:
-    none !important;
-
-  transform:
-    none !important;
+  transform: none !important;
 }
-
 
 /*
  * Только аккуратные внутренние
  * разделители.
  */
 
-.boykovFooterReq__column
-+
-.boykovFooterReq__column {
-
-  border-left:
-    1px solid
-    rgba(23, 43, 69, .10) !important;
+.boykovFooterReq__column + .boykovFooterReq__column {
+  border-left: 1px solid rgba(23, 43, 69, 0.1) !important;
 }
-
 
 /*
  * Старые hover / decoration
@@ -373,29 +295,21 @@
  */
 
 .boykovFooterReq__column:hover {
-  border-radius:
-    0 !important;
+  border-radius: 0 !important;
 
-  background:
-    transparent !important;
+  background: transparent !important;
 
-  box-shadow:
-    none !important;
+  box-shadow: none !important;
 
-  transform:
-    none !important;
+  transform: none !important;
 }
-
 
 .boykovFooterReq__column::before,
 .boykovFooterReq__column::after {
-  content:
-    none !important;
+  content: none !important;
 
-  display:
-    none !important;
+  display: none !important;
 }
-
 
 /*
  * ============================================================
@@ -404,22 +318,16 @@
  */
 
 .boykovFooterReq__item {
-  min-width:
-    0;
+  min-width: 0;
 
-  display:
-    flex !important;
+  display: flex !important;
 
-  flex-direction:
-    column !important;
+  flex-direction: column !important;
 
-  align-items:
-    flex-start !important;
+  align-items: flex-start !important;
 
-  gap:
-    4px !important;
+  gap: 4px !important;
 }
-
 
 /*
  * Подписи:
@@ -427,73 +335,50 @@
  */
 
 .boykovFooterReq__label {
-  display:
-    block;
+  display: block;
 
-  font-family:
-    Comfortaa,
-    sans-serif;
+  font-family: Comfortaa, sans-serif;
 
-  color:
-    #8796aa !important;
+  color: #8796aa !important;
 
-  font-size:
-    9px !important;
+  font-size: 9px !important;
 
-  line-height:
-    1.35 !important;
+  line-height: 1.35 !important;
 
-  font-weight:
-    600 !important;
+  font-weight: 600 !important;
 
-  letter-spacing:
-    .055em !important;
+  letter-spacing: 0.055em !important;
 
-  text-transform:
-    uppercase !important;
+  text-transform: uppercase !important;
 }
-
 
 /*
  * Основные значения.
  */
 
 .boykovFooterReq__value {
-  font-family:
-    Comfortaa,
-    sans-serif;
+  font-family: Comfortaa, sans-serif;
 
-  overflow-wrap:
-    anywhere;
+  overflow-wrap: anywhere;
 
-  margin:
-    0 !important;
+  margin: 0 !important;
 
-  color:
-    #263950 !important;
+  color: #263950 !important;
 
-  font-size:
-    11px !important;
+  font-size: 11px !important;
 
-  line-height:
-    1.55 !important;
+  line-height: 1.55 !important;
 
-  font-weight:
-    500 !important;
+  font-weight: 500 !important;
 
-  font-style:
-    normal !important;
+  font-style: normal !important;
 }
-
 
 strong.boykovFooterReq__value {
-  color:
-    #172b45 !important;
+  color: #172b45 !important;
 
-  font-weight:
-    600 !important;
+  font-weight: 600 !important;
 }
-
 
 /*
  * ============================================================
@@ -503,32 +388,18 @@ strong.boykovFooterReq__value {
 
 .boykovFooterReq__numbers,
 .boykovFooterReq__contactRow {
+  display: grid !important;
 
-  display:
-    grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 
-  grid-template-columns:
-    repeat(
-      2,
-      minmax(0, 1fr)
-    ) !important;
+  gap: 16px !important;
 
-  gap:
-    16px !important;
+  margin: 0 !important;
 
-  margin:
-    0 !important;
+  padding: 0 0 14px !important;
 
-  padding:
-    0
-    0
-    14px !important;
-
-  border-bottom:
-    1px solid
-    rgba(23, 43, 69, .08) !important;
+  border-bottom: 1px solid rgba(23, 43, 69, 0.08) !important;
 }
-
 
 /*
  * ============================================================
@@ -537,37 +408,26 @@ strong.boykovFooterReq__value {
  */
 
 .boykovFooterReq__link {
-  position:
-    relative;
+  position: relative;
 
-  width:
-    fit-content;
+  width: fit-content;
 
-  color:
-    #2f6fd6 !important;
+  color: #2f6fd6 !important;
 
-  font-weight:
-    500 !important;
+  font-weight: 500 !important;
 
-  text-decoration:
-    none !important;
+  text-decoration: none !important;
 
-  transition:
-    color 150ms ease !important;
+  transition: color 150ms ease !important;
 }
-
 
 .boykovFooterReq__link::after {
-  display:
-    none !important;
+  display: none !important;
 }
-
 
 .boykovFooterReq__link:hover {
-  color:
-    #245fbe !important;
+  color: #245fbe !important;
 }
-
 
 /*
  * ============================================================
@@ -576,10 +436,8 @@ strong.boykovFooterReq__value {
  */
 
 .boykovFooterReq__address {
-  max-width:
-    none !important;
+  max-width: none !important;
 }
-
 
 /*
  * ============================================================
@@ -591,10 +449,8 @@ strong.boykovFooterReq__value {
  */
 
 footer {
-  color:
-    #657a96;
+  color: #657a96;
 }
-
 
 /*
  * Все ссылки footer,
@@ -602,35 +458,25 @@ footer {
  */
 
 footer a:not(.boykovFooterReq__link) {
-  color:
-    #657a96 !important;
+  color: #657a96 !important;
 
-  text-decoration:
-    none !important;
+  text-decoration: none !important;
 
-  transition:
-    color 150ms ease !important;
+  transition: color 150ms ease !important;
 }
-
 
 footer a:not(.boykovFooterReq__link):hover {
-  color:
-    #2f6fd6 !important;
+  color: #2f6fd6 !important;
 }
-
 
 /*
  * Нижний legal-блок:
  * уменьшаем лишнее вертикальное пространство.
  */
 
-.boykovFooterReq
-+
-* {
-  margin-top:
-    0 !important;
+.boykovFooterReq + * {
+  margin-top: 0 !important;
 }
-
 
 /*
  * ============================================================
@@ -639,12 +485,9 @@ footer a:not(.boykovFooterReq__link):hover {
  */
 
 @media (max-width: 900px) {
-
   .boykovFooterReq__inner {
-    padding:
-      0 22px !important;
+    padding: 0 22px !important;
   }
-
 
   .boykovFooterReq__grid {
     grid-template-columns:
@@ -652,27 +495,18 @@ footer a:not(.boykovFooterReq__link):hover {
       1fr !important;
   }
 
-
   .boykovFooterReq__contactRow {
-    max-width:
-      none;
+    max-width: none;
   }
-
 
   .boykovFooterReq__column:nth-child(3) {
-    grid-column:
-      1 / -1 !important;
+    grid-column: 1 / -1 !important;
 
-    border-left:
-      0 !important;
+    border-left: 0 !important;
 
-    border-top:
-      1px solid
-      rgba(23, 43, 69, .10) !important;
+    border-top: 1px solid rgba(23, 43, 69, 0.1) !important;
   }
-
 }
-
 
 /*
  * ============================================================
@@ -681,81 +515,50 @@ footer a:not(.boykovFooterReq__link):hover {
  */
 
 @media (max-width: 600px) {
-
   .boykovFooterReq {
-    padding:
-      25px
-      0
-      20px !important;
+    padding: 25px 0 20px !important;
   }
-
 
   .boykovFooterReq__inner {
-    padding:
-      0 18px !important;
+    padding: 0 18px !important;
   }
-
 
   .boykovFooterReq__head {
-    margin-bottom:
-      13px !important;
+    margin-bottom: 13px !important;
   }
-
 
   .boykovFooterReq__grid {
-    display:
-      block !important;
+    display: block !important;
 
-    border-radius:
-      10px !important;
+    border-radius: 10px !important;
 
-    box-shadow:
-      3px 3px 0
-      rgba(47, 111, 214, .22) !important;
+    box-shadow: 3px 3px 0 rgba(47, 111, 214, 0.22) !important;
   }
-
 
   .boykovFooterReq__column,
   .boykovFooterReq__column:first-child,
   .boykovFooterReq__column:last-child,
   .boykovFooterReq__column:nth-child(2),
   .boykovFooterReq__column:nth-child(3) {
+    padding: 17px 16px !important;
 
-    padding:
-      17px
-      16px !important;
-
-    border:
-      0 !important;
+    border: 0 !important;
   }
 
+  .boykovFooterReq__column + .boykovFooterReq__column {
+    border-left: 0 !important;
 
-  .boykovFooterReq__column
-  +
-  .boykovFooterReq__column {
-
-    border-left:
-      0 !important;
-
-    border-top:
-      1px solid
-      rgba(23, 43, 69, .09) !important;
+    border-top: 1px solid rgba(23, 43, 69, 0.09) !important;
   }
-
 
   .boykovFooterReq__label {
-    font-size:
-      9px !important;
+    font-size: 9px !important;
   }
-
 
   .boykovFooterReq__value {
-    font-size:
-      11px !important;
+    font-size: 11px !important;
   }
-
 }
-
 
 /*
  * ============================================================
@@ -764,17 +567,12 @@ footer a:not(.boykovFooterReq__link):hover {
  */
 
 @media (max-width: 390px) {
-
   .boykovFooterReq__numbers,
   .boykovFooterReq__contactRow {
+    grid-template-columns: 1fr !important;
 
-    grid-template-columns:
-      1fr !important;
-
-    gap:
-      11px !important;
+    gap: 11px !important;
   }
-
 }
 
 /*
@@ -787,17 +585,13 @@ footer a:not(.boykovFooterReq__link):hover {
  * 5px 5px 0 #2f6fd6
  */
 
-
 /*
  * Desktop
  */
 
 .boykovFooterReq__grid {
-  box-shadow:
-    5px 5px 0
-    #2f6fd6 !important;
+  box-shadow: 5px 5px 0 #2f6fd6 !important;
 }
-
 
 /*
  * Mobile — сохраняем тот же характер,
@@ -806,11 +600,7 @@ footer a:not(.boykovFooterReq__link):hover {
  */
 
 @media (max-width: 600px) {
-
   .boykovFooterReq__grid {
-    box-shadow:
-      4px 4px 0
-      #2f6fd6 !important;
+    box-shadow: 4px 4px 0 #2f6fd6 !important;
   }
-
 }

@@ -6,8 +6,7 @@
 
   margin: 0 0 24px;
 
-  border: 1px solid
-    rgba(24, 36, 58, 0.14);
+  border: 1px solid rgba(24, 36, 58, 0.14);
 
   background: #fff;
 }
@@ -39,8 +38,7 @@
   padding: 0 26px;
 
   border: 0;
-  border-right: 1px solid
-    rgba(24, 36, 58, 0.09);
+  border-right: 1px solid rgba(24, 36, 58, 0.09);
 
   background: transparent;
 
@@ -62,12 +60,11 @@
 .boykovAdminDashboardTabs__button:hover {
   color: #172136;
 
-  background:
-    rgba(244, 247, 252, 0.65);
+  background: rgba(244, 247, 252, 0.65);
 }
 
 .boykovAdminDashboardTabs__button::after {
-  content: "";
+  content: '';
 
   position: absolute;
 
@@ -83,14 +80,12 @@
 .boykovAdminDashboardTabs__button--active {
   color: #1763d6;
 
-  background:
-    rgba(36, 104, 216, 0.035);
+  background: rgba(36, 104, 216, 0.035);
 }
 
 .boykovAdminDashboardTabs__button--active::after {
   background: #1763d6;
 }
-
 
 /*
  * Существующие React/JS-блоки
@@ -101,7 +96,6 @@
   display: none !important;
 }
 
-
 /*
  * После появления вкладок самим
  * разделам больше не нужен большой
@@ -110,7 +104,6 @@
 [data-boykov-admin-tab-section] {
   margin-top: 0 !important;
 }
-
 
 @media (max-width: 650px) {
   .boykovAdminDashboardTabs {
@@ -124,8 +117,7 @@
   .boykovAdminDashboardTabs__button {
     min-width: 125px;
 
-    padding:
-      0 18px;
+    padding: 0 18px;
 
     font-size: 12px;
   }

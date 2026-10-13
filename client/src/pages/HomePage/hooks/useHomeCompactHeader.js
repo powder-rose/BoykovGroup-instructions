@@ -1,152 +1,73 @@
-import {
-  useEffect,
-  useRef,
-  useState
-} from "react";
+import { useEffect, useRef, useState } from 'react';
 
+const SHOW_THRESHOLD = -4;
 
-const SHOW_THRESHOLD =
-  -4;
-
-const HIDE_THRESHOLD =
-  16;
-
+const HIDE_THRESHOLD = 16;
 
 export default function useHomeCompactHeader() {
+  const [isCompactHeader, setIsCompactHeader] = useState(false);
 
-  const [
-    isCompactHeader,
-    setIsCompactHeader
-  ] =
-    useState(false);
+  const stickyIntroRef = useRef(null);
 
-
-  const stickyIntroRef =
-    useRef(null);
-
-  const stickyTriggerRef =
-    useRef(null);
-
+  const stickyTriggerRef = useRef(null);
 
   useEffect(() => {
-
-    const intro =
-      stickyIntroRef.current;
-
+    const intro = stickyIntroRef.current;
 
     if (!intro) {
       return undefined;
     }
 
+    let frameId = null;
 
-    let frameId =
-      null;
+    const update = () => {
+      frameId = null;
 
+      const top = intro.getBoundingClientRect().top;
 
-    const update =
-      () => {
-
-        frameId =
-          null;
-
-
-        const top =
-          intro
-            .getBoundingClientRect()
-            .top;
-
-
-        setIsCompactHeader(
-          current => {
-
-            if (
-              current &&
-              top >= HIDE_THRESHOLD
-            ) {
-              return false;
-            }
-
-
-            if (
-              !current &&
-              top <= SHOW_THRESHOLD
-            ) {
-              return true;
-            }
-
-
-            return current;
-          }
-        );
-
-      };
-
-
-    const scheduleUpdate =
-      () => {
-
-        if (
-          frameId !== null
-        ) {
-          return;
+      setIsCompactHeader(current => {
+        if (current && top >= HIDE_THRESHOLD) {
+          return false;
         }
 
+        if (!current && top <= SHOW_THRESHOLD) {
+          return true;
+        }
 
-        frameId =
-          window.requestAnimationFrame(
-            update
-          );
+        return current;
+      });
+    };
 
-      };
+    const scheduleUpdate = () => {
+      if (frameId !== null) {
+        return;
+      }
 
+      frameId = window.requestAnimationFrame(update);
+    };
 
     update();
 
+    window.addEventListener('scroll', scheduleUpdate, {
+      passive: true,
+    });
 
-    window.addEventListener(
-      "scroll",
-      scheduleUpdate,
-      {
-        passive: true
-      }
-    );
-
-    window.addEventListener(
-      "resize",
-      scheduleUpdate
-    );
-
+    window.addEventListener('resize', scheduleUpdate);
 
     return () => {
+      window.removeEventListener('scroll', scheduleUpdate);
 
-      window.removeEventListener(
-        "scroll",
-        scheduleUpdate
-      );
+      window.removeEventListener('resize', scheduleUpdate);
 
-      window.removeEventListener(
-        "resize",
-        scheduleUpdate
-      );
-
-
-      if (
-        frameId !== null
-      ) {
-        window.cancelAnimationFrame(
-          frameId
-        );
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId);
       }
-
     };
-
   }, []);
-
 
   return {
     isCompactHeader,
     stickyIntroRef,
-    stickyTriggerRef
+    stickyTriggerRef,
   };
-
 }

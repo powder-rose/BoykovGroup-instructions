@@ -1,273 +1,116 @@
-import {
-  useEffect,
-  useState
-} from "react";
+import { useEffect, useState } from 'react';
 
-import {
-  createPromoCode,
-  getPromoCodes
-} from "../../../api/promoCodesApi.js";
+import { createPromoCode, getPromoCodes } from '../../../api/promoCodesApi.js';
 
-import {
-  fromLocalInput
-} from "../promoCodeAdminUtils.js";
-
+import { fromLocalInput } from '../promoCodeAdminUtils.js';
 
 const INITIAL_CREATE_FORM = {
-  code:
-    "",
+  code: '',
 
-  type:
-    "fixed_price",
+  type: 'fixed_price',
 
-  value:
-    "10",
+  value: '10',
 
-  maxUses:
-    "",
+  maxUses: '',
 
-  expiresAt:
-    "",
+  expiresAt: '',
 
-  active:
-    true
+  active: true,
 };
 
+export default function useAdminPromoCodes({ token }) {
+  const [items, setItems] = useState([]);
 
-export default function useAdminPromoCodes({
-  token
-}) {
+  const [loading, setLoading] = useState(true);
 
-  const [
-    items,
-    setItems
-  ] =
-    useState([]);
+  const [createForm, setCreateForm] = useState(INITIAL_CREATE_FORM);
 
-  const [
-    loading,
-    setLoading
-  ] =
-    useState(true);
+  const [creating, setCreating] = useState(false);
 
-  const [
-    createForm,
-    setCreateForm
-  ] =
-    useState(
-      INITIAL_CREATE_FORM
-    );
+  const [message, setMessage] = useState({
+    text: '',
 
-  const [
-    creating,
-    setCreating
-  ] =
-    useState(false);
+    type: '',
+  });
 
-  const [
-    message,
-    setMessage
-  ] =
-    useState({
-      text:
-        "",
-
-      type:
-        ""
-    });
-
-
-  function showMessage(
-    text,
-    type
-  ) {
-
+  function showMessage(text, type) {
     setMessage({
-      text:
-        text || "",
+      text: text || '',
 
-      type:
-        type || ""
+      type: type || '',
     });
-
   }
-
 
   async function loadItems() {
-
     if (!token) {
+      setItems([]);
 
-      setItems(
-        []
-      );
-
-      setLoading(
-        false
-      );
+      setLoading(false);
 
       return;
-
     }
-
 
     try {
+      const data = await getPromoCodes(token);
 
-      const data =
-        await getPromoCodes(
-          token
-        );
-
-
-      setItems(
-        Array.isArray(
-          data?.items
-        )
-          ? data.items
-          : []
-      );
-
+      setItems(Array.isArray(data?.items) ? data.items : []);
+    } catch (error) {
+      showMessage(error?.message || 'Не удалось загрузить промокоды.', 'error');
+    } finally {
+      setLoading(false);
     }
-    catch(error) {
-
-      showMessage(
-        error?.message ||
-        "Не удалось загрузить промокоды.",
-        "error"
-      );
-
-    }
-    finally {
-
-      setLoading(
-        false
-      );
-
-    }
-
   }
-
 
   useEffect(() => {
-
     void loadItems();
+  }, [token]);
 
-  }, [
-    token
-  ]);
-
-
-  function changeCreate(
-    name,
-    value
-  ) {
-
-    setCreateForm(
-      current => ({
-        ...current,
-        [name]:
-          value
-      })
-    );
-
+  function changeCreate(name, value) {
+    setCreateForm(current => ({
+      ...current,
+      [name]: value,
+    }));
   }
 
-
-  async function handleCreate(
-    event
-  ) {
-
+  async function handleCreate(event) {
     event.preventDefault();
 
-
-    const maxUsesText =
-      String(
-        createForm.maxUses
-      )
-        .trim();
-
+    const maxUsesText = String(createForm.maxUses).trim();
 
     const payload = {
-      code:
-        createForm.code
-          .trim()
-          .toUpperCase(),
+      code: createForm.code.trim().toUpperCase(),
 
-      type:
-        createForm.type,
+      type: createForm.type,
 
-      value:
-        Number(
-          createForm.value
-        ),
+      value: Number(createForm.value),
 
-      maxUses:
-        maxUsesText
-          ? Number(
-              maxUsesText
-            )
-          : null,
+      maxUses: maxUsesText ? Number(maxUsesText) : null,
 
-      expiresAt:
-        fromLocalInput(
-          createForm.expiresAt
-        ),
+      expiresAt: fromLocalInput(createForm.expiresAt),
 
-      active:
-        createForm.active
+      active: createForm.active,
     };
 
+    setCreating(true);
 
-    setCreating(
-      true
-    );
-
-    showMessage(
-      "",
-      ""
-    );
-
+    showMessage('', '');
 
     try {
-
-      await createPromoCode(
-        payload,
-        token
-      );
-
+      await createPromoCode(payload, token);
 
       setCreateForm({
-        ...INITIAL_CREATE_FORM
+        ...INITIAL_CREATE_FORM,
       });
 
-
-      showMessage(
-        "Промокод создан.",
-        "success"
-      );
-
+      showMessage('Промокод создан.', 'success');
 
       await loadItems();
-
+    } catch (error) {
+      showMessage(error?.message || 'Не удалось создать промокод.', 'error');
+    } finally {
+      setCreating(false);
     }
-    catch(error) {
-
-      showMessage(
-        error?.message ||
-        "Не удалось создать промокод.",
-        "error"
-      );
-
-    }
-    finally {
-
-      setCreating(
-        false
-      );
-
-    }
-
   }
-
 
   return {
     items,
@@ -278,7 +121,6 @@ export default function useAdminPromoCodes({
     showMessage,
     loadItems,
     changeCreate,
-    handleCreate
+    handleCreate,
   };
-
 }

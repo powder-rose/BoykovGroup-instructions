@@ -1,27 +1,16 @@
-import {
-  useDispatch
-} from "react-redux";
-import LoginModal from
-  "../LoginModal/LoginModal.jsx";
+import { useDispatch } from 'react-redux';
+import LoginModal from '../LoginModal/LoginModal.jsx';
 
-import {
-  logout
-} from "../../store/authSlice.js";
+import { logout } from '../../store/authSlice.js';
 
-import AuthUserMenu
-  from "./AuthUserMenu.jsx";
+import AuthUserMenu from './AuthUserMenu.jsx';
 
-import useAuthControl
-  from "./hooks/useAuthControl.js";
+import useAuthControl from './hooks/useAuthControl.js';
 
-import styles from
-  "./AuthControl.module.css";
-
+import styles from './AuthControl.module.css';
 
 export default function AuthControl() {
-
-  const dispatch =
-    useDispatch();
+  const dispatch = useDispatch();
 
   const {
     isAdmin,
@@ -31,123 +20,47 @@ export default function AuthControl() {
     setModalOpen,
     isMenuOpen,
     setMenuOpen,
-    dropdownRef
-  } =
-    useAuthControl();
-
+    dropdownRef,
+  } = useAuthControl();
 
   if (isRestoring) {
     return null;
   }
 
-
   /*
    * Админскую панель не меняем.
    */
-  if (
-    user &&
-    isAdmin
-  ) {
-
+  if (user && isAdmin) {
     return (
-      <div
-        className={
-          styles.wrapper
-        }
-      >
+      <div className={styles.wrapper}>
+        <span className={styles.badge}>[ админ: {user.login} ]</span>
 
-        <span
-          className={
-            styles.badge
-          }
-        >
-          [ админ: {user.login} ]
-        </span>
-
-
-        <button
-          type="button"
-          className={
-            styles.logoutBtn
-          }
-          onClick={
-            () =>
-              dispatch(
-                logout()
-              )
-          }
-        >
+        <button type="button" className={styles.logoutBtn} onClick={() => dispatch(logout())}>
           выйти
         </button>
-
       </div>
     );
-
   }
-
 
   if (user) {
-
     return (
       <AuthUserMenu
-        user={
-          user
-        }
-        isMenuOpen={
-          isMenuOpen
-        }
-        setMenuOpen={
-          setMenuOpen
-        }
-        dropdownRef={
-          dropdownRef
-        }
-        onLogout={
-          () =>
-            dispatch(
-              logout()
-            )
-        }
+        user={user}
+        isMenuOpen={isMenuOpen}
+        setMenuOpen={setMenuOpen}
+        dropdownRef={dropdownRef}
+        onLogout={() => dispatch(logout())}
       />
     );
-
   }
-
 
   return (
     <>
-
-      <button
-        type="button"
-        className={
-          styles.loginBtn
-        }
-        onClick={
-          () =>
-            setModalOpen(
-              true
-            )
-        }
-      >
+      <button type="button" className={styles.loginBtn} onClick={() => setModalOpen(true)}>
         войти / регистрация
       </button>
 
-
-      {
-        isModalOpen &&
-        (
-          <LoginModal
-            onClose={
-              () =>
-                setModalOpen(
-                  false
-                )
-            }
-          />
-        )
-      }
-
+      {isModalOpen && <LoginModal onClose={() => setModalOpen(false)} />}
     </>
   );
-
 }

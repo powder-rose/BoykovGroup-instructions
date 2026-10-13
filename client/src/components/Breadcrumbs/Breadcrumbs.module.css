@@ -1,5 +1,4 @@
 .breadcrumbs {
-
   display: flex;
 
   align-items: center;
@@ -9,21 +8,14 @@
   margin-bottom: 30px;
 
   font-size: 14px;
-
 }
 
-
 .breadcrumbs a {
-
   color: var(--color-primary);
 
   text-decoration: none;
-
 }
 
-
 .breadcrumbs span:last-child {
-
   color: var(--color-text-muted);
-
 }

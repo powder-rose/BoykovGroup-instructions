@@ -1,109 +1,63 @@
-import "./AdminDashboardTabs.css";
-
+import './AdminDashboardTabs.css';
 
 const TABS = [
   {
-    id:
-      "publications",
+    id: 'publications',
 
-    label:
-      "Публикации"
+    label: 'Публикации',
   },
 
   {
-    id:
-      "visitors",
+    id: 'visitors',
 
-    label:
-      "Посетители"
+    label: 'Посетители',
   },
 
   {
-    id:
-      "top10",
+    id: 'top10',
 
-    label:
-      "Топ-10"
+    label: 'Топ-10',
   },
 
   {
-    id:
-      "promocodes",
+    id: 'promocodes',
 
-    label:
-      "Промокоды"
-  }
+    label: 'Промокоды',
+  },
 ];
 
-
-export default function AdminDashboardTabs({
-  activeTab,
-  onChange
-}) {
-
+export default function AdminDashboardTabs({ activeTab, onChange }) {
   return (
     <nav
       id="boykovAdminDashboardTabs"
       className="boykovAdminDashboardTabs"
       aria-label="Разделы административной панели"
     >
+      <div className="boykovAdminDashboardTabs__inner" role="tablist">
+        {TABS.map(tab => {
+          const active = tab.id === activeTab;
 
-      <div
-        className="boykovAdminDashboardTabs__inner"
-        role="tablist"
-      >
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              tabIndex={active ? 0 : -1}
+              className={[
+                'boykovAdminDashboardTabs__button',
 
-        {
-          TABS.map(
-            tab => {
-
-              const active =
-                tab.id ===
-                activeTab;
-
-
-              return (
-                <button
-                  key={
-                    tab.id
-                  }
-                  type="button"
-                  role="tab"
-                  aria-selected={
-                    active
-                  }
-                  tabIndex={
-                    active
-                      ? 0
-                      : -1
-                  }
-                  className={[
-                    "boykovAdminDashboardTabs__button",
-
-                    active
-                      ? "boykovAdminDashboardTabs__button--active"
-                      : ""
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  onClick={
-                    () =>
-                      onChange(
-                        tab.id
-                      )
-                  }
-                >
-                  {tab.label}
-                </button>
-              );
-
-            }
-          )
-        }
-
+                active ? 'boykovAdminDashboardTabs__button--active' : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              onClick={() => onChange(tab.id)}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
-
     </nav>
   );
-
 }

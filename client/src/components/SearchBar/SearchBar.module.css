@@ -9,7 +9,9 @@
   background: var(--color-surface);
   border: var(--border-ink);
   border-radius: var(--radius-sm);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .wrapper:focus-within {
@@ -60,7 +62,6 @@
 .clear:hover {
   background: var(--color-primary);
 }
-
 
 /*
  * ============================================================

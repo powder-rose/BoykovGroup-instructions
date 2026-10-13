@@ -1,407 +1,168 @@
-import {
-  useEffect,
-  useRef,
-  useState
-} from "react";
+import { useEffect, useRef, useState } from 'react';
 
-import {
-  useSelector
-} from "react-redux";
+import { useSelector } from 'react-redux';
 
 import {
   selectAuthToken,
   selectAuthUser,
-  selectIsRestoringSession
-} from "../../../store/authSlice.js";
+  selectIsRestoringSession,
+} from '../../../store/authSlice.js';
 
+function getPdfFileName(response, instructionId) {
+  const disposition = response.headers.get('Content-Disposition') || '';
 
-function getPdfFileName(
-  response,
-  instructionId
-) {
-
-  const disposition =
-    response.headers.get(
-      "Content-Disposition"
-    ) || "";
-
-
-  const match =
-    disposition.match(
-      /filename\*=UTF-8''([^;]+)/i
-    );
-
+  const match = disposition.match(/filename\*=UTF-8''([^;]+)/i);
 
   if (match?.[1]) {
-
     try {
-
-      return decodeURIComponent(
-        match[1]
-      );
-
-    }
-    catch {
+      return decodeURIComponent(match[1]);
+    } catch {
       /* use fallback */
     }
-
   }
 
-
-  return (
-    `instruction-${instructionId}.pdf`
-  );
-
+  return `instruction-${instructionId}.pdf`;
 }
 
+export default function useInstructionPdfDownload(instructionId) {
+  const token = useSelector(selectAuthToken);
 
-export default function useInstructionPdfDownload(
-  instructionId
-) {
+  const user = useSelector(selectAuthUser);
 
-  const token =
-    useSelector(
-      selectAuthToken
-    );
+  const isRestoring = useSelector(selectIsRestoringSession);
 
-  const user =
-    useSelector(
-      selectAuthUser
-    );
+  const [isRegistrationOpen, setRegistrationOpen] = useState(false);
 
-  const isRestoring =
-    useSelector(
-      selectIsRestoringSession
-    );
+  const [isDownloading, setDownloading] = useState(false);
 
+  const [message, setMessage] = useState(null);
 
-  const [
-    isRegistrationOpen,
-    setRegistrationOpen
-  ] =
-    useState(false);
-
-  const [
-    isDownloading,
-    setDownloading
-  ] =
-    useState(false);
-
-  const [
-    message,
-    setMessage
-  ] =
-    useState(null);
-
-
-  const messageTimerRef =
-    useRef(null);
-
+  const messageTimerRef = useRef(null);
 
   useEffect(() => {
-
     return () => {
-
-      if (
-        messageTimerRef.current
-      ) {
-
-        window.clearTimeout(
-          messageTimerRef.current
-        );
-
+      if (messageTimerRef.current) {
+        window.clearTimeout(messageTimerRef.current);
       }
-
     };
-
   }, []);
 
-
-  function showMessage(
-    text,
-    type = "error"
-  ) {
-
+  function showMessage(text, type = 'error') {
     setMessage({
       text,
-      type
+      type,
     });
 
-
-    if (
-      messageTimerRef.current
-    ) {
-
-      window.clearTimeout(
-        messageTimerRef.current
-      );
-
+    if (messageTimerRef.current) {
+      window.clearTimeout(messageTimerRef.current);
     }
 
+    messageTimerRef.current = window.setTimeout(() => {
+      setMessage(null);
 
-    messageTimerRef.current =
-      window.setTimeout(
-        () => {
-
-          setMessage(
-            null
-          );
-
-          messageTimerRef.current =
-            null;
-
-        },
-        5000
-      );
-
+      messageTimerRef.current = null;
+    }, 5000);
   }
 
+  const isAdmin = user?.role === 'admin';
 
-  const isAdmin =
-    user?.role ===
-      "admin";
+  const isVerifiedUser = user?.role === 'user' && user?.emailVerified === true;
 
-
-  const isVerifiedUser =
-    user?.role ===
-      "user" &&
-    user?.emailVerified ===
-      true;
-
-
-  const isLockedUser =
-    user?.role ===
-      "user" &&
-    user?.emailVerified !==
-      true;
-
+  const isLockedUser = user?.role === 'user' && user?.emailVerified !== true;
 
   async function downloadPdf() {
-
-    if (
-      !instructionId ||
-      !token ||
-      isDownloading
-    ) {
+    if (!instructionId || !token || isDownloading) {
       return;
     }
 
-
-    setDownloading(
-      true
-    );
-
+    setDownloading(true);
 
     try {
+      const response = await fetch(`/api/instructions/${encodeURIComponent(instructionId)}/pdf`, {
+        method: 'GET',
 
-      const response =
-        await fetch(
-          `/api/instructions/${encodeURIComponent(
-            instructionId
-          )}/pdf`,
-          {
-            method:
-              "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
+          Accept: 'application/pdf',
+        },
 
-              Accept:
-                "application/pdf"
-            },
-
-            cache:
-              "no-store"
-          }
-        );
-
+        cache: 'no-store',
+      });
 
       if (!response.ok) {
-
-        let errorMessage =
-          `Ошибка скачивания (${response.status})`;
-
+        let errorMessage = `Ошибка скачивания (${response.status})`;
 
         try {
-
-          const data =
-            await response.json();
-
+          const data = await response.json();
 
           if (data?.error) {
-
-            errorMessage =
-              data.error;
-
+            errorMessage = data.error;
           }
-
-        }
-        catch {
+        } catch {
           /* keep default message */
         }
 
-
-        throw new Error(
-          errorMessage
-        );
-
+        throw new Error(errorMessage);
       }
 
+      const contentType = response.headers.get('Content-Type') || '';
 
-      const contentType =
-        response.headers.get(
-          "Content-Type"
-        ) || "";
-
-
-      if (
-        !contentType
-          .toLowerCase()
-          .includes(
-            "application/pdf"
-          )
-      ) {
-
-        throw new Error(
-          "Сервер вернул не PDF-файл"
-        );
-
+      if (!contentType.toLowerCase().includes('application/pdf')) {
+        throw new Error('Сервер вернул не PDF-файл');
       }
 
+      const blob = await response.blob();
 
-      const blob =
-        await response.blob();
-
-
-      if (
-        blob.size <
-        1000
-      ) {
-
-        throw new Error(
-          "Получен пустой PDF-файл"
-        );
-
+      if (blob.size < 1000) {
+        throw new Error('Получен пустой PDF-файл');
       }
 
+      const objectUrl = URL.createObjectURL(blob);
 
-      const objectUrl =
-        URL.createObjectURL(
-          blob
-        );
+      const link = document.createElement('a');
 
+      link.href = objectUrl;
 
-      const link =
-        document.createElement(
-          "a"
-        );
+      link.download = getPdfFileName(response, instructionId);
 
+      link.style.display = 'none';
 
-      link.href =
-        objectUrl;
-
-
-      link.download =
-        getPdfFileName(
-          response,
-          instructionId
-        );
-
-
-      link.style.display =
-        "none";
-
-
-      document.body.appendChild(
-        link
-      );
-
+      document.body.appendChild(link);
 
       link.click();
 
-
       link.remove();
 
+      window.setTimeout(() => {
+        URL.revokeObjectURL(objectUrl);
+      }, 5000);
 
-      window.setTimeout(
-        () => {
+      showMessage('PDF успешно сформирован.', 'success');
+    } catch (error) {
+      console.error('PDF download error:', error);
 
-          URL.revokeObjectURL(
-            objectUrl
-          );
-
-        },
-        5000
-      );
-
-
-      showMessage(
-        "PDF успешно сформирован.",
-        "success"
-      );
-
+      showMessage(error?.message || 'Не удалось скачать PDF');
+    } finally {
+      setDownloading(false);
     }
-    catch(error) {
-
-      console.error(
-        "PDF download error:",
-        error
-      );
-
-
-      showMessage(
-        error?.message ||
-        "Не удалось скачать PDF"
-      );
-
-    }
-    finally {
-
-      setDownloading(
-        false
-      );
-
-    }
-
   }
-
 
   function handleClick() {
-
-    if (
-      isRestoring ||
-      isDownloading
-    ) {
+    if (isRestoring || isDownloading) {
       return;
     }
 
-
-    if (
-      !user ||
-      !token
-    ) {
-
-      setRegistrationOpen(
-        true
-      );
+    if (!user || !token) {
+      setRegistrationOpen(true);
 
       return;
-
     }
 
-
-    if (
-      isAdmin ||
-      isVerifiedUser
-    ) {
-
+    if (isAdmin || isVerifiedUser) {
       void downloadPdf();
-
     }
-
   }
-
 
   return {
     user,
@@ -411,7 +172,6 @@ export default function useInstructionPdfDownload(
     isDownloading,
     message,
     isLockedUser,
-    handleClick
+    handleClick,
   };
-
 }

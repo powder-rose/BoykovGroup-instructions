@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
-import { selectIsAdmin } from "../../store/authSlice.js";
-import GenerateInstructionModal from "./GenerateInstructionModal.jsx";
-import styles from "./GenerateInstructionButton.module.css";
+import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { selectIsAdmin } from '../../store/authSlice.js';
+import GenerateInstructionModal from './GenerateInstructionModal.jsx';
+import styles from './GenerateInstructionButton.module.css';
 
 /**
  * Кнопка «сгенерировать инструкцию» в панели управления сверху — доступна
@@ -18,7 +18,10 @@ export default function GenerateInstructionButton() {
   return (
     <>
       <button type="button" className={styles.generateBtn} onClick={() => setModalOpen(true)}>
-        <span aria-hidden="true" className={styles.plus}>+</span> сгенерировать инструкцию
+        <span aria-hidden="true" className={styles.plus}>
+          +
+        </span>{' '}
+        сгенерировать инструкцию
       </button>
       {isModalOpen && <GenerateInstructionModal onClose={() => setModalOpen(false)} />}
     </>

@@ -1,389 +1,170 @@
-import {
-  useEffect,
-  useState
-} from "react";
+import { useEffect, useState } from 'react';
 
-import {
-  useSelector
-} from "react-redux";
+import { useSelector } from 'react-redux';
 
-import {
-  selectAuthToken
-} from "../../../store/authSlice.js";
+import { selectAuthToken } from '../../../store/authSlice.js';
 
-import {
-  getInstructionHistory,
-  rollbackInstruction
-} from "../../../api/instructionsApi.js";
+import { getInstructionHistory, rollbackInstruction } from '../../../api/instructionsApi.js';
 
-
-function prepareInstruction(
-  instruction
-) {
-
+function prepareInstruction(instruction) {
   return {
     ...instruction,
 
-    sections:
-      (
-        Array.isArray(
-          instruction?.sections
-        )
-          ? instruction.sections
-          : []
-      )
-        .map(
-          section => ({
-            ...section,
+    sections: (Array.isArray(instruction?.sections) ? instruction.sections : []).map(section => ({
+      ...section,
 
-            paragraphs:
-              Array.isArray(
-                section.paragraphs
-              )
-                ? [
-                    ...section.paragraphs
-                  ]
-                : [],
+      paragraphs: Array.isArray(section.paragraphs) ? [...section.paragraphs] : [],
 
-            __editorText:
-              (
-                Array.isArray(
-                  section.paragraphs
-                )
-                  ? section.paragraphs
-                  : []
-              )
-                .join(
-                  "\n\n"
-                )
-          })
-        )
+      __editorText: (Array.isArray(section.paragraphs) ? section.paragraphs : []).join('\n\n'),
+    })),
   };
-
 }
 
+export default function useEditInstructionModal({ instruction, onSave }) {
+  const [data, setData] = useState(() => prepareInstruction(instruction));
 
-export default function useEditInstructionModal({
+  const token = useSelector(selectAuthToken);
 
-  instruction,
-  onSave
+  const [history, setHistory] = useState(null);
 
-}) {
+  const [rollbackBusy, setRollbackBusy] = useState(false);
 
-  const [
-    data,
-    setData
-  ] =
-    useState(
-      () =>
-        prepareInstruction(
-          instruction
-        )
-    );
-
-
-  const token =
-    useSelector(
-      selectAuthToken
-    );
-
-
-  const [
-    history,
-    setHistory
-  ] =
-    useState(null);
-
-
-  const [
-    rollbackBusy,
-    setRollbackBusy
-  ] =
-    useState(false);
-
-
-  const [
-    saveBusy,
-    setSaveBusy
-  ] =
-    useState(false);
-
+  const [saveBusy, setSaveBusy] = useState(false);
 
   /*
    * Production блокирует scroll страницы,
    * пока открыт полноценный editor.
    */
   useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
 
-    const previousOverflow =
-      document.body.style
-        .overflow;
-
-
-    document.body.style
-      .overflow =
-      "hidden";
-
+    document.body.style.overflow = 'hidden';
 
     return () => {
-
-      document.body.style
-        .overflow =
-        previousOverflow;
-
+      document.body.style.overflow = previousOverflow;
     };
-
   }, []);
-
 
   /*
    * История версий для rollback.
    */
   useEffect(() => {
-
-    if (
-      !instruction?.id ||
-      !token
-    ) {
-
-      setHistory(
-        null
-      );
+    if (!instruction?.id || !token) {
+      setHistory(null);
 
       return undefined;
-
     }
 
+    let cancelled = false;
 
-    let cancelled =
-      false;
-
-
-    getInstructionHistory(
-      instruction.id,
-      token
-    )
-      .then(
-        result => {
-
-          if (!cancelled) {
-
-            setHistory(
-              result
-            );
-
-          }
-
+    getInstructionHistory(instruction.id, token)
+      .then(result => {
+        if (!cancelled) {
+          setHistory(result);
         }
-      )
-      .catch(
-        () => {
-
-          if (!cancelled) {
-
-            setHistory(
-              null
-            );
-
-          }
-
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setHistory(null);
         }
-      );
-
+      });
 
     return () => {
-
-      cancelled =
-        true;
-
+      cancelled = true;
     };
-
-  }, [
-    instruction?.id,
-    token
-  ]);
-
+  }, [instruction?.id, token]);
 
   /*
    * Общее поле инструкции.
    */
-  function updateField(
-    field,
-    value
-  ) {
-
-    setData(
-      current => ({
-        ...current,
-        [field]:
-          value
-      })
-    );
-
+  function updateField(field, value) {
+    setData(current => ({
+      ...current,
+      [field]: value,
+    }));
   }
-
 
   /*
    * Заголовок раздела.
    */
-  function updateSectionHeading(
-    sectionIndex,
-    value
-  ) {
+  function updateSectionHeading(sectionIndex, value) {
+    setData(current => ({
+      ...current,
 
-    setData(
-      current => ({
-        ...current,
+      sections: (current.sections || []).map((section, index) =>
+        index === sectionIndex
+          ? {
+              ...section,
 
-        sections:
-          (
-            current.sections ||
-            []
-          )
-            .map(
-              (
-                section,
-                index
-              ) =>
-                index ===
-                  sectionIndex
-                  ? {
-                      ...section,
-
-                      heading:
-                        value
-                    }
-                  : section
-            )
-      })
-    );
-
+              heading: value,
+            }
+          : section,
+      ),
+    }));
   }
-
 
   /*
    * Единый текст раздела.
    */
-  function updateSectionText(
-    sectionIndex,
-    value
-  ) {
+  function updateSectionText(sectionIndex, value) {
+    setData(current => ({
+      ...current,
 
-    setData(
-      current => ({
-        ...current,
+      sections: (current.sections || []).map((section, index) =>
+        index === sectionIndex
+          ? {
+              ...section,
 
-        sections:
-          (
-            current.sections ||
-            []
-          )
-            .map(
-              (
-                section,
-                index
-              ) =>
-                index ===
-                  sectionIndex
-                  ? {
-                      ...section,
-
-                      __editorText:
-                        value
-                    }
-                  : section
-            )
-      })
-    );
-
+              __editorText: value,
+            }
+          : section,
+      ),
+    }));
   }
-
 
   /*
    * Удалить раздел.
    */
-  function removeSection(
-    sectionIndex
-  ) {
+  function removeSection(sectionIndex) {
+    setData(current => ({
+      ...current,
 
-    setData(
-      current => ({
-        ...current,
+      sections: (current.sections || [])
+        .filter((_section, index) => index !== sectionIndex)
+        .map((section, index) => ({
+          ...section,
 
-        sections:
-          (
-            current.sections ||
-            []
-          )
-            .filter(
-              (
-                _section,
-                index
-              ) =>
-                index !==
-                sectionIndex
-            )
-            .map(
-              (
-                section,
-                index
-              ) => ({
-                ...section,
-
-                number:
-                  index + 1
-              })
-            )
-      })
-    );
-
+          number: index + 1,
+        })),
+    }));
   }
-
 
   /*
    * Добавить раздел.
    */
   function addSection() {
+    setData(current => {
+      const sections = Array.isArray(current.sections) ? current.sections : [];
 
-    setData(
-      current => {
+      return {
+        ...current,
 
-        const sections =
-          Array.isArray(
-            current.sections
-          )
-            ? current.sections
-            : [];
+        sections: [
+          ...sections,
 
+          {
+            number: sections.length + 1,
 
-        return {
-          ...current,
+            heading: '',
 
-          sections: [
-            ...sections,
+            paragraphs: [],
 
-            {
-              number:
-                sections.length +
-                1,
-
-              heading:
-                "",
-
-              paragraphs:
-                [],
-
-              __editorText:
-                ""
-            }
-          ]
-        };
-
-      }
-    );
-
+            __editorText: '',
+          },
+        ],
+      };
+    });
   }
-
 
   /*
    * Сохранение.
@@ -395,140 +176,58 @@ export default function useEditInstructionModal({
    * Пустая строка = новый абзац.
    */
   async function handleSave() {
-
-    if (
-      saveBusy
-    ) {
+    if (saveBusy) {
       return;
     }
 
-
-    setSaveBusy(
-      true
-    );
-
+    setSaveBusy(true);
 
     try {
-
       const payload = {
         ...data,
 
-        sections:
-          (
-            data.sections ||
-            []
-          )
-            .map(
-              ({
-                __editorText,
-                ...section
-              }) => ({
-                ...section,
+        sections: (data.sections || []).map(({ __editorText, ...section }) => ({
+          ...section,
 
-                paragraphs:
-                  String(
-                    __editorText ??
-                    ""
-                  )
-                    .replace(
-                      /\r\n?/g,
-                      "\n"
-                    )
-                    .split(
-                      /\n\s*\n/u
-                    )
-                    .map(
-                      paragraph =>
-                        paragraph.trim()
-                    )
-                    .filter(
-                      Boolean
-                    )
-              })
-            )
+          paragraphs: String(__editorText ?? '')
+            .replace(/\r\n?/g, '\n')
+            .split(/\n\s*\n/u)
+            .map(paragraph => paragraph.trim())
+            .filter(Boolean),
+        })),
       };
 
-
-      await onSave(
-        payload
-      );
-
+      await onSave(payload);
+    } finally {
+      setSaveBusy(false);
     }
-    finally {
-
-      setSaveBusy(
-        false
-      );
-
-    }
-
   }
-
 
   async function handleRollback() {
-
-    if (
-      rollbackBusy ||
-      !history?.available ||
-      !instruction?.id ||
-      !token
-    ) {
+    if (rollbackBusy || !history?.available || !instruction?.id || !token) {
       return;
     }
 
-
-    if (
-      !window.confirm(
-        "Вернуть инструкцию к состоянию до последнего сохранения?"
-      )
-    ) {
+    if (!window.confirm('Вернуть инструкцию к состоянию до последнего сохранения?')) {
       return;
     }
 
-
-    setRollbackBusy(
-      true
-    );
-
+    setRollbackBusy(true);
 
     try {
+      await rollbackInstruction(instruction.id, token);
 
-      await rollbackInstruction(
-        instruction.id,
-        token
-      );
-
-
-      window.alert(
-        "Предыдущая версия восстановлена."
-      );
-
+      window.alert('Предыдущая версия восстановлена.');
 
       window.location.reload();
+    } catch (error) {
+      console.error('Rollback error:', error);
 
+      window.alert(error?.message || 'Не удалось выполнить откат.');
+
+      setRollbackBusy(false);
     }
-    catch(error) {
-
-      console.error(
-        "Rollback error:",
-        error
-      );
-
-
-      window.alert(
-        error?.message ||
-        "Не удалось выполнить откат."
-      );
-
-
-      setRollbackBusy(
-        false
-      );
-
-    }
-
   }
-
 
   return {
     data,
@@ -541,7 +240,6 @@ export default function useEditInstructionModal({
     removeSection,
     addSection,
     handleSave,
-    handleRollback
+    handleRollback,
   };
-
 }

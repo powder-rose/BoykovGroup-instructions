@@ -1,27 +1,13 @@
-import useCookieConsent
-  from "./hooks/useCookieConsent.js";
+import useCookieConsent from './hooks/useCookieConsent.js';
 
-import "./CookieConsent.css";
-
+import './CookieConsent.css';
 
 export default function CookieConsent() {
+  const { consent, accept } = useCookieConsent();
 
-  const {
-    consent,
-    accept
-  } =
-    useCookieConsent();
-
-
-  if (
-    consent === "all" ||
-    consent === "necessary"
-  ) {
-
+  if (consent === 'all' || consent === 'necessary') {
     return null;
-
   }
-
 
   return (
     <section
@@ -30,34 +16,17 @@ export default function CookieConsent() {
       role="dialog"
       aria-label="Настройки cookie"
     >
+      <div className="boykovCookieBanner__eyebrow">Cookie</div>
 
-      <div
-        className="boykovCookieBanner__eyebrow"
-      >
-        Cookie
-      </div>
+      <h2 className="boykovCookieBanner__title">Мы используем cookie</h2>
 
-
-      <h2
-        className="boykovCookieBanner__title"
-      >
-        Мы используем cookie
-      </h2>
-
-
-      <p
-        className="boykovCookieBanner__text"
-      >
-        Необходимые cookie используются для корректной работы сайта.
-        Аналитические cookie помогают нам понимать, как посетители
-        пользуются сайтом. Вы можете разрешить все cookie или оставить
+      <p className="boykovCookieBanner__text">
+        Необходимые cookie используются для корректной работы сайта. Аналитические cookie помогают
+        нам понимать, как посетители пользуются сайтом. Вы можете разрешить все cookie или оставить
         только необходимые.
       </p>
 
-
-      <p
-        className="boykovCookieBanner__more"
-      >
+      <p className="boykovCookieBanner__more">
         <a
           className="boykovCookieBanner__link"
           href="/soglasie-na-obrabotku-cookie/"
@@ -68,27 +37,17 @@ export default function CookieConsent() {
         </a>
       </p>
 
-
-      <div
-        className="boykovCookieBanner__actions"
-      >
-
+      <div className="boykovCookieBanner__actions">
         <button
           type="button"
           className="
             boykovCookieBanner__button
             boykovCookieBanner__button--secondary
           "
-          onClick={
-            () =>
-              accept(
-                "necessary"
-              )
-          }
+          onClick={() => accept('necessary')}
         >
           Только необходимые
         </button>
-
 
         <button
           type="button"
@@ -96,19 +55,11 @@ export default function CookieConsent() {
             boykovCookieBanner__button
             boykovCookieBanner__button--primary
           "
-          onClick={
-            () =>
-              accept(
-                "all"
-              )
-          }
+          onClick={() => accept('all')}
         >
           Принять все
         </button>
-
       </div>
-
     </section>
   );
-
 }

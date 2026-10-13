@@ -1,169 +1,73 @@
-import {
-  useEffect,
-  useState
-} from "react";
+import { useEffect, useState } from 'react';
 
+export default function useAdminVisitorStats(token) {
+  const [data, setData] = useState(null);
 
-export default function useAdminVisitorStats(
-  token
-) {
+  const [loading, setLoading] = useState(true);
 
-  const [
-    data,
-    setData
-  ] =
-    useState(null);
-
-  const [
-    loading,
-    setLoading
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError
-  ] =
-    useState("");
-
+  const [error, setError] = useState('');
 
   useEffect(() => {
-
     if (!token) {
+      setData(null);
 
-      setData(
-        null
-      );
-
-      setLoading(
-        false
-      );
+      setLoading(false);
 
       return undefined;
-
     }
 
-
-    let cancelled =
-      false;
-
+    let cancelled = false;
 
     async function loadStats() {
-
       try {
+        setError('');
 
-        setError(
-          ""
-        );
+        const response = await fetch('/api/visitor-stats/admin', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
 
+          cache: 'no-store',
+        });
 
-        const response =
-          await fetch(
-            "/api/visitor-stats/admin",
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`
-              },
-
-              cache:
-                "no-store"
-            }
-          );
-
-
-        const result =
-          await response
-            .json()
-            .catch(
-              () => ({})
-            );
-
+        const result = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-
-          throw new Error(
-            result?.error ||
-            `Ошибка статистики (${response.status})`
-          );
-
+          throw new Error(result?.error || `Ошибка статистики (${response.status})`);
         }
-
 
         if (!cancelled) {
-
-          setData(
-            result
-          );
-
+          setData(result);
         }
-
-      }
-      catch(loadError) {
-
+      } catch (loadError) {
         if (!cancelled) {
-
-          setError(
-            loadError?.message ||
-            "Не удалось загрузить статистику посетителей."
-          );
-
+          setError(loadError?.message || 'Не удалось загрузить статистику посетителей.');
         }
-
-      }
-      finally {
-
+      } finally {
         if (!cancelled) {
-
-          setLoading(
-            false
-          );
-
+          setLoading(false);
         }
-
       }
-
     }
-
 
     function handleFocus() {
-
       void loadStats();
-
     }
-
 
     void loadStats();
 
-
-    window.addEventListener(
-      "focus",
-      handleFocus
-    );
-
+    window.addEventListener('focus', handleFocus);
 
     return () => {
+      cancelled = true;
 
-      cancelled =
-        true;
-
-
-      window.removeEventListener(
-        "focus",
-        handleFocus
-      );
-
+      window.removeEventListener('focus', handleFocus);
     };
-
-  }, [
-    token
-  ]);
-
+  }, [token]);
 
   return {
     data,
     loading,
-    error
+    error,
   };
-
 }

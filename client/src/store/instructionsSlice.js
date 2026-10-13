@@ -4,37 +4,37 @@ import {
   generateInstruction as generateRequest,
   uploadInstruction as uploadRequest,
   deleteInstruction as deleteRequest,
-} from "../api/instructionsApi.js";
-import { selectAuthToken } from "./authSlice.js";
-import { PAGE_SIZE } from "../constants.js";
+} from '../api/instructionsApi.js';
+import { selectAuthToken } from './authSlice.js';
+import { PAGE_SIZE } from '../constants.js';
 
-const SEARCH_START = "instructions/searchStart";
-const SEARCH_SUCCESS = "instructions/searchSuccess";
-const SEARCH_FAIL = "instructions/searchFail";
+const SEARCH_START = 'instructions/searchStart';
+const SEARCH_SUCCESS = 'instructions/searchSuccess';
+const SEARCH_FAIL = 'instructions/searchFail';
 
-const SELECT_START = "instructions/selectStart";
-const SELECT_SUCCESS = "instructions/selectSuccess";
-const SELECT_FAIL = "instructions/selectFail";
-const SELECT_CLEAR = "instructions/selectClear";
+const SELECT_START = 'instructions/selectStart';
+const SELECT_SUCCESS = 'instructions/selectSuccess';
+const SELECT_FAIL = 'instructions/selectFail';
+const SELECT_CLEAR = 'instructions/selectClear';
 
-const GENERATE_START = "instructions/generateStart";
-const GENERATE_SUCCESS = "instructions/generateSuccess";
-const GENERATE_FAIL = "instructions/generateFail";
+const GENERATE_START = 'instructions/generateStart';
+const GENERATE_SUCCESS = 'instructions/generateSuccess';
+const GENERATE_FAIL = 'instructions/generateFail';
 
-const UPLOAD_START = "instructions/uploadStart";
-const UPLOAD_SUCCESS = "instructions/uploadSuccess";
-const UPLOAD_FAIL = "instructions/uploadFail";
+const UPLOAD_START = 'instructions/uploadStart';
+const UPLOAD_SUCCESS = 'instructions/uploadSuccess';
+const UPLOAD_FAIL = 'instructions/uploadFail';
 
-const DELETE_START = "instructions/deleteStart";
-const DELETE_SUCCESS = "instructions/deleteSuccess";
-const DELETE_FAIL = "instructions/deleteFail";
+const DELETE_START = 'instructions/deleteStart';
+const DELETE_SUCCESS = 'instructions/deleteSuccess';
+const DELETE_FAIL = 'instructions/deleteFail';
 
 const initialState = {
   items: [],
   total: 0,
   page: 1,
   totalPages: 1,
-  query: "",
+  query: '',
   isSearching: true,
   isLoadingMore: false,
   searchError: null,
@@ -66,174 +66,104 @@ export function instructionsReducer(state = initialState, action) {
      * добавление следующей страницы.
      */
     case SEARCH_START: {
-
-      const append =
-        action.meta?.append === true;
+      const append = action.meta?.append === true;
 
       return {
         ...state,
 
-        isSearching:
-          !append,
+        isSearching: !append,
 
-        isLoadingMore:
-          append,
+        isLoadingMore: append,
 
-        searchError:
-          append
-            ? state.searchError
-            : null,
+        searchError: append ? state.searchError : null,
 
-        loadMoreError:
-          null,
+        loadMoreError: null,
 
-        query:
-          append
-            ? state.query
-            : (
-                action.meta?.query ??
-                ""
-              )
+        query: append ? state.query : (action.meta?.query ?? ''),
       };
     }
 
-
     case SEARCH_SUCCESS: {
-
       /*
        * Старый HTTP-ответ не должен
        * попасть в уже новый поисковый запрос.
        */
-      if (
-        action.meta?.query !==
-        state.query
-      ) {
+      if (action.meta?.query !== state.query) {
         return state;
       }
 
+      const append = action.meta?.append === true;
 
-      const append =
-        action.meta?.append === true;
+      const incoming = Array.isArray(action.payload?.items) ? action.payload.items : [];
 
-
-      const incoming =
-        Array.isArray(
-          action.payload?.items
-        )
-          ? action.payload.items
-          : [];
-
-
-      let nextItems =
-        incoming;
-
+      let nextItems = incoming;
 
       if (append) {
-
         /*
          * Защита от случайного дубля
          * на границе страниц.
          */
-        const byId =
-          new Map();
+        const byId = new Map();
 
-        for (
-          const item
-          of [
-            ...state.items,
-            ...incoming
-          ]
-        ) {
-          byId.set(
-            item.id,
-            item
-          );
+        for (const item of [...state.items, ...incoming]) {
+          byId.set(item.id, item);
         }
 
-        nextItems =
-          Array.from(
-            byId.values()
-          );
+        nextItems = Array.from(byId.values());
       }
-
 
       return {
         ...state,
 
-        isSearching:
-          false,
+        isSearching: false,
 
-        isLoadingMore:
-          false,
+        isLoadingMore: false,
 
-        searchError:
-          null,
+        searchError: null,
 
-        loadMoreError:
-          null,
+        loadMoreError: null,
 
-        items:
-          nextItems,
+        items: nextItems,
 
-        total:
-          action.payload.total,
+        total: action.payload.total,
 
-        page:
-          action.payload.page,
+        page: action.payload.page,
 
-        totalPages:
-          action.payload.totalPages,
+        totalPages: action.payload.totalPages,
 
-        query:
-          action.meta.query
+        query: action.meta.query,
       };
     }
 
-
     case SEARCH_FAIL: {
-
-      if (
-        action.meta?.query !==
-        state.query
-      ) {
+      if (action.meta?.query !== state.query) {
         return state;
       }
 
-
-      const append =
-        action.meta?.append === true;
-
+      const append = action.meta?.append === true;
 
       if (append) {
         return {
           ...state,
 
-          isLoadingMore:
-            false,
+          isLoadingMore: false,
 
-          loadMoreError:
-            action.payload
+          loadMoreError: action.payload,
         };
       }
-
 
       return {
         ...state,
 
-        isSearching:
-          false,
+        isSearching: false,
 
-        isLoadingMore:
-          false,
+        isLoadingMore: false,
 
-        searchError:
-          action.payload,
+        searchError: action.payload,
 
-        loadMoreError:
-          null
+        loadMoreError: null,
       };
     }
-
 
     case SELECT_START:
       return { ...state, isLoadingSelected: true, selectedError: null, selected: null };
@@ -269,7 +199,7 @@ export function instructionsReducer(state = initialState, action) {
       return { ...state, deletingId: action.payload, deleteError: null };
 
     case DELETE_SUCCESS: {
-      const remaining = state.items.filter((item) => item.id !== action.payload);
+      const remaining = state.items.filter(item => item.id !== action.payload);
       return {
         ...state,
         deletingId: null,
@@ -290,76 +220,59 @@ export function instructionsReducer(state = initialState, action) {
 // --- thunks ---
 
 export function searchInstructions({
-  query = "",
+  query = '',
   page = 1,
   pageSize = PAGE_SIZE,
-  append = false
+  append = false,
 } = {}) {
-
-  return async (dispatch) => {
-
+  return async dispatch => {
     dispatch({
-      type:
-        SEARCH_START,
+      type: SEARCH_START,
 
       meta: {
         query,
-        append
-      }
+        append,
+      },
     });
 
-
     try {
-
-      const data =
-        await searchRequest({
-          query,
-          page,
-          pageSize
-        });
-
+      const data = await searchRequest({
+        query,
+        page,
+        pageSize,
+      });
 
       dispatch({
-        type:
-          SEARCH_SUCCESS,
+        type: SEARCH_SUCCESS,
 
-        payload:
-          data,
+        payload: data,
 
         meta: {
           query,
-          append
-        }
+          append,
+        },
       });
-
 
       return data;
-
-    }
-    catch (err) {
-
+    } catch (err) {
       dispatch({
-        type:
-          SEARCH_FAIL,
+        type: SEARCH_FAIL,
 
-        payload:
-          err.message,
+        payload: err.message,
 
         meta: {
           query,
-          append
-        }
+          append,
+        },
       });
-
 
       return null;
     }
   };
 }
 
-
 export function fetchInstruction(id) {
-  return async (dispatch) => {
+  return async dispatch => {
     dispatch({ type: SELECT_START });
     try {
       const data = await getInstructionRequest(id);
@@ -422,4 +335,4 @@ export function deleteInstruction(id) {
 }
 
 // --- selectors ---
-export const selectInstructionsState = (state) => state.instructions;
+export const selectInstructionsState = state => state.instructions;

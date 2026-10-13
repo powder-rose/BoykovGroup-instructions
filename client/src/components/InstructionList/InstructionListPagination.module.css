@@ -52,7 +52,7 @@
 .page:disabled:not(.active),
 .arrow:disabled {
   cursor: default;
-  opacity: .38;
+  opacity: 0.38;
 }
 
 .dots {

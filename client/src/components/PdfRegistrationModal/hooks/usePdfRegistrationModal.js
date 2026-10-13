@@ -1,153 +1,63 @@
-import {
-  useEffect,
-  useRef,
-  useState
-} from "react";
+import { useEffect, useRef, useState } from 'react';
 
-import {
-  register as registerUser
-} from "../../../api/authApi.js";
+import { register as registerUser } from '../../../api/authApi.js';
 
+const USER_TOKEN_KEY = 'boykovgroup_auth_token';
 
-const USER_TOKEN_KEY =
-  "boykovgroup_auth_token";
+export default function usePdfRegistrationModal({ onClose }) {
+  const [name, setName] = useState('');
 
+  const [phone, setPhone] = useState('');
 
-export default function usePdfRegistrationModal({
-  onClose
-}) {
+  const [email, setEmail] = useState('');
 
-  const [
-    name,
-    setName
-  ] =
-    useState("");
+  const [password, setPassword] = useState('');
 
-  const [
-    phone,
-    setPhone
-  ] =
-    useState("");
+  const [userAgreementAccepted, setUserAgreementAccepted] = useState(false);
 
-  const [
-    email,
-    setEmail
-  ] =
-    useState("");
+  const [personalDataConsentAccepted, setPersonalDataConsentAccepted] = useState(false);
 
-  const [
-    password,
-    setPassword
-  ] =
-    useState("");
+  const [advertisingConsentAccepted, setAdvertisingConsentAccepted] = useState(false);
 
-  const [
-    userAgreementAccepted,
-    setUserAgreementAccepted
-  ] =
-    useState(false);
+  const [busy, setBusy] = useState(false);
 
-  const [
-    personalDataConsentAccepted,
-    setPersonalDataConsentAccepted
-  ] =
-    useState(false);
+  const [registered, setRegistered] = useState(false);
 
-  const [
-    advertisingConsentAccepted,
-    setAdvertisingConsentAccepted
-  ] =
-    useState(false);
+  const [status, setStatus] = useState({
+    text: '',
 
-  const [
-    busy,
-    setBusy
-  ] =
-    useState(false);
+    type: '',
+  });
 
-  const [
-    registered,
-    setRegistered
-  ] =
-    useState(false);
+  const registeredRef = useRef(false);
 
-  const [
-    status,
-    setStatus
-  ] =
-    useState({
-      text:
-        "",
+  const closeTimerRef = useRef(null);
 
-      type:
-        ""
-    });
-
-
-  const registeredRef =
-    useRef(false);
-
-  const closeTimerRef =
-    useRef(null);
-
-  const nameInputRef =
-    useRef(null);
-
+  const nameInputRef = useRef(null);
 
   /*
    * Production сохраняет старый overflow,
    * блокирует body и возвращает его при закрытии.
    */
   useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
 
-    const previousOverflow =
-      document.body.style
-        .overflow;
+    document.body.style.overflow = 'hidden';
 
-
-    document.body.style
-      .overflow =
-      "hidden";
-
-
-    const focusTimer =
-      window.setTimeout(
-        () => {
-
-          nameInputRef.current
-            ?.focus();
-
-        },
-        120
-      );
-
+    const focusTimer = window.setTimeout(() => {
+      nameInputRef.current?.focus();
+    }, 120);
 
     return () => {
+      document.body.style.overflow = previousOverflow;
 
-      document.body.style
-        .overflow =
-        previousOverflow;
+      window.clearTimeout(focusTimer);
 
-
-      window.clearTimeout(
-        focusTimer
-      );
-
-
-      if (
-        closeTimerRef.current
-      ) {
-
-        window.clearTimeout(
-          closeTimerRef.current
-        );
-
+      if (closeTimerRef.current) {
+        window.clearTimeout(closeTimerRef.current);
       }
-
     };
-
   }, []);
-
 
   /*
    * Escape закрывает modal.
@@ -155,202 +65,101 @@ export default function usePdfRegistrationModal({
    * production после закрытия reload'ит страницу.
    */
   useEffect(() => {
-
-    function handleKeyDown(
-      event
-    ) {
-
-      if (
-        event.key ===
-        "Escape"
-      ) {
-
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
         closeModal();
-
       }
-
     }
 
-
-    document.addEventListener(
-      "keydown",
-      handleKeyDown
-    );
-
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-
-      document.removeEventListener(
-        "keydown",
-        handleKeyDown
-      );
-
+      document.removeEventListener('keydown', handleKeyDown);
     };
-
   }, []);
 
-
   function closeModal() {
-
-    const reloadAfter =
-      registeredRef.current;
-
+    const reloadAfter = registeredRef.current;
 
     onClose();
 
-
     if (reloadAfter) {
-
-      window.setTimeout(
-        () => {
-
-          window.location.reload();
-
-        },
-        0
-      );
-
+      window.setTimeout(() => {
+        window.location.reload();
+      }, 0);
     }
-
   }
 
-
-  async function handleSubmit(
-    event
-  ) {
-
+  async function handleSubmit(event) {
     event.preventDefault();
 
-
-    if (
-      busy ||
-      registered
-    ) {
+    if (busy || registered) {
       return;
     }
 
-
-    setBusy(
-      true
-    );
-
+    setBusy(true);
 
     setStatus({
-      text:
-        "",
+      text: '',
 
-      type:
-        ""
+      type: '',
     });
 
-
     try {
+      const data = await registerUser({
+        name: name.trim(),
 
-      const data =
-        await registerUser({
-          name:
-            name.trim(),
+        phone: phone.trim(),
 
-          phone:
-            phone.trim(),
+        email: email.trim(),
 
-          email:
-            email.trim(),
+        password,
 
-          password,
+        userAgreementAccepted,
 
-          userAgreementAccepted,
+        personalDataConsentAccepted,
 
-          personalDataConsentAccepted,
+        advertisingConsentAccepted,
+      });
 
-          advertisingConsentAccepted
-        });
-
-
-      if (
-        data?.token
-      ) {
-
-        window.localStorage
-          .setItem(
-            USER_TOKEN_KEY,
-            data.token
-          );
-
+      if (data?.token) {
+        window.localStorage.setItem(USER_TOKEN_KEY, data.token);
       }
 
+      registeredRef.current = true;
 
-      registeredRef.current =
-        true;
-
-
-      setRegistered(
-        true
-      );
-
+      setRegistered(true);
 
       setStatus({
-        type:
-          "success",
+        type: 'success',
 
         text:
-          data?.verificationEmailSent ===
-            false
-            ? "Регистрация завершена."
-            : "Регистрация завершена. Подтвердите e-mail по ссылке из письма."
+          data?.verificationEmailSent === false
+            ? 'Регистрация завершена.'
+            : 'Регистрация завершена. Подтвердите e-mail по ссылке из письма.',
       });
 
+      closeTimerRef.current = window.setTimeout(() => {
+        onClose();
 
-      closeTimerRef.current =
-        window.setTimeout(
-          () => {
-
-            onClose();
-
-
-            window.location.reload();
-
-          },
-          1800
-        );
-
-    }
-    catch(error) {
-
-      setBusy(
-        false
-      );
-
+        window.location.reload();
+      }, 1800);
+    } catch (error) {
+      setBusy(false);
 
       setStatus({
-        type:
-          "error",
+        type: 'error',
 
-        text:
-          error?.message ||
-          "Не удалось зарегистрироваться"
+        text: error?.message || 'Не удалось зарегистрироваться',
       });
-
     }
-
   }
 
-
-  function handleOverlayClick(
-    event
-  ) {
-
-    if (
-      event.target ===
-      event.currentTarget
-    ) {
-
+  function handleOverlayClick(event) {
+    if (event.target === event.currentTarget) {
       closeModal();
-
     }
-
   }
-
 
   return {
     name,
@@ -379,7 +188,6 @@ export default function usePdfRegistrationModal({
 
     closeModal,
     handleSubmit,
-    handleOverlayClick
+    handleOverlayClick,
   };
-
 }
