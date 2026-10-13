@@ -289,7 +289,6 @@ export function instructionsReducer(state = initialState, action) {
 
 // --- thunks ---
 
-/**    :       . */
 export function searchInstructions({
   query = "",
   page = 1,
@@ -375,11 +374,6 @@ export function clearSelectedInstruction() {
   return { type: SELECT_CLEAR };
 }
 
-/**
- *     YandexGPT.
- *          
- *     ,   .
- */
 export function generateInstruction(profession) {
   return async (dispatch, getState) => {
     dispatch({ type: GENERATE_START });
@@ -397,11 +391,6 @@ export function generateInstruction(profession) {
   };
 }
 
-/**
- *       (pdf/docx/txt/md) 
- *  . formData    (title,
- * profession  file/content).
- */
 export function uploadInstruction(formData) {
   return async (dispatch, getState) => {
     dispatch({ type: UPLOAD_START });
@@ -419,7 +408,6 @@ export function uploadInstruction(formData) {
   };
 }
 
-/**  .   . */
 export function deleteInstruction(id) {
   return async (dispatch, getState) => {
     dispatch({ type: DELETE_START, payload: id });

@@ -1017,3 +1017,14 @@
 /* ==========================================================
    /PDF GUEST REGISTRATION MODAL
    ========================================================== */
+
+
+/* AUTH INPUT FOCUS */
+.boykovPdfRegistration__form input:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
+.boykovPdfRegistration__form input:focus {
+  outline: none !important;
+}

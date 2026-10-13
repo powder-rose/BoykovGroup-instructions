@@ -17,7 +17,7 @@ export default function InstructionButton({
   return (
 
     <div
-      className={`${styles.card} boykovCardSearchShadow`}
+      className={`${styles.card} ${styles.normalCard}`}
     >
 
 

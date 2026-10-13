@@ -67,7 +67,7 @@
 .loadMoreZone {
   min-height: 92px;
 
-  display: flex;
+  display: none !important;
   align-items: center;
   justify-content: center;
 
