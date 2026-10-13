@@ -1,25 +1,25 @@
-//  :   (   
-//  )    YandexGPT ,   
+//  :   (
+//  )    YandexGPT ,
 //          (,
-//     ).   
+//     ).
 //       (.
-// src/services/yandexGptService.js  src/utils/professionGenitive.js)  
-//      ,      
+// src/services/yandexGptService.js  src/utils/professionGenitive.js)
+//      ,
 //  ,   .
 //
 // :
-//   node scripts/fix-generated-titles.js           ,  
-//   node scripts/fix-generated-titles.js --write       
-import { instructionsRepository } from "../src/services/instructionsRepository.js";
-import { getProfessionGenitive } from "../src/utils/professionGenitive.js";
+//   node scripts/fix-generated-titles.js           ,
+//   node scripts/fix-generated-titles.js --write
+import { instructionsRepository } from '../src/services/instructionsRepository.js';
+import { getProfessionGenitive } from '../src/utils/professionGenitive.js';
 
-const shouldWrite = process.argv.includes("--write");
+const shouldWrite = process.argv.includes('--write');
 
 const all = instructionsRepository.getAll();
 const toFix = [];
 
 for (const instruction of all) {
-  if (instruction.source !== "generated") continue; //     
+  if (instruction.source !== 'generated') continue; //
   if (!instruction.profession) continue;
 
   const correctTitle = `     ${getProfessionGenitive(instruction.profession)}`;
@@ -29,7 +29,7 @@ for (const instruction of all) {
 }
 
 if (toFix.length === 0) {
-  console.log("      .");
+  console.log('      .');
   process.exit(0);
 }
 
@@ -41,8 +41,8 @@ for (const { instruction, correctTitle } of toFix) {
 }
 
 if (!shouldWrite) {
-  console.log("      .");
-  console.log("  , : node scripts/fix-generated-titles.js --write");
+  console.log('      .');
+  console.log('  , : node scripts/fix-generated-titles.js --write');
   process.exit(0);
 }
 

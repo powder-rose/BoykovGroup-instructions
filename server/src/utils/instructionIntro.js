@@ -14,30 +14,13 @@
  * - technological processes.
  */
 
-export function buildInstructionIntro(
-  title
-) {
+export function buildInstructionIntro(title) {
+  const normalizedTitle = String(title ?? '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[.!?]+$/u, '');
 
-  const normalizedTitle =
-    String(
-      title ?? ""
-    )
-      .replace(
-        /\s+/g,
-        " "
-      )
-      .trim()
-      .replace(
-        /[.!?]+$/u,
-        ""
-      );
-
-
-  const safeTitle =
-    normalizedTitle
-    ||
-    "Инструкция по охране труда";
-
+  const safeTitle = normalizedTitle || 'Инструкция по охране труда';
 
   return (
     `${safeTitle} устанавливает требования безопасности, ` +

@@ -1,175 +1,110 @@
-import nodemailer from "nodemailer";
+import nodemailer from 'nodemailer';
 
-const DEFAULT_SMTP_HOST =
-  "smtp.beget.com";
+const DEFAULT_SMTP_HOST = 'smtp.beget.com';
 
-const DEFAULT_SMTP_PORT =
-  465;
+const DEFAULT_SMTP_PORT = 465;
 
-const DEFAULT_PUBLIC_URL =
-  "https://boykovdocs.ru";
-
+const DEFAULT_PUBLIC_URL = 'https://boykovdocs.ru';
 
 function getConfig() {
-  const port =
-    Number(
-      process.env.SMTP_PORT ||
-      DEFAULT_SMTP_PORT
-    );
+  const port = Number(process.env.SMTP_PORT || DEFAULT_SMTP_PORT);
 
-  const secure =
-    process.env.SMTP_SECURE
-      ? process.env.SMTP_SECURE ===
-        "true"
-      : port === 465;
+  const secure = process.env.SMTP_SECURE ? process.env.SMTP_SECURE === 'true' : port === 465;
 
   return {
-    host:
-      process.env.SMTP_HOST ||
-      DEFAULT_SMTP_HOST,
+    host: process.env.SMTP_HOST || DEFAULT_SMTP_HOST,
 
     port,
 
     secure,
 
-    user:
-      process.env.SMTP_USER ||
-      "",
+    user: process.env.SMTP_USER || '',
 
-    pass:
-      process.env.SMTP_PASS ||
-      "",
+    pass: process.env.SMTP_PASS || '',
 
-    from:
-      process.env.SMTP_FROM ||
-      process.env.SMTP_USER ||
-      "",
+    from: process.env.SMTP_FROM || process.env.SMTP_USER || '',
 
-    publicUrl:
-      (
-        process.env.PUBLIC_BASE_URL ||
-        DEFAULT_PUBLIC_URL
-      ).replace(
-        /\/+$/,
-        ""
-      )
+    publicUrl: (process.env.PUBLIC_BASE_URL || DEFAULT_PUBLIC_URL).replace(/\/+$/, ''),
   };
 }
 
-
 export function isEmailVerificationConfigured() {
-  const config =
-    getConfig();
+  const config = getConfig();
 
-  return Boolean(
-    config.host &&
-    config.port &&
-    config.user &&
-    config.pass &&
-    config.from
-  );
+  return Boolean(config.host && config.port && config.user && config.pass && config.from);
 }
 
-
 function createTransporter() {
-  const config =
-    getConfig();
+  const config = getConfig();
 
   return nodemailer.createTransport({
-    host:
-      config.host,
+    host: config.host,
 
-    port:
-      config.port,
+    port: config.port,
 
-    secure:
-      config.secure,
+    secure: config.secure,
 
     auth: {
-      user:
-        config.user,
+      user: config.user,
 
-      pass:
-        config.pass
-    }
+      pass: config.pass,
+    },
   });
 }
 
-
 export async function verifyEmailTransport() {
-  if (
-    !isEmailVerificationConfigured()
-  ) {
+  if (!isEmailVerificationConfigured()) {
     return {
       ok: false,
-      configured: false
+      configured: false,
     };
   }
 
-  const transporter =
-    createTransporter();
+  const transporter = createTransporter();
 
   await transporter.verify();
 
   return {
     ok: true,
-    configured: true
+    configured: true,
   };
 }
 
+export async function sendVerificationEmail({ email, token }) {
+  if (!isEmailVerificationConfigured()) {
+    const error = new Error('Отправка email не настроена');
 
-export async function sendVerificationEmail({
-  email,
-  token
-}) {
-  if (
-    !isEmailVerificationConfigured()
-  ) {
-    const error =
-      new Error(
-        "Отправка email не настроена"
-      );
-
-    error.code =
-      "EMAIL_NOT_CONFIGURED";
+    error.code = 'EMAIL_NOT_CONFIGURED';
 
     throw error;
   }
 
-  const config =
-    getConfig();
+  const config = getConfig();
 
-  const verificationUrl =
-    `${config.publicUrl}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
+  const verificationUrl = `${config.publicUrl}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
 
-  const transporter =
-    createTransporter();
+  const transporter = createTransporter();
 
   await transporter.sendMail({
-    from:
-      `БОЙКОВГРУПП <${config.from}>`,
+    from: `БОЙКОВГРУПП <${config.from}>`,
 
-    to:
-      email,
+    to: email,
 
-    subject:
-      "Подтвердите e-mail на БОЙКОВГРУПП",
+    subject: 'Подтвердите e-mail на БОЙКОВГРУПП',
 
-    text:
-      [
-        "Здравствуйте!",
-        "",
-        "Подтвердите ваш e-mail, чтобы скачивать инструкции по охране труда в PDF.",
-        "",
-        verificationUrl,
-        "",
-        "Ссылка действует 24 часа.",
-        "",
-        "Если вы не регистрировались на сайте, просто проигнорируйте это письмо."
-      ].join("\n"),
+    text: [
+      'Здравствуйте!',
+      '',
+      'Подтвердите ваш e-mail, чтобы скачивать инструкции по охране труда в PDF.',
+      '',
+      verificationUrl,
+      '',
+      'Ссылка действует 24 часа.',
+      '',
+      'Если вы не регистрировались на сайте, просто проигнорируйте это письмо.',
+    ].join('\n'),
 
-    html:
-      `
+    html: `
         <div style="font-family:Arial,sans-serif;line-height:1.6;color:#111827">
           <h2>Подтвердите e-mail</h2>
 
@@ -204,95 +139,55 @@ export async function sendVerificationEmail({
             просто проигнорируйте это письмо.
           </p>
         </div>
-      `
+      `,
   });
 
   return {
-    ok: true
+    ok: true,
   };
 }
 
+export async function sendRegistrationNotification({ name, phone, email }) {
+  if (!isEmailVerificationConfigured()) {
+    const error = new Error('Отправка email не настроена');
 
-export async function sendRegistrationNotification({
-  name,
-  phone,
-  email
-}) {
-
-  if (
-    !isEmailVerificationConfigured()
-  ) {
-
-    const error =
-      new Error(
-        "Отправка email не настроена"
-      );
-
-    error.code =
-      "EMAIL_NOT_CONFIGURED";
+    error.code = 'EMAIL_NOT_CONFIGURED';
 
     throw error;
   }
 
+  const config = getConfig();
 
-  const config =
-    getConfig();
+  const normalizedName = String(name ?? '').trim();
 
+  const normalizedPhone = String(phone ?? '').trim();
 
-  const normalizedName =
-    String(
-      name ?? ""
-    ).trim();
+  const normalizedEmail = String(email ?? '').trim();
 
+  const registrationText = `Регистрация пользователя ${normalizedName}`;
 
-  const normalizedPhone =
-    String(
-      phone ?? ""
-    ).trim();
-
-
-  const normalizedEmail =
-    String(
-      email ?? ""
-    ).trim();
-
-
-  const registrationText =
-    `Регистрация пользователя ${normalizedName}`;
-
-
-  const transporter =
-    createTransporter();
-
+  const transporter = createTransporter();
 
   await transporter.sendMail({
+    from: `БОЙКОВГРУПП <${config.from}>`,
 
-    from:
-      `БОЙКОВГРУПП <${config.from}>`,
+    to: 'bd@boykovdocs.ru',
 
-    to:
-      "bd@boykovdocs.ru",
+    subject: registrationText,
 
-    subject:
+    text: [
       registrationText,
-
-    text:
-      [
-        registrationText,
-        "",
-        `Имя: ${normalizedName}`,
-        `Телефон: ${normalizedPhone}`,
-        `Email: ${normalizedEmail}`
-      ].join("\n")
-
+      '',
+      `Имя: ${normalizedName}`,
+      `Телефон: ${normalizedPhone}`,
+      `Email: ${normalizedEmail}`,
+    ].join('\n'),
   });
 
-
   return {
-    ok: true
+    ok: true,
   };
 }
-
 
 /*
  * SYSTEM_EMAIL_SENDER_V1
@@ -300,26 +195,15 @@ export async function sendRegistrationNotification({
  * Универсальная отправка системных писем
  * через существующий SMTP BoykovDocs.
  */
-export async function sendSystemEmail({
-  to,
-  subject,
-  text = "",
-  html = ""
-}) {
-  const transporter =
-    createTransporter();
+export async function sendSystemEmail({ to, subject, text = '', html = '' }) {
+  const transporter = createTransporter();
 
   return transporter.sendMail({
-    from:
-      process.env.SMTP_FROM
-      ||
-      process.env.SMTP_USER
-      ||
-      "bd@boykovdocs.ru",
+    from: process.env.SMTP_FROM || process.env.SMTP_USER || 'bd@boykovdocs.ru',
 
     to,
     subject,
     text,
-    html
+    html,
   });
 }

@@ -1,27 +1,25 @@
-import { rankInstructionsByQuery } from "../services/searchService.js";
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { Router } from "express";
-import { instructionsRepository } from "../services/instructionsRepository.js";
+import { rankInstructionsByQuery } from '../services/searchService.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { Router } from 'express';
+import { instructionsRepository } from '../services/instructionsRepository.js';
 
 const router = Router();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const PROJECT_ROOT = path.resolve(__dirname, "../../..");
-const CLIENT_SRC_DIR = path.join(PROJECT_ROOT, "client", "src");
-const CLIENT_PUBLIC_DIR = path.join(PROJECT_ROOT, "client", "public");
+const PROJECT_ROOT = path.resolve(__dirname, '../../..');
+const CLIENT_SRC_DIR = path.join(PROJECT_ROOT, 'client', 'src');
+const CLIENT_PUBLIC_DIR = path.join(PROJECT_ROOT, 'client', 'public');
 
-const BRAND_NAME = "БОЙКОВГРУПП";
+const BRAND_NAME = 'БОЙКОВГРУПП';
 
 const INSTRUCTION_REDIRECTS = new Map([
-  [
-    "sistemnyy-administrator",
-    "instruktsiya-po-ohrane-truda-dlya-sistemnogo-administratora-CfhwZb",
-  ],
+  ['sistemnyy-administrator', 'instruktsiya-po-ohrane-truda-dlya-sistemnogo-administratora-CfhwZb'],
 ]);
-const COMPANY_SITE_URL =
-  String(process.env.COMPANY_SITE_URL || "https://boykovgroup.ru").trim().replace(/\/+$/, "");
+const COMPANY_SITE_URL = String(process.env.COMPANY_SITE_URL || 'https://boykovgroup.ru')
+  .trim()
+  .replace(/\/+$/, '');
 
 /**
  * CSS Modules на React-странице компилируются в уникальные классы.
@@ -30,19 +28,19 @@ const COMPANY_SITE_URL =
  * не конфликтовали между собой.
  */
 function prefixCssModuleClasses(css, prefix) {
-  return String(css || "").replace(
+  return String(css || '').replace(
     /\.([A-Za-z_][A-Za-z0-9_-]*)/g,
-    (_, className) => `.${prefix}_${className}`
+    (_, className) => `.${prefix}_${className}`,
   );
 }
 
 function readTextIfExists(filePath) {
   try {
-    if (!fs.existsSync(filePath)) return "";
-    return fs.readFileSync(filePath, "utf-8");
+    if (!fs.existsSync(filePath)) return '';
+    return fs.readFileSync(filePath, 'utf-8');
   } catch (error) {
     console.warn(`[SEO] Не удалось прочитать ${filePath}: ${error.message}`);
-    return "";
+    return '';
   }
 }
 
@@ -62,11 +60,7 @@ function walkCssFiles(dir) {
         continue;
       }
 
-      if (
-        entry.isFile() &&
-        entry.name.endsWith(".css") &&
-        !entry.name.endsWith(".module.css")
-      ) {
+      if (entry.isFile() && entry.name.endsWith('.css') && !entry.name.endsWith('.module.css')) {
         result.push(fullPath);
       }
     }
@@ -84,38 +78,55 @@ function loadGlobalClientCss() {
 
   if (!cssFiles.length) {
     console.warn(
-      "[SEO] В client/src не найдены глобальные CSS-файлы. " +
-        "SEO-страница загрузится, но без глобальных design tokens."
+      '[SEO] В client/src не найдены глобальные CSS-файлы. ' +
+        'SEO-страница загрузится, но без глобальных design tokens.',
     );
-    return "";
+    return '';
   }
 
   return cssFiles
-    .map((filePath) => `/* ${path.relative(PROJECT_ROOT, filePath)} */\n${readTextIfExists(filePath)}`)
-    .join("\n\n");
+    .map(
+      filePath => `/* ${path.relative(PROJECT_ROOT, filePath)} */\n${readTextIfExists(filePath)}`,
+    )
+    .join('\n\n');
 }
 
 const CSS_MODULES = [
-  ["App", path.join(CLIENT_SRC_DIR, "App.module.css")],
-  ["Header", path.join(CLIENT_SRC_DIR, "components", "Header", "Header.module.css")],
-  ["SearchBar", path.join(CLIENT_SRC_DIR, "components", "SearchBar", "SearchBar.module.css")],
-  ["AuthControl", path.join(CLIENT_SRC_DIR, "components", "AuthControl", "AuthControl.module.css")],
-  ["SiteLinkButton", path.join(CLIENT_SRC_DIR, "components", "SiteLinkButton", "SiteLinkButton.module.css")],
-  ["CategoryNav", path.join(CLIENT_SRC_DIR, "components", "CategoryNav", "CategoryNav.module.css")],
-  ["HeroPortrait", path.join(CLIENT_SRC_DIR, "components", "HeroPortrait", "HeroPortrait.module.css")],
-  ["InstructionList", path.join(CLIENT_SRC_DIR, "components", "InstructionList", "InstructionList.module.css")],
-  ["InstructionButton", path.join(CLIENT_SRC_DIR, "components", "InstructionButton", "InstructionButton.module.css")],
-  ["InstructionModal", path.join(CLIENT_SRC_DIR, "components", "InstructionModal", "InstructionModal.module.css")],
+  ['App', path.join(CLIENT_SRC_DIR, 'App.module.css')],
+  ['Header', path.join(CLIENT_SRC_DIR, 'components', 'Header', 'Header.module.css')],
+  ['SearchBar', path.join(CLIENT_SRC_DIR, 'components', 'SearchBar', 'SearchBar.module.css')],
+  ['AuthControl', path.join(CLIENT_SRC_DIR, 'components', 'AuthControl', 'AuthControl.module.css')],
+  [
+    'SiteLinkButton',
+    path.join(CLIENT_SRC_DIR, 'components', 'SiteLinkButton', 'SiteLinkButton.module.css'),
+  ],
+  ['CategoryNav', path.join(CLIENT_SRC_DIR, 'components', 'CategoryNav', 'CategoryNav.module.css')],
+  [
+    'HeroPortrait',
+    path.join(CLIENT_SRC_DIR, 'components', 'HeroPortrait', 'HeroPortrait.module.css'),
+  ],
+  [
+    'InstructionList',
+    path.join(CLIENT_SRC_DIR, 'components', 'InstructionList', 'InstructionList.module.css'),
+  ],
+  [
+    'InstructionButton',
+    path.join(CLIENT_SRC_DIR, 'components', 'InstructionButton', 'InstructionButton.module.css'),
+  ],
+  [
+    'InstructionModal',
+    path.join(CLIENT_SRC_DIR, 'components', 'InstructionModal', 'InstructionModal.module.css'),
+  ],
 ];
 
 function loadClientModuleCss() {
   return CSS_MODULES.map(([prefix, filePath]) => {
     const css = readTextIfExists(filePath);
-    if (!css) return "";
+    if (!css) return '';
     return `/* ${path.relative(PROJECT_ROOT, filePath)} */\n${prefixCssModuleClasses(css, prefix)}`;
   })
     .filter(Boolean)
-    .join("\n\n");
+    .join('\n\n');
 }
 
 /**
@@ -190,36 +201,34 @@ input {
   }
 `;
 
-const EXACT_SITE_CSS = [
-  loadGlobalClientCss(),
-  loadClientModuleCss(),
-  SEO_LAYOUT_CSS,
-].join("\n\n");
+const EXACT_SITE_CSS = [loadGlobalClientCss(), loadClientModuleCss(), SEO_LAYOUT_CSS].join('\n\n');
 
-function escapeHtml(value = "") {
+function escapeHtml(value = '') {
   return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
 }
 
-function escapeXml(value = "") {
+function escapeXml(value = '') {
   return escapeHtml(value);
 }
 
 function jsonForHtml(value) {
   return JSON.stringify(value)
-    .replaceAll("<", "\\u003c")
-    .replaceAll(">", "\\u003e")
-    .replaceAll("&", "\\u0026");
+    .replaceAll('<', '\\u003c')
+    .replaceAll('>', '\\u003e')
+    .replaceAll('&', '\\u0026');
 }
 
 function getSiteUrl(req) {
-  const configured = String(process.env.SITE_URL || "").trim().replace(/\/+$/, "");
+  const configured = String(process.env.SITE_URL || '')
+    .trim()
+    .replace(/\/+$/, '');
   if (configured) return configured;
-  return `${req.protocol}://${req.get("host")}`;
+  return `${req.protocol}://${req.get('host')}`;
 }
 
 function getInstructionUrl(req, instruction) {
@@ -237,88 +246,50 @@ function getDateModified(instruction) {
   );
 }
 
-function getIndexableInstructions(query = "") {
-  const result =
-    instructionsRepository.getAll();
+function getIndexableInstructions(query = '') {
+  const result = instructionsRepository.getAll();
 
-  const instructions =
-    Array.isArray(result)
-      ? result
-      : Array.isArray(result?.items)
-        ? result.items
-        : [];
+  const instructions = Array.isArray(result)
+    ? result
+    : Array.isArray(result?.items)
+      ? result.items
+      : [];
 
-  const normalizedQuery =
-    String(query || "")
-      .trim();
+  const normalizedQuery = String(query || '').trim();
 
-  const visible =
-    instructions
-      .filter(
-        instruction =>
-          instruction
-          &&
-          instruction.id
-          &&
-          instruction.title
-      )
-      .filter(
-        instruction =>
-          ![
-            "draft",
-            "noindex"
-          ].includes(
-            String(
-              instruction.seoStatus
-              || ""
-            ).toLowerCase()
-          )
-      );
+  const visible = instructions
+    .filter(instruction => instruction && instruction.id && instruction.title)
+    .filter(
+      instruction =>
+        !['draft', 'noindex'].includes(String(instruction.seoStatus || '').toLowerCase()),
+    );
 
   /*
    * SEO-поиск использует ту же
    * релевантность, что и API.
    */
   if (normalizedQuery) {
-    return rankInstructionsByQuery(
-      visible,
-      normalizedQuery,
-      {
-        sort:
-          "relevance"
-      }
-    );
+    return rankInstructionsByQuery(visible, normalizedQuery, {
+      sort: 'relevance',
+    });
   }
 
-  return visible.sort(
-    (a, b) =>
-      String(
-        a.title
-      )
-        .localeCompare(
-          String(
-            b.title
-          ),
-          "ru",
-          {
-            sensitivity:
-              "base"
-          }
-        )
+  return visible.sort((a, b) =>
+    String(a.title).localeCompare(String(b.title), 'ru', {
+      sensitivity: 'base',
+    }),
   );
 }
 
 function makeDescription(instruction) {
-  const title = String(instruction.title || "").trim();
-  const profession = String(instruction.profession || "").trim();
+  const title = String(instruction.title || '').trim();
+  const profession = String(instruction.profession || '').trim();
 
   const source = profession
     ? `${title}. Требования охраны труда, порядок безопасного выполнения работ и действия работника в аварийных ситуациях.`
     : `${title}. Полный текст инструкции по охране труда.`;
 
-  return source.length <= 165
-    ? source
-    : `${source.slice(0, 162).trimEnd()}…`;
+  return source.length <= 165 ? source : `${source.slice(0, 162).trimEnd()}…`;
 }
 
 function renderSiteLinkButton() {
@@ -344,7 +315,7 @@ function renderSiteLinkButton() {
     </a>`;
 }
 
-function renderSearchBar(query = "") {
+function renderSearchBar(query = '') {
   return `
     <form
       class="SearchBar_wrapper seo-search-form"
@@ -383,7 +354,7 @@ function renderSearchBar(query = "") {
     </form>`;
 }
 
-function renderHeader(query = "") {
+function renderHeader(query = '') {
   return `
     <header class="Header_header">
       ${renderSearchBar(query)}
@@ -399,13 +370,13 @@ function renderHeader(query = "") {
 
 function renderCategoryNav() {
   const items = [
-    { label: "Охрана труда" },
-    { label: "Пожарная безопасность" },
-    { label: "Роспотребнадзор" },
+    { label: 'Охрана труда' },
+    { label: 'Пожарная безопасность' },
+    { label: 'Роспотребнадзор' },
     { divider: true },
-    { label: "ГО и ЧС" },
-    { label: "Антитеррористическая безопасность" },
-    { label: "ные услуги" },
+    { label: 'ГО и ЧС' },
+    { label: 'Антитеррористическая безопасность' },
+    { label: 'ные услуги' },
   ];
 
   return `
@@ -423,7 +394,7 @@ function renderCategoryNav() {
               onclick="return false;"
             >${escapeHtml(item.label)}</a>`;
         })
-        .join("")}
+        .join('')}
     </nav>`;
 }
 
@@ -454,9 +425,9 @@ function renderHeroPortrait() {
     </figure>`;
 }
 
-function renderMainHero({ headingTag = "h1" } = {}) {
-  const openTag = headingTag === "h1" ? "<h1" : "<div";
-  const closeTag = headingTag === "h1" ? "</h1>" : "</div>";
+function renderMainHero({ headingTag = 'h1' } = {}) {
+  const openTag = headingTag === 'h1' ? '<h1' : '<div';
+  const closeTag = headingTag === 'h1' ? '</h1>' : '</div>';
 
   return `
     <section class="App_hero">
@@ -475,7 +446,7 @@ function renderMainHero({ headingTag = "h1" } = {}) {
 function renderInstructionCards(instructions) {
   return instructions
     .map(
-      (instruction) => `
+      instruction => `
         <li>
           <div class="InstructionButton_card">
             <a
@@ -493,22 +464,18 @@ function renderInstructionCards(instructions) {
               <span class="InstructionButton_arrow" aria-hidden="true">→</span>
             </a>
           </div>
-        </li>`
+        </li>`,
     )
-    .join("\n");
+    .join('\n');
 }
 
 function renderSections(instruction) {
-  if (!Array.isArray(instruction.sections)) return "";
+  if (!Array.isArray(instruction.sections)) return '';
 
   return instruction.sections
     .map((section, index) => {
       const number = section.number ?? index + 1;
-      const heading =
-        section.heading ||
-        section.title ||
-        section.name ||
-        `Раздел ${number}`;
+      const heading = section.heading || section.title || section.name || `Раздел ${number}`;
 
       const paragraphs = Array.isArray(section.paragraphs)
         ? section.paragraphs
@@ -523,54 +490,43 @@ function renderSections(instruction) {
           </h2>
           ${paragraphs
             .map(
-              (paragraph) => `
+              paragraph => `
                 <p class="InstructionModal_paragraph">
                   ${escapeHtml(
-                    typeof paragraph === "string"
+                    typeof paragraph === 'string'
                       ? paragraph
-                      : paragraph?.text ?? paragraph?.content ?? ""
+                      : (paragraph?.text ?? paragraph?.content ?? ''),
                   )}
-                </p>`
+                </p>`,
             )
-            .join("")}
+            .join('')}
         </section>`;
     })
-    .join("\n");
+    .join('\n');
 }
-
-
 
 /*
  * HTML, который поисковый робот получает до выполнения React.
  * После запуска React createRoot заменяет эту разметку приложением.
  */
 function injectProductionRoot(productionHtml, content) {
-  const rootPattern =
-    /<div\b[^>]*\bid=["']root["'][^>]*>[\s\S]*?<\/div>/iu;
+  const rootPattern = /<div\b[^>]*\bid=["']root["'][^>]*>[\s\S]*?<\/div>/iu;
 
   if (!rootPattern.test(productionHtml)) {
-    throw new Error(
-      "[SEO] Production index.html does not contain replaceable #root"
-    );
+    throw new Error('[SEO] Production index.html does not contain replaceable #root');
   }
 
-  return productionHtml.replace(
-    rootPattern,
-    `<div id="root">${content}</div>`
-  );
+  return productionHtml.replace(rootPattern, `<div id="root">${content}</div>`);
 }
 
+function renderCatalogSeoBody(instructions, query = '') {
+  const hasQuery = Boolean(String(query || '').trim());
 
-function renderCatalogSeoBody(instructions, query = "") {
-  const hasQuery = Boolean(String(query || "").trim());
-
-  const heading = hasQuery
-    ? `Результаты поиска: ${query}`
-    : "Каталог инструкций по охране труда";
+  const heading = hasQuery ? `Результаты поиска: ${query}` : 'Каталог инструкций по охране труда';
 
   return `
     <main class="SeoPrerender_catalog">
-      ${renderMainHero({ headingTag: "h1" })}
+      ${renderMainHero({ headingTag: 'h1' })}
 
       <section aria-labelledby="seo-catalog-heading">
         <h2 id="seo-catalog-heading">
@@ -580,28 +536,23 @@ function renderCatalogSeoBody(instructions, query = "") {
         <ul class="SeoPrerender_instructionList">
           ${instructions
             .map(
-              (instruction) => `
+              instruction => `
                 <li>
                   <a href="/instrukciya-po-ohrane-truda/${encodeURIComponent(instruction.id)}">
                     ${escapeHtml(instruction.title)}
                   </a>
-                </li>`
+                </li>`,
             )
-            .join("\n")}
+            .join('\n')}
         </ul>
       </section>
     </main>`;
 }
 
-
 function renderInstructionSeoBody(instruction) {
-  const title = String(
-    instruction.title || "Инструкция по охране труда"
-  ).trim();
+  const title = String(instruction.title || 'Инструкция по охране труда').trim();
 
-  const intro = String(
-    instruction.intro || ""
-  ).trim();
+  const intro = String(instruction.intro || '').trim();
 
   return `
     <main class="SeoPrerender_instruction">
@@ -616,17 +567,12 @@ function renderInstructionSeoBody(instruction) {
       <article>
         <h1>${escapeHtml(title)}</h1>
 
-        ${
-          intro
-            ? `<p>${escapeHtml(intro)}</p>`
-            : ""
-        }
+        ${intro ? `<p>${escapeHtml(intro)}</p>` : ''}
 
         ${renderSections(instruction)}
       </article>
     </main>`;
 }
-
 
 /*
  * Express по умолчанию считает URL со слешем и без него
@@ -634,34 +580,23 @@ function renderInstructionSeoBody(instruction) {
  * без завершающего слеша.
  */
 function redirectTrailingSlash(req, res) {
-  if (
-    req.path === "/" ||
-    !req.path.endsWith("/")
-  ) {
+  if (req.path === '/' || !req.path.endsWith('/')) {
     return false;
   }
 
-  const originalUrl = String(req.originalUrl || req.url || "");
-  const queryIndex = originalUrl.indexOf("?");
+  const originalUrl = String(req.originalUrl || req.url || '');
+  const queryIndex = originalUrl.indexOf('?');
 
-  const pathname =
-    queryIndex === -1
-      ? originalUrl
-      : originalUrl.slice(0, queryIndex);
+  const pathname = queryIndex === -1 ? originalUrl : originalUrl.slice(0, queryIndex);
 
-  const search =
-    queryIndex === -1
-      ? ""
-      : originalUrl.slice(queryIndex);
+  const search = queryIndex === -1 ? '' : originalUrl.slice(queryIndex);
 
-  const target =
-    `${getSiteUrl(req)}${pathname.replace(/\/+$/u, "")}${search}`;
+  const target = `${getSiteUrl(req)}${pathname.replace(/\/+$/u, '')}${search}`;
 
   res.redirect(301, target);
 
   return true;
 }
-
 
 /* SEO_PRODUCTION_STYLES_V3 */
 
@@ -672,43 +607,20 @@ function redirectTrailingSlash(req, res) {
  */
 function loadProductionStylesheetLinks() {
   try {
-    const productionIndexUrl =
-      new URL(
-        "../../../public_html/index.html",
-        import.meta.url
-      );
+    const productionIndexUrl = new URL('../../../public_html/index.html', import.meta.url);
 
-    const html =
-      fs.readFileSync(
-        productionIndexUrl,
-        "utf-8"
-      );
+    const html = fs.readFileSync(productionIndexUrl, 'utf-8');
 
-    const links =
-      String(html).match(
-        /<link\b[^>]*>/giu
-      ) ?? [];
+    const links = String(html).match(/<link\b[^>]*>/giu) ?? [];
 
     return links
-      .filter(
-        tag =>
-          /\brel=["']stylesheet["']/iu
-            .test(tag)
-      )
-      .filter(
-        tag =>
-          !/fonts\.googleapis\.com/iu
-            .test(tag)
-      )
-      .join("\n");
-  }
-  catch (error) {
-    console.error(
-      "[SEO] Production CSS load error:",
-      error
-    );
+      .filter(tag => /\brel=["']stylesheet["']/iu.test(tag))
+      .filter(tag => !/fonts\.googleapis\.com/iu.test(tag))
+      .join('\n');
+  } catch (error) {
+    console.error('[SEO] Production CSS load error:', error);
 
-    return "";
+    return '';
   }
 }
 
@@ -717,8 +629,8 @@ function renderHtmlHead({
   description,
   canonical,
   schema,
-  robots = "index, follow, max-image-preview:large",
-  ogType = "website",
+  robots = 'index, follow, max-image-preview:large',
+  ogType = 'website',
 }) {
   /*
    * Production SPA CSS нужны только серверному каталогу.
@@ -728,12 +640,11 @@ function renderHtmlHead({
    * production CSS к ним ломает внешний вид при прямом
    * открытии или обновлении страницы.
    */
-  const productionStylesheetLinks =
-    /\/instrukcii-po-ohrane-truda\/?$/u.test(
-      String(canonical || "")
-    )
-      ? loadProductionStylesheetLinks()
-      : "";
+  const productionStylesheetLinks = /\/instrukcii-po-ohrane-truda\/?$/u.test(
+    String(canonical || ''),
+  )
+    ? loadProductionStylesheetLinks()
+    : '';
 
   return `
 <head>
@@ -767,40 +678,39 @@ function renderHtmlHead({
 </head>`;
 }
 
-function renderInstructionsCatalogPage(req, instructions, query = "") {
+function renderInstructionsCatalogPage(req, instructions, query = '') {
   const siteUrl = getSiteUrl(req);
   const canonical = `${siteUrl}/instrukcii-po-ohrane-truda`;
-  const hasQuery = Boolean(String(query || "").trim());
+  const hasQuery = Boolean(String(query || '').trim());
 
   const pageTitle = hasQuery
     ? `Поиск инструкций: ${query} | ${BRAND_NAME}`
     : `Инструкции по охране труда | ${BRAND_NAME}`;
 
   const description =
-    "Каталог инструкций по охране труда для работников различных профессий и видов работ.";
+    'Каталог инструкций по охране труда для работников различных профессий и видов работ.';
 
   const schema = {
-    "@context": "https://schema.org",
-    "@graph": [
+    '@context': 'https://schema.org',
+    '@graph': [
       {
-        "@type": "WebSite",
-        "@id": `${siteUrl}/#website`,
+        '@type': 'WebSite',
+        '@id': `${siteUrl}/#website`,
         url: siteUrl,
         name: BRAND_NAME,
-        inLanguage: "ru-RU",
+        inLanguage: 'ru-RU',
       },
       {
-        "@type": "CollectionPage",
-        "@id": canonical,
+        '@type': 'CollectionPage',
+        '@id': canonical,
         url: canonical,
-        name: "Инструкции по охране труда",
+        name: 'Инструкции по охране труда',
         description,
-        inLanguage: "ru-RU",
+        inLanguage: 'ru-RU',
         isPartOf: {
-          "@id": `${siteUrl}/#website`,
+          '@id': `${siteUrl}/#website`,
         },
       },
-
     ],
   };
 
@@ -812,36 +722,16 @@ function renderInstructionsCatalogPage(req, instructions, query = "") {
    *
    * Сервер подменяет только SEO-данные head.
    */
-  const productionIndexUrl =
-    new URL(
-      "../../../public_html/index.html",
-      import.meta.url
-    );
+  const productionIndexUrl = new URL('../../../public_html/index.html', import.meta.url);
 
-  let productionHtml =
-    fs.readFileSync(
-      productionIndexUrl,
-      "utf-8"
-    );
+  let productionHtml = fs.readFileSync(productionIndexUrl, 'utf-8');
 
-  if (
-    !/id=["']root["']/iu.test(
-      productionHtml
-    )
-  ) {
-    throw new Error(
-      "[SEO] Production index.html does not contain #root"
-    );
+  if (!/id=["']root["']/iu.test(productionHtml)) {
+    throw new Error('[SEO] Production index.html does not contain #root');
   }
 
-  if (
-    !/<title>[\s\S]*?<\/title>/iu.test(
-      productionHtml
-    )
-  ) {
-    throw new Error(
-      "[SEO] Production index.html does not contain <title>"
-    );
+  if (!/<title>[\s\S]*?<\/title>/iu.test(productionHtml)) {
+    throw new Error('[SEO] Production index.html does not contain <title>');
   }
 
   /*
@@ -849,55 +739,23 @@ function renderInstructionsCatalogPage(req, instructions, query = "") {
    * удаляем перед добавлением актуальных,
    * чтобы не было дублей.
    */
-  productionHtml =
-    productionHtml.replace(
-      /<title>[\s\S]*?<\/title>/iu,
-      `<title>${escapeHtml(pageTitle)}</title>`
-    );
+  productionHtml = productionHtml.replace(
+    /<title>[\s\S]*?<\/title>/iu,
+    `<title>${escapeHtml(pageTitle)}</title>`,
+  );
 
-  productionHtml =
-    productionHtml
-      .replace(
-        /<meta\b[^>]*name=["']description["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*name=["']robots["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<link\b[^>]*rel=["']canonical["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*property=["']og:type["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*property=["']og:locale["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*property=["']og:title["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*property=["']og:description["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*property=["']og:url["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*property=["']og:site_name["'][^>]*>/giu,
-        ""
-      );
+  productionHtml = productionHtml
+    .replace(/<meta\b[^>]*name=["']description["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*name=["']robots["'][^>]*>/giu, '')
+    .replace(/<link\b[^>]*rel=["']canonical["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*property=["']og:type["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*property=["']og:locale["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*property=["']og:title["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*property=["']og:description["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*property=["']og:url["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*property=["']og:site_name["'][^>]*>/giu, '');
 
-  const robotsValue =
-    hasQuery
-      ? "noindex, follow"
-      : "index, follow, max-image-preview:large";
+  const robotsValue = hasQuery ? 'noindex, follow' : 'index, follow, max-image-preview:large';
 
   const seoHead = `
   <!-- SEO_CATALOG_PRODUCTION_SHELL_V1 -->
@@ -950,26 +808,13 @@ function renderInstructionsCatalogPage(req, instructions, query = "") {
   <script type="application/ld+json">${jsonForHtml(schema)}</script>
 `;
 
-  if (
-    !/<\/head>/iu.test(
-      productionHtml
-    )
-  ) {
-    throw new Error(
-      "[SEO] Production index.html does not contain </head>"
-    );
+  if (!/<\/head>/iu.test(productionHtml)) {
+    throw new Error('[SEO] Production index.html does not contain </head>');
   }
 
-  productionHtml =
-    productionHtml.replace(
-      /<\/head>/iu,
-      `${seoHead}\n</head>`
-    );
+  productionHtml = productionHtml.replace(/<\/head>/iu, `${seoHead}\n</head>`);
 
-  productionHtml = injectProductionRoot(
-    productionHtml,
-    renderCatalogSeoBody(instructions, query)
-  );
+  productionHtml = injectProductionRoot(productionHtml, renderCatalogSeoBody(instructions, query));
 
   return productionHtml;
 }
@@ -977,34 +822,27 @@ function renderInstructionsCatalogPage(req, instructions, query = "") {
 function renderInstructionPage(req, instruction) {
   const siteUrl = getSiteUrl(req);
   const canonical = getInstructionUrl(req, instruction);
-  const title = String(
-    instruction.title || "Инструкция по охране труда"
-  ).trim();
+  const title = String(instruction.title || 'Инструкция по охране труда').trim();
   const description = makeDescription(instruction);
   const modified = getDateModified(instruction);
 
-  const seoStatus = String(
-    instruction.seoStatus || ""
-  ).toLowerCase();
+  const seoStatus = String(instruction.seoStatus || '').toLowerCase();
 
-  const robots = [
-    "draft",
-    "noindex",
-  ].includes(seoStatus)
-    ? "noindex, follow"
-    : "index, follow, max-image-preview:large";
+  const robots = ['draft', 'noindex'].includes(seoStatus)
+    ? 'noindex, follow'
+    : 'index, follow, max-image-preview:large';
 
   const articleSchema = {
-    "@type": "Article",
-    "@id": `${canonical}#article`,
+    '@type': 'Article',
+    '@id': `${canonical}#article`,
     headline: title,
     description,
     mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": canonical,
+      '@type': 'WebPage',
+      '@id': canonical,
     },
     publisher: {
-      "@type": "Organization",
+      '@type': 'Organization',
       name: BRAND_NAME,
       url: siteUrl,
     },
@@ -1019,44 +857,44 @@ function renderInstructionPage(req, instruction) {
   }
 
   const schema = {
-    "@context": "https://schema.org",
-    "@graph": [
+    '@context': 'https://schema.org',
+    '@graph': [
       {
-        "@type": "WebSite",
-        "@id": `${siteUrl}/#website`,
+        '@type': 'WebSite',
+        '@id': `${siteUrl}/#website`,
         url: siteUrl,
         name: BRAND_NAME,
-        inLanguage: "ru-RU",
+        inLanguage: 'ru-RU',
       },
       {
-        "@type": "WebPage",
-        "@id": canonical,
+        '@type': 'WebPage',
+        '@id': canonical,
         url: canonical,
         name: title,
         description,
-        inLanguage: "ru-RU",
+        inLanguage: 'ru-RU',
         isPartOf: {
-          "@id": `${siteUrl}/#website`,
+          '@id': `${siteUrl}/#website`,
         },
       },
       articleSchema,
       {
-        "@type": "BreadcrumbList",
+        '@type': 'BreadcrumbList',
         itemListElement: [
           {
-            "@type": "ListItem",
+            '@type': 'ListItem',
             position: 1,
-            name: "Главная",
+            name: 'Главная',
             item: `${siteUrl}/`,
           },
           {
-            "@type": "ListItem",
+            '@type': 'ListItem',
             position: 2,
-            name: "Инструкции по охране труда",
+            name: 'Инструкции по охране труда',
             item: `${siteUrl}/instrukcii-po-ohrane-truda`,
           },
           {
-            "@type": "ListItem",
+            '@type': 'ListItem',
             position: 3,
             name: title,
             item: canonical,
@@ -1075,90 +913,41 @@ function renderInstructionPage(req, instruction) {
    * SEO-метаданные конкретной инструкции
    * остаются серверными.
    */
-  const productionIndexUrl =
-    new URL(
-      "../../../public_html/index.html",
-      import.meta.url
-    );
+  const productionIndexUrl = new URL('../../../public_html/index.html', import.meta.url);
 
-  let productionHtml =
-    fs.readFileSync(
-      productionIndexUrl,
-      "utf-8"
-    );
+  let productionHtml = fs.readFileSync(productionIndexUrl, 'utf-8');
 
-  if (
-    !/id=["']root["']/iu.test(
-      productionHtml
-    )
-  ) {
-    throw new Error(
-      "[SEO] Production index.html does not contain #root"
-    );
+  if (!/id=["']root["']/iu.test(productionHtml)) {
+    throw new Error('[SEO] Production index.html does not contain #root');
   }
 
-  if (
-    !/<title>[\s\S]*?<\/title>/iu.test(
-      productionHtml
-    )
-  ) {
-    throw new Error(
-      "[SEO] Production index.html does not contain title"
-    );
+  if (!/<title>[\s\S]*?<\/title>/iu.test(productionHtml)) {
+    throw new Error('[SEO] Production index.html does not contain title');
   }
 
   /*
    * Title конкретной инструкции.
    */
-  productionHtml =
-    productionHtml.replace(
-      /<title>[\s\S]*?<\/title>/iu,
-      `<title>${escapeHtml(title)} | ${escapeHtml(BRAND_NAME)}</title>`
-    );
+  productionHtml = productionHtml.replace(
+    /<title>[\s\S]*?<\/title>/iu,
+    `<title>${escapeHtml(title)} | ${escapeHtml(BRAND_NAME)}</title>`,
+  );
 
   /*
    * Убираем SEO-теги главной страницы,
    * чтобы ниже вставить данные инструкции
    * без дублей.
    */
-  productionHtml =
-    productionHtml
-      .replace(
-        /<meta\b[^>]*name=["']description["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*name=["']robots["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<link\b[^>]*rel=["']canonical["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*property=["']og:type["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*property=["']og:locale["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*property=["']og:title["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*property=["']og:description["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*property=["']og:url["'][^>]*>/giu,
-        ""
-      )
-      .replace(
-        /<meta\b[^>]*property=["']og:site_name["'][^>]*>/giu,
-        ""
-      );
+  productionHtml = productionHtml
+    .replace(/<meta\b[^>]*name=["']description["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*name=["']robots["'][^>]*>/giu, '')
+    .replace(/<link\b[^>]*rel=["']canonical["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*property=["']og:type["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*property=["']og:locale["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*property=["']og:title["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*property=["']og:description["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*property=["']og:url["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*property=["']og:site_name["'][^>]*>/giu, '');
 
   const seoHead = `
   <!-- SEO_INSTRUCTION_PRODUCTION_SHELL_V1 -->
@@ -1211,26 +1000,13 @@ function renderInstructionPage(req, instruction) {
   <script type="application/ld+json">${jsonForHtml(schema)}</script>
 `;
 
-  if (
-    !/<\/head>/iu.test(
-      productionHtml
-    )
-  ) {
-    throw new Error(
-      "[SEO] Production index.html does not contain </head>"
-    );
+  if (!/<\/head>/iu.test(productionHtml)) {
+    throw new Error('[SEO] Production index.html does not contain </head>');
   }
 
-  productionHtml =
-    productionHtml.replace(
-      /<\/head>/iu,
-      `${seoHead}\n</head>`
-    );
+  productionHtml = productionHtml.replace(/<\/head>/iu, `${seoHead}\n</head>`);
 
-  productionHtml = injectProductionRoot(
-    productionHtml,
-    renderInstructionSeoBody(instruction)
-  );
+  productionHtml = injectProductionRoot(productionHtml, renderInstructionSeoBody(instruction));
 
   return productionHtml;
 }
@@ -1249,9 +1025,9 @@ function renderNotFoundPage(req) {
 </head>
 <body>
   <div class="App_page">
-    ${renderHeader("")}
+    ${renderHeader('')}
     ${renderCategoryNav()}
-    ${renderMainHero({ headingTag: "div" })}
+    ${renderMainHero({ headingTag: 'div' })}
 
     <main>
       <div class="seo-article-wrap">
@@ -1280,9 +1056,9 @@ function renderNotFoundPage(req) {
  * отображались и при прямом открытии Express SEO-страницы на :4000.
  */
 const PUBLIC_ASSETS = new Map([
-  ["/brand/logo-icon.png", path.join(CLIENT_PUBLIC_DIR, "brand", "logo-icon.png")],
-  ["/team/nikolay-boykov.webp", path.join(CLIENT_PUBLIC_DIR, "team", "nikolay-boykov.webp")],
-  ["/team/nikolay-boykov.png", path.join(CLIENT_PUBLIC_DIR, "team", "nikolay-boykov.png")],
+  ['/brand/logo-icon.png', path.join(CLIENT_PUBLIC_DIR, 'brand', 'logo-icon.png')],
+  ['/team/nikolay-boykov.webp', path.join(CLIENT_PUBLIC_DIR, 'team', 'nikolay-boykov.webp')],
+  ['/team/nikolay-boykov.png', path.join(CLIENT_PUBLIC_DIR, 'team', 'nikolay-boykov.png')],
 ]);
 
 for (const [urlPath, filePath] of PUBLIC_ASSETS) {
@@ -1292,31 +1068,29 @@ for (const [urlPath, filePath] of PUBLIC_ASSETS) {
   });
 }
 
-router.get("/instrukcii-po-ohrane-truda", (req, res, next) => {
+router.get('/instrukcii-po-ohrane-truda', (req, res, next) => {
   if (redirectTrailingSlash(req, res)) return;
 
   try {
-    const query = String(req.query.q || "").trim();
+    const query = String(req.query.q || '').trim();
     const instructions = getIndexableInstructions(query);
 
     res
       .status(200)
-      .set("Cache-Control", "public, max-age=300")
-      .type("html")
+      .set('Cache-Control', 'public, max-age=300')
+      .type('html')
       .send(renderInstructionsCatalogPage(req, instructions, query));
   } catch (error) {
     next(error);
   }
 });
 
-router.get("/instrukciya-po-ohrane-truda/:id", (req, res, next) => {
-  const redirectId =
-    INSTRUCTION_REDIRECTS.get(req.params.id);
+router.get('/instrukciya-po-ohrane-truda/:id', (req, res, next) => {
+  const redirectId = INSTRUCTION_REDIRECTS.get(req.params.id);
 
   if (redirectId) {
     const target =
-      `${getSiteUrl(req)}/instrukciya-po-ohrane-truda/` +
-      encodeURIComponent(redirectId);
+      `${getSiteUrl(req)}/instrukciya-po-ohrane-truda/` + encodeURIComponent(redirectId);
 
     return res.redirect(301, target);
   }
@@ -1327,43 +1101,38 @@ router.get("/instrukciya-po-ohrane-truda/:id", (req, res, next) => {
     const instruction = instructionsRepository.getById(req.params.id);
 
     if (!instruction) {
-      return res
-        .status(404)
-        .type("html")
-        .send(renderNotFoundPage(req));
+      return res.status(404).type('html').send(renderNotFoundPage(req));
     }
 
     res
       .status(200)
-      .set("Cache-Control", "public, max-age=300")
-      .type("html")
+      .set('Cache-Control', 'public, max-age=300')
+      .type('html')
       .send(renderInstructionPage(req, instruction));
   } catch (error) {
     next(error);
   }
 });
 
-router.get("/sitemap.xml", (req, res, next) => {
+router.get('/sitemap.xml', (req, res, next) => {
   try {
     const instructions = getIndexableInstructions();
 
     const urls = instructions
-      .map((instruction) => {
+      .map(instruction => {
         const loc = getInstructionUrl(req, instruction);
         const modified = getDateModified(instruction);
 
         return [
-          "  <url>",
+          '  <url>',
           `    <loc>${escapeXml(loc)}</loc>`,
-          modified
-            ? `    <lastmod>${escapeXml(String(modified).slice(0, 10))}</lastmod>`
-            : "",
-          "  </url>",
+          modified ? `    <lastmod>${escapeXml(String(modified).slice(0, 10))}</lastmod>` : '',
+          '  </url>',
         ]
           .filter(Boolean)
-          .join("\n");
+          .join('\n');
       })
-      .join("\n");
+      .join('\n');
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -1376,17 +1145,13 @@ router.get("/sitemap.xml", (req, res, next) => {
 ${urls}
 </urlset>`;
 
-    res
-      .status(200)
-      .set("Cache-Control", "public, max-age=300")
-      .type("application/xml")
-      .send(xml);
+    res.status(200).set('Cache-Control', 'public, max-age=300').type('application/xml').send(xml);
   } catch (error) {
     next(error);
   }
 });
 
-router.get("/robots.txt", (req, res) => {
+router.get('/robots.txt', (req, res) => {
   const content = `User-agent: *
 Allow: /
 
@@ -1395,12 +1160,7 @@ Disallow: /api/
 Sitemap: ${getSiteUrl(req)}/sitemap.xml
 `;
 
-  res
-    .status(200)
-    .set("Cache-Control", "public, max-age=3600")
-    .type("text/plain")
-    .send(content);
+  res.status(200).set('Cache-Control', 'public, max-age=3600').type('text/plain').send(content);
 });
 
 export default router;
-

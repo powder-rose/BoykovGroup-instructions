@@ -1,6 +1,4 @@
-import {
-  Router
-} from "express";
+import { Router } from 'express';
 
 import {
   createPublicGenerationOrder,
@@ -12,138 +10,70 @@ import {
   getPublicGenerationOrderByOwnerView,
   listPublicationInboxOrders,
   PUBLIC_GENERATION_PRICE_RUB,
-  PUBLIC_GENERATION_CURRENCY
-} from "../services/publicGenerationOrderService.js";
+  PUBLIC_GENERATION_CURRENCY,
+} from '../services/publicGenerationOrderService.js';
 
-import {
-  instructionsRepository
-} from "../services/instructionsRepository.js";
+import { instructionsRepository } from '../services/instructionsRepository.js';
 
-import {
-  createInstructionPdfBuffer
-} from "../services/instructionPdfService.js";
+import { createInstructionPdfBuffer } from '../services/instructionPdfService.js';
 
+import { normalizeProfessionKey } from '../services/professionNormalizer.js';
 
-import {
-  normalizeProfessionKey
-} from "../services/professionNormalizer.js";
+import { queuePublicGenerationOrder } from '../services/publicPaidGenerationService.js';
 
-import {
-  queuePublicGenerationOrder
-} from "../services/publicPaidGenerationService.js";
+import { getCloudPaymentsTransaction } from '../services/cloudPaymentsApiService.js';
 
-import {
-  getCloudPaymentsTransaction
-} from "../services/cloudPaymentsApiService.js";
+import { requireAdmin } from '../middleware/auth.js';
 
-import {
-  requireAdmin
-} from "../middleware/auth.js";
+import { resolvePromoCode, markPromoCodeUsed } from '../services/promoCodeService.js';
 
-import {
-  resolvePromoCode,
-  markPromoCodeUsed
-} from "../services/promoCodeService.js";
-
-
-export const publicGenerationRouter =
-  Router();
-
+export const publicGenerationRouter = Router();
 
 /*
  * В платном генераторе больше нет
  * редакционной фильтрации профессии.
  */
-function normalizeRequestedProfession(
-  value
-) {
-
-  const profession =
-    String(
-      value ??
-      ""
-    )
-    .replace(
-      /\s+/gu,
-      " "
-    )
+function normalizeRequestedProfession(value) {
+  const profession = String(value ?? '')
+    .replace(/\s+/gu, ' ')
     .trim();
 
-
   if (!profession) {
-
     return {
-      ok:
-        false,
+      ok: false,
 
-      error:
-        "Укажите профессию или вид работ."
+      error: 'Укажите профессию или вид работ.',
     };
-
   }
 
-
-  if (
-    profession.length >
-      240
-  ) {
-
+  if (profession.length > 240) {
     return {
-      ok:
-        false,
+      ok: false,
 
-      error:
-        "Название слишком длинное."
+      error: 'Название слишком длинное.',
     };
-
   }
-
 
   return {
-    ok:
-      true,
+    ok: true,
 
-    profession
+    profession,
   };
 }
 
-
-function findExistingInstruction(
-  profession
-) {
-
-  const professionKey =
-    normalizeProfessionKey(
-      profession
-    );
-
+function findExistingInstruction(profession) {
+  const professionKey = normalizeProfessionKey(profession);
 
   if (!professionKey) {
     return null;
   }
 
-
-  if (
-    typeof
-      instructionsRepository
-        .findByProfessionKey ===
-    "function"
-  ) {
-
-    return (
-      instructionsRepository
-        .findByProfessionKey(
-          professionKey
-        ) ||
-      null
-    );
-
+  if (typeof instructionsRepository.findByProfessionKey === 'function') {
+    return instructionsRepository.findByProfessionKey(professionKey) || null;
   }
-
 
   return null;
 }
-
 
 /*
  * ============================================================
@@ -151,61 +81,36 @@ function findExistingInstruction(
  * ============================================================
  */
 publicGenerationRouter.post(
-  "/validate",
+  '/validate',
 
   (req, res) => {
-
-    const validation =
-      normalizeRequestedProfession(
-        req.body?.profession
-      );
-
+    const validation = normalizeRequestedProfession(req.body?.profession);
 
     if (!validation.ok) {
+      return res.status(422).json({
+        allowed: false,
 
-      return res
-        .status(422)
-        .json({
-          allowed:
-            false,
-
-          error:
-            validation.error
-        });
-
+        error: validation.error,
+      });
     }
 
+    const profession = validation.profession;
 
-    const profession =
-      validation.profession;
-
-
-    const existing =
-      findExistingInstruction(
-        profession
-      );
-
+    const existing = findExistingInstruction(profession);
 
     return res.json({
-      allowed:
-        true,
+      allowed: true,
 
       profession,
 
-      amount:
-        PUBLIC_GENERATION_PRICE_RUB,
+      amount: PUBLIC_GENERATION_PRICE_RUB,
 
-      currency:
-        PUBLIC_GENERATION_CURRENCY,
+      currency: PUBLIC_GENERATION_CURRENCY,
 
-      existingInstructionId:
-        existing?.id ??
-        null
+      existingInstructionId: existing?.id ?? null,
     });
-
-  }
+  },
 );
-
 
 /*
  * ============================================================
@@ -213,10 +118,9 @@ publicGenerationRouter.post(
  * ============================================================
  */
 publicGenerationRouter.post(
-  "/orders",
+  '/orders',
 
   (req, res) => {
-
     /*
      * ACCOUNT PURCHASE OWNERSHIP
      *
@@ -224,220 +128,116 @@ publicGenerationRouter.post(
      * Иначе после оплаты его невозможно надёжно
      * связать с личным кабинетом пользователя.
      */
-    if (
-      !req.user ||
-      req.user.role !== "user" ||
-      !req.user.sub
-    ) {
+    if (!req.user || req.user.role !== 'user' || !req.user.sub) {
+      return res.status(401).json({
+        code: 'AUTH_REQUIRED',
 
-      return res
-        .status(401)
-        .json({
-          code:
-            "AUTH_REQUIRED",
-
-          error:
-            "Для покупки инструкции необходимо войти в аккаунт или зарегистрироваться."
-        });
-
+        error: 'Для покупки инструкции необходимо войти в аккаунт или зарегистрироваться.',
+      });
     }
 
-
-    const validation =
-      normalizeRequestedProfession(
-        req.body?.profession
-      );
-
+    const validation = normalizeRequestedProfession(req.body?.profession);
 
     if (!validation.ok) {
-
-      return res
-        .status(422)
-        .json({
-          error:
-            validation.error
-        });
-
+      return res.status(422).json({
+        error: validation.error,
+      });
     }
 
-
-    const profession =
-      validation.profession;
-
+    const profession = validation.profession;
 
     /*
      * Уже опубликованную инструкцию
      * повторно не продаём.
      */
-    const existing =
-      findExistingInstruction(
-        profession
-      );
-
+    const existing = findExistingInstruction(profession);
 
     if (existing) {
+      return res.status(409).json({
+        error: 'Инструкция уже доступна на сайте.',
 
-      return res
-        .status(409)
-        .json({
-          error:
-            "Инструкция уже доступна на сайте.",
-
-          existingInstructionId:
-            existing.id
-        });
-
+        existingInstructionId: existing.id,
+      });
     }
 
-
-    const rawPromoCode =
-      String(
-        req.body?.promoCode ??
-        ""
-      )
-      .trim();
-
+    const rawPromoCode = String(req.body?.promoCode ?? '').trim();
 
     let pricing = {
-      originalAmount:
-        PUBLIC_GENERATION_PRICE_RUB,
+      originalAmount: PUBLIC_GENERATION_PRICE_RUB,
 
-      amount:
-        PUBLIC_GENERATION_PRICE_RUB,
+      amount: PUBLIC_GENERATION_PRICE_RUB,
 
-      promo:
-        null
+      promo: null,
     };
 
-
     if (rawPromoCode) {
-
-      const promoResult =
-        resolvePromoCode(
-          rawPromoCode,
-          PUBLIC_GENERATION_PRICE_RUB
-        );
-
+      const promoResult = resolvePromoCode(rawPromoCode, PUBLIC_GENERATION_PRICE_RUB);
 
       if (!promoResult.ok) {
+        return res.status(422).json({
+          code: promoResult.code,
 
-        return res
-          .status(422)
-          .json({
-            code:
-              promoResult.code,
-
-            error:
-              promoResult.error
-          });
-
+          error: promoResult.error,
+        });
       }
 
-
       pricing = {
-        originalAmount:
-          promoResult.originalAmount,
+        originalAmount: promoResult.originalAmount,
 
-        amount:
-          promoResult.amount,
+        amount: promoResult.amount,
 
         promo: {
           ...promoResult.promo,
 
-          discountAmount:
-            promoResult.discountAmount
-        }
+          discountAmount: promoResult.discountAmount,
+        },
       };
-
     }
 
-
     const owner =
-      (
-        req.user?.role ===
-          "user" &&
-        req.user?.sub
-      )
+      req.user?.role === 'user' && req.user?.sub
         ? {
-            userId:
-              String(
-                req.user.sub
-              ),
+            userId: String(req.user.sub),
 
-            email:
-              String(
-                req.user.email ??
-                req.user.login ??
-                ""
-              )
+            email: String(req.user.email ?? req.user.login ?? ''),
           }
         : null;
 
+    const order = createPublicGenerationOrder(profession, pricing, owner);
 
-    const order =
-      createPublicGenerationOrder(
-        profession,
-        pricing,
-        owner
-      );
+    return res.status(201).json({
+      orderId: order.id,
 
+      orderToken: order.accessToken,
 
-    return res
-      .status(201)
-      .json({
-        orderId:
-          order.id,
+      externalId: order.id,
 
-        orderToken:
-          order.accessToken,
+      profession: order.profession,
 
-        externalId:
-          order.id,
+      originalAmount: order.originalAmount ?? order.amount,
 
-        profession:
-          order.profession,
+      amount: order.amount,
 
-        originalAmount:
-          order.originalAmount ??
-          order.amount,
+      promo: order.promo
+        ? {
+            code: order.promo.code,
 
-        amount:
-          order.amount,
+            type: order.promo.type,
 
-        promo:
-          order.promo
-            ? {
-                code:
-                  order.promo.code,
+            value: order.promo.value,
 
-                type:
-                  order.promo.type,
+            discountAmount: order.promo.discountAmount,
+          }
+        : null,
 
-                value:
-                  order.promo.value,
+      currency: order.currency,
 
-                discountAmount:
-                  order.promo.discountAmount
-              }
-            : null,
+      publicTerminalId: String(process.env.CLOUDPAYMENTS_PUBLIC_ID ?? ''),
 
-        currency:
-          order.currency,
-
-        publicTerminalId:
-          String(
-            process.env
-              .CLOUDPAYMENTS_PUBLIC_ID ??
-            ""
-          ),
-
-        expiresAt:
-          order.expiresAt
-      });
-
-  }
+      expiresAt: order.expiresAt,
+    });
+  },
 );
-
 
 /*
  * ============================================================
@@ -451,166 +251,73 @@ publicGenerationRouter.post(
  * транзакцию через CloudPayments /payments/get.
  */
 publicGenerationRouter.post(
-  "/orders/:id/confirm-payment",
+  '/orders/:id/confirm-payment',
 
   async (req, res) => {
-
-    const accessToken =
-      String(
-        req.get(
-          "x-order-token"
-        ) ??
-        ""
-      );
-
+    const accessToken = String(req.get('x-order-token') ?? '');
 
     /*
      * Сначала проверяем секретный token заказа.
      */
-    const authorizedView =
-      getPublicGenerationOrderView(
-        req.params.id,
-        accessToken
-      );
-
+    const authorizedView = getPublicGenerationOrderView(req.params.id, accessToken);
 
     if (!authorizedView) {
-
-      return res
-        .status(404)
-        .json({
-          error:
-            "Заказ не найден"
-        });
+      return res.status(404).json({
+        error: 'Заказ не найден',
+      });
     }
 
-
-    const order =
-      getPublicGenerationOrder(
-        req.params.id
-      );
-
+    const order = getPublicGenerationOrder(req.params.id);
 
     if (!order) {
-
-      return res
-        .status(404)
-        .json({
-          error:
-            "Заказ не найден"
-        });
+      return res.status(404).json({
+        error: 'Заказ не найден',
+      });
     }
 
+    const rawTransactionId = String(req.body?.transactionId ?? '').trim();
 
-    const rawTransactionId =
-      String(
-        req.body?.transactionId ??
-        ""
-      )
-      .trim();
-
-
-    if (
-      !/^\d{1,20}$/u
-        .test(
-          rawTransactionId
-        )
-    ) {
-
-      return res
-        .status(400)
-        .json({
-          error:
-            "Некорректный идентификатор платежа."
-        });
+    if (!/^\d{1,20}$/u.test(rawTransactionId)) {
+      return res.status(400).json({
+        error: 'Некорректный идентификатор платежа.',
+      });
     }
 
+    const transactionIdNumber = Number(rawTransactionId);
 
-    const transactionIdNumber =
-      Number(
-        rawTransactionId
-      );
-
-
-    if (
-      !Number.isSafeInteger(
-        transactionIdNumber
-      ) ||
-      transactionIdNumber <= 0
-    ) {
-
-      return res
-        .status(400)
-        .json({
-          error:
-            "Некорректный идентификатор платежа."
-        });
+    if (!Number.isSafeInteger(transactionIdNumber) || transactionIdNumber <= 0) {
+      return res.status(400).json({
+        error: 'Некорректный идентификатор платежа.',
+      });
     }
 
-
-    const transactionId =
-      String(
-        transactionIdNumber
-      );
-
+    const transactionId = String(transactionIdNumber);
 
     /*
      * Один заказ не может внезапно получить
      * другой TransactionId.
      */
-    if (
-      order.transactionId &&
-      String(
-        order.transactionId
-      ) !==
-        transactionId
-    ) {
+    if (order.transactionId && String(order.transactionId) !== transactionId) {
+      console.warn('[PublicGeneration Confirm] transaction changed:', order.id);
 
-      console.warn(
-        "[PublicGeneration Confirm] transaction changed:",
-        order.id
-      );
-
-
-      return res
-        .status(409)
-        .json({
-          error:
-            "Платёж не соответствует заказу."
-        });
+      return res.status(409).json({
+        error: 'Платёж не соответствует заказу.',
+      });
     }
-
 
     /*
      * Один TransactionId нельзя использовать
      * для двух разных заказов.
      */
-    const transactionOwner =
-      findPublicGenerationOrderByTransactionId(
-        transactionId
-      );
+    const transactionOwner = findPublicGenerationOrderByTransactionId(transactionId);
 
+    if (transactionOwner && transactionOwner.id !== order.id) {
+      console.warn('[PublicGeneration Confirm] transaction reuse:', transactionId);
 
-    if (
-      transactionOwner &&
-      transactionOwner.id !==
-        order.id
-    ) {
-
-      console.warn(
-        "[PublicGeneration Confirm] transaction reuse:",
-        transactionId
-      );
-
-
-      return res
-        .status(409)
-        .json({
-          error:
-            "Платёж уже связан с другим заказом."
-        });
+      return res.status(409).json({
+        error: 'Платёж уже связан с другим заказом.',
+      });
     }
-
 
     /*
      * Идемпотентность:
@@ -619,161 +326,58 @@ publicGenerationRouter.post(
      */
     if (
       order.transactionId &&
-      String(
-        order.transactionId
-      ) ===
-        transactionId &&
-      [
-        "paid",
-        "generating",
-        "generated",
-          "published",
-        "test_paid",
-        "manual_review"
-      ].includes(
-        order.status
+      String(order.transactionId) === transactionId &&
+      ['paid', 'generating', 'generated', 'published', 'test_paid', 'manual_review'].includes(
+        order.status,
       )
     ) {
-
-      if (
-        order.status ===
-          "paid" ||
-        order.status ===
-          "generating"
-      ) {
-
-        queuePublicGenerationOrder(
-          order.id
-        );
+      if (order.status === 'paid' || order.status === 'generating') {
+        queuePublicGenerationOrder(order.id);
       }
 
-
-      return res.json(
-        getPublicGenerationOrderView(
-          order.id,
-          accessToken
-        )
-      );
+      return res.json(getPublicGenerationOrderView(order.id, accessToken));
     }
-
 
     let transaction;
 
-
     try {
-
-      transaction =
-        await getCloudPaymentsTransaction(
-          transactionIdNumber
-        );
-
-    }
-    catch(error) {
-
+      transaction = await getCloudPaymentsTransaction(transactionIdNumber);
+    } catch (error) {
       console.error(
-        "[PublicGeneration Confirm] CloudPayments API:",
-        error?.code ||
-          error?.message ||
-          error
+        '[PublicGeneration Confirm] CloudPayments API:',
+        error?.code || error?.message || error,
       );
 
-
-      return res
-        .status(502)
-        .json({
-          error:
-            "Не удалось проверить платёж. Повторите проверку через несколько секунд."
-        });
+      return res.status(502).json({
+        error: 'Не удалось проверить платёж. Повторите проверку через несколько секунд.',
+      });
     }
-
 
     if (!transaction) {
-
-      return res
-        .status(409)
-        .json({
-          error:
-            "CloudPayments пока не подтвердил платёж."
-        });
+      return res.status(409).json({
+        error: 'CloudPayments пока не подтвердил платёж.',
+      });
     }
 
+    const configuredPublicId = String(process.env.CLOUDPAYMENTS_PUBLIC_ID ?? '').trim();
 
-    const configuredPublicId =
-      String(
-        process.env
-          .CLOUDPAYMENTS_PUBLIC_ID ??
-        ""
-      )
-      .trim();
-
-
-    const amount =
-      Number(
-        transaction.Amount
-      );
-
+    const amount = Number(transaction.Amount);
 
     const amountMatches =
-      Number.isFinite(
-        amount
-      ) &&
-      Math.abs(
-        amount -
-        Number(
-          order.amount
-        )
-      ) <
-        0.0001;
+      Number.isFinite(amount) && Math.abs(amount - Number(order.amount)) < 0.0001;
 
+    const transactionMatches = String(transaction.TransactionId ?? '') === transactionId;
 
-    const transactionMatches =
-      String(
-        transaction.TransactionId ??
-        ""
-      ) ===
-        transactionId;
+    const terminalMatches = String(transaction.PublicId ?? '') === configuredPublicId;
 
-
-    const terminalMatches =
-      String(
-        transaction.PublicId ??
-        ""
-      ) ===
-        configuredPublicId;
-
-
-    const invoiceMatches =
-      String(
-        transaction.InvoiceId ??
-        ""
-      ) ===
-        order.id;
-
+    const invoiceMatches = String(transaction.InvoiceId ?? '') === order.id;
 
     const currencyMatches =
-      String(
-        transaction.Currency ??
-        ""
-      )
-      .toUpperCase() ===
-        String(
-          order.currency
-        )
-        .toUpperCase();
+      String(transaction.Currency ?? '').toUpperCase() === String(order.currency).toUpperCase();
 
+    const statusMatches = String(transaction.Status ?? '') === 'Completed';
 
-    const statusMatches =
-      String(
-        transaction.Status ??
-        ""
-      ) ===
-        "Completed";
-
-
-    const notRefunded =
-      transaction.Refunded !==
-        true;
-
+    const notRefunded = transaction.Refunded !== true;
 
     if (
       !transactionMatches ||
@@ -784,167 +388,89 @@ publicGenerationRouter.post(
       !statusMatches ||
       !notRefunded
     ) {
+      console.warn('[PublicGeneration Confirm] payment mismatch:', {
+        orderId: order.id,
 
-      console.warn(
-        "[PublicGeneration Confirm] payment mismatch:",
-        {
-          orderId:
-            order.id,
+        transactionId,
 
-          transactionId,
+        transactionMatches,
 
-          transactionMatches,
+        terminalMatches,
 
-          terminalMatches,
+        invoiceMatches,
 
-          invoiceMatches,
+        amountMatches,
 
-          amountMatches,
+        currencyMatches,
 
-          currencyMatches,
+        status: String(transaction.Status ?? ''),
 
-          status:
-            String(
-              transaction.Status ??
-              ""
-            ),
+        refunded: transaction.Refunded === true,
+      });
 
-          refunded:
-            transaction.Refunded ===
-              true
-        }
-      );
-
-
-      return res
-        .status(409)
-        .json({
-          error:
-            "Параметры платежа не соответствуют заказу."
-        });
+      return res.status(409).json({
+        error: 'Параметры платежа не соответствуют заказу.',
+      });
     }
 
-
-    const paidAt =
-      new Date()
-        .toISOString();
-
+    const paidAt = new Date().toISOString();
 
     /*
      * Тестовую транзакцию принимаем,
      * но по умолчанию НЕ публикуем.
      */
     if (
-      transaction.TestMode ===
-        true &&
-      process.env
-        .PUBLIC_GENERATION_PUBLISH_TEST_PAYMENTS !==
-        "1"
+      transaction.TestMode === true &&
+      process.env.PUBLIC_GENERATION_PUBLISH_TEST_PAYMENTS !== '1'
     ) {
-
-      updatePublicGenerationOrder(
-        order.id,
-        {
-          status:
-            "test_paid",
-
-          transactionId,
-
-          paidAt,
-
-          failureCode:
-            null,
-
-          internalError:
-            null
-        }
-      );
-
-
-      if (
-        order.promo?.id
-      ) {
-
-        markPromoCodeUsed(
-          order.promo.id,
-          order.id
-        );
-
-      }
-
-
-      console.log(
-        "[PublicGeneration Confirm] test payment:",
-        order.id,
-        transactionId
-      );
-
-
-      return res.json(
-        getPublicGenerationOrderView(
-          order.id,
-          accessToken
-        )
-      );
-    }
-
-
-    updatePublicGenerationOrder(
-      order.id,
-      {
-        status:
-          "paid",
+      updatePublicGenerationOrder(order.id, {
+        status: 'test_paid',
 
         transactionId,
 
         paidAt,
 
-        failureCode:
-          null,
+        failureCode: null,
 
-        internalError:
-          null
+        internalError: null,
+      });
+
+      if (order.promo?.id) {
+        markPromoCodeUsed(order.promo.id, order.id);
       }
-    );
 
+      console.log('[PublicGeneration Confirm] test payment:', order.id, transactionId);
 
-    if (
-      order.promo?.id
-    ) {
-
-      markPromoCodeUsed(
-        order.promo.id,
-        order.id
-      );
-
+      return res.json(getPublicGenerationOrderView(order.id, accessToken));
     }
 
+    updatePublicGenerationOrder(order.id, {
+      status: 'paid',
+
+      transactionId,
+
+      paidAt,
+
+      failureCode: null,
+
+      internalError: null,
+    });
+
+    if (order.promo?.id) {
+      markPromoCodeUsed(order.promo.id, order.id);
+    }
 
     /*
      * Генерация запускается ТОЛЬКО после
      * серверной проверки CloudPayments.
      */
-    queuePublicGenerationOrder(
-      order.id
-    );
+    queuePublicGenerationOrder(order.id);
 
+    console.log('[PublicGeneration Confirm] payment confirmed:', order.id, transactionId);
 
-    console.log(
-      "[PublicGeneration Confirm] payment confirmed:",
-      order.id,
-      transactionId
-    );
-
-
-    return res.json(
-      getPublicGenerationOrderView(
-        order.id,
-        accessToken
-      )
-    );
-  }
+    return res.json(getPublicGenerationOrderView(order.id, accessToken));
+  },
 );
-
 
 /*
  * ============================================================
@@ -952,96 +478,49 @@ publicGenerationRouter.post(
  * ============================================================
  */
 
-function requireUserAccount(
-  req,
-  res,
-  next
-) {
-
-  if (
-    !req.user ||
-    req.user.role !==
-      "user" ||
-    !req.user.sub
-  ) {
-
-    return res
-      .status(401)
-      .json({
-        error:
-          "Требуется авторизация пользователя"
-      });
-
+function requireUserAccount(req, res, next) {
+  if (!req.user || req.user.role !== 'user' || !req.user.sub) {
+    return res.status(401).json({
+      error: 'Требуется авторизация пользователя',
+    });
   }
-
 
   return next();
-
 }
 
-
 publicGenerationRouter.get(
-  "/my-orders",
+  '/my-orders',
 
   requireUserAccount,
 
-  (
-    req,
-    res
-  ) => {
-
+  (req, res) => {
     return res.json({
-      items:
-        listPublicGenerationOrdersByOwner(
-          req.user.sub
-        )
+      items: listPublicGenerationOrdersByOwner(req.user.sub),
     });
-
-  }
+  },
 );
 
-
 publicGenerationRouter.get(
-  "/my-orders/:id",
+  '/my-orders/:id',
 
   requireUserAccount,
 
-  (
-    req,
-    res
-  ) => {
-
-    const order =
-      getPublicGenerationOrderByOwnerView(
-        req.params.id,
-        req.user.sub
-      );
-
+  (req, res) => {
+    const order = getPublicGenerationOrderByOwnerView(req.params.id, req.user.sub);
 
     /*
      * Намеренно одинаковый 404 и для чужого заказа,
      * и для несуществующего.
      */
     if (!order) {
-
-      return res
-        .status(404)
-        .json({
-          error:
-            "Заказ не найден"
-        });
-
+      return res.status(404).json({
+        error: 'Заказ не найден',
+      });
     }
 
-
-    return res.json(
-      order
-    );
-
-  }
+    return res.json(order);
+  },
 );
-
-
 
 /*
  * ============================================================
@@ -1049,141 +528,62 @@ publicGenerationRouter.get(
  * ============================================================
  */
 publicGenerationRouter.get(
-  "/my-orders/:id/pdf",
+  '/my-orders/:id/pdf',
 
   requireUserAccount,
 
-  async (
-    req,
-    res
-  ) => {
-
-    const order =
-      getPublicGenerationOrderByOwnerView(
-        req.params.id,
-        req.user.sub
-      );
-
+  async (req, res) => {
+    const order = getPublicGenerationOrderByOwnerView(req.params.id, req.user.sub);
 
     /*
      * Не раскрываем существование чужого заказа.
      */
     if (!order) {
-
-      return res
-        .status(404)
-        .json({
-          error:
-            "Заказ не найден"
-        });
-
+      return res.status(404).json({
+        error: 'Заказ не найден',
+      });
     }
 
-
-    let instruction =
-      order.instruction ??
-      null;
-
+    let instruction = order.instruction ?? null;
 
     /*
      * Если приватной копии уже нет,
      * но документ опубликован —
      * используем опубликованную версию.
      */
-    if (
-      !instruction &&
-      order.instructionId
-    ) {
-
-      instruction =
-        instructionsRepository
-          .getById(
-            order.instructionId
-          );
-
+    if (!instruction && order.instructionId) {
+      instruction = instructionsRepository.getById(order.instructionId);
     }
-
 
     if (!instruction) {
-
-      return res
-        .status(409)
-        .json({
-          error:
-            "Инструкция ещё не готова"
-        });
-
+      return res.status(409).json({
+        error: 'Инструкция ещё не готова',
+      });
     }
-
 
     try {
+      const pdf = await createInstructionPdfBuffer(instruction);
 
-      const pdf =
-        await createInstructionPdfBuffer(
-          instruction
-        );
+      const safeOrderId = String(order.id ?? 'order')
+        .replace(/[^a-zA-Z0-9_-]+/g, '-')
+        .slice(0, 100);
 
+      res.set('Content-Type', 'application/pdf');
 
-      const safeOrderId =
-        String(
-          order.id ??
-          "order"
-        )
-        .replace(
-          /[^a-zA-Z0-9_-]+/g,
-          "-"
-        )
-        .slice(
-          0,
-          100
-        );
+      res.set('Content-Disposition', `attachment; filename="instruction-${safeOrderId}.pdf"`);
 
+      res.set('Cache-Control', 'private, no-store');
 
-      res.set(
-        "Content-Type",
-        "application/pdf"
-      );
+      return res.status(200).send(pdf);
+    } catch (error) {
+      console.error('[Account PDF]', order.id, error);
 
-      res.set(
-        "Content-Disposition",
-        `attachment; filename="instruction-${safeOrderId}.pdf"`
-      );
-
-      res.set(
-        "Cache-Control",
-        "private, no-store"
-      );
-
-
-      return res
-        .status(200)
-        .send(
-          pdf
-        );
-
+      return res.status(500).json({
+        error: 'Не удалось сформировать PDF',
+      });
     }
-    catch(error) {
-
-      console.error(
-        "[Account PDF]",
-        order.id,
-        error
-      );
-
-
-      return res
-        .status(500)
-        .json({
-          error:
-            "Не удалось сформировать PDF"
-        });
-
-    }
-
-  }
+  },
 );
-
-
 
 /*
  * ============================================================
@@ -1192,21 +592,16 @@ publicGenerationRouter.get(
  */
 
 publicGenerationRouter.get(
-  "/admin/inbox",
+  '/admin/inbox',
 
   requireAdmin,
 
   (req, res) => {
-
     return res.json({
-      items:
-        listPublicationInboxOrders()
+      items: listPublicationInboxOrders(),
     });
-
-  }
+  },
 );
-
-
 
 /*
  * ============================================================
@@ -1217,127 +612,64 @@ publicGenerationRouter.get(
  * Публикация при этом НЕ выполняется.
  */
 publicGenerationRouter.put(
-  "/admin/orders/:id/instruction",
+  '/admin/orders/:id/instruction',
 
   requireAdmin,
 
   (req, res) => {
-
-    const order =
-      getPublicGenerationOrder(
-        req.params.id
-      );
+    const order = getPublicGenerationOrder(req.params.id);
 
     if (!order) {
-      return res
-        .status(404)
-        .json({
-          error:
-            "Заказ не найден"
-        });
+      return res.status(404).json({
+        error: 'Заказ не найден',
+      });
     }
 
-    if (
-      order.status !==
-        "generated" ||
-      !order.generatedInstruction
-    ) {
-      return res
-        .status(409)
-        .json({
-          error:
-            "Инструкция ещё не готова."
-        });
+    if (order.status !== 'generated' || !order.generatedInstruction) {
+      return res.status(409).json({
+        error: 'Инструкция ещё не готова.',
+      });
     }
 
-    if (
-      order.publicationStatus !==
-        "pending"
-    ) {
-      return res
-        .status(409)
-        .json({
-          error:
-            "Редактировать можно только инструкцию, ожидающую публикации."
-        });
+    if (order.publicationStatus !== 'pending') {
+      return res.status(409).json({
+        error: 'Редактировать можно только инструкцию, ожидающую публикации.',
+      });
     }
 
-    const instruction =
-      req.body?.instruction;
+    const instruction = req.body?.instruction;
 
-    if (
-      !instruction ||
-      typeof instruction !==
-        "object" ||
-      Array.isArray(instruction)
-    ) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Инструкция не передана."
-        });
+    if (!instruction || typeof instruction !== 'object' || Array.isArray(instruction)) {
+      return res.status(400).json({
+        error: 'Инструкция не передана.',
+      });
     }
 
-    const title =
-      String(
-        instruction.title ?? ""
-      ).trim();
+    const title = String(instruction.title ?? '').trim();
 
     if (!title) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Название инструкции не может быть пустым."
-        });
+      return res.status(400).json({
+        error: 'Название инструкции не может быть пустым.',
+      });
     }
 
-    if (
-      !Array.isArray(
-        instruction.sections
-      )
-    ) {
-      return res
-        .status(400)
-        .json({
-          error:
-            "Разделы инструкции должны быть массивом."
-        });
+    if (!Array.isArray(instruction.sections)) {
+      return res.status(400).json({
+        error: 'Разделы инструкции должны быть массивом.',
+      });
     }
 
-    const sections =
-      instruction.sections.map(
-        (
-          section,
-          sectionIndex
-        ) => ({
-          ...section,
+    const sections = instruction.sections.map((section, sectionIndex) => ({
+      ...section,
 
-          number:
-            section?.number ??
-            sectionIndex + 1,
+      number: section?.number ?? sectionIndex + 1,
 
-          heading:
-            String(
-              section?.heading ?? ""
-            ),
+      heading: String(section?.heading ?? ''),
 
-          paragraphs:
-            Array.isArray(
-              section?.paragraphs
-            )
-              ?
-                section.paragraphs.map(
-                  paragraph =>
-                    String(
-                      paragraph ?? ""
-                    )
-                )
-              :
-                []
-        })
-      );
+      paragraphs: Array.isArray(section?.paragraphs)
+        ? section.paragraphs.map(paragraph => String(paragraph ?? ''))
+        : [],
+    }));
 
     const editedInstruction = {
       ...order.generatedInstruction,
@@ -1347,346 +679,179 @@ publicGenerationRouter.put(
        * Эти поля нельзя поменять
        * через frontend-редактор.
        */
-      id:
-        order.generatedInstruction.id,
+      id: order.generatedInstruction.id,
 
-      profession:
-        order.generatedInstruction
-          .profession,
+      profession: order.generatedInstruction.profession,
 
       title,
 
       sections,
 
-      updatedAt:
-        new Date()
-          .toISOString()
+      updatedAt: new Date().toISOString(),
     };
 
-    const updatedOrder =
-      updatePublicGenerationOrder(
-        order.id,
-        {
-          generatedInstruction:
-            editedInstruction
-        }
-      );
+    const updatedOrder = updatePublicGenerationOrder(order.id, {
+      generatedInstruction: editedInstruction,
+    });
 
     if (!updatedOrder) {
-      return res
-        .status(500)
-        .json({
-          error:
-            "Не удалось сохранить изменения."
-        });
+      return res.status(500).json({
+        error: 'Не удалось сохранить изменения.',
+      });
     }
 
-    console.log(
-      "[PublicGeneration Admin] draft edited:",
-      order.id
-    );
+    console.log('[PublicGeneration Admin] draft edited:', order.id);
 
     return res.json({
-      ok:
-        true,
+      ok: true,
 
-      orderId:
-        order.id,
+      orderId: order.id,
 
-      publicationStatus:
-        updatedOrder
-          .publicationStatus,
+      publicationStatus: updatedOrder.publicationStatus,
 
-      instruction:
-        updatedOrder
-          .generatedInstruction
+      instruction: updatedOrder.generatedInstruction,
     });
-  }
+  },
 );
 
-
 publicGenerationRouter.post(
-  "/admin/orders/:id/approve",
+  '/admin/orders/:id/approve',
 
   requireAdmin,
 
   (req, res) => {
-
-    const order =
-      getPublicGenerationOrder(
-        req.params.id
-      );
-
+    const order = getPublicGenerationOrder(req.params.id);
 
     if (!order) {
-
-      return res
-        .status(404)
-        .json({
-          error:
-            "Заказ не найден"
-        });
-
-    }
-
-
-    if (
-      order.status !==
-        "generated" ||
-      !order.generatedInstruction
-    ) {
-
-      return res
-        .status(409)
-        .json({
-          error:
-            "Инструкция ещё не готова."
-        });
-
-    }
-
-
-    if (
-      order.publicationStatus ===
-        "published"
-    ) {
-
-      return res.json({
-        ok:
-          true,
-
-        orderId:
-          order.id,
-
-        publicationStatus:
-          "published",
-
-        instructionId:
-          order.instructionId
+      return res.status(404).json({
+        error: 'Заказ не найден',
       });
-
     }
 
-
-    if (
-      order.publicationStatus !==
-        "pending"
-    ) {
-
-      return res
-        .status(409)
-        .json({
-          error:
-            "Инструкция уже рассмотрена."
-        });
-
+    if (order.status !== 'generated' || !order.generatedInstruction) {
+      return res.status(409).json({
+        error: 'Инструкция ещё не готова.',
+      });
     }
 
+    if (order.publicationStatus === 'published') {
+      return res.json({
+        ok: true,
 
-    const now =
-      new Date()
-        .toISOString();
+        orderId: order.id,
 
+        publicationStatus: 'published',
 
-    const existing =
-      findExistingInstruction(
-        order.generatedInstruction
-          .profession
-      );
+        instructionId: order.instructionId,
+      });
+    }
 
+    if (order.publicationStatus !== 'pending') {
+      return res.status(409).json({
+        error: 'Инструкция уже рассмотрена.',
+      });
+    }
+
+    const now = new Date().toISOString();
+
+    const existing = findExistingInstruction(order.generatedInstruction.profession);
 
     const publishedInstruction =
       existing ||
       instructionsRepository.save({
         ...order.generatedInstruction,
 
-        updatedAt:
-          now
+        updatedAt: now,
       });
 
+    updatePublicGenerationOrder(order.id, {
+      publicationStatus: 'published',
 
-    updatePublicGenerationOrder(
-      order.id,
-      {
-        publicationStatus:
-          "published",
+      instructionId: publishedInstruction.id,
 
-        instructionId:
-          publishedInstruction.id,
+      publishedAt: now,
 
-        publishedAt:
-          now,
+      reviewedAt: now,
 
-        reviewedAt:
-          now,
+      reviewedBy: String(req.user?.login ?? 'admin'),
 
-        reviewedBy:
-          String(
-            req.user?.login ??
-            "admin"
-          ),
-
-        rejectionReason:
-          null
-      }
-    );
-
-
-    console.log(
-      "[PublicGeneration Admin] approved:",
-      order.id,
-      publishedInstruction.id
-    );
-
-
-    return res.json({
-      ok:
-        true,
-
-      orderId:
-        order.id,
-
-      publicationStatus:
-        "published",
-
-      instructionId:
-        publishedInstruction.id
+      rejectionReason: null,
     });
 
-  }
+    console.log('[PublicGeneration Admin] approved:', order.id, publishedInstruction.id);
+
+    return res.json({
+      ok: true,
+
+      orderId: order.id,
+
+      publicationStatus: 'published',
+
+      instructionId: publishedInstruction.id,
+    });
+  },
 );
 
-
 publicGenerationRouter.post(
-  "/admin/orders/:id/reject",
+  '/admin/orders/:id/reject',
 
   requireAdmin,
 
   (req, res) => {
-
-    const order =
-      getPublicGenerationOrder(
-        req.params.id
-      );
-
+    const order = getPublicGenerationOrder(req.params.id);
 
     if (!order) {
-
-      return res
-        .status(404)
-        .json({
-          error:
-            "Заказ не найден"
-        });
-
-    }
-
-
-    if (
-      order.status !==
-        "generated" ||
-      !order.generatedInstruction
-    ) {
-
-      return res
-        .status(409)
-        .json({
-          error:
-            "Инструкция ещё не готова."
-        });
-
-    }
-
-
-    if (
-      order.publicationStatus ===
-        "rejected"
-    ) {
-
-      return res.json({
-        ok:
-          true,
-
-        orderId:
-          order.id,
-
-        publicationStatus:
-          "rejected"
+      return res.status(404).json({
+        error: 'Заказ не найден',
       });
-
     }
 
-
-    if (
-      order.publicationStatus !==
-        "pending"
-    ) {
-
-      return res
-        .status(409)
-        .json({
-          error:
-            "Инструкция уже опубликована."
-        });
-
+    if (order.status !== 'generated' || !order.generatedInstruction) {
+      return res.status(409).json({
+        error: 'Инструкция ещё не готова.',
+      });
     }
 
+    if (order.publicationStatus === 'rejected') {
+      return res.json({
+        ok: true,
 
-    const now =
-      new Date()
-        .toISOString();
+        orderId: order.id,
 
+        publicationStatus: 'rejected',
+      });
+    }
 
-    const reason =
-      String(
-        req.body?.reason ??
-        ""
-      )
+    if (order.publicationStatus !== 'pending') {
+      return res.status(409).json({
+        error: 'Инструкция уже опубликована.',
+      });
+    }
+
+    const now = new Date().toISOString();
+
+    const reason = String(req.body?.reason ?? '')
       .trim()
-      .slice(
-        0,
-        500
-      );
+      .slice(0, 500);
 
+    updatePublicGenerationOrder(order.id, {
+      publicationStatus: 'rejected',
 
-    updatePublicGenerationOrder(
-      order.id,
-      {
-        publicationStatus:
-          "rejected",
+      reviewedAt: now,
 
-        reviewedAt:
-          now,
+      reviewedBy: String(req.user?.login ?? 'admin'),
 
-        reviewedBy:
-          String(
-            req.user?.login ??
-            "admin"
-          ),
-
-        rejectionReason:
-          reason ||
-          null
-      }
-    );
-
-
-    console.log(
-      "[PublicGeneration Admin] rejected:",
-      order.id
-    );
-
-
-    return res.json({
-      ok:
-        true,
-
-      orderId:
-        order.id,
-
-      publicationStatus:
-        "rejected"
+      rejectionReason: reason || null,
     });
 
-  }
+    console.log('[PublicGeneration Admin] rejected:', order.id);
+
+    return res.json({
+      ok: true,
+
+      orderId: order.id,
+
+      publicationStatus: 'rejected',
+    });
+  },
 );

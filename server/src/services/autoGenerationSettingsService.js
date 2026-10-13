@@ -1,140 +1,69 @@
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const __dirname =
-  path.dirname(
-    fileURLToPath(import.meta.url)
-  );
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const SETTINGS_PATH =
-  path.join(
-    __dirname,
-    "..",
-    "data",
-    "autoGenerationSettings.json"
-  );
+const SETTINGS_PATH = path.join(__dirname, '..', 'data', 'autoGenerationSettings.json');
 
 const DEFAULT_SETTINGS = {
-  enabled: true
+  enabled: true,
 };
 
-
 function ensureSettingsFile() {
-
-  if (
-    fs.existsSync(
-      SETTINGS_PATH
-    )
-  ) {
+  if (fs.existsSync(SETTINGS_PATH)) {
     return;
   }
 
-  fs.mkdirSync(
-    path.dirname(SETTINGS_PATH),
-    {
-      recursive: true
-    }
-  );
+  fs.mkdirSync(path.dirname(SETTINGS_PATH), {
+    recursive: true,
+  });
 
-  fs.writeFileSync(
-    SETTINGS_PATH,
-    JSON.stringify(
-      DEFAULT_SETTINGS,
-      null,
-      2
-    ) + "\n",
-    "utf8"
-  );
+  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(DEFAULT_SETTINGS, null, 2) + '\n', 'utf8');
 }
 
-
 export function getAutoGenerationSettings() {
-
   ensureSettingsFile();
 
   try {
+    const raw = fs.readFileSync(SETTINGS_PATH, 'utf8');
 
-    const raw =
-      fs.readFileSync(
-        SETTINGS_PATH,
-        "utf8"
-      );
-
-    const parsed =
-      JSON.parse(
-        raw.replace(
-          /^\uFEFF/,
-          ""
-        )
-      );
+    const parsed = JSON.parse(raw.replace(/^\uFEFF/, ''));
 
     return {
-      enabled:
-        parsed?.enabled !== false
+      enabled: parsed?.enabled !== false,
     };
-
-  }
-  catch(error) {
-
-    console.error(
-      "Не удалось прочитать настройки автогенерации:",
-      error.message
-    );
+  } catch (error) {
+    console.error('Не удалось прочитать настройки автогенерации:', error.message);
 
     return {
-      ...DEFAULT_SETTINGS
+      ...DEFAULT_SETTINGS,
     };
   }
 }
-
 
 export function isAutoGenerationEnabled() {
-
-  return (
-    getAutoGenerationSettings()
-      .enabled
-  );
+  return getAutoGenerationSettings().enabled;
 }
 
-
-export function setAutoGenerationEnabled(
-  enabled
-) {
-
+export function setAutoGenerationEnabled(enabled) {
   const settings = {
-    enabled:
-      Boolean(enabled)
+    enabled: Boolean(enabled),
   };
 
-  fs.mkdirSync(
-    path.dirname(SETTINGS_PATH),
-    {
-      recursive: true
-    }
-  );
+  fs.mkdirSync(path.dirname(SETTINGS_PATH), {
+    recursive: true,
+  });
 
   /*
    * Сначала пишем во временный файл,
    * затем атомарно заменяем основной.
    */
-  const tempPath =
-    SETTINGS_PATH + ".tmp";
+  const tempPath = SETTINGS_PATH + '.tmp';
 
-  fs.writeFileSync(
-    tempPath,
-    JSON.stringify(
-      settings,
-      null,
-      2
-    ) + "\n",
-    "utf8"
-  );
+  fs.writeFileSync(tempPath, JSON.stringify(settings, null, 2) + '\n', 'utf8');
 
-  fs.renameSync(
-    tempPath,
-    SETTINGS_PATH
-  );
+  fs.renameSync(tempPath, SETTINGS_PATH);
 
   return settings;
 }

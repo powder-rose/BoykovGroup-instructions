@@ -1,178 +1,81 @@
-import fs from "node:fs";
-import path from "node:path";
-import crypto from "node:crypto";
-import { fileURLToPath } from "node:url";
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 
-const __dirname =
-  path.dirname(
-    fileURLToPath(
-      import.meta.url
-    )
-  );
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const DATA_DIR =
-  path.join(
-    __dirname,
-    "..",
-    "data",
-    "analytics"
-  );
+const DATA_DIR = path.join(__dirname, '..', 'data', 'analytics');
 
-const EVENTS_FILE =
-  path.join(
-    DATA_DIR,
-    "visitor-events.jsonl"
-  );
+const EVENTS_FILE = path.join(DATA_DIR, 'visitor-events.jsonl');
 
-const MOSCOW_TIMEZONE =
-  "Europe/Moscow";
+const MOSCOW_TIMEZONE = 'Europe/Moscow';
 
 function ensureStorage() {
-  if (
-    !fs.existsSync(
-      DATA_DIR
-    )
-  ) {
-    fs.mkdirSync(
-      DATA_DIR,
-      {
-        recursive: true
-      }
-    );
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, {
+      recursive: true,
+    });
   }
 
-  if (
-    !fs.existsSync(
-      EVENTS_FILE
-    )
-  ) {
-    fs.writeFileSync(
-      EVENTS_FILE,
-      "",
-      "utf-8"
-    );
+  if (!fs.existsSync(EVENTS_FILE)) {
+    fs.writeFileSync(EVENTS_FILE, '', 'utf-8');
   }
 }
 
-function getDayKey(
-  date = new Date()
-) {
-  const formatter =
-    new Intl.DateTimeFormat(
-      "en-US",
-      {
-        timeZone:
-          MOSCOW_TIMEZONE,
+function getDayKey(date = new Date()) {
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: MOSCOW_TIMEZONE,
 
-        year:
-          "numeric",
+    year: 'numeric',
 
-        month:
-          "2-digit",
+    month: '2-digit',
 
-        day:
-          "2-digit"
-      }
-    );
+    day: '2-digit',
+  });
 
-  const parts =
-    Object.fromEntries(
-      formatter
-        .formatToParts(date)
-        .filter(
-          part =>
-            part.type !==
-            "literal"
-        )
-        .map(
-          part => [
-            part.type,
-            part.value
-          ]
-        )
-    );
-
-  return (
-    `${parts.year}-` +
-    `${parts.month}-` +
-    `${parts.day}`
+  const parts = Object.fromEntries(
+    formatter
+      .formatToParts(date)
+      .filter(part => part.type !== 'literal')
+      .map(part => [part.type, part.value]),
   );
+
+  return `${parts.year}-` + `${parts.month}-` + `${parts.day}`;
 }
 
-function getDayKeyOffset(
-  offset
-) {
-  return getDayKey(
-    new Date(
-      Date.now()
-      +
-      (
-        Number(offset)
-        *
-        86400000
-      )
-    )
-  );
+function getDayKeyOffset(offset) {
+  return getDayKey(new Date(Date.now() + Number(offset) * 86400000));
 }
 
-function getDayKeys(
-  numberOfDays
-) {
+function getDayKeys(numberOfDays) {
   return new Set(
     Array.from(
       {
-        length:
-          numberOfDays
+        length: numberOfDays,
       },
 
-      (_, index) =>
-        getDayKeyOffset(
-          -index
-        )
-    )
+      (_, index) => getDayKeyOffset(-index),
+    ),
   );
 }
 
-function normalizeVisitorId(
-  value
-) {
-  const id =
-    String(
-      value ?? ""
-    )
-      .trim();
+function normalizeVisitorId(value) {
+  const id = String(value ?? '').trim();
 
-  if (
-    id.length < 16
-    ||
-    id.length > 128
-  ) {
+  if (id.length < 16 || id.length > 128) {
     return null;
   }
 
-  if (
-    !/^[a-zA-Z0-9_-]+$/u
-      .test(id)
-  ) {
+  if (!/^[a-zA-Z0-9_-]+$/u.test(id)) {
     return null;
   }
 
   return id;
 }
 
-function hashVisitorId(
-  visitorId
-) {
-  return crypto
-    .createHash(
-      "sha256"
-    )
-    .update(
-      visitorId
-    )
-    .digest(
-      "hex"
-    );
+function hashVisitorId(visitorId) {
+  return crypto.createHash('sha256').update(visitorId).digest('hex');
 }
 
 function readEvents() {
@@ -181,17 +84,9 @@ function readEvents() {
   let text;
 
   try {
-    text =
-      fs.readFileSync(
-        EVENTS_FILE,
-        "utf-8"
-      );
-  }
-  catch (error) {
-    console.error(
-      "Visitor stats read error:",
-      error
-    );
+    text = fs.readFileSync(EVENTS_FILE, 'utf-8');
+  } catch (error) {
+    console.error('Visitor stats read error:', error);
 
     return [];
   }
@@ -202,29 +97,18 @@ function readEvents() {
 
   const events = [];
 
-  for (
-    const line
-    of text.split("\n")
-  ) {
+  for (const line of text.split('\n')) {
     if (!line.trim()) {
       continue;
     }
 
     try {
-      const event =
-        JSON.parse(line);
+      const event = JSON.parse(line);
 
-      if (
-        event?.day
-        &&
-        event?.visitor
-      ) {
-        events.push(
-          event
-        );
+      if (event?.day && event?.visitor) {
+        events.push(event);
       }
-    }
-    catch {
+    } catch {
       /*
        * Одна повреждённая строка
        * не должна ломать статистику.
@@ -235,64 +119,36 @@ function readEvents() {
   return events;
 }
 
-function aggregatePeriod(
-  events,
-  allowedDays = null
-) {
-  const visitors =
-    new Set();
+function aggregatePeriod(events, allowedDays = null) {
+  const visitors = new Set();
 
   let pageViews = 0;
 
-  for (
-    const event
-    of events
-  ) {
-    if (
-      allowedDays
-      &&
-      !allowedDays.has(
-        event.day
-      )
-    ) {
+  for (const event of events) {
+    if (allowedDays && !allowedDays.has(event.day)) {
       continue;
     }
 
     pageViews += 1;
 
-    visitors.add(
-      event.visitor
-    );
+    visitors.add(event.visitor);
   }
 
   return {
-    visitors:
-      visitors.size,
+    visitors: visitors.size,
 
-    pageViews
+    pageViews,
   };
 }
 
-export function isLikelyBot(
-  userAgent = ""
-) {
-  return (
-    /bot|crawler|spider|slurp|yandex|googlebot|bingbot|duckduckbot|baiduspider|facebookexternalhit|preview/iu
-      .test(
-        String(
-          userAgent ?? ""
-        )
-      )
+export function isLikelyBot(userAgent = '') {
+  return /bot|crawler|spider|slurp|yandex|googlebot|bingbot|duckduckbot|baiduspider|facebookexternalhit|preview/iu.test(
+    String(userAgent ?? ''),
   );
 }
 
-export function recordVisitorPageView({
-  visitorId
-}) {
-  const normalized =
-    normalizeVisitorId(
-      visitorId
-    );
+export function recordVisitorPageView({ visitorId }) {
+  const normalized = normalizeVisitorId(visitorId);
 
   if (!normalized) {
     return false;
@@ -300,77 +156,37 @@ export function recordVisitorPageView({
 
   ensureStorage();
 
-  const now =
-    new Date();
+  const now = new Date();
 
   const event = {
-    ts:
-      now.toISOString(),
+    ts: now.toISOString(),
 
-    day:
-      getDayKey(now),
+    day: getDayKey(now),
 
-    visitor:
-      hashVisitorId(
-        normalized
-      )
+    visitor: hashVisitorId(normalized),
   };
 
-  fs.appendFileSync(
-    EVENTS_FILE,
-    JSON.stringify(
-      event
-    )
-    +
-    "\n",
-    "utf-8"
-  );
+  fs.appendFileSync(EVENTS_FILE, JSON.stringify(event) + '\n', 'utf-8');
 
   return true;
 }
 
 export function getVisitorStats() {
-  const events =
-    readEvents();
+  const events = readEvents();
 
-  const todayKey =
-    getDayKeyOffset(0);
+  const todayKey = getDayKeyOffset(0);
 
-  const yesterdayKey =
-    getDayKeyOffset(-1);
+  const yesterdayKey = getDayKeyOffset(-1);
 
-  const today =
-    aggregatePeriod(
-      events,
-      new Set([
-        todayKey
-      ])
-    );
+  const today = aggregatePeriod(events, new Set([todayKey]));
 
-  const yesterday =
-    aggregatePeriod(
-      events,
-      new Set([
-        yesterdayKey
-      ])
-    );
+  const yesterday = aggregatePeriod(events, new Set([yesterdayKey]));
 
-  const last7Days =
-    aggregatePeriod(
-      events,
-      getDayKeys(7)
-    );
+  const last7Days = aggregatePeriod(events, getDayKeys(7));
 
-  const last30Days =
-    aggregatePeriod(
-      events,
-      getDayKeys(30)
-    );
+  const last30Days = aggregatePeriod(events, getDayKeys(30));
 
-  const total =
-    aggregatePeriod(
-      events
-    );
+  const total = aggregatePeriod(events);
 
   return {
     today,
@@ -379,11 +195,8 @@ export function getVisitorStats() {
     last30Days,
     total,
 
-    generatedAt:
-      new Date()
-        .toISOString(),
+    generatedAt: new Date().toISOString(),
 
-    timezone:
-      MOSCOW_TIMEZONE
+    timezone: MOSCOW_TIMEZONE,
   };
 }

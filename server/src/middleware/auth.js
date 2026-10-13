@@ -1,4 +1,4 @@
-import { verifyToken } from "../services/authService.js";
+import { verifyToken } from '../services/authService.js';
 
 /**
  * Достаёт и проверяет Bearer-токен из заголовка Authorization, если он есть,
@@ -7,9 +7,9 @@ import { verifyToken } from "../services/authService.js";
  * доступ реально ограничивает requireAdmin ниже.
  */
 export function attachUser(req, res, next) {
-  const header = req.headers.authorization || "";
-  const [scheme, token] = header.split(" ");
-  if (scheme === "Bearer" && token) {
+  const header = req.headers.authorization || '';
+  const [scheme, token] = header.split(' ');
+  if (scheme === 'Bearer' && token) {
     try {
       req.user = verifyToken(token);
     } catch {
@@ -23,8 +23,8 @@ export function attachUser(req, res, next) {
 
 /** Пропускает дальше только запросы с валидным токеном админа. */
 export function requireAdmin(req, res, next) {
-  if (!req.user || req.user.role !== "admin") {
-    return res.status(401).json({ error: "Требуется авторизация администратора" });
+  if (!req.user || req.user.role !== 'admin') {
+    return res.status(401).json({ error: 'Требуется авторизация администратора' });
   }
   next();
 }

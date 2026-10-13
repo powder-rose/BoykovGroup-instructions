@@ -1,281 +1,110 @@
-import express, {
-  Router
-} from "express";
+import express, { Router } from 'express';
 
-import crypto from "node:crypto";
+import crypto from 'node:crypto';
 
 import {
   getPublicGenerationOrder,
   updatePublicGenerationOrder,
-  findPublicGenerationOrderByTransactionId
-} from "../services/publicGenerationOrderService.js";
+  findPublicGenerationOrderByTransactionId,
+} from '../services/publicGenerationOrderService.js';
 
-import {
-  moderateProfessionRequest
-} from "../services/contentModerationService.js";
+import { moderateProfessionRequest } from '../services/contentModerationService.js';
 
-import {
-  queuePublicGenerationOrder
-} from "../services/publicPaidGenerationService.js";
+import { queuePublicGenerationOrder } from '../services/publicPaidGenerationService.js';
 
-import {
-  instructionsRepository
-} from "../services/instructionsRepository.js";
+import { instructionsRepository } from '../services/instructionsRepository.js';
 
-import {
-  normalizeProfessionKey
-} from "../services/professionNormalizer.js";
+import { normalizeProfessionKey } from '../services/professionNormalizer.js';
 
-import {
-  markPromoCodeUsed
-} from "../services/promoCodeService.js";
+import { markPromoCodeUsed } from '../services/promoCodeService.js';
 
-
-export const cloudPaymentsWebhookRouter =
-  Router();
-
+export const cloudPaymentsWebhookRouter = Router();
 
 cloudPaymentsWebhookRouter.use(
   express.raw({
-    type:
-      "*/*",
+    type: '*/*',
 
-    limit:
-      "100kb"
-  })
+    limit: '100kb',
+  }),
 );
 
-
-function safeEqual(
-  left,
-  right
-) {
-
-  if (
-    typeof left !== "string" ||
-    typeof right !== "string"
-  ) {
+function safeEqual(left, right) {
+  if (typeof left !== 'string' || typeof right !== 'string') {
     return false;
   }
 
+  const a = Buffer.from(left, 'utf8');
 
-  const a =
-    Buffer.from(
-      left,
-      "utf8"
-    );
+  const b = Buffer.from(right, 'utf8');
 
-  const b =
-    Buffer.from(
-      right,
-      "utf8"
-    );
-
-
-  if (
-    a.length !==
-    b.length
-  ) {
+  if (a.length !== b.length) {
     return false;
   }
 
-
-  return crypto.timingSafeEqual(
-    a,
-    b
-  );
+  return crypto.timingSafeEqual(a, b);
 }
 
-
-function verifyHmac(
-  req
-) {
-
-  const secret =
-    String(
-      process.env
-        .CLOUDPAYMENTS_API_SECRET ??
-      ""
-    );
-
+function verifyHmac(req) {
+  const secret = String(process.env.CLOUDPAYMENTS_API_SECRET ?? '');
 
   if (!secret) {
-
-    console.error(
-      "[CloudPayments] CLOUDPAYMENTS_API_SECRET missing"
-    );
-
+    console.error('[CloudPayments] CLOUDPAYMENTS_API_SECRET missing');
 
     return false;
   }
 
-
-  if (
-    !Buffer.isBuffer(
-      req.body
-    )
-  ) {
+  if (!Buffer.isBuffer(req.body)) {
     return false;
   }
-
 
   /*
    * Для POST CloudPayments документирует,
    * что Content-HMAC считается от тела запроса.
    */
-  const expected =
-    crypto
-      .createHmac(
-        "sha256",
-        secret
-      )
-      .update(
-        req.body
-      )
-      .digest(
-        "base64"
-      );
+  const expected = crypto.createHmac('sha256', secret).update(req.body).digest('base64');
 
+  const received = String(req.get('Content-HMAC') ?? '');
 
-  const received =
-    String(
-      req.get(
-        "Content-HMAC"
-      ) ??
-      ""
-    );
-
-
-  return safeEqual(
-    expected,
-    received
-  );
+  return safeEqual(expected, received);
 }
 
+function parsePayload(req) {
+  const raw = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : '';
 
-function parsePayload(
-  req
-) {
+  const contentType = String(req.get('content-type') ?? '').toLowerCase();
 
-  const raw =
-    Buffer.isBuffer(
-      req.body
-    )
-      ? req.body
-          .toString(
-            "utf8"
-          )
-      : "";
-
-
-  const contentType =
-    String(
-      req.get(
-        "content-type"
-      ) ??
-      ""
-    )
-    .toLowerCase();
-
-
-  if (
-    contentType.includes(
-      "application/json"
-    )
-  ) {
-
-    return JSON.parse(
-      raw || "{}"
-    );
-
+  if (contentType.includes('application/json')) {
+    return JSON.parse(raw || '{}');
   }
 
-
-  return Object.fromEntries(
-    new URLSearchParams(
-      raw
-    )
-  );
+  return Object.fromEntries(new URLSearchParams(raw));
 }
 
+function amountIsCorrect(value, expected) {
+  const amount = Number(value);
 
-function amountIsCorrect(
-  value,
-  expected
-) {
-
-  const amount =
-    Number(value);
-
-
-  return (
-    Number.isFinite(
-      amount
-    ) &&
-    Math.abs(
-      amount -
-      expected
-    ) <
-    0.0001
-  );
+  return Number.isFinite(amount) && Math.abs(amount - expected) < 0.0001;
 }
 
-
-function existingInstruction(
-  profession
-) {
-
-  if (
-    typeof
-      instructionsRepository
-        .findByProfessionKey !==
-    "function"
-  ) {
+function existingInstruction(profession) {
+  if (typeof instructionsRepository.findByProfessionKey !== 'function') {
     return null;
   }
 
-
-  const key =
-    normalizeProfessionKey(
-      profession
-    );
-
+  const key = normalizeProfessionKey(profession);
 
   if (!key) {
     return null;
   }
 
-
-  return (
-    instructionsRepository
-      .findByProfessionKey(
-        key
-      ) ||
-    null
-  );
+  return instructionsRepository.findByProfessionKey(key) || null;
 }
 
+function isExpired(order) {
+  const timestamp = Date.parse(order?.expiresAt ?? '');
 
-function isExpired(
-  order
-) {
-
-  const timestamp =
-    Date.parse(
-      order?.expiresAt ??
-      ""
-    );
-
-
-  return (
-    !Number.isFinite(
-      timestamp
-    ) ||
-    timestamp <
-    Date.now()
-  );
+  return !Number.isFinite(timestamp) || timestamp < Date.now();
 }
-
 
 /*
  * ============================================================
@@ -283,146 +112,68 @@ function isExpired(
  * ============================================================
  */
 cloudPaymentsWebhookRouter.post(
-  "/check",
+  '/check',
 
   (req, res) => {
+    if (!verifyHmac(req)) {
+      console.warn('[CloudPayments Check] invalid HMAC');
 
-    if (
-      !verifyHmac(req)
-    ) {
-
-      console.warn(
-        "[CloudPayments Check] invalid HMAC"
-      );
-
-
-      return res
-        .status(403)
-        .json({
-          code:
-            13
-        });
-
+      return res.status(403).json({
+        code: 13,
+      });
     }
-
 
     let data;
 
-
     try {
-
-      data =
-        parsePayload(req);
-
-    }
-    catch {
-
+      data = parsePayload(req);
+    } catch {
       return res.json({
-        code:
-          13
+        code: 13,
       });
     }
 
+    const orderId = String(data.InvoiceId ?? '');
 
-    const orderId =
-      String(
-        data.InvoiceId ??
-        ""
-      );
-
-
-    const order =
-      getPublicGenerationOrder(
-        orderId
-      );
-
+    const order = getPublicGenerationOrder(orderId);
 
     if (!order) {
-
       return res.json({
-        code:
-          10
+        code: 10,
       });
-
     }
 
-
-    if (
-      isExpired(
-        order
-      )
-    ) {
-
+    if (isExpired(order)) {
       return res.json({
-        code:
-          20
+        code: 20,
       });
-
     }
 
-
-    if (
-      order.status !==
-      "pending_payment"
-    ) {
-
+    if (order.status !== 'pending_payment') {
       return res.json({
-        code:
-          13
+        code: 13,
       });
-
     }
 
-
-    if (
-      !amountIsCorrect(
-        data.Amount,
-        order.amount
-      )
-    ) {
-
+    if (!amountIsCorrect(data.Amount, order.amount)) {
       return res.json({
-        code:
-          12
+        code: 12,
       });
-
     }
 
-
-    if (
-      String(
-        data.Currency ??
-        ""
-      )
-      .toUpperCase() !==
-      order.currency
-    ) {
-
+    if (String(data.Currency ?? '').toUpperCase() !== order.currency) {
       return res.json({
-        code:
-          13
+        code: 13,
       });
-
     }
 
+    const moderation = moderateProfessionRequest(order.profession);
 
-    const moderation =
-      moderateProfessionRequest(
-        order.profession
-      );
-
-
-    if (
-      !moderation.allowed
-    ) {
-
+    if (!moderation.allowed) {
       return res.json({
-        code:
-          13
+        code: 13,
       });
-
     }
-
 
     /*
      * За время между созданием заказа и оплатой
@@ -430,28 +181,17 @@ cloudPaymentsWebhookRouter.post(
      *
      * В этом случае денег не берём.
      */
-    if (
-      existingInstruction(
-        order.profession
-      )
-    ) {
-
+    if (existingInstruction(order.profession)) {
       return res.json({
-        code:
-          13
+        code: 13,
       });
-
     }
 
-
     return res.json({
-      code:
-        0
+      code: 0,
     });
-
-  }
+  },
 );
-
 
 /*
  * ============================================================
@@ -459,68 +199,32 @@ cloudPaymentsWebhookRouter.post(
  * ============================================================
  */
 cloudPaymentsWebhookRouter.post(
-  "/pay",
+  '/pay',
 
   (req, res) => {
+    if (!verifyHmac(req)) {
+      console.warn('[CloudPayments Pay] invalid HMAC');
 
-    if (
-      !verifyHmac(req)
-    ) {
-
-      console.warn(
-        "[CloudPayments Pay] invalid HMAC"
-      );
-
-
-      return res
-        .status(403)
-        .json({
-          code:
-            13
-        });
-
+      return res.status(403).json({
+        code: 13,
+      });
     }
-
 
     let data;
 
-
     try {
-
-      data =
-        parsePayload(req);
-
-    }
-    catch {
-
-      return res
-        .status(400)
-        .json({
-          code:
-            13
-        });
+      data = parsePayload(req);
+    } catch {
+      return res.status(400).json({
+        code: 13,
+      });
     }
 
+    const orderId = String(data.InvoiceId ?? '');
 
-    const orderId =
-      String(
-        data.InvoiceId ??
-        ""
-      );
+    const transactionId = String(data.TransactionId ?? '');
 
-
-    const transactionId =
-      String(
-        data.TransactionId ??
-        ""
-      );
-
-
-    const order =
-      getPublicGenerationOrder(
-        orderId
-      );
-
+    const order = getPublicGenerationOrder(orderId);
 
     /*
      * Pay уже означает состоявшийся платеж.
@@ -529,285 +233,136 @@ cloudPaymentsWebhookRouter.post(
      * повторы webhook.
      */
     if (!order) {
-
-      console.error(
-        "[CloudPayments Pay] unknown order:",
-        orderId
-      );
-
+      console.error('[CloudPayments Pay] unknown order:', orderId);
 
       return res.json({
-        code:
-          0
+        code: 0,
       });
-
     }
-
 
     /*
      * Проверяем повторное использование
      * TransactionId.
      */
-    const transactionOrder =
-      findPublicGenerationOrderByTransactionId(
-        transactionId
-      );
+    const transactionOrder = findPublicGenerationOrderByTransactionId(transactionId);
 
+    if (transactionOrder && transactionOrder.id !== order.id) {
+      updatePublicGenerationOrder(order.id, {
+        status: 'manual_review',
 
-    if (
-      transactionOrder &&
-      transactionOrder.id !==
-      order.id
-    ) {
-
-      updatePublicGenerationOrder(
-        order.id,
-        {
-          status:
-            "manual_review",
-
-          failureCode:
-            "DUPLICATE_TRANSACTION"
-        }
-      );
-
-
-      return res.json({
-        code:
-          0
+        failureCode: 'DUPLICATE_TRANSACTION',
       });
 
+      return res.json({
+        code: 0,
+      });
     }
-
 
     /*
      * Идемпотентный повтор Pay webhook.
      */
-    if (
-      order.transactionId &&
-      String(
-        order.transactionId
-      ) ===
-      transactionId
-    ) {
-
-      if (
-        order.status ===
-          "paid" ||
-        order.status ===
-          "generating"
-      ) {
-
-        queuePublicGenerationOrder(
-          order.id
-        );
-
+    if (order.transactionId && String(order.transactionId) === transactionId) {
+      if (order.status === 'paid' || order.status === 'generating') {
+        queuePublicGenerationOrder(order.id);
       }
 
-
       return res.json({
-        code:
-          0
+        code: 0,
       });
-
     }
-
 
     /*
      * Сумма и валюта контролируются
      * сервером повторно и после Pay.
      */
     const paymentValid =
-      amountIsCorrect(
-        data.Amount,
-        order.amount
-      ) &&
-      String(
-        data.Currency ??
-        ""
-      )
-      .toUpperCase() ===
-        order.currency &&
-      String(
-        data.OperationType ??
-        "Payment"
-      ) ===
-        "Payment" &&
-      String(
-        data.Status ??
-        "Completed"
-      ) ===
-        "Completed";
-
+      amountIsCorrect(data.Amount, order.amount) &&
+      String(data.Currency ?? '').toUpperCase() === order.currency &&
+      String(data.OperationType ?? 'Payment') === 'Payment' &&
+      String(data.Status ?? 'Completed') === 'Completed';
 
     if (!paymentValid) {
+      console.error('[CloudPayments Pay] payment mismatch:', order.id);
 
-      console.error(
-        "[CloudPayments Pay] payment mismatch:",
-        order.id
-      );
+      updatePublicGenerationOrder(order.id, {
+        status: 'manual_review',
 
+        transactionId,
 
-      updatePublicGenerationOrder(
-        order.id,
-        {
-          status:
-            "manual_review",
+        paidAt: new Date().toISOString(),
 
-          transactionId,
-
-          paidAt:
-            new Date()
-              .toISOString(),
-
-          failureCode:
-            "PAYMENT_MISMATCH"
-        }
-      );
-
-
-      return res.json({
-        code:
-          0
+        failureCode: 'PAYMENT_MISMATCH',
       });
 
+      return res.json({
+        code: 0,
+      });
     }
-
 
     /*
      * Даже после оплаты ещё раз проверяем
      * исходный пользовательский запрос.
      */
-    const moderation =
-      moderateProfessionRequest(
-        order.profession
-      );
+    const moderation = moderateProfessionRequest(order.profession);
 
+    if (!moderation.allowed) {
+      updatePublicGenerationOrder(order.id, {
+        status: 'manual_review',
 
-    if (
-      !moderation.allowed
-    ) {
+        transactionId,
 
-      updatePublicGenerationOrder(
-        order.id,
-        {
-          status:
-            "manual_review",
+        paidAt: new Date().toISOString(),
 
-          transactionId,
-
-          paidAt:
-            new Date()
-              .toISOString(),
-
-          failureCode:
-            "MODERATION_AFTER_PAYMENT"
-        }
-      );
-
-
-      return res.json({
-        code:
-          0
+        failureCode: 'MODERATION_AFTER_PAYMENT',
       });
 
+      return res.json({
+        code: 0,
+      });
     }
 
-
     const isTestPayment =
-      String(
-        data.TestMode ??
-        ""
-      ) === "1" ||
-      String(
-        data.TestMode ??
-        ""
-      )
-      .toLowerCase() ===
-        "true";
-
+      String(data.TestMode ?? '') === '1' || String(data.TestMode ?? '').toLowerCase() === 'true';
 
     /*
      * Тестовые CloudPayments-платежи
      * по умолчанию НЕ публикуют инструкции.
      */
-    if (
-      isTestPayment &&
-      process.env
-        .PUBLIC_GENERATION_PUBLISH_TEST_PAYMENTS !==
-        "1"
-    ) {
-
-      updatePublicGenerationOrder(
-        order.id,
-        {
-          status:
-            "test_paid",
-
-          transactionId,
-
-          paidAt:
-            new Date()
-              .toISOString(),
-
-          failureCode:
-            null
-        }
-      );
-
-
-      if (
-        order.promo?.id
-      ) {
-
-        markPromoCodeUsed(
-          order.promo.id,
-          order.id
-        );
-
-      }
-
-
-      return res.json({
-        code:
-          0
-      });
-
-    }
-
-
-    updatePublicGenerationOrder(
-      order.id,
-      {
-        status:
-          "paid",
+    if (isTestPayment && process.env.PUBLIC_GENERATION_PUBLISH_TEST_PAYMENTS !== '1') {
+      updatePublicGenerationOrder(order.id, {
+        status: 'test_paid',
 
         transactionId,
 
-        paidAt:
-          new Date()
-            .toISOString(),
+        paidAt: new Date().toISOString(),
 
-        failureCode:
-          null,
+        failureCode: null,
+      });
 
-        internalError:
-          null
+      if (order.promo?.id) {
+        markPromoCodeUsed(order.promo.id, order.id);
       }
-    );
 
-
-    if (
-      order.promo?.id
-    ) {
-
-      markPromoCodeUsed(
-        order.promo.id,
-        order.id
-      );
-
+      return res.json({
+        code: 0,
+      });
     }
 
+    updatePublicGenerationOrder(order.id, {
+      status: 'paid',
+
+      transactionId,
+
+      paidAt: new Date().toISOString(),
+
+      failureCode: null,
+
+      internalError: null,
+    });
+
+    if (order.promo?.id) {
+      markPromoCodeUsed(order.promo.id, order.id);
+    }
 
     /*
      * ВАЖНО:
@@ -816,15 +371,10 @@ cloudPaymentsWebhookRouter.post(
      * Генерация выполняется после ответа
      * независимо от HTTP webhook.
      */
-    queuePublicGenerationOrder(
-      order.id
-    );
-
+    queuePublicGenerationOrder(order.id);
 
     return res.json({
-      code:
-        0
+      code: 0,
     });
-
-  }
+  },
 );

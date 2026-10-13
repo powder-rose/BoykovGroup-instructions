@@ -1,184 +1,94 @@
-import fs from "node:fs";
-import path from "node:path";
-import {
-  fileURLToPath
-} from "node:url";
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-import {
-  readDownloadEvents
-} from "./downloadStatsService.js";
+import { readDownloadEvents } from './downloadStatsService.js';
 
-import {
-  sendSystemEmail
-} from "./emailVerificationService.js";
+import { sendSystemEmail } from './emailVerificationService.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const __dirname =
-  path.dirname(
-    fileURLToPath(
-      import.meta.url
-    )
-  );
+const ANALYTICS_DIR = path.join(__dirname, '..', 'data', 'analytics');
 
-const ANALYTICS_DIR =
-  path.join(
-    __dirname,
-    "..",
-    "data",
-    "analytics"
-  );
+const VISITOR_FILE = path.join(ANALYTICS_DIR, 'visitor-events.jsonl');
 
-const VISITOR_FILE =
-  path.join(
-    ANALYTICS_DIR,
-    "visitor-events.jsonl"
-  );
+const STATE_FILE = path.join(ANALYTICS_DIR, 'daily-site-stats-state.json');
 
-const STATE_FILE =
-  path.join(
-    ANALYTICS_DIR,
-    "daily-site-stats-state.json"
-  );
+const LOCK_FILE = path.join(ANALYTICS_DIR, 'daily-site-stats.lock');
 
-const LOCK_FILE =
-  path.join(
-    ANALYTICS_DIR,
-    "daily-site-stats.lock"
-  );
+const TIMEZONE = 'Europe/Moscow';
 
-const TIMEZONE =
-  "Europe/Moscow";
+const EMAIL_TO = process.env.DAILY_STATS_EMAIL_TO || 'bd@boykovdocs.ru';
 
-const EMAIL_TO =
-  process.env.DAILY_STATS_EMAIL_TO
-  ||
-  "bd@boykovdocs.ru";
+const SEND_HOUR = Math.min(23, Math.max(0, Number(process.env.DAILY_STATS_HOUR || 8)));
 
-const SEND_HOUR =
-  Math.min(
-    23,
-    Math.max(
-      0,
-      Number(
-        process.env.DAILY_STATS_HOUR
-        ||
-        8
-      )
-    )
-  );
-
-const DAY_MS =
-  24
-  *
-  60
-  *
-  60
-  *
-  1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 const PERIODS = [
   {
-    key:
-      "day",
+    key: 'day',
 
-    label:
-      "24 часа",
+    label: '24 часа',
 
-    ms:
-      DAY_MS
+    ms: DAY_MS,
   },
 
   {
-    key:
-      "week",
+    key: 'week',
 
-    label:
-      "7 дней",
+    label: '7 дней',
 
-    ms:
-      7 * DAY_MS
+    ms: 7 * DAY_MS,
   },
 
   {
-    key:
-      "month",
+    key: 'month',
 
-    label:
-      "30 дней",
+    label: '30 дней',
 
-    ms:
-      30 * DAY_MS
+    ms: 30 * DAY_MS,
   },
 
   {
-    key:
-      "year",
+    key: 'year',
 
-    label:
-      "365 дней",
+    label: '365 дней',
 
-    ms:
-      365 * DAY_MS
-  }
+    ms: 365 * DAY_MS,
+  },
 ];
 
-
 function ensureAnalyticsDir() {
-  fs.mkdirSync(
-    ANALYTICS_DIR,
-    {
-      recursive: true
-    }
-  );
+  fs.mkdirSync(ANALYTICS_DIR, {
+    recursive: true,
+  });
 }
 
-
-function readJsonLines(
-  file
-) {
+function readJsonLines(file) {
   ensureAnalyticsDir();
 
-  if (
-    !fs.existsSync(
-      file
-    )
-  ) {
+  if (!fs.existsSync(file)) {
     return [];
   }
 
-  let text = "";
+  let text = '';
 
   try {
-    text =
-      fs.readFileSync(
-        file,
-        "utf8"
-      );
-  }
-  catch {
+    text = fs.readFileSync(file, 'utf8');
+  } catch {
     return [];
   }
 
   const result = [];
 
-  for (
-    const line
-    of text.split("\n")
-  ) {
-    if (
-      !line.trim()
-    ) {
+  for (const line of text.split('\n')) {
+    if (!line.trim()) {
       continue;
     }
 
     try {
-      result.push(
-        JSON.parse(
-          line
-        )
-      );
-    }
-    catch {
+      result.push(JSON.parse(line));
+    } catch {
       /*
        * Повреждённую строку пропускаем.
        */
@@ -188,389 +98,183 @@ function readJsonLines(
   return result;
 }
 
+function getEventTimestamp(event) {
+  const value = Date.parse(String(event?.ts || ''));
 
-function getEventTimestamp(
-  event
-) {
-  const value =
-    Date.parse(
-      String(
-        event?.ts
-        ||
-        ""
-      )
-    );
-
-  return Number.isFinite(
-    value
-  )
-    ? value
-    : null;
+  return Number.isFinite(value) ? value : null;
 }
 
+function aggregatePeriod({ visitors, downloads, since }) {
+  const uniqueVisitors = new Set();
 
-function aggregatePeriod({
-  visitors,
-  downloads,
-  since
-}) {
-  const uniqueVisitors =
-    new Set();
-
-  const uniqueDownloaders =
-    new Set();
+  const uniqueDownloaders = new Set();
 
   let pageViews = 0;
   let downloadsCount = 0;
 
-  for (
-    const event
-    of visitors
-  ) {
-    const timestamp =
-      getEventTimestamp(
-        event
-      );
+  for (const event of visitors) {
+    const timestamp = getEventTimestamp(event);
 
-    if (
-      timestamp === null
-      ||
-      timestamp < since
-    ) {
+    if (timestamp === null || timestamp < since) {
       continue;
     }
 
     pageViews += 1;
 
-    if (
-      event?.visitor
-    ) {
-      uniqueVisitors.add(
-        event.visitor
-      );
+    if (event?.visitor) {
+      uniqueVisitors.add(event.visitor);
     }
   }
 
-  for (
-    const event
-    of downloads
-  ) {
-    const timestamp =
-      getEventTimestamp(
-        event
-      );
+  for (const event of downloads) {
+    const timestamp = getEventTimestamp(event);
 
-    if (
-      timestamp === null
-      ||
-      timestamp < since
-    ) {
+    if (timestamp === null || timestamp < since) {
       continue;
     }
 
     downloadsCount += 1;
 
-    if (
-      event?.downloader
-    ) {
-      uniqueDownloaders.add(
-        event.downloader
-      );
+    if (event?.downloader) {
+      uniqueDownloaders.add(event.downloader);
     }
   }
 
   const conversion =
-    uniqueVisitors.size > 0
-      ? (
-          uniqueDownloaders.size
-          /
-          uniqueVisitors.size
-          *
-          100
-        )
-      : 0;
+    uniqueVisitors.size > 0 ? (uniqueDownloaders.size / uniqueVisitors.size) * 100 : 0;
 
   return {
-    visitors:
-      uniqueVisitors.size,
+    visitors: uniqueVisitors.size,
 
     pageViews,
 
-    downloaders:
-      uniqueDownloaders.size,
+    downloaders: uniqueDownloaders.size,
 
-    downloads:
-      downloadsCount,
+    downloads: downloadsCount,
 
-    conversion
+    conversion,
   };
 }
 
+function buildTopDownloads(downloads, now) {
+  const map = new Map();
 
-function buildTopDownloads(
-  downloads,
-  now
-) {
-  const map =
-    new Map();
+  for (const event of downloads) {
+    const id = String(event?.instructionId || '');
 
-  for (
-    const event
-    of downloads
-  ) {
-    const id =
-      String(
-        event?.instructionId
-        ||
-        ""
-      );
-
-    if (
-      !id
-    ) {
+    if (!id) {
       continue;
     }
 
-    let item =
-      map.get(
-        id
-      );
+    let item = map.get(id);
 
-    if (
-      !item
-    ) {
+    if (!item) {
       item = {
         id,
 
-        title:
-          String(
-            event?.title
-            ||
-            id
-          ),
+        title: String(event?.title || id),
 
         day: 0,
         week: 0,
         month: 0,
         year: 0,
-        total: 0
+        total: 0,
       };
 
-      map.set(
-        id,
-        item
-      );
+      map.set(id, item);
     }
 
     item.total += 1;
 
-    const timestamp =
-      getEventTimestamp(
-        event
-      );
+    const timestamp = getEventTimestamp(event);
 
-    if (
-      timestamp === null
-    ) {
+    if (timestamp === null) {
       continue;
     }
 
-    if (
-      timestamp >=
-      now - DAY_MS
-    ) {
+    if (timestamp >= now - DAY_MS) {
       item.day += 1;
     }
 
-    if (
-      timestamp >=
-      now - 7 * DAY_MS
-    ) {
+    if (timestamp >= now - 7 * DAY_MS) {
       item.week += 1;
     }
 
-    if (
-      timestamp >=
-      now - 30 * DAY_MS
-    ) {
+    if (timestamp >= now - 30 * DAY_MS) {
       item.month += 1;
     }
 
-    if (
-      timestamp >=
-      now - 365 * DAY_MS
-    ) {
+    if (timestamp >= now - 365 * DAY_MS) {
       item.year += 1;
     }
   }
 
-  return [
-    ...map.values()
-  ]
-    .sort(
-      (
-        first,
-        second
-      ) => {
-        if (
-          second.total !==
-          first.total
-        ) {
-          return (
-            second.total
-            -
-            first.total
-          );
-        }
-
-        return (
-          second.month
-          -
-          first.month
-        );
+  return [...map.values()]
+    .sort((first, second) => {
+      if (second.total !== first.total) {
+        return second.total - first.total;
       }
-    )
-    .slice(
-      0,
-      15
-    );
+
+      return second.month - first.month;
+    })
+    .slice(0, 15);
 }
 
-
 export function getSiteStatsReportData() {
-  const visitors =
-    readJsonLines(
-      VISITOR_FILE
-    );
+  const visitors = readJsonLines(VISITOR_FILE);
 
-  const downloads =
-    readDownloadEvents();
+  const downloads = readDownloadEvents();
 
-  const now =
-    Date.now();
+  const now = Date.now();
 
   const periods = {};
 
-  for (
-    const period
-    of PERIODS
-  ) {
-    periods[
-      period.key
-    ] =
-      aggregatePeriod({
-        visitors,
-        downloads,
+  for (const period of PERIODS) {
+    periods[period.key] = aggregatePeriod({
+      visitors,
+      downloads,
 
-        since:
-          now
-          -
-          period.ms
-      });
+      since: now - period.ms,
+    });
   }
 
   return {
-    generatedAt:
-      new Date()
-        .toISOString(),
+    generatedAt: new Date().toISOString(),
 
     periods,
 
-    totalDownloads:
-      downloads.length,
+    totalDownloads: downloads.length,
 
-    topDownloads:
-      buildTopDownloads(
-        downloads,
-        now
-      )
+    topDownloads: buildTopDownloads(downloads, now),
   };
 }
 
-
-function numberFormat(
-  value
-) {
-  return new Intl.NumberFormat(
-    "ru-RU"
-  )
-    .format(
-      Number(
-        value
-      )
-      ||
-      0
-    );
+function numberFormat(value) {
+  return new Intl.NumberFormat('ru-RU').format(Number(value) || 0);
 }
 
-
-function percentFormat(
-  value
-) {
+function percentFormat(value) {
   return (
-    new Intl.NumberFormat(
-      "ru-RU",
-      {
-        minimumFractionDigits:
-          1,
+    new Intl.NumberFormat('ru-RU', {
+      minimumFractionDigits: 1,
 
-        maximumFractionDigits:
-          1
-      }
-    )
-      .format(
-        Number(
-          value
-        )
-        ||
-        0
-      )
-    +
-    "%"
+      maximumFractionDigits: 1,
+    }).format(Number(value) || 0) + '%'
   );
 }
 
-
-function escapeHtml(
-  value
-) {
-  return String(
-    value ?? ""
-  )
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-    .replace(
-      /</g,
-      "&lt;"
-    )
-    .replace(
-      />/g,
-      "&gt;"
-    )
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-    .replace(
-      /'/g,
-      "&#039;"
-    );
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
-
-function metricRow(
-  title,
-  data,
-  field,
-  formatter =
-    numberFormat
-) {
-  const cells =
-    PERIODS
-      .map(
-        period => `
+function metricRow(title, data, field, formatter = numberFormat) {
+  const cells = PERIODS.map(
+    period => `
           <td
             align="right"
             style="
@@ -583,15 +287,10 @@ function metricRow(
               text-align:right;
             "
           >
-            ${formatter(
-              data.periods[
-                period.key
-              ][field]
-            )}
+            ${formatter(data.periods[period.key][field])}
           </td>
-        `
-      )
-      .join("");
+        `,
+  ).join('');
 
   return `
     <tr>
@@ -605,9 +304,7 @@ function metricRow(
           text-align:left;
         "
       >
-        ${escapeHtml(
-          title
-        )}
+        ${escapeHtml(title)}
       </td>
 
       ${cells}
@@ -615,13 +312,8 @@ function metricRow(
   `;
 }
 
-
-function buildTopRows(
-  data
-) {
-  if (
-    !data.topDownloads.length
-  ) {
+function buildTopRows(data) {
+  if (!data.topDownloads.length) {
     return `
       <tr>
         <td
@@ -640,10 +332,7 @@ function buildTopRows(
 
   return data.topDownloads
     .map(
-      (
-        item,
-        index
-      ) => `
+      (item, index) => `
         <tr>
           <td
             style="
@@ -665,45 +354,35 @@ function buildTopRows(
               line-height:1.45;
             "
           >
-            ${escapeHtml(
-              item.title
-            )}
+            ${escapeHtml(item.title)}
           </td>
 
           <td
             align="right"
             style="padding:13px 9px;border-bottom:1px solid #e5eaf2;font-size:13px;"
           >
-            ${numberFormat(
-              item.day
-            )}
+            ${numberFormat(item.day)}
           </td>
 
           <td
             align="right"
             style="padding:13px 9px;border-bottom:1px solid #e5eaf2;font-size:13px;"
           >
-            ${numberFormat(
-              item.week
-            )}
+            ${numberFormat(item.week)}
           </td>
 
           <td
             align="right"
             style="padding:13px 9px;border-bottom:1px solid #e5eaf2;font-size:13px;"
           >
-            ${numberFormat(
-              item.month
-            )}
+            ${numberFormat(item.month)}
           </td>
 
           <td
             align="right"
             style="padding:13px 9px;border-bottom:1px solid #e5eaf2;font-size:13px;"
           >
-            ${numberFormat(
-              item.year
-            )}
+            ${numberFormat(item.year)}
           </td>
 
           <td
@@ -716,40 +395,24 @@ function buildTopRows(
               color:#172136;
             "
           >
-            ${numberFormat(
-              item.total
-            )}
+            ${numberFormat(item.total)}
           </td>
         </tr>
-      `
+      `,
     )
-    .join("");
+    .join('');
 }
 
+function buildHtml(data) {
+  const reportDate = new Intl.DateTimeFormat('ru-RU', {
+    timeZone: TIMEZONE,
 
-function buildHtml(
-  data
-) {
-  const reportDate =
-    new Intl.DateTimeFormat(
-      "ru-RU",
-      {
-        timeZone:
-          TIMEZONE,
+    day: '2-digit',
 
-        day:
-          "2-digit",
+    month: 'long',
 
-        month:
-          "long",
-
-        year:
-          "numeric"
-      }
-    )
-      .format(
-        new Date()
-      );
+    year: 'numeric',
+  }).format(new Date());
 
   return `
 <!doctype html>
@@ -826,9 +489,7 @@ function buildHtml(
                       font-size:13px;
                     "
                   >
-                    ${escapeHtml(
-                      reportDate
-                    )}
+                    ${escapeHtml(reportDate)}
                   </div>
                 </td>
               </tr>
@@ -893,9 +554,8 @@ function buildHtml(
                           Показатель
                         </th>
 
-                        ${PERIODS
-                          .map(
-                            period => `
+                        ${PERIODS.map(
+                          period => `
                               <th
                                 align="right"
                                 style="
@@ -909,44 +569,22 @@ function buildHtml(
                               >
                                 ${period.label}
                               </th>
-                            `
-                          )
-                          .join("")}
+                            `,
+                        ).join('')}
                       </tr>
                     </thead>
 
                     <tbody>
 
-                      ${metricRow(
-                        "Уникальные посетители",
-                        data,
-                        "visitors"
-                      )}
+                      ${metricRow('Уникальные посетители', data, 'visitors')}
 
-                      ${metricRow(
-                        "Просмотры страниц",
-                        data,
-                        "pageViews"
-                      )}
+                      ${metricRow('Просмотры страниц', data, 'pageViews')}
 
-                      ${metricRow(
-                        "Скачавшие пользователи",
-                        data,
-                        "downloaders"
-                      )}
+                      ${metricRow('Скачавшие пользователи', data, 'downloaders')}
 
-                      ${metricRow(
-                        "Скачивания PDF",
-                        data,
-                        "downloads"
-                      )}
+                      ${metricRow('Скачивания PDF', data, 'downloads')}
 
-                      ${metricRow(
-                        "Конверсия в скачивание",
-                        data,
-                        "conversion",
-                        percentFormat
-                      )}
+                      ${metricRow('Конверсия в скачивание', data, 'conversion', percentFormat)}
 
                     </tbody>
                   </table>
@@ -979,9 +617,7 @@ function buildHtml(
                         font-weight:600;
                       "
                     >
-                      ${numberFormat(
-                        data.totalDownloads
-                      )}
+                      ${numberFormat(data.totalDownloads)}
                     </div>
                   </div>
 
@@ -1024,9 +660,7 @@ function buildHtml(
                     </thead>
 
                     <tbody>
-                      ${buildTopRows(
-                        data
-                      )}
+                      ${buildTopRows(data)}
                     </tbody>
                   </table>
 
@@ -1061,324 +695,189 @@ function buildHtml(
   `;
 }
 
-
 function getMoscowClock() {
-  const parts =
-    Object.fromEntries(
-      new Intl.DateTimeFormat(
-        "en-US",
-        {
-          timeZone:
-            TIMEZONE,
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: TIMEZONE,
 
-          year:
-            "numeric",
+      year: 'numeric',
 
-          month:
-            "2-digit",
+      month: '2-digit',
 
-          day:
-            "2-digit",
+      day: '2-digit',
 
-          hour:
-            "2-digit",
+      hour: '2-digit',
 
-          hourCycle:
-            "h23"
-        }
-      )
-        .formatToParts(
-          new Date()
-        )
-        .filter(
-          part =>
-            part.type !==
-            "literal"
-        )
-        .map(
-          part => [
-            part.type,
-            part.value
-          ]
-        )
-    );
+      hourCycle: 'h23',
+    })
+      .formatToParts(new Date())
+      .filter(part => part.type !== 'literal')
+      .map(part => [part.type, part.value]),
+  );
 
   return {
-    day:
-      `${parts.year}-${parts.month}-${parts.day}`,
+    day: `${parts.year}-${parts.month}-${parts.day}`,
 
-    hour:
-      Number(
-        parts.hour
-      )
+    hour: Number(parts.hour),
   };
 }
 
-
 function readState() {
   try {
-    return JSON.parse(
-      fs.readFileSync(
-        STATE_FILE,
-        "utf8"
-      )
-    );
-  }
-  catch {
+    return JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+  } catch {
     return {};
   }
 }
 
-
-function writeState(
-  state
-) {
+function writeState(state) {
   ensureAnalyticsDir();
 
-  const tempFile =
-    `${STATE_FILE}.tmp`;
+  const tempFile = `${STATE_FILE}.tmp`;
 
-  fs.writeFileSync(
-    tempFile,
-    JSON.stringify(
-      state,
-      null,
-      2
-    ),
-    "utf8"
-  );
+  fs.writeFileSync(tempFile, JSON.stringify(state, null, 2), 'utf8');
 
-  fs.renameSync(
-    tempFile,
-    STATE_FILE
-  );
+  fs.renameSync(tempFile, STATE_FILE);
 }
-
 
 function acquireLock() {
   ensureAnalyticsDir();
 
   try {
-    const stat =
-      fs.statSync(
-        LOCK_FILE
-      );
+    const stat = fs.statSync(LOCK_FILE);
 
-    if (
-      Date.now()
-      -
-      stat.mtimeMs
-      >
-      2 * 60 * 60 * 1000
-    ) {
-      fs.unlinkSync(
-        LOCK_FILE
-      );
+    if (Date.now() - stat.mtimeMs > 2 * 60 * 60 * 1000) {
+      fs.unlinkSync(LOCK_FILE);
     }
-  }
-  catch {
-  }
+  } catch {}
 
   try {
-    return fs.openSync(
-      LOCK_FILE,
-      "wx"
-    );
-  }
-  catch {
+    return fs.openSync(LOCK_FILE, 'wx');
+  } catch {
     return null;
   }
 }
 
-
-function releaseLock(
-  descriptor
-) {
+function releaseLock(descriptor) {
   try {
-    fs.closeSync(
-      descriptor
-    );
-  }
-  catch {
-  }
+    fs.closeSync(descriptor);
+  } catch {}
 
   try {
-    fs.unlinkSync(
-      LOCK_FILE
-    );
-  }
-  catch {
-  }
+    fs.unlinkSync(LOCK_FILE);
+  } catch {}
 }
 
+async function sendReport({ test = false } = {}) {
+  const data = getSiteStatsReportData();
 
-async function sendReport({
-  test = false
-} = {}) {
-  const data =
-    getSiteStatsReportData();
+  const date = new Intl.DateTimeFormat('ru-RU', {
+    timeZone: TIMEZONE,
 
-  const date =
-    new Intl.DateTimeFormat(
-      "ru-RU",
-      {
-        timeZone:
-          TIMEZONE,
+    day: '2-digit',
 
-        day:
-          "2-digit",
+    month: '2-digit',
 
-        month:
-          "2-digit",
+    year: 'numeric',
+  }).format(new Date());
 
-        year:
-          "numeric"
-      }
-    )
-      .format(
-        new Date()
-      );
+  const subject = `${test ? '[ТЕСТ] ' : ''}` + `BoykovDocs — статистика сайта за ${date}`;
 
-  const subject =
-    `${test ? "[ТЕСТ] " : ""}` +
-    `BoykovDocs — статистика сайта за ${date}`;
-
-  const day =
-    data.periods.day;
+  const day = data.periods.day;
 
   const text = [
     `BoykovDocs — статистика сайта за ${date}`,
-    "",
+    '',
     `Посетители за 24 часа: ${day.visitors}`,
     `Просмотры за 24 часа: ${day.pageViews}`,
     `Скачивания за 24 часа: ${day.downloads}`,
     `Конверсия: ${percentFormat(day.conversion)}`,
-    `Всего скачиваний: ${data.totalDownloads}`
-  ].join("\n");
+    `Всего скачиваний: ${data.totalDownloads}`,
+  ].join('\n');
 
   await sendSystemEmail({
-    to:
-      EMAIL_TO,
+    to: EMAIL_TO,
 
     subject,
 
     text,
 
-    html:
-      buildHtml(
-        data
-      )
+    html: buildHtml(data),
   });
 
   return {
-    sent:
-      true,
+    sent: true,
 
-    to:
-      EMAIL_TO,
+    to: EMAIL_TO,
 
     subject,
 
-    data
+    data,
   };
 }
 
-
 export async function sendDailySiteStatsTestEmail() {
   return sendReport({
-    test:
-      true
+    test: true,
   });
 }
 
-
 export async function sendDailySiteStatsEmailIfDue() {
-  const clock =
-    getMoscowClock();
+  const clock = getMoscowClock();
 
-  if (
-    clock.hour <
-    SEND_HOUR
-  ) {
+  if (clock.hour < SEND_HOUR) {
     return {
-      status:
-        "skipped",
+      status: 'skipped',
 
-      reason:
-        "before-send-hour"
+      reason: 'before-send-hour',
     };
   }
 
-  const stateBeforeLock =
-    readState();
+  const stateBeforeLock = readState();
 
-  if (
-    stateBeforeLock.lastSentDay ===
-    clock.day
-  ) {
+  if (stateBeforeLock.lastSentDay === clock.day) {
     return {
-      status:
-        "skipped",
+      status: 'skipped',
 
-      reason:
-        "already-sent"
+      reason: 'already-sent',
     };
   }
 
-  const lock =
-    acquireLock();
+  const lock = acquireLock();
 
-  if (
-    lock === null
-  ) {
+  if (lock === null) {
     return {
-      status:
-        "skipped",
+      status: 'skipped',
 
-      reason:
-        "locked"
+      reason: 'locked',
     };
   }
 
   try {
-    const state =
-      readState();
+    const state = readState();
 
-    if (
-      state.lastSentDay ===
-      clock.day
-    ) {
+    if (state.lastSentDay === clock.day) {
       return {
-        status:
-          "skipped",
+        status: 'skipped',
 
-        reason:
-          "already-sent"
+        reason: 'already-sent',
       };
     }
 
-    const result =
-      await sendReport();
+    const result = await sendReport();
 
     writeState({
-      lastSentDay:
-        clock.day,
+      lastSentDay: clock.day,
 
-      lastSentAt:
-        new Date()
-          .toISOString()
+      lastSentAt: new Date().toISOString(),
     });
 
     return {
-      status:
-        "sent",
+      status: 'sent',
 
-      ...result
+      ...result,
     };
-  }
-  finally {
-    releaseLock(
-      lock
-    );
+  } finally {
+    releaseLock(lock);
   }
 }

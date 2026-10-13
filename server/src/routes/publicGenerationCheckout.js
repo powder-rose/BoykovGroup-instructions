@@ -1,22 +1,12 @@
-import {
-  Router
-} from "express";
+import { Router } from 'express';
 
-import {
-  updatePublicGenerationOrder
-} from "../services/publicGenerationOrderService.js";
+import { updatePublicGenerationOrder } from '../services/publicGenerationOrderService.js';
 
+export const publicGenerationCheckoutRouter = Router();
 
-export const publicGenerationCheckoutRouter =
-  Router();
+const OFFER_URL = 'https://boykovdocs.ru/offer/';
 
-
-const OFFER_URL =
-  "https://boykovdocs.ru/offer/";
-
-const PERSONAL_DATA_URL =
-  "https://boykovdocs.ru/personal-data-consent/";
-
+const PERSONAL_DATA_URL = 'https://boykovdocs.ru/personal-data-consent/';
 
 /*
  * ============================================================
@@ -29,45 +19,25 @@ const PERSONAL_DATA_URL =
  * Сам существующий order route не меняем.
  */
 publicGenerationCheckoutRouter.post(
-  "/orders",
+  '/orders',
 
-  (
-    req,
-    res,
-    next
-  ) => {
+  (req, res, next) => {
+    const offerAccepted = req.body?.offerAccepted === true;
 
-    const offerAccepted =
-      req.body?.offerAccepted ===
-      true;
-
-    const personalDataConsentAccepted =
-      req.body
-        ?.personalDataConsentAccepted ===
-      true;
-
+    const personalDataConsentAccepted = req.body?.personalDataConsentAccepted === true;
 
     /*
      * Без двух обязательных согласий
      * платёжный заказ вообще не создаётся.
      */
-    if (
-      !offerAccepted ||
-      !personalDataConsentAccepted
-    ) {
+    if (!offerAccepted || !personalDataConsentAccepted) {
+      return res.status(422).json({
+        code: 'PAYMENT_CONSENTS_REQUIRED',
 
-      return res
-        .status(422)
-        .json({
-          code:
-            "PAYMENT_CONSENTS_REQUIRED",
-
-          error:
-            "Для оплаты необходимо принять публичную оферту и дать согласие на обработку персональных данных."
-        });
-
+        error:
+          'Для оплаты необходимо принять публичную оферту и дать согласие на обработку персональных данных.',
+      });
     }
-
 
     /*
      * Сохраняем факт согласия непосредственно
@@ -77,116 +47,48 @@ publicGenerationCheckoutRouter.post(
      * вызывает res.json(). Здесь перехватываем
      * только успешный ответ 201.
      */
-    const originalJson =
-      res.json.bind(
-        res
-      );
+    const originalJson = res.json.bind(res);
 
+    res.json = function (payload) {
+      if (res.statusCode === 201 && payload?.orderId) {
+        const acceptedAt = new Date().toISOString();
 
-    res.json =
-      function(
-        payload
-      ) {
+        const updated = updatePublicGenerationOrder(payload.orderId, {
+          checkoutConsent: {
+            offerAccepted: true,
 
-        if (
-          res.statusCode ===
-            201 &&
-          payload?.orderId
-        ) {
+            personalDataConsentAccepted: true,
 
-          const acceptedAt =
-            new Date()
-              .toISOString();
+            acceptedAt,
 
+            offerUrl: OFFER_URL,
 
-          const updated =
-            updatePublicGenerationOrder(
-              payload.orderId,
-              {
-                checkoutConsent: {
+            personalDataConsentUrl: PERSONAL_DATA_URL,
 
-                  offerAccepted:
-                    true,
+            ip: String(req.ip ?? '').slice(0, 120),
 
-                  personalDataConsentAccepted:
-                    true,
+            forwardedFor: String(req.get('x-forwarded-for') ?? '').slice(0, 500),
 
-                  acceptedAt,
+            userAgent: String(req.get('user-agent') ?? '').slice(0, 1000),
+          },
+        });
 
-                  offerUrl:
-                    OFFER_URL,
+        /*
+         * Если факт согласия записать не удалось,
+         * не отдаём клиенту данные для CloudPayments.
+         */
+        if (!updated) {
+          res.status(500);
 
-                  personalDataConsentUrl:
-                    PERSONAL_DATA_URL,
-
-                  ip:
-                    String(
-                      req.ip ??
-                      ""
-                    )
-                    .slice(
-                      0,
-                      120
-                    ),
-
-                  forwardedFor:
-                    String(
-                      req.get(
-                        "x-forwarded-for"
-                      ) ??
-                      ""
-                    )
-                    .slice(
-                      0,
-                      500
-                    ),
-
-                  userAgent:
-                    String(
-                      req.get(
-                        "user-agent"
-                      ) ??
-                      ""
-                    )
-                    .slice(
-                      0,
-                      1000
-                    )
-                }
-              }
-            );
-
-
-          /*
-           * Если факт согласия записать не удалось,
-           * не отдаём клиенту данные для CloudPayments.
-           */
-          if (!updated) {
-
-            res.status(
-              500
-            );
-
-
-            return originalJson({
-              error:
-                "Не удалось зафиксировать согласия перед оплатой."
-            });
-
-          }
-
-
+          return originalJson({
+            error: 'Не удалось зафиксировать согласия перед оплатой.',
+          });
         }
+      }
 
-
-        return originalJson(
-          payload
-        );
-
-      };
-
+      return originalJson(payload);
+    };
 
     return next();
-
-  }
+  },
 );

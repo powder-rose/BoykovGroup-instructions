@@ -1,27 +1,18 @@
-import {
-  Router
-} from "express";
+import { Router } from 'express';
 
-import {
-  requireAdmin
-} from "../middleware/auth.js";
+import { requireAdmin } from '../middleware/auth.js';
 
 import {
   listPromoCodes,
   createPromoCode,
   updatePromoCode,
   deletePromoCode,
-  resolvePromoCode
-} from "../services/promoCodeService.js";
+  resolvePromoCode,
+} from '../services/promoCodeService.js';
 
-import {
-  PUBLIC_GENERATION_PRICE_RUB
-} from "../services/publicGenerationOrderService.js";
+import { PUBLIC_GENERATION_PRICE_RUB } from '../services/publicGenerationOrderService.js';
 
-
-export const promoCodesRouter =
-  Router();
-
+export const promoCodesRouter = Router();
 
 /*
  * Публичная проверка.
@@ -31,193 +22,105 @@ export const promoCodesRouter =
  * - какая будет итоговая цена.
  */
 promoCodesRouter.post(
-  "/validate",
+  '/validate',
 
-  (
-    req,
-    res
-  ) => {
-
-    const result =
-      resolvePromoCode(
-        req.body?.code,
-        PUBLIC_GENERATION_PRICE_RUB
-      );
-
+  (req, res) => {
+    const result = resolvePromoCode(req.body?.code, PUBLIC_GENERATION_PRICE_RUB);
 
     if (!result.ok) {
-
-      return res
-        .status(422)
-        .json(result);
-
+      return res.status(422).json(result);
     }
 
-
-    return res.json(
-      result
-    );
-
-  }
+    return res.json(result);
+  },
 );
-
 
 /*
  * ADMIN — список.
  */
 promoCodesRouter.get(
-  "/admin",
+  '/admin',
 
   requireAdmin,
 
-  (
-    req,
-    res
-  ) => {
-
+  (req, res) => {
     return res.json({
-      items:
-        listPromoCodes()
+      items: listPromoCodes(),
     });
-
-  }
+  },
 );
-
 
 /*
  * ADMIN — создание.
  */
 promoCodesRouter.post(
-  "/admin",
+  '/admin',
 
   requireAdmin,
 
-  (
-    req,
-    res
-  ) => {
-
+  (req, res) => {
     try {
+      const promo = createPromoCode(req.body ?? {});
 
-      const promo =
-        createPromoCode(
-          req.body ?? {}
-        );
-
-
-      return res
-        .status(201)
-        .json({
-          promo
-        });
-
+      return res.status(201).json({
+        promo,
+      });
+    } catch (error) {
+      return res.status(422).json({
+        error: error?.message || 'Не удалось создать промокод',
+      });
     }
-    catch(error) {
-
-      return res
-        .status(422)
-        .json({
-          error:
-            error?.message ||
-            "Не удалось создать промокод"
-        });
-
-    }
-
-  }
+  },
 );
-
 
 /*
  * ADMIN — изменение.
  */
 promoCodesRouter.patch(
-  "/admin/:id",
+  '/admin/:id',
 
   requireAdmin,
 
-  (
-    req,
-    res
-  ) => {
-
+  (req, res) => {
     try {
-
-      const promo =
-        updatePromoCode(
-          req.params.id,
-          req.body ?? {}
-        );
-
+      const promo = updatePromoCode(req.params.id, req.body ?? {});
 
       if (!promo) {
-
-        return res
-          .status(404)
-          .json({
-            error:
-              "Промокод не найден"
-          });
-
+        return res.status(404).json({
+          error: 'Промокод не найден',
+        });
       }
 
-
       return res.json({
-        promo
+        promo,
       });
-
+    } catch (error) {
+      return res.status(422).json({
+        error: error?.message || 'Не удалось изменить промокод',
+      });
     }
-    catch(error) {
-
-      return res
-        .status(422)
-        .json({
-          error:
-            error?.message ||
-            "Не удалось изменить промокод"
-        });
-
-    }
-
-  }
+  },
 );
-
 
 /*
  * ADMIN — удаление.
  */
 promoCodesRouter.delete(
-  "/admin/:id",
+  '/admin/:id',
 
   requireAdmin,
 
-  (
-    req,
-    res
-  ) => {
-
-    const deleted =
-      deletePromoCode(
-        req.params.id
-      );
-
+  (req, res) => {
+    const deleted = deletePromoCode(req.params.id);
 
     if (!deleted) {
-
-      return res
-        .status(404)
-        .json({
-          error:
-            "Промокод не найден"
-        });
-
+      return res.status(404).json({
+        error: 'Промокод не найден',
+      });
     }
 
-
     return res.json({
-      ok:
-        true
+      ok: true,
     });
-
-  }
+  },
 );

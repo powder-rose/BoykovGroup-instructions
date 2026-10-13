@@ -1,208 +1,92 @@
-import assert from "node:assert/strict";
-import {
-  setTimeout as delay
-} from "node:timers/promises";
-import test from "node:test";
+import assert from 'node:assert/strict';
+import { setTimeout as delay } from 'node:timers/promises';
+import test from 'node:test';
 
-import {
-  createBackgroundTaskController
-} from "../src/lifecycle/backgroundTaskController.js";
+import { createBackgroundTaskController } from '../src/lifecycle/backgroundTaskController.js';
 
+test('background controller waits for an already running task', async () => {
+  const controller = createBackgroundTaskController();
 
-test(
-  "background controller waits for an already running task",
-  async () => {
+  let releaseTask = null;
+  let markStarted = null;
 
-    const controller =
-      createBackgroundTaskController();
+  const started = new Promise(resolve => {
+    markStarted = resolve;
+  });
 
+  const release = new Promise(resolve => {
+    releaseTask = resolve;
+  });
 
-    let releaseTask = null;
-    let markStarted = null;
+  controller.scheduleImmediate(async () => {
+    markStarted();
 
+    await release;
+  });
 
-    const started =
-      new Promise(
-        resolve => {
+  await started;
 
-          markStarted =
-            resolve;
+  let stopped = false;
 
-        }
-      );
+  const stopPromise = controller.stop().then(() => {
+    stopped = true;
+  });
 
+  await delay(20);
 
-    const release =
-      new Promise(
-        resolve => {
+  assert.equal(stopped, false);
 
-          releaseTask =
-            resolve;
+  releaseTask();
 
-        }
-      );
+  await stopPromise;
 
+  assert.equal(stopped, true);
+});
 
-    controller.scheduleImmediate(
-      async () => {
+test('background controller cancels queued immediate work on stop', async () => {
+  const controller = createBackgroundTaskController();
 
-        markStarted();
+  let calls = 0;
 
-        await release;
+  controller.scheduleImmediate(async () => {
+    calls++;
+  });
 
-      }
-    );
+  await controller.stop();
 
+  await delay(20);
 
-    await started;
+  assert.equal(calls, 0);
+});
 
+test('background controller cancels delayed retry work on stop', async () => {
+  const controller = createBackgroundTaskController();
 
-    let stopped =
-      false;
+  let calls = 0;
 
+  controller.scheduleTimeout(async () => {
+    calls++;
+  }, 25);
 
-    const stopPromise =
-      controller
-        .stop()
-        .then(
-          () => {
+  await controller.stop();
 
-            stopped =
-              true;
+  await delay(50);
 
-          }
-        );
+  assert.equal(calls, 0);
+});
 
+test('background controller rejects new work after shutdown starts', async () => {
+  const controller = createBackgroundTaskController();
 
-    await delay(
-      20
-    );
+  await controller.stop();
 
+  assert.equal(
+    controller.scheduleImmediate(async () => {}),
+    false,
+  );
 
-    assert.equal(
-      stopped,
-      false
-    );
-
-
-    releaseTask();
-
-
-    await stopPromise;
-
-
-    assert.equal(
-      stopped,
-      true
-    );
-
-  }
-);
-
-
-test(
-  "background controller cancels queued immediate work on stop",
-  async () => {
-
-    const controller =
-      createBackgroundTaskController();
-
-
-    let calls =
-      0;
-
-
-    controller.scheduleImmediate(
-      async () => {
-
-        calls++;
-
-      }
-    );
-
-
-    await controller.stop();
-
-
-    await delay(
-      20
-    );
-
-
-    assert.equal(
-      calls,
-      0
-    );
-
-  }
-);
-
-
-test(
-  "background controller cancels delayed retry work on stop",
-  async () => {
-
-    const controller =
-      createBackgroundTaskController();
-
-
-    let calls =
-      0;
-
-
-    controller.scheduleTimeout(
-      async () => {
-
-        calls++;
-
-      },
-      25
-    );
-
-
-    await controller.stop();
-
-
-    await delay(
-      50
-    );
-
-
-    assert.equal(
-      calls,
-      0
-    );
-
-  }
-);
-
-
-test(
-  "background controller rejects new work after shutdown starts",
-  async () => {
-
-    const controller =
-      createBackgroundTaskController();
-
-
-    await controller.stop();
-
-
-    assert.equal(
-      controller.scheduleImmediate(
-        async () => {}
-      ),
-      false
-    );
-
-
-    assert.equal(
-      controller.scheduleTimeout(
-        async () => {},
-        10
-      ),
-      false
-    );
-
-  }
-);
+  assert.equal(
+    controller.scheduleTimeout(async () => {}, 10),
+    false,
+  );
+});

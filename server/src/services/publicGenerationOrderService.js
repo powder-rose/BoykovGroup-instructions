@@ -1,207 +1,80 @@
-import fs from "node:fs";
-import path from "node:path";
-import crypto from "node:crypto";
-import {
-  fileURLToPath
-} from "node:url";
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const __dirname =
-  path.dirname(
-    fileURLToPath(
-      import.meta.url
-    )
-  );
+const ORDERS_DIR = path.join(__dirname, '..', 'data', 'publicGenerationOrders');
 
+export const PUBLIC_GENERATION_PRICE_RUB = 500;
 
-const ORDERS_DIR =
-  path.join(
-    __dirname,
-    "..",
-    "data",
-    "publicGenerationOrders"
-  );
+export const PUBLIC_GENERATION_CURRENCY = 'RUB';
 
+const ORDER_TTL_MS = 60 * 60 * 1000;
 
-export const PUBLIC_GENERATION_PRICE_RUB =
-  500;
-
-
-export const PUBLIC_GENERATION_CURRENCY =
-  "RUB";
-
-
-const ORDER_TTL_MS =
-  60 * 60 * 1000;
-
-
-fs.mkdirSync(
-  ORDERS_DIR,
-  {
-    recursive:
-      true
-  }
-);
-
+fs.mkdirSync(ORDERS_DIR, {
+  recursive: true,
+});
 
 function createId() {
-
-  return (
-    "pg_" +
-    Date.now()
-      .toString(36) +
-    "_" +
-    crypto
-      .randomBytes(10)
-      .toString("hex")
-  );
+  return 'pg_' + Date.now().toString(36) + '_' + crypto.randomBytes(10).toString('hex');
 }
-
 
 function createAccessToken() {
-
-  return crypto
-    .randomBytes(32)
-    .toString("hex");
+  return crypto.randomBytes(32).toString('hex');
 }
 
-
-function isValidOrderId(
-  value
-) {
-
-  return (
-    typeof value ===
-      "string" &&
-    /^pg_[a-z0-9_-]{10,100}$/iu
-      .test(value)
-  );
+function isValidOrderId(value) {
+  return typeof value === 'string' && /^pg_[a-z0-9_-]{10,100}$/iu.test(value);
 }
 
-
-function getOrderPath(
-  id
-) {
-
-  if (
-    !isValidOrderId(id)
-  ) {
+function getOrderPath(id) {
+  if (!isValidOrderId(id)) {
     return null;
   }
 
-
-  return path.join(
-    ORDERS_DIR,
-    `${id}.json`
-  );
+  return path.join(ORDERS_DIR, `${id}.json`);
 }
 
-
-function writeOrder(
-  order
-) {
-
-  const filepath =
-    getOrderPath(
-      order.id
-    );
-
+function writeOrder(order) {
+  const filepath = getOrderPath(order.id);
 
   if (!filepath) {
-    throw new Error(
-      "Некорректный ID заказа"
-    );
+    throw new Error('Некорректный ID заказа');
   }
 
+  const tempPath = `${filepath}.${process.pid}.${Date.now()}.tmp`;
 
-  const tempPath =
-    `${filepath}.${process.pid}.${Date.now()}.tmp`;
+  fs.writeFileSync(tempPath, JSON.stringify(order, null, 2), 'utf8');
 
-
-  fs.writeFileSync(
-    tempPath,
-    JSON.stringify(
-      order,
-      null,
-      2
-    ),
-    "utf8"
-  );
-
-
-  fs.renameSync(
-    tempPath,
-    filepath
-  );
-
+  fs.renameSync(tempPath, filepath);
 
   return order;
 }
 
+export function getPublicGenerationOrder(id) {
+  const filepath = getOrderPath(id);
 
-export function getPublicGenerationOrder(
-  id
-) {
-
-  const filepath =
-    getOrderPath(id);
-
-
-  if (
-    !filepath ||
-    !fs.existsSync(filepath)
-  ) {
+  if (!filepath || !fs.existsSync(filepath)) {
     return null;
   }
 
-
   try {
-
-    return JSON.parse(
-      fs.readFileSync(
-        filepath,
-        "utf8"
-      )
-    );
-
-  }
-  catch(error) {
-
-    console.error(
-      "[PublicGenerationOrder] read error:",
-      id,
-      error.message
-    );
-
+    return JSON.parse(fs.readFileSync(filepath, 'utf8'));
+  } catch (error) {
+    console.error('[PublicGenerationOrder] read error:', id, error.message);
 
     return null;
   }
 }
 
+export function createPublicGenerationOrder(profession, pricing = {}, owner = {}) {
+  const now = new Date();
 
-export function createPublicGenerationOrder(
-  profession,
-  pricing = {},
-  owner = {}
-) {
+  const originalAmount = Number(pricing.originalAmount ?? PUBLIC_GENERATION_PRICE_RUB);
 
-  const now =
-    new Date();
-
-
-  const originalAmount =
-    Number(
-      pricing.originalAmount ??
-      PUBLIC_GENERATION_PRICE_RUB
-    );
-
-
-  const amount =
-    Number(
-      pricing.amount ??
-      originalAmount
-    );
-
+  const amount = Number(pricing.amount ?? originalAmount);
 
   if (
     !Number.isFinite(originalAmount) ||
@@ -210,56 +83,27 @@ export function createPublicGenerationOrder(
     amount <= 0 ||
     amount > originalAmount
   ) {
-
-    throw new Error(
-      "Некорректная стоимость заказа"
-    );
-
+    throw new Error('Некорректная стоимость заказа');
   }
 
+  const promo = pricing.promo
+    ? {
+        id: String(pricing.promo.id ?? ''),
 
-  const promo =
-    pricing.promo
-      ? {
-          id:
-            String(
-              pricing.promo.id ?? ""
-            ),
+        code: String(pricing.promo.code ?? ''),
 
-          code:
-            String(
-              pricing.promo.code ?? ""
-            ),
+        type: String(pricing.promo.type ?? ''),
 
-          type:
-            String(
-              pricing.promo.type ?? ""
-            ),
+        value: Number(pricing.promo.value),
 
-          value:
-            Number(
-              pricing.promo.value
-            ),
-
-          discountAmount:
-            Math.round(
-              (
-                originalAmount -
-                amount
-              ) *
-              100
-            ) / 100
-        }
-      : null;
-
+        discountAmount: Math.round((originalAmount - amount) * 100) / 100,
+      }
+    : null;
 
   const order = {
-    id:
-      createId(),
+    id: createId(),
 
-    accessToken:
-      createAccessToken(),
-
+    accessToken: createAccessToken(),
 
     /*
      * ACCOUNT OWNERSHIP V1
@@ -268,26 +112,11 @@ export function createPublicGenerationOrder(
      * Позже новые платные заказы будем создавать только
      * для авторизованных пользователей.
      */
-    ownerUserId:
-      owner?.userId
-        ? String(
-            owner.userId
-          )
-        : null,
+    ownerUserId: owner?.userId ? String(owner.userId) : null,
 
-    ownerEmail:
-      owner?.email
-        ? String(
-            owner.email
-          )
-          .trim()
-          .toLowerCase()
-        : null,
+    ownerEmail: owner?.email ? String(owner.email).trim().toLowerCase() : null,
 
-    profession:
-      String(
-        profession ?? ""
-      ).trim(),
+    profession: String(profession ?? '').trim(),
 
     originalAmount,
 
@@ -295,21 +124,15 @@ export function createPublicGenerationOrder(
 
     promo,
 
-    promoUsedRecorded:
-      false,
+    promoUsedRecorded: false,
 
-    currency:
-      PUBLIC_GENERATION_CURRENCY,
+    currency: PUBLIC_GENERATION_CURRENCY,
 
-    status:
-      "pending_payment",
+    status: 'pending_payment',
 
-    transactionId:
-      null,
+    transactionId: null,
 
-    instructionId:
-      null,
-
+    instructionId: null,
 
     /*
      * ADMIN_PUBLICATION_INBOX_V2
@@ -317,336 +140,175 @@ export function createPublicGenerationOrder(
      * Готовый оплаченный документ сначала
      * принадлежит только покупателю.
      */
-    generatedInstruction:
-      null,
+    generatedInstruction: null,
 
-    generatedAt:
-      null,
+    generatedAt: null,
 
-    publicationStatus:
-      null,
+    publicationStatus: null,
 
-    reviewedAt:
-      null,
+    reviewedAt: null,
 
-    reviewedBy:
-      null,
+    reviewedBy: null,
 
-    rejectionReason:
-      null,
+    rejectionReason: null,
 
-    createdAt:
-      now.toISOString(),
+    createdAt: now.toISOString(),
 
-    updatedAt:
-      now.toISOString(),
+    updatedAt: now.toISOString(),
 
-    expiresAt:
-      new Date(
-        now.getTime() +
-        ORDER_TTL_MS
-      )
-      .toISOString(),
+    expiresAt: new Date(now.getTime() + ORDER_TTL_MS).toISOString(),
 
-    paidAt:
-      null,
+    paidAt: null,
 
-    publishedAt:
-      null,
+    publishedAt: null,
 
-    moderationStatus:
-      null,
+    moderationStatus: null,
 
-    moderationReason:
-      null,
+    moderationReason: null,
 
-    moderatedAt:
-      null,
+    moderatedAt: null,
 
-    refundTransactionId:
-      null,
+    refundTransactionId: null,
 
-    refundStartedAt:
-      null,
+    refundStartedAt: null,
 
-    refundedAt:
-      null,
+    refundedAt: null,
 
-    failureCode:
-      null,
+    failureCode: null,
 
-    internalError:
-      null
+    internalError: null,
   };
 
-
-  return writeOrder(
-    order
-  );
+  return writeOrder(order);
 }
 
-
-export function updatePublicGenerationOrder(
-  id,
-  patch = {}
-) {
-
-  const current =
-    getPublicGenerationOrder(
-      id
-    );
-
+export function updatePublicGenerationOrder(id, patch = {}) {
+  const current = getPublicGenerationOrder(id);
 
   if (!current) {
     return null;
   }
 
-
   const updated = {
     ...current,
     ...patch,
 
-    id:
-      current.id,
+    id: current.id,
 
-    accessToken:
-      current.accessToken,
+    accessToken: current.accessToken,
 
-    profession:
-      current.profession,
+    profession: current.profession,
 
-    originalAmount:
-      current.originalAmount ??
-      current.amount,
+    originalAmount: current.originalAmount ?? current.amount,
 
-    amount:
-      current.amount,
+    amount: current.amount,
 
-    promo:
-      current.promo ??
-      null,
+    promo: current.promo ?? null,
 
-    currency:
-      current.currency,
+    currency: current.currency,
 
-    updatedAt:
-      new Date()
-        .toISOString()
+    updatedAt: new Date().toISOString(),
   };
 
-
-  return writeOrder(
-    updated
-  );
+  return writeOrder(updated);
 }
 
-
-function safeTokenEqual(
-  first,
-  second
-) {
-
-  if (
-    typeof first !==
-      "string" ||
-    typeof second !==
-      "string"
-  ) {
+function safeTokenEqual(first, second) {
+  if (typeof first !== 'string' || typeof second !== 'string') {
     return false;
   }
 
+  const left = Buffer.from(first, 'utf8');
 
-  const left =
-    Buffer.from(
-      first,
-      "utf8"
-    );
+  const right = Buffer.from(second, 'utf8');
 
-  const right =
-    Buffer.from(
-      second,
-      "utf8"
-    );
-
-
-  if (
-    left.length !==
-    right.length
-  ) {
+  if (left.length !== right.length) {
     return false;
   }
 
-
-  return crypto.timingSafeEqual(
-    left,
-    right
-  );
+  return crypto.timingSafeEqual(left, right);
 }
 
-
-export function getPublicGenerationOrderView(
-  id,
-  accessToken
-) {
-
-  const order =
-    getPublicGenerationOrder(
-      id
-    );
-
+export function getPublicGenerationOrderView(id, accessToken) {
+  const order = getPublicGenerationOrder(id);
 
   if (!order) {
     return null;
   }
 
-
-  if (
-    !safeTokenEqual(
-      order.accessToken,
-      accessToken
-    )
-  ) {
+  if (!safeTokenEqual(order.accessToken, accessToken)) {
     return null;
   }
 
-
   return {
-    id:
-      order.id,
+    id: order.id,
 
-    profession:
-      order.profession,
+    profession: order.profession,
 
-    originalAmount:
-      order.originalAmount ??
-      order.amount,
+    originalAmount: order.originalAmount ?? order.amount,
 
-    amount:
-      order.amount,
+    amount: order.amount,
 
-    promo:
-      order.promo
-        ? {
-            code:
-              order.promo.code,
+    promo: order.promo
+      ? {
+          code: order.promo.code,
 
-            type:
-              order.promo.type,
+          type: order.promo.type,
 
-            value:
-              order.promo.value,
+          value: order.promo.value,
 
-            discountAmount:
-              order.promo.discountAmount
-          }
-        : null,
+          discountAmount: order.promo.discountAmount,
+        }
+      : null,
 
-    currency:
-      order.currency,
+    currency: order.currency,
 
-    status:
-      order.status,
+    status: order.status,
 
-    instructionId:
-      order.instructionId,
-
+    instructionId: order.instructionId,
 
     /*
      * Полный результат доступен только владельцу,
      * прошедшему проверку x-order-token.
      */
-    instruction:
-      order.generatedInstruction ??
-      null,
+    instruction: order.generatedInstruction ?? null,
 
-    generatedAt:
-      order.generatedAt ??
-      null,
+    generatedAt: order.generatedAt ?? null,
 
-    publicationStatus:
-      order.publicationStatus ??
-      null,
+    publicationStatus: order.publicationStatus ?? null,
 
-    createdAt:
-      order.createdAt,
+    createdAt: order.createdAt,
 
-    expiresAt:
-      order.expiresAt,
+    expiresAt: order.expiresAt,
 
-    paidAt:
-      order.paidAt,
+    paidAt: order.paidAt,
 
-    publishedAt:
-      order.publishedAt,
+    publishedAt: order.publishedAt,
 
-      refundedAt:
-        order.refundedAt ??
-        null,
+    refundedAt: order.refundedAt ?? null,
 
-    failureCode:
-      order.failureCode
+    failureCode: order.failureCode,
   };
 }
 
-
-export function listPublicGenerationOrdersByOwner(
-  ownerUserId
-) {
-
-  const target =
-    String(
-      ownerUserId ?? ""
-    ).trim();
-
+export function listPublicGenerationOrdersByOwner(ownerUserId) {
+  const target = String(ownerUserId ?? '').trim();
 
   if (!target) {
     return [];
   }
 
-
   const result = [];
 
+  const files = fs.readdirSync(ORDERS_DIR).filter(name => name.endsWith('.json'));
 
-  const files =
-    fs.readdirSync(
-      ORDERS_DIR
-    )
-    .filter(
-      name =>
-        name.endsWith(
-          ".json"
-        )
-    );
-
-
-  for (
-    const filename
-    of files
-  ) {
-
+  for (const filename of files) {
     try {
+      const order = JSON.parse(fs.readFileSync(path.join(ORDERS_DIR, filename), 'utf8'));
 
-      const order =
-        JSON.parse(
-          fs.readFileSync(
-            path.join(
-              ORDERS_DIR,
-              filename
-            ),
-            "utf8"
-          )
-        );
-
-
-      if (
-        String(
-          order.ownerUserId ??
-          ""
-        ) !== target
-      ) {
+      if (String(order.ownerUserId ?? '') !== target) {
         continue;
       }
-
 
       /*
        * В личном кабинете показываем только
@@ -659,325 +321,136 @@ export function listPublicGenerationOrdersByOwner(
         continue;
       }
 
-
       result.push({
-        id:
-          order.id,
+        id: order.id,
 
-        profession:
-          order.profession,
+        profession: order.profession,
 
-        originalAmount:
-          order.originalAmount ??
-          order.amount,
+        originalAmount: order.originalAmount ?? order.amount,
 
-        amount:
-          order.amount,
+        amount: order.amount,
 
-        currency:
-          order.currency,
+        currency: order.currency,
 
-        status:
-          order.status,
+        status: order.status,
 
-        instructionId:
-          order.instructionId ??
-          null,
+        instructionId: order.instructionId ?? null,
 
-        hasInstruction:
-          Boolean(
-            order.generatedInstruction
-          ),
+        hasInstruction: Boolean(order.generatedInstruction),
 
-        generatedAt:
-          order.generatedAt ??
-          null,
+        generatedAt: order.generatedAt ?? null,
 
-        publicationStatus:
-          order.publicationStatus ??
-          null,
+        publicationStatus: order.publicationStatus ?? null,
 
-        createdAt:
-          order.createdAt,
+        createdAt: order.createdAt,
 
-        paidAt:
-          order.paidAt ??
-          null,
+        paidAt: order.paidAt ?? null,
 
-        publishedAt:
-          order.publishedAt ??
-          null,
+        publishedAt: order.publishedAt ?? null,
 
-        refundedAt:
-          order.refundedAt ??
-          null
+        refundedAt: order.refundedAt ?? null,
       });
-
+    } catch (error) {
+      console.error('[PublicGenerationOrder] owner scan error:', filename, error.message);
     }
-    catch(error) {
-
-      console.error(
-        "[PublicGenerationOrder] owner scan error:",
-        filename,
-        error.message
-      );
-
-    }
-
   }
 
-
-  result.sort(
-    (a, b) =>
-      String(
-        b.createdAt ?? ""
-      ).localeCompare(
-        String(
-          a.createdAt ?? ""
-        )
-      )
-  );
-
+  result.sort((a, b) => String(b.createdAt ?? '').localeCompare(String(a.createdAt ?? '')));
 
   return result;
 }
 
-
-export function getPublicGenerationOrderByOwnerView(
-  id,
-  ownerUserId
-) {
-
-  const target =
-    String(
-      ownerUserId ?? ""
-    ).trim();
-
+export function getPublicGenerationOrderByOwnerView(id, ownerUserId) {
+  const target = String(ownerUserId ?? '').trim();
 
   if (!target) {
     return null;
   }
 
+  const order = getPublicGenerationOrder(id);
 
-  const order =
-    getPublicGenerationOrder(
-      id
-    );
-
-
-  if (
-    !order ||
-    String(
-      order.ownerUserId ??
-      ""
-    ) !== target
-  ) {
+  if (!order || String(order.ownerUserId ?? '') !== target) {
     return null;
   }
-
 
   return {
-    id:
-      order.id,
+    id: order.id,
 
-    profession:
-      order.profession,
+    profession: order.profession,
 
-    originalAmount:
-      order.originalAmount ??
-      order.amount,
+    originalAmount: order.originalAmount ?? order.amount,
 
-    amount:
-      order.amount,
+    amount: order.amount,
 
-    currency:
-      order.currency,
+    currency: order.currency,
 
-    status:
-      order.status,
+    status: order.status,
 
-    instructionId:
-      order.instructionId ??
-      null,
+    instructionId: order.instructionId ?? null,
 
-    instruction:
-      order.generatedInstruction ??
-      null,
+    instruction: order.generatedInstruction ?? null,
 
-    generatedAt:
-      order.generatedAt ??
-      null,
+    generatedAt: order.generatedAt ?? null,
 
-    publicationStatus:
-      order.publicationStatus ??
-      null,
+    publicationStatus: order.publicationStatus ?? null,
 
-    createdAt:
-      order.createdAt,
+    createdAt: order.createdAt,
 
-    paidAt:
-      order.paidAt ??
-      null,
+    paidAt: order.paidAt ?? null,
 
-    publishedAt:
-      order.publishedAt ??
-      null,
+    publishedAt: order.publishedAt ?? null,
 
-    refundedAt:
-      order.refundedAt ??
-      null,
+    refundedAt: order.refundedAt ?? null,
 
-    failureCode:
-      order.failureCode ??
-      null
+    failureCode: order.failureCode ?? null,
   };
-
 }
 
-
-export function findPublicGenerationOrderByTransactionId(
-  transactionId
-) {
-
-  const target =
-    String(
-      transactionId ?? ""
-    ).trim();
-
+export function findPublicGenerationOrderByTransactionId(transactionId) {
+  const target = String(transactionId ?? '').trim();
 
   if (!target) {
     return null;
   }
 
+  const files = fs.readdirSync(ORDERS_DIR).filter(name => name.endsWith('.json'));
 
-  const files =
-    fs.readdirSync(
-      ORDERS_DIR
-    )
-    .filter(
-      name =>
-        name.endsWith(
-          ".json"
-        )
-    );
-
-
-  for (
-    const filename
-    of files
-  ) {
-
+  for (const filename of files) {
     try {
+      const order = JSON.parse(fs.readFileSync(path.join(ORDERS_DIR, filename), 'utf8'));
 
-      const order =
-        JSON.parse(
-          fs.readFileSync(
-            path.join(
-              ORDERS_DIR,
-              filename
-            ),
-            "utf8"
-          )
-        );
-
-
-      if (
-        String(
-          order.transactionId ??
-          ""
-        ) === target
-      ) {
+      if (String(order.transactionId ?? '') === target) {
         return order;
       }
-
+    } catch (error) {
+      console.error('[PublicGenerationOrder] scan error:', filename, error.message);
     }
-    catch(error) {
-
-      console.error(
-        "[PublicGenerationOrder] scan error:",
-        filename,
-        error.message
-      );
-
-    }
-
   }
-
 
   return null;
 }
 
-
 export function listRecoverablePublicGenerationOrders() {
-
   const result = [];
 
+  const files = fs.readdirSync(ORDERS_DIR).filter(name => name.endsWith('.json'));
 
-  const files =
-    fs.readdirSync(
-      ORDERS_DIR
-    )
-    .filter(
-      name =>
-        name.endsWith(
-          ".json"
-        )
-    );
-
-
-  for (
-    const filename
-    of files
-  ) {
-
+  for (const filename of files) {
     try {
-
-      const order =
-        JSON.parse(
-          fs.readFileSync(
-            path.join(
-              ORDERS_DIR,
-              filename
-            ),
-            "utf8"
-          )
-        );
-
+      const order = JSON.parse(fs.readFileSync(path.join(ORDERS_DIR, filename), 'utf8'));
 
       if (
-        [
-          "paid",
-          "moderating",
-          "generating",
-          "refunding",
-          "refund_pending"
-        ].includes(
-          order.status
-        )
+        ['paid', 'moderating', 'generating', 'refunding', 'refund_pending'].includes(order.status)
       ) {
-        result.push(
-          order
-        );
+        result.push(order);
       }
-
+    } catch (error) {
+      console.error('[PublicGenerationOrder] recovery scan error:', filename, error.message);
     }
-    catch(error) {
-
-      console.error(
-        "[PublicGenerationOrder] recovery scan error:",
-        filename,
-        error.message
-      );
-
-    }
-
   }
-
 
   return result;
 }
-
-
 
 /*
  * ============================================================
@@ -986,106 +459,47 @@ export function listRecoverablePublicGenerationOrders() {
  */
 
 export function listPublicationInboxOrders() {
-
   const result = [];
 
-  const files =
-    fs.readdirSync(
-      ORDERS_DIR
-    )
-    .filter(
-      filename =>
-        filename.endsWith(
-          ".json"
-        )
-    );
+  const files = fs.readdirSync(ORDERS_DIR).filter(filename => filename.endsWith('.json'));
 
-
-  for (
-    const filename
-    of files
-  ) {
-
+  for (const filename of files) {
     try {
-
-      const current =
-        JSON.parse(
-          fs.readFileSync(
-            path.join(
-              ORDERS_DIR,
-              filename
-            ),
-            "utf8"
-          )
-        );
-
+      const current = JSON.parse(fs.readFileSync(path.join(ORDERS_DIR, filename), 'utf8'));
 
       if (
-        current.status !==
-          "generated" ||
-        current.publicationStatus !==
-          "pending" ||
+        current.status !== 'generated' ||
+        current.publicationStatus !== 'pending' ||
         !current.generatedInstruction
       ) {
         continue;
       }
 
-
       result.push({
-        id:
-          current.id,
+        id: current.id,
 
-        profession:
-          current.profession,
+        profession: current.profession,
 
-        status:
-          current.status,
+        status: current.status,
 
-        publicationStatus:
-          current.publicationStatus,
+        publicationStatus: current.publicationStatus,
 
-        paidAt:
-          current.paidAt ??
-          null,
+        paidAt: current.paidAt ?? null,
 
-        generatedAt:
-          current.generatedAt ??
-          null,
+        generatedAt: current.generatedAt ?? null,
 
-        instruction:
-          current.generatedInstruction
+        instruction: current.generatedInstruction,
       });
-
+    } catch (error) {
+      console.error('[PublicGenerationOrder] publication inbox scan:', filename, error.message);
     }
-    catch(error) {
-
-      console.error(
-        "[PublicGenerationOrder] publication inbox scan:",
-        filename,
-        error.message
-      );
-
-    }
-
   }
 
-
-  result.sort(
-    (left, right) =>
-      String(
-        right.generatedAt ??
-        right.paidAt ??
-        ""
-      )
-      .localeCompare(
-        String(
-          left.generatedAt ??
-          left.paidAt ??
-          ""
-        )
-      )
+  result.sort((left, right) =>
+    String(right.generatedAt ?? right.paidAt ?? '').localeCompare(
+      String(left.generatedAt ?? left.paidAt ?? ''),
+    ),
   );
-
 
   return result;
 }

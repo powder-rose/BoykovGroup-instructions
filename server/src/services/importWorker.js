@@ -1,246 +1,111 @@
-import {
-  normalizeUploadedFilename
-} from "../utils/uploadedFilename.js";
+import { normalizeUploadedFilename } from '../utils/uploadedFilename.js';
 
-import {
-    processInstructionFile
-} from "./instructionProcessingService.js";
+import { processInstructionFile } from './instructionProcessingService.js';
 
+import { instructionsRepository } from './instructionsRepository.js';
 
-import {
-    instructionsRepository
-} from "./instructionsRepository.js";
+import { updateImportFile } from './importHistoryService.js';
 
-
-import {
-    updateImportFile
-} from "./importHistoryService.js";
-
-
-import {
-    createNewVersion
-} from "./instructionVersionService.js";
-
-
-
+import { createNewVersion } from './instructionVersionService.js';
 
 export async function processImportFile({
+  importId,
 
-    importId,
+  importFile,
 
-    importFile,
-
-    file
-
+  file,
 }) {
+  try {
+    updateImportFile(
+      importId,
 
+      importFile.id,
 
-    try {
+      {
+        status: 'processing',
 
+        startedAt: new Date().toISOString(),
+      },
+    );
 
-        updateImportFile(
+    const result = await processInstructionFile({
+      buffer: file.buffer,
 
-            importId,
+      filename: normalizeUploadedFilename(file.originalname),
 
-            importFile.id,
+      mimetype: file.mimetype,
 
-            {
+      source: 'uploaded',
+    });
 
-                status:
-                    "processing",
+    let savedInstruction = null;
 
+    switch (result.action) {
+      // =====================
+      // НОВАЯ ИНСТРУКЦИЯ
+      // =====================
 
-                startedAt:
-                    new Date()
-                    .toISOString()
+      case 'new':
+        savedInstruction = instructionsRepository.save(result.instruction);
 
-            }
+        break;
 
-        );
+      // =====================
+      // ДУБЛИКАТ
+      // =====================
 
+      case 'duplicate':
+        savedInstruction = result.instruction;
 
+        break;
 
+      // =====================
+      // НОВАЯ ВЕРСИЯ
+      // =====================
 
-        const result =
-            await processInstructionFile({
+      case 'new_version':
+        const versioned = createNewVersion(result.previous, result.instruction);
 
-                buffer:
-                    file.buffer,
+        savedInstruction = instructionsRepository.save(versioned);
 
+        break;
 
-                filename:
-                    normalizeUploadedFilename(
-                      file.originalname
-                    ),
-
-
-                mimetype:
-                    file.mimetype,
-
-
-                source:
-                    "uploaded"
-
-            });
-
-
-
-
-
-        let savedInstruction = null;
-
-
-
-        switch(result.action){
-
-
-            // =====================
-            // НОВАЯ ИНСТРУКЦИЯ
-            // =====================
-
-            case "new":
-
-
-                savedInstruction =
-                    instructionsRepository.save(
-                        result.instruction
-                    );
-
-
-                break;
-
-
-
-
-            // =====================
-            // ДУБЛИКАТ
-            // =====================
-
-            case "duplicate":
-
-
-                savedInstruction =
-                    result.instruction;
-
-
-                break;
-
-
-
-
-            // =====================
-            // НОВАЯ ВЕРСИЯ
-            // =====================
-
-            case "new_version":
-
-
-                const versioned =
-                    createNewVersion(
-                        result.previous,
-                        result.instruction
-                    );
-
-
-
-                savedInstruction =
-                    instructionsRepository.save(
-                        versioned
-                    );
-
-
-                break;
-
-
-
-
-            default:
-
-
-                throw new Error(
-                    `Неизвестное действие импорта: ${result.action}`
-                );
-
-
-        }
-
-
-
-
-
-        updateImportFile(
-
-            importId,
-
-            importFile.id,
-
-            {
-
-                status:
-                    "completed",
-
-
-                instructionId:
-                    savedInstruction.id,
-
-
-                action:
-                    result.action,
-
-
-                finishedAt:
-                    new Date()
-                    .toISOString()
-
-            }
-
-        );
-
-
-
-
-
-        return savedInstruction;
-
-
-
-
+      default:
+        throw new Error(`Неизвестное действие импорта: ${result.action}`);
     }
 
-    catch(error){
+    updateImportFile(
+      importId,
 
+      importFile.id,
 
+      {
+        status: 'completed',
 
-        updateImportFile(
+        instructionId: savedInstruction.id,
 
-            importId,
+        action: result.action,
 
-            importFile.id,
+        finishedAt: new Date().toISOString(),
+      },
+    );
 
-            {
+    return savedInstruction;
+  } catch (error) {
+    updateImportFile(
+      importId,
 
-                status:
-                    "failed",
+      importFile.id,
 
+      {
+        status: 'failed',
 
-                error:
-                    error.message,
+        error: error.message,
 
+        finishedAt: new Date().toISOString(),
+      },
+    );
 
-                finishedAt:
-                    new Date()
-                    .toISOString()
-
-            }
-
-        );
-
-
-
-        throw error;
-
-
-    }
-
-
+    throw error;
+  }
 }

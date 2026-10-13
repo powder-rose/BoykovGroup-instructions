@@ -1,48 +1,27 @@
 const STANDARD_SECTION_HEADINGS = new Map([
-  [
-    1,
-    "Общие требования охраны труда"
-  ],
-  [
-    2,
-    "Требования охраны труда перед началом работы"
-  ],
-  [
-    3,
-    "Требования охраны труда во время работы"
-  ],
-  [
-    4,
-    "Требования охраны труда в аварийных ситуациях"
-  ],
-  [
-    5,
-    "Требования охраны труда по окончании работы"
-  ]
+  [1, 'Общие требования охраны труда'],
+  [2, 'Требования охраны труда перед началом работы'],
+  [3, 'Требования охраны труда во время работы'],
+  [4, 'Требования охраны труда в аварийных ситуациях'],
+  [5, 'Требования охраны труда по окончании работы'],
 ]);
 
-
-function normalizeLine(value = "") {
-
-  return String(value ?? "")
-    .replace(/\u00a0/g, " ")
-    .replace(/\u00ad/g, "")
-    .replace(/^\s*#{1,6}\s*/, "")
-    .replace(/^\s*\*{1,2}/, "")
-    .replace(/\*{1,2}\s*$/, "")
-    .replace(/\s+/g, " ")
+function normalizeLine(value = '') {
+  return String(value ?? '')
+    .replace(/\u00a0/g, ' ')
+    .replace(/\u00ad/g, '')
+    .replace(/^\s*#{1,6}\s*/, '')
+    .replace(/^\s*\*{1,2}/, '')
+    .replace(/\*{1,2}\s*$/, '')
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
-
 function joinParts(parts = []) {
-
-  let result = "";
+  let result = '';
 
   for (const rawPart of parts) {
-
-    const part =
-      normalizeLine(rawPart);
+    const part = normalizeLine(rawPart);
 
     if (!part) {
       continue;
@@ -63,28 +42,18 @@ function joinParts(parts = []) {
      *
      * лестницы-стремянки
      */
-    if (
-      result.endsWith("-") &&
-      /^\p{Ll}/u.test(part)
-    ) {
+    if (result.endsWith('-') && /^\p{Ll}/u.test(part)) {
       result += part;
-    }
-    else {
-      result += " " + part;
+    } else {
+      result += ' ' + part;
     }
   }
 
-  return result
-    .replace(/\s+/g, " ")
-    .trim();
+  return result.replace(/\s+/g, ' ').trim();
 }
 
-
-function isServiceBoundary(line = "") {
-
-  const normalized =
-    normalizeLine(line)
-      .toLocaleLowerCase("ru-RU");
+function isServiceBoundary(line = '') {
+  const normalized = normalizeLine(line).toLocaleLowerCase('ru-RU');
 
   return (
     /^приложение\b/u.test(normalized) ||
@@ -98,21 +67,14 @@ function isServiceBoundary(line = "") {
   );
 }
 
-
-function cleanPointContent(value = "") {
-
-  let content =
-    normalizeLine(value)
-      .replace(
-        /^[,;:]+(?:\s+|$)/u,
-        ""
-      )
-      .trim();
+function cleanPointContent(value = '') {
+  let content = normalizeLine(value)
+    .replace(/^[,;:]+(?:\s+|$)/u, '')
+    .trim();
 
   if (!content) {
     return null;
   }
-
 
   /*
    * Иногда строка для подписи приклеивается
@@ -124,18 +86,11 @@ function cleanPointContent(value = "") {
    * подчёркиваний/дефисов и служебных слэшей.
    * Сам текст пункта не изменяем.
    */
-  content =
-    content
-      .replace(
-        /\s+(?:_{4,}|[-—–]{4,})(?:\s*[/\\|]{1,3})?\s*$/u,
-        ""
-      )
-      .trim();
+  content = content.replace(/\s+(?:_{4,}|[-—–]{4,})(?:\s*[/\\|]{1,3})?\s*$/u, '').trim();
 
   if (!content) {
     return null;
   }
-
 
   /*
    * Место для подписи:
@@ -144,82 +99,55 @@ function cleanPointContent(value = "") {
    * __________ //
    * _____ / _____
    */
-  if (
-    /^[\s_—–\-./\\|:;,*()[\]{}]+$/u
-      .test(content)
-  ) {
+  if (/^[\s_—–\-./\\|:;,*()[\]{}]+$/u.test(content)) {
     return null;
   }
 
-
-  const lower =
-    content
-      .toLocaleLowerCase("ru-RU")
-      .trim();
-
+  const lower = content.toLocaleLowerCase('ru-RU').trim();
 
   /*
    * Подписи / даты / ФИО.
    */
   if (
-    /^(?:подпись|расшифровка\s+подписи|фио|ф\.?\s*и\.?\s*о\.?|м\.?\s*п\.?)\s*[:._—–\-\/\\]*\s*[_./\\—–\-]*$/iu
-      .test(content)
+    /^(?:подпись|расшифровка\s+подписи|фио|ф\.?\s*и\.?\s*о\.?|м\.?\s*п\.?)\s*[:._—–\-\/\\]*\s*[_./\\—–\-]*$/iu.test(
+      content,
+    )
   ) {
     return null;
   }
 
-  if (
-    /^дата\s*[:._—–\-\/\\]*\s*(?:[_./\\—–\-]|\d|\s)*$/iu
-      .test(content)
-  ) {
+  if (/^дата\s*[:._—–\-\/\\]*\s*(?:[_./\\—–\-]|\d|\s)*$/iu.test(content)) {
     return null;
   }
 
-
-  const normalized =
-    lower
-      .replace(
-        /^[,;:._\-–—/\\|\s]+/u,
-        ""
-      )
-      .trim();
+  const normalized = lower.replace(/^[,;:._\-–—/\\|\s]+/u, '').trim();
 
   const requisites = [
-    "инн",
-    "кпп",
-    "огрн",
-    "огрнип",
-    "бик",
-    "юридический адрес",
-    "фактический адрес",
-    "почтовый адрес",
-    "расчетный счет",
-    "расчётный счёт",
-    "корреспондентский счет",
-    "корреспондентский счёт",
-    "наименование организации"
+    'инн',
+    'кпп',
+    'огрн',
+    'огрнип',
+    'бик',
+    'юридический адрес',
+    'фактический адрес',
+    'почтовый адрес',
+    'расчетный счет',
+    'расчётный счёт',
+    'корреспондентский счет',
+    'корреспондентский счёт',
+    'наименование организации',
   ];
 
-
-  const hits =
-    requisites.filter(
-      item =>
-        normalized.includes(item)
-    );
-
+  const hits = requisites.filter(item => normalized.includes(item));
 
   /*
    * Например:
    *
    * ИНН, Юридический адрес:
    */
-  if (
-    hits.length >= 2 &&
-    normalized.length < 300
-  ) {
+  if (hits.length >= 2 && normalized.length < 300) {
     return null;
   }
-
 
   /*
    * Например:
@@ -229,134 +157,87 @@ function cleanPointContent(value = "") {
    * Юридический адрес: ...
    */
   for (const requisite of requisites) {
-
     if (
       normalized === requisite ||
-      normalized.startsWith(
-        requisite + ":"
-      ) ||
-      normalized.startsWith(
-        requisite + " "
-      )
+      normalized.startsWith(requisite + ':') ||
+      normalized.startsWith(requisite + ' ')
     ) {
       return null;
     }
   }
 
-
   return content;
 }
 
-
 function createSection(number) {
-
   return {
     number,
     headingParts: [],
-    paragraphs: []
+    paragraphs: [],
   };
 }
 
-
-export function parseImportedInstruction(
-  sourceText = ""
-) {
-
-  const lines =
-    String(sourceText ?? "")
-      .replace(/\r\n?/g, "\n")
-      .split("\n");
+export function parseImportedInstruction(sourceText = '') {
+  const lines = String(sourceText ?? '')
+    .replace(/\r\n?/g, '\n')
+    .split('\n');
 
   const sections = [];
-  const sectionByNumber =
-    new Map();
+  const sectionByNumber = new Map();
 
   let currentSection = null;
   let currentPoint = null;
   let collectingHeading = false;
   let documentStarted = false;
 
-
   function getSection(number) {
-
-    if (
-      sectionByNumber.has(number)
-    ) {
-      return sectionByNumber.get(
-        number
-      );
+    if (sectionByNumber.has(number)) {
+      return sectionByNumber.get(number);
     }
 
-    const section =
-      createSection(number);
+    const section = createSection(number);
 
-    sectionByNumber.set(
-      number,
-      section
-    );
+    sectionByNumber.set(number, section);
 
-    sections.push(
-      section
-    );
+    sections.push(section);
 
     return section;
   }
 
-
   function flushPoint() {
-
     if (!currentPoint) {
       return;
     }
 
-    const content =
-      cleanPointContent(
-        joinParts(
-          currentPoint.parts
-        )
-      );
+    const content = cleanPointContent(joinParts(currentPoint.parts));
 
     if (content) {
-
-      const section =
-        getSection(
-          currentPoint.sectionNumber
-        );
+      const section = getSection(currentPoint.sectionNumber);
 
       section.paragraphs.push(
-        `${currentPoint.sectionNumber}.` +
-        `${currentPoint.pointNumber}. ` +
-        content
+        `${currentPoint.sectionNumber}.` + `${currentPoint.pointNumber}. ` + content,
       );
     }
 
     currentPoint = null;
   }
 
-
   for (const rawLine of lines) {
-
-    const line =
-      normalizeLine(rawLine);
+    const line = normalizeLine(rawLine);
 
     if (!line) {
       continue;
     }
-
 
     /*
      * После основного текста приложения,
      * листы ознакомления и подписи нам
      * больше не нужны.
      */
-    if (
-      documentStarted &&
-      isServiceBoundary(line)
-    ) {
+    if (documentStarted && isServiceBoundary(line)) {
       flushPoint();
       break;
     }
-
 
     /*
      * Раздел:
@@ -365,38 +246,21 @@ export function parseImportedInstruction(
      *
      * Важно: (?!\d) отличает его от 1.1.
      */
-    const sectionMatch =
-      line.match(
-        /^([1-9]\d*)\.(?!\d)\s*(.*)$/u
-      );
+    const sectionMatch = line.match(/^([1-9]\d*)\.(?!\d)\s*(.*)$/u);
 
     if (sectionMatch) {
-
       flushPoint();
 
-      const sectionNumber =
-        Number.parseInt(
-          sectionMatch[1],
-          10
-        );
+      const sectionNumber = Number.parseInt(sectionMatch[1], 10);
 
-      currentSection =
-        getSection(
-          sectionNumber
-        );
+      currentSection = getSection(sectionNumber);
 
-      currentSection.headingParts =
-        [];
+      currentSection.headingParts = [];
 
-      const firstHeadingPart =
-        normalizeLine(
-          sectionMatch[2]
-        );
+      const firstHeadingPart = normalizeLine(sectionMatch[2]);
 
       if (firstHeadingPart) {
-        currentSection.headingParts.push(
-          firstHeadingPart
-        );
+        currentSection.headingParts.push(firstHeadingPart);
       }
 
       collectingHeading = true;
@@ -405,45 +269,27 @@ export function parseImportedInstruction(
       continue;
     }
 
-
     /*
      * Пункт:
      *
      * 1.1. Текст
      * 1.1 Текст
      */
-    const pointMatch =
-      line.match(
-        /^(\d+)\.(\d+)\.?\s*(.*)$/u
-      );
+    const pointMatch = line.match(/^(\d+)\.(\d+)\.?\s*(.*)$/u);
 
     if (pointMatch) {
-
       flushPoint();
 
-      const sectionNumber =
-        Number.parseInt(
-          pointMatch[1],
-          10
-        );
+      const sectionNumber = Number.parseInt(pointMatch[1], 10);
 
-      const pointNumber =
-        Number.parseInt(
-          pointMatch[2],
-          10
-        );
+      const pointNumber = Number.parseInt(pointMatch[2], 10);
 
-      currentSection =
-        getSection(
-          sectionNumber
-        );
+      currentSection = getSection(sectionNumber);
 
       currentPoint = {
         sectionNumber,
         pointNumber,
-        parts: [
-          pointMatch[3]
-        ]
+        parts: [pointMatch[3]],
       };
 
       collectingHeading = false;
@@ -451,7 +297,6 @@ export function parseImportedInstruction(
 
       continue;
     }
-
 
     /*
      * Всё до первого настоящего раздела/пункта
@@ -461,26 +306,17 @@ export function parseImportedInstruction(
       continue;
     }
 
-
     /*
      * Продолжение заголовка:
      *
      * 1. ОБЩИЕ
      * ТРЕБОВАНИЯ ОХРАНЫ ТРУДА
      */
-    if (
-      currentSection &&
-      collectingHeading &&
-      !currentPoint
-    ) {
-
-      currentSection.headingParts.push(
-        line
-      );
+    if (currentSection && collectingHeading && !currentPoint) {
+      currentSection.headingParts.push(line);
 
       continue;
     }
-
 
     /*
      * Продолжение существующего пункта.
@@ -489,61 +325,36 @@ export function parseImportedInstruction(
      * просто склеиваем перенос Word/PDF.
      */
     if (currentPoint) {
-
-      currentPoint.parts.push(
-        line
-      );
+      currentPoint.parts.push(line);
     }
   }
 
-
   flushPoint();
 
+  const resultSections = sections
+    .filter(section => section.paragraphs.length > 0)
+    .map(section => {
+      const standardHeading = STANDARD_SECTION_HEADINGS.get(section.number);
 
-  const resultSections =
-    sections
-      .filter(
-        section =>
-          section.paragraphs.length > 0
-      )
-      .map(section => {
+      const extractedHeading = joinParts(section.headingParts)
+        .replace(/^\d+\.\s*/, '')
+        .trim();
 
-        const standardHeading =
-          STANDARD_SECTION_HEADINGS.get(
-            section.number
-          );
+      return {
+        number: section.number,
 
-        const extractedHeading =
-          joinParts(
-            section.headingParts
-          )
-          .replace(
-            /^\d+\.\s*/,
-            ""
-          )
-          .trim();
+        /*
+         * Для стандартных разделов 1–5
+         * используем единое оформление.
+         * Это не генерация содержания.
+         */
+        heading: standardHeading || extractedHeading,
 
-        return {
-          number:
-            section.number,
-
-          /*
-           * Для стандартных разделов 1–5
-           * используем единое оформление.
-           * Это не генерация содержания.
-           */
-          heading:
-            standardHeading ||
-            extractedHeading,
-
-          paragraphs:
-            section.paragraphs
-        };
-      });
-
+        paragraphs: section.paragraphs,
+      };
+    });
 
   return {
-    sections:
-      resultSections
+    sections: resultSections,
   };
 }

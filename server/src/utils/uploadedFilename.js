@@ -10,13 +10,11 @@
  *
  * Инструкция.docx
  */
-export function normalizeUploadedFilename(value = "") {
-
-  const original =
-    String(value ?? "").trim();
+export function normalizeUploadedFilename(value = '') {
+  const original = String(value ?? '').trim();
 
   if (!original) {
-    return "";
+    return '';
   }
 
   /*
@@ -28,29 +26,18 @@ export function normalizeUploadedFilename(value = "") {
   }
 
   try {
-
-    const decoded =
-      Buffer
-        .from(original, "latin1")
-        .toString("utf8");
+    const decoded = Buffer.from(original, 'latin1').toString('utf8');
 
     /*
      * Если декодирование дало replacement character,
      * лучше сохранить исходную строку.
      */
-    if (
-      !decoded ||
-      decoded.includes("\uFFFD")
-    ) {
+    if (!decoded || decoded.includes('\uFFFD')) {
       return original;
     }
 
     return decoded;
-
-  }
-  catch {
-
+  } catch {
     return original;
-
   }
 }
