@@ -26,9 +26,9 @@
   cursor: pointer;
 
   transition:
-    background .15s ease,
-    color .15s ease,
-    border-color .15s ease;
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .stopButton {
@@ -53,7 +53,7 @@
 
 .stopButton:disabled,
 .startButton:disabled {
-  opacity: .6;
+  opacity: 0.6;
   cursor: default;
 }
 

@@ -1,480 +1,229 @@
-import {
-  useState
-} from "react";
+import { useState } from 'react';
 
-import {
-  useNavigate
-} from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
-import {
-  loadCloudPayments
-} from "../../../lib/cloudPayments.js";
-
+import { loadCloudPayments } from '../../../lib/cloudPayments.js';
 
 function getUserAuthToken() {
-
   try {
+    const token = window.localStorage.getItem('boykovgroup_auth_token');
 
-    const token =
-      window.localStorage
-        .getItem(
-          "boykovgroup_auth_token"
-        );
-
-
-    return token
-      ? String(
-          token
-        )
-      : null;
-
-  }
-  catch {
-
+    return token ? String(token) : null;
+  } catch {
     return null;
-
   }
-
 }
 
+export default function useUrgentGenerationPayment({ profession, appliedPromo }) {
+  const navigate = useNavigate();
 
-export default function useUrgentGenerationPayment({
+  const [isPaying, setIsPaying] = useState(false);
 
-  profession,
-  appliedPromo
+  const [error, setError] = useState('');
 
-}) {
+  const [isPaymentComplete, setIsPaymentComplete] = useState(false);
 
-  const navigate =
-    useNavigate();
+  const [paymentMessage, setPaymentMessage] = useState('');
 
+  const [offerAccepted, setOfferAccepted] = useState(false);
 
-  const [
-    isPaying,
-    setIsPaying
-  ] = useState(false);
+  const [personalDataAccepted, setPersonalDataAccepted] = useState(false);
 
-  const [
-    error,
-    setError
-  ] = useState("");
-
-  const [
-    isPaymentComplete,
-    setIsPaymentComplete
-  ] = useState(false);
-
-  const [
-    paymentMessage,
-    setPaymentMessage
-  ] = useState("");
-
-  const [
-    offerAccepted,
-    setOfferAccepted
-  ] = useState(false);
-
-  const [
-    personalDataAccepted,
-    setPersonalDataAccepted
-  ] = useState(false);
-
-  const [
-    consentError,
-    setConsentError
-  ] = useState("");
-
+  const [consentError, setConsentError] = useState('');
 
   async function handleSubmit(event) {
-
     event.preventDefault();
 
-    setError("");
-    setPaymentMessage("");
-    setConsentError("");
+    setError('');
+    setPaymentMessage('');
+    setConsentError('');
 
-
-    if (
-      !offerAccepted ||
-      !personalDataAccepted
-    ) {
-
-      setConsentError(
-        "Для перехода к оплате отметьте оба обязательных согласия."
-      );
+    if (!offerAccepted || !personalDataAccepted) {
+      setConsentError('Для перехода к оплате отметьте оба обязательных согласия.');
 
       return;
     }
 
+    const normalizedProfession = profession.trim();
 
-    const normalizedProfession =
-      profession.trim();
-
-
-    if (
-      normalizedProfession.length < 2
-    ) {
-
-      setError(
-        "Укажите профессию, для которой нужна инструкция."
-      );
+    if (normalizedProfession.length < 2) {
+      setError('Укажите профессию, для которой нужна инструкция.');
 
       return;
     }
 
-
-    setIsPaying(
-      true
-    );
-
+    setIsPaying(true);
 
     try {
+      const authToken = getUserAuthToken();
 
-      const authToken =
-        getUserAuthToken();
+      const orderResponse = await fetch('/api/public-generation/orders', {
+        method: 'POST',
 
+        headers: {
+          'Content-Type': 'application/json',
 
-      const orderResponse =
-        await fetch(
-          "/api/public-generation/orders",
-          {
-            method:
-              "POST",
+          ...(authToken
+            ? {
+                Authorization: `Bearer ${authToken}`,
+              }
+            : {}),
+        },
 
-            headers: {
-              "Content-Type":
-                "application/json",
+        body: JSON.stringify({
+          profession: normalizedProfession,
 
-              ...(
-                authToken
-                  ? {
-                      Authorization:
-                        `Bearer ${authToken}`
-                    }
-                  : {}
-              )
-            },
+          offerAccepted: true,
 
-            body:
-              JSON.stringify({
-                profession:
-                  normalizedProfession,
+          personalDataConsentAccepted: true,
 
-                offerAccepted:
-                  true,
+          ...(appliedPromo?.code
+            ? {
+                promoCode: appliedPromo.code,
+              }
+            : {}),
+        }),
+      });
 
-                personalDataConsentAccepted:
-                  true,
-
-                ...(
-                  appliedPromo?.code
-                    ? {
-                        promoCode:
-                          appliedPromo.code
-                      }
-                    : {}
-                )
-              })
-          }
-        );
-
-
-      const order =
-        await orderResponse
-          .json()
-          .catch(
-            () => ({})
-          );
-
+      const order = await orderResponse.json().catch(() => ({}));
 
       /*
        * Уже опубликованную инструкцию
        * повторно не продаём.
        */
-      if (
-        orderResponse.status === 409 &&
-        order?.existingInstructionId
-      ) {
-
-        navigate(
-          `/instrukciya-po-ohrane-truda/${encodeURIComponent(
-            order.existingInstructionId
-          )}`
-        );
+      if (orderResponse.status === 409 && order?.existingInstructionId) {
+        navigate(`/instrukciya-po-ohrane-truda/${encodeURIComponent(order.existingInstructionId)}`);
 
         return;
       }
 
-
       if (!orderResponse.ok) {
-
-        throw new Error(
-          order?.error ||
-          order?.message ||
-          "Не удалось создать заказ."
-        );
-
+        throw new Error(order?.error || order?.message || 'Не удалось создать заказ.');
       }
 
-
-      const {
-        orderId,
-        orderToken,
-        externalId,
-        publicTerminalId,
-        amount,
-        currency
-      } = order;
-
+      const { orderId, orderToken, externalId, publicTerminalId, amount, currency } = order;
 
       if (
         !orderId ||
         !orderToken ||
         !publicTerminalId ||
-        !Number.isFinite(
-          Number(amount)
-        ) ||
+        !Number.isFinite(Number(amount)) ||
         Number(amount) <= 0 ||
         !currency
       ) {
-
-        throw new Error(
-          "Сервер вернул неполные данные платежа."
-        );
-
+        throw new Error('Сервер вернул неполные данные платежа.');
       }
 
+      const cp = await loadCloudPayments();
 
-      const cp =
-        await loadCloudPayments();
+      const widget = new cp.CloudPayments();
 
+      const widgetResult = await widget.start({
+        publicTerminalId,
 
-      const widget =
-        new cp.CloudPayments();
+        description: `Срочная инструкция по охране труда: ${normalizedProfession}`,
 
+        paymentSchema: 'Single',
 
-      const widgetResult =
-        await widget.start({
+        amount: Number(amount),
 
-          publicTerminalId,
+        currency,
 
-          description:
-            `Срочная инструкция по охране труда: ${normalizedProfession}`,
+        culture: 'ru-RU',
 
-          paymentSchema:
-            "Single",
+        skin: 'classic',
 
-          amount:
-            Number(amount),
+        externalId: externalId || orderId,
 
-          currency,
+        successRedirectUrl: `https://boykovdocs.ru/thanks/?orderId=${encodeURIComponent(orderId)}`,
 
-          culture:
-            "ru-RU",
+        failRedirectUrl: 'https://boykovdocs.ru/srochnaya-generaciya-instrukcii',
+      });
 
-          skin:
-            "classic",
-
-          externalId:
-            externalId ||
-            orderId,
-
-          successRedirectUrl:
-            `https://boykovdocs.ru/thanks/?orderId=${encodeURIComponent(
-              orderId
-            )}`,
-
-          failRedirectUrl:
-            "https://boykovdocs.ru/srochnaya-generaciya-instrukcii"
-
-        });
-
-
-      if (
-        widgetResult?.status !==
-          "success" ||
-        !widgetResult?.data
-          ?.transactionId
-      ) {
-
-        throw new Error(
-          widgetResult?.message ||
-          "Оплата не завершена."
-        );
-
+      if (widgetResult?.status !== 'success' || !widgetResult?.data?.transactionId) {
+        throw new Error(widgetResult?.message || 'Оплата не завершена.');
       }
 
+      const transactionId = String(widgetResult.data.transactionId);
 
-      const transactionId =
-        String(
-          widgetResult
-            .data
-            .transactionId
-        );
+      setIsPaymentComplete(true);
 
+      setPaymentMessage('Платёж выполнен. Проверяем транзакцию в CloudPayments...');
 
-      setIsPaymentComplete(
-        true
-      );
-
-      setPaymentMessage(
-        "Платёж выполнен. Проверяем транзакцию в CloudPayments..."
-      );
-
-
-      let paymentConfirmed =
-        false;
-
+      let paymentConfirmed = false;
 
       /*
        * После оплаты транзакция может появиться
        * в API CloudPayments с небольшой задержкой.
        */
-      for (
-        let attempt = 0;
-        attempt < 8;
-        attempt += 1
-      ) {
-
+      for (let attempt = 0; attempt < 8; attempt += 1) {
         let confirmResponse;
 
-
         try {
+          confirmResponse = await fetch(
+            `/api/public-generation/orders/${encodeURIComponent(orderId)}/confirm-payment`,
+            {
+              method: 'POST',
 
-          confirmResponse =
-            await fetch(
-              `/api/public-generation/orders/${encodeURIComponent(
-                orderId
-              )}/confirm-payment`,
-              {
-                method:
-                  "POST",
+              headers: {
+                'Content-Type': 'application/json',
 
-                headers: {
-                  "Content-Type":
-                    "application/json",
+                'x-order-token': orderToken,
+              },
 
-                  "x-order-token":
-                    orderToken
-                },
-
-                body:
-                  JSON.stringify({
-                    transactionId
-                  })
-              }
-            );
-
-        }
-        catch {
-
-          await new Promise(
-            resolve =>
-              setTimeout(
-                resolve,
-                2000
-              )
+              body: JSON.stringify({
+                transactionId,
+              }),
+            },
           );
+        } catch {
+          await new Promise(resolve => setTimeout(resolve, 2000));
 
           continue;
         }
 
+        const confirmData = await confirmResponse.json().catch(() => ({}));
 
-        const confirmData =
-          await confirmResponse
-            .json()
-            .catch(
-              () => ({})
-            );
-
-
-        if (
-          confirmResponse.ok
-        ) {
-
-          paymentConfirmed =
-            true;
+        if (confirmResponse.ok) {
+          paymentConfirmed = true;
 
           break;
         }
-
 
         const canRetry =
-          confirmResponse.status ===
-            502 ||
-          confirmResponse.status ===
-            429 ||
-          (
-            confirmResponse.status ===
-              409 &&
-            String(
-              confirmData?.error ??
-              ""
-            )
-              .includes(
-                "пока не подтвердил"
-              )
-          );
-
+          confirmResponse.status === 502 ||
+          confirmResponse.status === 429 ||
+          (confirmResponse.status === 409 &&
+            String(confirmData?.error ?? '').includes('пока не подтвердил'));
 
         if (!canRetry) {
-
           console.error(
-            "[UrgentGeneration] payment confirmation rejected:",
+            '[UrgentGeneration] payment confirmation rejected:',
             confirmResponse.status,
-            confirmData
+            confirmData,
           );
 
           break;
         }
 
-
-        await new Promise(
-          resolve =>
-            setTimeout(
-              resolve,
-              2000
-            )
-        );
-
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
-
       if (!paymentConfirmed) {
-
         setPaymentMessage(
-          "Платёж выполнен, но автоматическое подтверждение пока не получено. Повторно оплачивать не нужно."
+          'Платёж выполнен, но автоматическое подтверждение пока не получено. Повторно оплачивать не нужно.',
         );
 
         return;
       }
 
-
-      window.location.replace(
-        `/thanks/?orderId=${encodeURIComponent(
-          orderId
-        )}`
-      );
-
+      window.location.replace(`/thanks/?orderId=${encodeURIComponent(orderId)}`);
+    } catch (paymentError) {
+      setError(paymentError?.message || 'Оплата не завершена.');
+    } finally {
+      setIsPaying(false);
     }
-    catch (paymentError) {
-
-      setError(
-        paymentError?.message ||
-        "Оплата не завершена."
-      );
-
-    }
-    finally {
-
-      setIsPaying(
-        false
-      );
-
-    }
-
   }
-
 
   return {
     isPaying,
@@ -493,7 +242,6 @@ export default function useUrgentGenerationPayment({
     consentError,
     setConsentError,
 
-    handleSubmit
+    handleSubmit,
   };
-
 }

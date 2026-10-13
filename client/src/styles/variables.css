@@ -24,8 +24,8 @@
   --shadow-card-hover: none;
   --shadow-btn: 0 8px 20px rgba(31, 102, 209, 0.18);
 
-  --font-main: "Comfortaa", "Segoe UI", "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-main: 'Comfortaa', 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --max-width: 1200px;
 }

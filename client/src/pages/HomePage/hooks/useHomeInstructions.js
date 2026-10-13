@@ -1,61 +1,29 @@
-import {
-  useEffect,
-  useState
-} from "react";
+import { useEffect, useState } from 'react';
 
-import {
-  useDispatch,
-  useSelector
-} from "react-redux";
+import { useDispatch, useSelector } from 'react-redux';
 
-import {
-  useDebouncedValue
-} from "../../../hooks/useDebouncedValue.js";
+import { useDebouncedValue } from '../../../hooks/useDebouncedValue.js';
 
 import {
   deleteInstruction,
   generateInstruction,
-  searchInstructions
-} from "../../../store/instructionsSlice.js";
+  searchInstructions,
+} from '../../../store/instructionsSlice.js';
 
-import {
-  selectIsAdmin
-} from "../../../store/authSlice.js";
+import { selectIsAdmin } from '../../../store/authSlice.js';
 
-import {
-  PAGE_SIZE
-} from "../../../constants.js";
-
+import { PAGE_SIZE } from '../../../constants.js';
 
 export default function useHomeInstructions() {
+  const dispatch = useDispatch();
 
-  const dispatch =
-    useDispatch();
+  const isAdmin = useSelector(selectIsAdmin);
 
-  const isAdmin =
-    useSelector(
-      selectIsAdmin
-    );
+  const [queryInput, setQueryInput] = useState(
+    () => new URLSearchParams(window.location.search).get('q') ?? '',
+  );
 
-
-  const [
-    queryInput,
-    setQueryInput
-  ] =
-    useState(
-      () =>
-        new URLSearchParams(
-          window.location.search
-        ).get("q") ?? ""
-    );
-
-
-  const debouncedQuery =
-    useDebouncedValue(
-      queryInput,
-      350
-    );
-
+  const debouncedQuery = useDebouncedValue(queryInput, 350);
 
   const {
     items,
@@ -72,96 +40,53 @@ export default function useHomeInstructions() {
     isGenerating,
     generateError,
 
-    deletingId
-  } =
-    useSelector(
-      state =>
-        state.instructions
-    );
-
+    deletingId,
+  } = useSelector(state => state.instructions);
 
   useEffect(() => {
-
     dispatch(
       searchInstructions({
-        query:
-          debouncedQuery,
+        query: debouncedQuery,
 
-        page:
-          1,
+        page: 1,
 
-        pageSize:
-          PAGE_SIZE,
+        pageSize: PAGE_SIZE,
 
-        append:
-          false
-      })
+        append: false,
+      }),
     );
-
-  }, [
-    dispatch,
-    debouncedQuery
-  ]);
-
+  }, [dispatch, debouncedQuery]);
 
   async function generate() {
-
     if (!isAdmin) {
       return;
     }
 
-
-    await dispatch(
-      generateInstruction(
-        debouncedQuery
-      )
-    );
-
+    await dispatch(generateInstruction(debouncedQuery));
   }
-
 
   function remove(id) {
-
     if (!isAdmin) {
       return;
     }
 
-
-    dispatch(
-      deleteInstruction(
-        id
-      )
-    );
-
+    dispatch(deleteInstruction(id));
   }
-
 
   function refresh() {
-
     dispatch(
       searchInstructions({
-        query:
-          debouncedQuery,
+        query: debouncedQuery,
 
-        page:
-          1,
+        page: 1,
 
-        pageSize:
-          PAGE_SIZE
-      })
+        pageSize: PAGE_SIZE,
+      }),
     );
-
   }
 
-
   const showEmptyState =
-    !isSearching &&
-    !searchError &&
-    Boolean(
-      debouncedQuery.trim()
-    ) &&
-    items.length === 0;
-
+    !isSearching && !searchError && Boolean(debouncedQuery.trim()) && items.length === 0;
 
   return {
     queryInput,
@@ -188,7 +113,6 @@ export default function useHomeInstructions() {
 
     generate,
     remove,
-    refresh
+    refresh,
   };
-
 }

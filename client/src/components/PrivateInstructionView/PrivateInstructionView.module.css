@@ -11,7 +11,7 @@
 .title {
   max-width: 940px;
   margin: 0;
-  font-family: "Comfortaa", sans-serif;
+  font-family: 'Comfortaa', sans-serif;
   font-size: clamp(28px, 4vw, 44px);
   font-weight: 700;
   line-height: 1.15;
@@ -39,7 +39,7 @@
 .sectionTitle {
   max-width: 900px;
   margin: 0 0 18px;
-  font-family: "Comfortaa", sans-serif;
+  font-family: 'Comfortaa', sans-serif;
   font-size: 21px;
   line-height: 1.35;
   color: var(--color-text);

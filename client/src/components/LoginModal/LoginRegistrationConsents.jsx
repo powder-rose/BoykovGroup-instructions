@@ -1,9 +1,6 @@
-import styles from
-  "./LoginModal.module.css";
-
+import styles from './LoginModal.module.css';
 
 export default function LoginRegistrationConsents({
-
   userAgreementAccepted,
   setUserAgreementAccepted,
 
@@ -11,52 +8,26 @@ export default function LoginRegistrationConsents({
   setPersonalDataConsentAccepted,
 
   advertisingConsentAccepted,
-  setAdvertisingConsentAccepted
-
+  setAdvertisingConsentAccepted,
 }) {
-
   return (
-    <div
-      className={
-        styles.registrationConsents
-      }
-    >
-
+    <div className={styles.registrationConsents}>
       <label
-        className={[
-          styles.registrationConsent,
-          styles.registrationConsentRequired
-        ]
+        className={[styles.registrationConsent, styles.registrationConsentRequired]
           .filter(Boolean)
-          .join(" ")}
+          .join(' ')}
       >
-
         <input
-          className={
-            styles.registrationConsentCheckbox
-          }
+          className={styles.registrationConsentCheckbox}
           type="checkbox"
-          checked={
-            userAgreementAccepted
-          }
-          onChange={
-            (event) =>
-              setUserAgreementAccepted(
-                event.target.checked
-              )
-          }
+          checked={userAgreementAccepted}
+          onChange={event => setUserAgreementAccepted(event.target.checked)}
           required
         />
 
-        <span
-          className={
-            styles.registrationConsentContent
-          }
-        >
+        <span className={styles.registrationConsentContent}>
           <a
-            className={
-              styles.registrationConsentLink
-            }
+            className={styles.registrationConsentLink}
             href="/user-agreement/"
             target="_blank"
             rel="noopener noreferrer"
@@ -64,45 +35,24 @@ export default function LoginRegistrationConsents({
             Пользовательское соглашение
           </a>
         </span>
-
       </label>
 
-
       <label
-        className={[
-          styles.registrationConsent,
-          styles.registrationConsentRequired
-        ]
+        className={[styles.registrationConsent, styles.registrationConsentRequired]
           .filter(Boolean)
-          .join(" ")}
+          .join(' ')}
       >
-
         <input
-          className={
-            styles.registrationConsentCheckbox
-          }
+          className={styles.registrationConsentCheckbox}
           type="checkbox"
-          checked={
-            personalDataConsentAccepted
-          }
-          onChange={
-            (event) =>
-              setPersonalDataConsentAccepted(
-                event.target.checked
-              )
-          }
+          checked={personalDataConsentAccepted}
+          onChange={event => setPersonalDataConsentAccepted(event.target.checked)}
           required
         />
 
-        <span
-          className={
-            styles.registrationConsentContent
-          }
-        >
+        <span className={styles.registrationConsentContent}>
           <a
-            className={
-              styles.registrationConsentLink
-            }
+            className={styles.registrationConsentLink}
             href="/personal-data-consent/"
             target="_blank"
             rel="noopener noreferrer"
@@ -110,47 +60,20 @@ export default function LoginRegistrationConsents({
             Согласие на обработку персональных данных
           </a>
         </span>
-
       </label>
 
-
-      <div
-        className={
-          styles.registrationConsentOptional
-        }
-      >
-
-        <label
-          className={
-            styles.registrationConsent
-          }
-        >
-
+      <div className={styles.registrationConsentOptional}>
+        <label className={styles.registrationConsent}>
           <input
-            className={
-              styles.registrationConsentCheckbox
-            }
+            className={styles.registrationConsentCheckbox}
             type="checkbox"
-            checked={
-              advertisingConsentAccepted
-            }
-            onChange={
-              (event) =>
-                setAdvertisingConsentAccepted(
-                  event.target.checked
-                )
-            }
+            checked={advertisingConsentAccepted}
+            onChange={event => setAdvertisingConsentAccepted(event.target.checked)}
           />
 
-          <span
-            className={
-              styles.registrationConsentContent
-            }
-          >
+          <span className={styles.registrationConsentContent}>
             <a
-              className={
-                styles.registrationConsentLink
-              }
+              className={styles.registrationConsentLink}
               href="/advertising-consent/"
               target="_blank"
               rel="noopener noreferrer"
@@ -158,21 +81,14 @@ export default function LoginRegistrationConsents({
               Согласие на получение рекламных и информационных сообщений
             </a>
           </span>
-
         </label>
 
-
-        <div
-          className={
-            styles.registrationConsentNote
-          }
-        >
-          Предоставление настоящего Согласия является добровольным и не является обязательным условием регистрации на Сайте, использования личного кабинета, оформления Заказа, оплаты или получения услуг.
+        <div className={styles.registrationConsentNote}>
+          Предоставление настоящего Согласия является добровольным и не является обязательным
+          условием регистрации на Сайте, использования личного кабинета, оформления Заказа, оплаты
+          или получения услуг.
         </div>
-
       </div>
-
     </div>
   );
-
 }

@@ -1,100 +1,33 @@
-import {
-  Link
-} from "react-router-dom";
+import { Link } from 'react-router-dom';
 
-import GeneratedInstructionBadge
-  from "../GeneratedInstructionBadge/GeneratedInstructionBadge.jsx";
+import GeneratedInstructionBadge from '../GeneratedInstructionBadge/GeneratedInstructionBadge.jsx';
 
-import styles
-  from "./InstructionsCatalog.module.css";
+import styles from './InstructionsCatalog.module.css';
 
-
-export default function InstructionsCatalogGrid({
-
-  items,
-  isAdmin
-
-}) {
-
+export default function InstructionsCatalogGrid({ items, isAdmin }) {
   return (
-    <div
-      className={
-        styles.grid
-      }
-    >
+    <div className={styles.grid}>
+      {items.map(item => (
+        <Link key={item.id} to={`/instrukciya-po-ohrane-truda/${item.id}`} className={styles.card}>
+          <h2>{item.title}</h2>
 
-      {
-        items.map(
-          item => (
+          {isAdmin && item?.source === 'generated' && <GeneratedInstructionBadge />}
 
-            <Link
-              key={
-                item.id
-              }
-              to={`/instrukciya-po-ohrane-truda/${item.id}`}
-              className={
-                styles.card
-              }
-            >
+          <span>Открыть инструкцию →</span>
+        </Link>
+      ))}
 
-              <h2>
-                {item.title}
-              </h2>
+      <div className={styles.generationStandalone}>
+        <div className={styles.generationEyebrow}>Нужной инструкции нет?</div>
 
+        <h2 className={styles.generationTitle}>Не нашли нужную инструкцию?</h2>
 
-              {
-                isAdmin &&
-                item?.source ===
-                  "generated" &&
-                (
-                  <GeneratedInstructionBadge />
-                )
-              }
+        <p className={styles.generationText}>Сгенерируйте её!</p>
 
-
-              <span>
-                Открыть инструкцию →
-              </span>
-
-            </Link>
-
-          )
-        )
-      }
-
-
-      <div
-        className={styles.generationStandalone}
-      >
-
-        <div
-          className={styles.generationEyebrow}
-        >
-          Нужной инструкции нет?
-        </div>
-
-        <h2
-          className={styles.generationTitle}
-        >
-          Не нашли нужную инструкцию?
-        </h2>
-
-        <p
-          className={styles.generationText}
-        >
-          Сгенерируйте её!
-        </p>
-
-        <Link
-          to="/srochnaya-generaciya-instrukcii"
-          className={styles.generationButton}
-        >
+        <Link to="/srochnaya-generaciya-instrukcii" className={styles.generationButton}>
           Сгенерировать
         </Link>
-
       </div>
-
     </div>
   );
-
 }

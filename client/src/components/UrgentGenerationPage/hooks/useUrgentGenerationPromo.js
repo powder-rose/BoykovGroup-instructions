@@ -1,263 +1,115 @@
-import {
-  useState
-} from "react";
+import { useState } from 'react';
 
-import {
-  normalizePromoCode,
-  formatAmount
-} from "../urgentGenerationUtils.js";
+import { normalizePromoCode, formatAmount } from '../urgentGenerationUtils.js';
 
-
-const BASE_AMOUNT =
-  500;
-
+const BASE_AMOUNT = 500;
 
 export default function useUrgentGenerationPromo() {
+  const [promoInput, setPromoInput] = useState('');
 
-  const [
-    promoInput,
-    setPromoInput
-  ] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState(null);
 
-  const [
-    appliedPromo,
-    setAppliedPromo
-  ] = useState(null);
+  const [promoMessage, setPromoMessage] = useState('');
 
-  const [
-    promoMessage,
-    setPromoMessage
-  ] = useState("");
+  const [promoMessageType, setPromoMessageType] = useState('');
 
-  const [
-    promoMessageType,
-    setPromoMessageType
-  ] = useState("");
+  const [isPromoChecking, setIsPromoChecking] = useState(false);
 
-  const [
-    isPromoChecking,
-    setIsPromoChecking
-  ] = useState(false);
+  function handlePromoInputChange(value) {
+    const nextValue = value.toUpperCase();
 
+    setPromoInput(nextValue);
 
-  function handlePromoInputChange(
-    value
-  ) {
+    if (appliedPromo && normalizePromoCode(nextValue) !== appliedPromo.code) {
+      setAppliedPromo(null);
 
-    const nextValue =
-      value.toUpperCase();
+      setPromoMessage('');
 
-
-    setPromoInput(
-      nextValue
-    );
-
-
-    if (
-      appliedPromo &&
-      normalizePromoCode(
-        nextValue
-      ) !==
-        appliedPromo.code
-    ) {
-
-      setAppliedPromo(
-        null
-      );
-
-      setPromoMessage(
-        ""
-      );
-
-      setPromoMessageType(
-        ""
-      );
-
+      setPromoMessageType('');
     }
-
   }
 
-
   async function handlePromoApply() {
-
-    const code =
-      normalizePromoCode(
-        promoInput
-      );
-
+    const code = normalizePromoCode(promoInput);
 
     if (!code) {
+      setAppliedPromo(null);
 
-      setAppliedPromo(
-        null
-      );
+      setPromoMessageType('error');
 
-      setPromoMessageType(
-        "error"
-      );
-
-      setPromoMessage(
-        "Введите промокод."
-      );
+      setPromoMessage('Введите промокод.');
 
       return;
     }
 
+    setIsPromoChecking(true);
 
-    setIsPromoChecking(
-      true
-    );
+    setPromoMessage('');
 
-    setPromoMessage(
-      ""
-    );
-
-    setPromoMessageType(
-      ""
-    );
-
+    setPromoMessageType('');
 
     try {
+      const response = await fetch('/api/promo-codes/validate', {
+        method: 'POST',
 
-      const response =
-        await fetch(
-          "/api/promo-codes/validate",
-          {
-            method:
-              "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
 
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
+        body: JSON.stringify({
+          code,
+        }),
+      });
 
-            body:
-              JSON.stringify({
-                code
-              })
-          }
-        );
+      const data = await response.json().catch(() => ({}));
 
+      if (!response.ok || data?.ok !== true) {
+        setAppliedPromo(null);
 
-      const data =
-        await response
-          .json()
-          .catch(
-            () => ({})
-          );
+        setPromoMessageType('error');
 
-
-      if (
-        !response.ok ||
-        data?.ok !== true
-      ) {
-
-        setAppliedPromo(
-          null
-        );
-
-        setPromoMessageType(
-          "error"
-        );
-
-        setPromoMessage(
-          data?.error ||
-          "Промокод не подходит."
-        );
+        setPromoMessage(data?.error || 'Промокод не подходит.');
 
         return;
       }
 
-
       const promo = {
-        code:
-          normalizePromoCode(
-            data?.promo?.code ||
-            code
-          ),
+        code: normalizePromoCode(data?.promo?.code || code),
 
-        originalAmount:
-          Number(
-            data.originalAmount
-          ),
+        originalAmount: Number(data.originalAmount),
 
-        amount:
-          Number(
-            data.amount
-          ),
+        amount: Number(data.amount),
 
-        discountAmount:
-          Number(
-            data.discountAmount
-          )
+        discountAmount: Number(data.discountAmount),
       };
 
+      setAppliedPromo(promo);
 
-      setAppliedPromo(
-        promo
-      );
+      setPromoInput(promo.code);
 
-      setPromoInput(
-        promo.code
-      );
-
-      setPromoMessageType(
-        "success"
-      );
+      setPromoMessageType('success');
 
       setPromoMessage(
-        `Промокод ${promo.code} применён. Скидка ${formatAmount(
-          promo.discountAmount
-        )} ₽.`
+        `Промокод ${promo.code} применён. Скидка ${formatAmount(promo.discountAmount)} ₽.`,
       );
+    } catch {
+      setAppliedPromo(null);
 
+      setPromoMessageType('error');
+
+      setPromoMessage('Не удалось проверить промокод. Попробуйте ещё раз.');
+    } finally {
+      setIsPromoChecking(false);
     }
-    catch {
-
-      setAppliedPromo(
-        null
-      );
-
-      setPromoMessageType(
-        "error"
-      );
-
-      setPromoMessage(
-        "Не удалось проверить промокод. Попробуйте ещё раз."
-      );
-
-    }
-    finally {
-
-      setIsPromoChecking(
-        false
-      );
-
-    }
-
   }
 
+  const displayOriginalAmount = Number.isFinite(appliedPromo?.originalAmount)
+    ? appliedPromo.originalAmount
+    : BASE_AMOUNT;
 
-  const displayOriginalAmount =
-    Number.isFinite(
-      appliedPromo?.originalAmount
-    )
-      ? appliedPromo.originalAmount
-      : BASE_AMOUNT;
+  const displayAmount = Number.isFinite(appliedPromo?.amount) ? appliedPromo.amount : BASE_AMOUNT;
 
-
-  const displayAmount =
-    Number.isFinite(
-      appliedPromo?.amount
-    )
-      ? appliedPromo.amount
-      : BASE_AMOUNT;
-
-
-  const hasPromoDiscount =
-    displayAmount <
-    displayOriginalAmount;
-
+  const hasPromoDiscount = displayAmount < displayOriginalAmount;
 
   return {
     promoInput,
@@ -271,7 +123,6 @@ export default function useUrgentGenerationPromo() {
 
     displayOriginalAmount,
     displayAmount,
-    hasPromoDiscount
+    hasPromoDiscount,
   };
-
 }

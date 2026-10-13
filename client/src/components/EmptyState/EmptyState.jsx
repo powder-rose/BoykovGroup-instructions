@@ -1,4 +1,4 @@
-import styles from "./EmptyState.module.css";
+import styles from './EmptyState.module.css';
 
 export default function EmptyState({ query, isAdmin, isGenerating, error, onGenerate }) {
   return (
@@ -6,11 +6,19 @@ export default function EmptyState({ query, isAdmin, isGenerating, error, onGene
       <div className={styles.iconWrap} aria-hidden="true">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
           <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-          <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          <line
+            x1="16.5"
+            y1="16.5"
+            x2="21"
+            y2="21"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
         </svg>
       </div>
 
-      <p className={styles.text}>  {query}   </p>
+      <p className={styles.text}> {query} </p>
 
       {isAdmin ? (
         <>
@@ -20,14 +28,12 @@ export default function EmptyState({ query, isAdmin, isGenerating, error, onGene
             onClick={onGenerate}
             disabled={isGenerating}
           >
-            {isGenerating ? " ..." : "  YandexGPT"}
+            {isGenerating ? ' ...' : '  YandexGPT'}
           </button>
           {error && <p className={styles.error}>{error}</p>}
         </>
       ) : (
-        <p className={styles.hint}>
-                 .
-        </p>
+        <p className={styles.hint}>.</p>
       )}
     </div>
   );

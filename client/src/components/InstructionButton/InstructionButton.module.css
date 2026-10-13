@@ -30,7 +30,7 @@
 /*     ,    opacity 
       ,    background-color. */
 .clickArea::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   background: var(--color-primary);
@@ -95,7 +95,9 @@
   font-family: var(--font-mono);
   font-size: 16px;
   color: var(--color-border);
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .clickArea:hover .arrow,
@@ -167,13 +169,11 @@
   color: var(--color-text-muted);
 }
 
-
 .adminBar {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 12px;
-
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
 }
 /*
  * ============================================================
@@ -231,7 +231,6 @@
 }
 
 @media (hover: hover) {
-
   .normalCard:hover {
     background: #ffffff !important;
     color: #172b45 !important;

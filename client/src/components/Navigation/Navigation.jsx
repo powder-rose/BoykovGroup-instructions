@@ -1,86 +1,45 @@
-import styles from "./Navigation.module.css";
-
+import styles from './Navigation.module.css';
 
 const links = [
   {
-    label:
-      "Охрана труда",
+    label: 'Охрана труда',
 
-    href:
-      "https://boykovgroup.ru/ohrana-truda"
+    href: 'https://boykovgroup.ru/ohrana-truda',
   },
 
   {
-    label:
-      "Пожарная безопасность",
+    label: 'Пожарная безопасность',
 
-    href:
-      "https://boykovgroup.ru/pozharnaya-bezopasnost"
+    href: 'https://boykovgroup.ru/pozharnaya-bezopasnost',
   },
 
   {
-    label:
-      "Роспотребнадзор",
+    label: 'Роспотребнадзор',
 
-    href:
-      "https://boykovgroup.ru/rospotrebnadzor"
+    href: 'https://boykovgroup.ru/rospotrebnadzor',
   },
 
   {
-    label:
-      "ГО и ЧС",
+    label: 'ГО и ЧС',
 
-    href:
-      "https://boykovgroup.ru/go-chs"
+    href: 'https://boykovgroup.ru/go-chs',
   },
 
   {
-    label:
-      "Антитеррористическая безопасность",
+    label: 'Антитеррористическая безопасность',
 
-    href:
-      "https://boykovgroup.ru/antiterror"
-  }
+    href: 'https://boykovgroup.ru/antiterror',
+  },
 ];
 
-
 export default function Navigation() {
-
   return (
-    <nav
-      className={
-        styles.navigation
-      }
-    >
-
-      {
-        links.map(
-          (
-            {
-              label,
-              href
-            }
-          ) => (
-
-            <a
-              key={
-                label
-              }
-              href={
-                href
-              }
-              className={
-                styles.link
-              }
-            >
-              {label}
-            </a>
-
-          )
-        )
-      }
-
+    <nav className={styles.navigation}>
+      {links.map(({ label, href }) => (
+        <a key={label} href={href} className={styles.link}>
+          {label}
+        </a>
+      ))}
     </nav>
   );
-
 }

@@ -1,111 +1,50 @@
-import {
-  useEffect,
-  useState
-} from "react";
+import { useEffect, useState } from 'react';
 
-import {
-  getGenerationStats
-} from "../../../api/instructionsApi.js";
+import { getGenerationStats } from '../../../api/instructionsApi.js';
 
+export default function useAdminGenerationStats({ isAdmin, token }) {
+  const [stats, setStats] = useState(null);
 
-export default function useAdminGenerationStats({
-
-  isAdmin,
-  token
-
-}) {
-
-  const [
-    stats,
-    setStats
-  ] =
-    useState(null);
-
-  const [
-    statsError,
-    setStatsError
-  ] =
-    useState(null);
-
+  const [statsError, setStatsError] = useState(null);
 
   useEffect(() => {
-
-    if (
-      !isAdmin ||
-      !token
-    ) {
-
+    if (!isAdmin || !token) {
       setStats(null);
 
       return;
-
     }
 
-
-    let cancelled =
-      false;
-
+    let cancelled = false;
 
     async function loadStats() {
-
       try {
-
-        const data =
-          await getGenerationStats(
-            token
-          );
+        const data = await getGenerationStats(token);
 
         if (!cancelled) {
-
           setStats(data);
 
           setStatsError(null);
-
         }
-
-      }
-      catch(error) {
-
+      } catch (error) {
         if (!cancelled) {
-
-          setStatsError(
-            error.message
-          );
-
+          setStatsError(error.message);
         }
-
       }
-
     }
-
 
     loadStats();
 
-
-    const timer =
-      setInterval(
-        loadStats,
-        15000
-      );
-
+    const timer = setInterval(loadStats, 15000);
 
     return () => {
-
       cancelled = true;
 
       clearInterval(timer);
-
     };
-
-  }, [
-    isAdmin,
-    token
-  ]);
-
+  }, [isAdmin, token]);
 
   return {
     stats,
-    statsError
+    statsError,
   };
-
 }

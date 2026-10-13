@@ -1,152 +1,58 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import SearchBar from "../SearchBar/SearchBar.jsx";
-import SiteLinkButton from "../SiteLinkButton/SiteLinkButton.jsx";
-import Navigation from "../Navigation/Navigation.jsx";
-import HeroPortrait from "../HeroPortrait/HeroPortrait.jsx";
+import SearchBar from '../SearchBar/SearchBar.jsx';
+import SiteLinkButton from '../SiteLinkButton/SiteLinkButton.jsx';
+import Navigation from '../Navigation/Navigation.jsx';
+import HeroPortrait from '../HeroPortrait/HeroPortrait.jsx';
 
-import styles from "./InstructionStickyHeader.module.css";
-
+import styles from './InstructionStickyHeader.module.css';
 
 export default function InstructionStickyHeader() {
-
-  const [
-    query,
-    setQuery
-  ] = useState("");
-
+  const [query, setQuery] = useState('');
 
   function handleSearch(value) {
+    const normalized = String(value ?? '').trim();
 
-    const normalized =
-      String(value ?? "")
-        .trim();
-
-
-    const target =
-      normalized
-        ? `/?q=${encodeURIComponent(normalized)}`
-        : "/";
-
+    const target = normalized ? `/?q=${encodeURIComponent(normalized)}` : '/';
 
     /*
      * Полная навигация намеренная:
      * главная страница прочитает q
      * при инициализации поиска.
      */
-    window.location.assign(
-      target
-    );
-
+    window.location.assign(target);
   }
 
-
   return (
-    <header
-      className={
-        styles.header
-      }
-    >
-
-      <div
-        className={
-          styles.inner
-        }
-      >
-
-        <div
-          className={
-            styles.controls
-          }
-        >
-
-          <div
-            className={
-              styles.search
-            }
-          >
-
-            <SearchBar
-              value={query}
-              onChange={setQuery}
-              onSubmit={handleSearch}
-            />
-
+    <header className={styles.header}>
+      <div className={styles.inner}>
+        <div className={styles.controls}>
+          <div className={styles.search}>
+            <SearchBar value={query} onChange={setQuery} onSubmit={handleSearch} />
           </div>
 
-
-          <div
-            className={
-              styles.logo
-            }
-          >
-
+          <div className={styles.logo}>
             <SiteLinkButton />
-
           </div>
-
         </div>
 
-
-        <div
-          className={
-            styles.navigation
-          }
-        >
-
+        <div className={styles.navigation}>
           <Navigation />
-
         </div>
 
-
-        <div
-          className={
-            styles.profileRow
-          }
-        >
-
-          <Link
-            to="/"
-            className={
-              styles.titleLink
-            }
-            aria-label="На главную страницу"
-          >
-            <div
-              className={
-                styles.title
-              }
-            >
-              Инструкции по охране труда
-            </div>
+        <div className={styles.profileRow}>
+          <Link to="/" className={styles.titleLink} aria-label="На главную страницу">
+            <div className={styles.title}>Инструкции по охране труда</div>
           </Link>
 
-
-          <Link
-            to="/"
-            className={
-              styles.profileLink
-            }
-            aria-label="На главную страницу"
-          >
-            <div
-              className={
-                styles.profile
-              }
-            >
-
-              <HeroPortrait
-                compact
-              />
-
+          <Link to="/" className={styles.profileLink} aria-label="На главную страницу">
+            <div className={styles.profile}>
+              <HeroPortrait compact />
             </div>
           </Link>
-
         </div>
-
       </div>
-
     </header>
   );
 }

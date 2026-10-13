@@ -38,7 +38,9 @@
   letter-spacing: 0.02em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .button:hover:not(:disabled) {

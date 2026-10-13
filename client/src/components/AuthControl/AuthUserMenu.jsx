@@ -1,177 +1,61 @@
-import styles from
-  "./AuthControl.module.css";
+import styles from './AuthControl.module.css';
 
-
-export default function AuthUserMenu({
-
-  user,
-  isMenuOpen,
-  setMenuOpen,
-  dropdownRef,
-  onLogout
-
-}) {
-
-  const accountName =
-    user.email ||
-    user.login ||
-    "аккаунт";
-
+export default function AuthUserMenu({ user, isMenuOpen, setMenuOpen, dropdownRef, onLogout }) {
+  const accountName = user.email || user.login || 'аккаунт';
 
   return (
-    <div
-      ref={
-        dropdownRef
-      }
-      className={
-        styles.accountDropdown
-      }
-    >
-
+    <div ref={dropdownRef} className={styles.accountDropdown}>
       <button
         type="button"
-        className={
-          styles.accountTrigger
-        }
+        className={styles.accountTrigger}
         aria-haspopup="menu"
-        aria-expanded={
-          isMenuOpen
-        }
-        onClick={
-          (event) => {
+        aria-expanded={isMenuOpen}
+        onClick={event => {
+          event.stopPropagation();
 
-            event.stopPropagation();
-
-            setMenuOpen(
-              current =>
-                !current
-            );
-
-          }
-        }
+          setMenuOpen(current => !current);
+        }}
       >
+        <span className={styles.accountTriggerEmail}>[ {accountName} ]</span>
 
-        <span
-          className={
-            styles.accountTriggerEmail
-          }
-        >
-          [ {accountName} ]
-        </span>
-
-
-        <span
-          className={
-            styles.accountTriggerChevron
-          }
-          aria-hidden="true"
-        >
+        <span className={styles.accountTriggerChevron} aria-hidden="true">
           ▾
         </span>
-
       </button>
 
+      <div className={styles.accountMenu} hidden={!isMenuOpen} role="menu">
+        <div className={styles.accountMenuHead}>
+          <div className={styles.accountMenuLabel}>АККАУНТ</div>
 
-      <div
-        className={
-          styles.accountMenu
-        }
-        hidden={
-          !isMenuOpen
-        }
-        role="menu"
-      >
-
-        <div
-          className={
-            styles.accountMenuHead
-          }
-        >
-
-          <div
-            className={
-              styles.accountMenuLabel
-            }
-          >
-            АККАУНТ
-          </div>
-
-
-          <div
-            className={
-              styles.accountMenuEmail
-            }
-          >
-            {accountName}
-          </div>
-
+          <div className={styles.accountMenuEmail}>{accountName}</div>
         </div>
 
-
-        <div
-          className={
-            styles.accountMenuDivider
-          }
-        />
-
+        <div className={styles.accountMenuDivider} />
 
         <a
           href="/account/"
-          className={
-            styles.accountMenuItem
-          }
+          className={styles.accountMenuItem}
           role="menuitem"
-          onClick={
-            () =>
-              setMenuOpen(
-                false
-              )
-          }
+          onClick={() => setMenuOpen(false)}
         >
+          <span>Личный кабинет</span>
 
-          <span>
-            Личный кабинет
-          </span>
-
-
-          <span
-            className={
-              styles.accountMenuArrow
-            }
-          >
-            →
-          </span>
-
+          <span className={styles.accountMenuArrow}>→</span>
         </a>
-
 
         <button
           type="button"
-          className={[
-            styles.accountMenuItem,
-            styles.accountMenuLogout
-          ]
-            .filter(Boolean)
-            .join(" ")}
+          className={[styles.accountMenuItem, styles.accountMenuLogout].filter(Boolean).join(' ')}
           role="menuitem"
-          onClick={
-            () => {
+          onClick={() => {
+            setMenuOpen(false);
 
-              setMenuOpen(
-                false
-              );
-
-              onLogout();
-
-            }
-          }
+            onLogout();
+          }}
         >
           Выйти
         </button>
-
       </div>
-
     </div>
   );
-
 }

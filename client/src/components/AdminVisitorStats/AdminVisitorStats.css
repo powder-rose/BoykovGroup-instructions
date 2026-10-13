@@ -13,7 +13,6 @@
   background: #fff;
 }
 
-
 /* HEADER */
 
 .boykovVisitorStats__header {
@@ -50,14 +49,12 @@
   color: #8390a4;
 }
 
-
 /* STATS */
 
 .boykovVisitorStats__grid {
   display: grid;
 
-  grid-template-columns:
-    repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 
   gap: 0;
 
@@ -99,7 +96,6 @@
 
   color: #172136;
 }
-
 
 /* FOOTER */
 
@@ -147,7 +143,6 @@
   color: #8490a4;
 }
 
-
 /* TABLET */
 
 @media (max-width: 900px) {
@@ -156,19 +151,17 @@
   }
 
   .boykovVisitorStats__grid {
-    grid-template-columns:
-      repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .boykovVisitorStats__card:nth-child(4) {
     border-left: 0;
   }
 
-  .boykovVisitorStats__card:nth-child(n+4) {
+  .boykovVisitorStats__card:nth-child(n + 4) {
     border-top: 1px solid rgba(24, 36, 58, 0.09);
   }
 }
-
 
 /* MOBILE */
 
@@ -182,13 +175,11 @@
   }
 
   .boykovVisitorStats__grid {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .boykovVisitorStats__card {
-    padding:
-      14px 12px;
+    padding: 14px 12px;
   }
 
   .boykovVisitorStats__card:nth-child(odd) {
@@ -196,20 +187,17 @@
   }
 
   .boykovVisitorStats__card:nth-child(even) {
-    border-left:
-      1px solid rgba(24, 36, 58, 0.09);
+    border-left: 1px solid rgba(24, 36, 58, 0.09);
   }
 
-  .boykovVisitorStats__card:nth-child(n+3) {
-    border-top:
-      1px solid rgba(24, 36, 58, 0.09);
+  .boykovVisitorStats__card:nth-child(n + 3) {
+    border-top: 1px solid rgba(24, 36, 58, 0.09);
   }
 
   .boykovVisitorStats__value {
     font-size: 22px;
   }
 }
-
 
 /* VISITOR STATS SPACING V3 */
 

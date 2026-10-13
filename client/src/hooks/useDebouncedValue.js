@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 
 /** Возвращает значение value, обновляемое не чаще, чем раз в delay мс. */
 export function useDebouncedValue(value, delay = 350) {

@@ -1,54 +1,19 @@
-import SearchBar
-  from "../../../../components/SearchBar/SearchBar.jsx";
+import SearchBar from '../../../../components/SearchBar/SearchBar.jsx';
 
-import SiteLinkButton
-  from "../../../../components/SiteLinkButton/SiteLinkButton.jsx";
+import SiteLinkButton from '../../../../components/SiteLinkButton/SiteLinkButton.jsx';
 
-import styles
-  from "../../../../App.module.css";
+import styles from '../../../../App.module.css';
 
-
-export default function HomeHeaderControls({
-  query,
-  onQueryChange
-}) {
-
+export default function HomeHeaderControls({ query, onQueryChange }) {
   return (
-    <div
-      className={
-        styles.compactControls
-      }
-    >
-
-      <div
-        className={
-          styles.compactSearch
-        }
-      >
-
-        <SearchBar
-          value={
-            query
-          }
-          onChange={
-            onQueryChange
-          }
-        />
-
+    <div className={styles.compactControls}>
+      <div className={styles.compactSearch}>
+        <SearchBar value={query} onChange={onQueryChange} />
       </div>
 
-
-      <div
-        className={
-          styles.compactLogo
-        }
-      >
-
+      <div className={styles.compactLogo}>
         <SiteLinkButton />
-
       </div>
-
     </div>
   );
-
 }

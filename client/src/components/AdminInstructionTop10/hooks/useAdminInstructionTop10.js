@@ -1,203 +1,84 @@
-import {
-  useEffect,
-  useState
-} from "react";
+import { useEffect, useState } from 'react';
 
+export default function useAdminInstructionTop10(token) {
+  const [period, setPeriod] = useState('total');
 
-export default function useAdminInstructionTop10(
-  token
-) {
+  const [data, setData] = useState(null);
 
-  const [
-    period,
-    setPeriod
-  ] =
-    useState(
-      "total"
-    );
+  const [loading, setLoading] = useState(true);
 
-  const [
-    data,
-    setData
-  ] =
-    useState(null);
-
-  const [
-    loading,
-    setLoading
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError
-  ] =
-    useState("");
-
+  const [error, setError] = useState('');
 
   useEffect(() => {
-
     if (!token) {
+      setData(null);
 
-      setData(
-        null
-      );
-
-      setLoading(
-        false
-      );
+      setLoading(false);
 
       return undefined;
-
     }
 
+    let cancelled = false;
 
-    let cancelled =
-      false;
-
-
-    async function loadStats(
-      silent = false
-    ) {
-
+    async function loadStats(silent = false) {
       if (!silent) {
-
-        setLoading(
-          true
-        );
-
+        setLoading(true);
       }
-
 
       try {
+        setError('');
 
-        setError(
-          ""
+        const response = await fetch(
+          `/api/admin/instruction-popularity?period=${encodeURIComponent(period)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+
+            cache: 'no-store',
+          },
         );
 
-
-        const response =
-          await fetch(
-            `/api/admin/instruction-popularity?period=${encodeURIComponent(
-              period
-            )}`,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`
-              },
-
-              cache:
-                "no-store"
-            }
-          );
-
-
-        const result =
-          await response
-            .json()
-            .catch(
-              () => ({})
-            );
-
+        const result = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-
-          throw new Error(
-            result?.error ||
-            `Ошибка статистики (${response.status})`
-          );
-
+          throw new Error(result?.error || `Ошибка статистики (${response.status})`);
         }
-
 
         if (!cancelled) {
-
-          setData(
-            result
-          );
-
+          setData(result);
         }
-
-      }
-      catch(loadError) {
-
+      } catch (loadError) {
         if (!cancelled) {
-
-          setError(
-            loadError?.message ||
-            "Не удалось загрузить статистику."
-          );
-
+          setError(loadError?.message || 'Не удалось загрузить статистику.');
         }
-
-      }
-      finally {
-
-        if (
-          !cancelled &&
-          !silent
-        ) {
-
-          setLoading(
-            false
-          );
-
+      } finally {
+        if (!cancelled && !silent) {
+          setLoading(false);
         }
-
       }
-
     }
-
 
     void loadStats();
 
-
-    const timer =
-      window.setInterval(
-        () => {
-
-          void loadStats(
-            true
-          );
-
-        },
-        60000
-      );
-
+    const timer = window.setInterval(() => {
+      void loadStats(true);
+    }, 60000);
 
     return () => {
+      cancelled = true;
 
-      cancelled =
-        true;
-
-
-      window.clearInterval(
-        timer
-      );
-
+      window.clearInterval(timer);
     };
+  }, [token, period]);
 
-  }, [
-    token,
-    period
-  ]);
-
-
-  const items =
-    Array.isArray(
-      data?.items
-    )
-      ? data.items
-      : [];
-
+  const items = Array.isArray(data?.items) ? data.items : [];
 
   return {
     period,
     setPeriod,
     items,
     loading,
-    error
+    error,
   };
-
 }

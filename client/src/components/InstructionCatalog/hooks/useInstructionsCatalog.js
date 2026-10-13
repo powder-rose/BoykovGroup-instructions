@@ -1,272 +1,107 @@
-import {
-  useEffect,
-  useState
-} from "react";
+import { useEffect, useState } from 'react';
 
-
-const PAGE_SIZE =
-  11;
-
+const PAGE_SIZE = 11;
 
 export default function useInstructionsCatalog() {
+  const [items, setItems] = useState([]);
 
-  const [
-    items,
-    setItems
-  ] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [
-    loading,
-    setLoading
-  ] = useState(true);
+  const [page, setPage] = useState(1);
 
-  const [
-    page,
-    setPage
-  ] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const [
-    totalPages,
-    setTotalPages
-  ] = useState(1);
-
-  const [
-    error,
-    setError
-  ] = useState("");
-
+  const [error, setError] = useState('');
 
   useEffect(() => {
-
-    let cancelled =
-      false;
-
+    let cancelled = false;
 
     async function load() {
-
       try {
+        setLoading(true);
 
-        setLoading(
-          true
+        setError('');
+
+        const response = await fetch(
+          `/api/instructions?page=${page}&pageSize=${PAGE_SIZE}&sort=${new URLSearchParams(window.location.search).get('sort') === 'popular' ? 'popular' : 'newest'}`,
         );
 
-        setError(
-          ""
-        );
-
-
-        const response =
-          await fetch(
-            `/api/instructions?page=${page}&pageSize=${PAGE_SIZE}&sort=${new URLSearchParams(window.location.search).get("sort") === "popular" ? "popular" : "newest"}`
-          );
-
-
-        const data =
-          await response
-            .json()
-            .catch(
-              () => ({})
-            );
-
+        const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-
-          throw new Error(
-            data?.error ||
-            "Не удалось загрузить инструкции."
-          );
-
+          throw new Error(data?.error || 'Не удалось загрузить инструкции.');
         }
-
 
         if (!cancelled) {
+          setItems(Array.isArray(data?.items) ? data.items : []);
 
-          setItems(
-            Array.isArray(
-              data?.items
-            )
-              ? data.items
-              : []
-          );
-
-
-          setTotalPages(
-            Math.max(
-              1,
-              Number(
-                data?.totalPages
-              ) || 1
-            )
-          );
-
+          setTotalPages(Math.max(1, Number(data?.totalPages) || 1));
         }
-
-      }
-      catch(loadError) {
-
+      } catch (loadError) {
         if (!cancelled) {
-
-          setError(
-            loadError?.message ||
-            "Не удалось загрузить инструкции."
-          );
-
+          setError(loadError?.message || 'Не удалось загрузить инструкции.');
         }
-
-      }
-      finally {
-
+      } finally {
         if (!cancelled) {
-
-          setLoading(
-            false
-          );
-
+          setLoading(false);
         }
-
       }
-
     }
-
 
     load();
 
-
     return () => {
-
-      cancelled =
-        true;
-
+      cancelled = true;
     };
+  }, [page]);
 
-  }, [
-    page
-  ]);
-
-
-  function changePage(
-    nextPage
-  ) {
-
-    if (
-      nextPage < 1 ||
-      nextPage > totalPages ||
-      nextPage === page
-    ) {
-
+  function changePage(nextPage) {
+    if (nextPage < 1 || nextPage > totalPages || nextPage === page) {
       return;
-
     }
 
-
-    setPage(
-      nextPage
-    );
-
+    setPage(nextPage);
 
     window.scrollTo({
-      top:
-        0,
+      top: 0,
 
-      behavior:
-        "smooth"
+      behavior: 'smooth',
     });
-
   }
 
+  const paginationItems = (() => {
+    if (totalPages <= 7) {
+      return Array.from(
+        {
+          length: totalPages,
+        },
 
-  const paginationItems =
-    (() => {
-
-      if (
-        totalPages <= 7
-      ) {
-
-        return Array.from(
-          {
-            length:
-              totalPages
-          },
-
-          (
-            _,
-            index
-          ) =>
-            index + 1
-        );
-
-      }
-
-
-      const result = [
-        1
-      ];
-
-
-      if (
-        page > 4
-      ) {
-
-        result.push(
-          "left"
-        );
-
-      }
-
-
-      const start =
-        Math.max(
-          2,
-          page - 2
-        );
-
-
-      const end =
-        Math.min(
-          totalPages - 1,
-          page + 2
-        );
-
-
-      for (
-        let current =
-          start;
-
-        current <=
-          end;
-
-        current +=
-          1
-      ) {
-
-        result.push(
-          current
-        );
-
-      }
-
-
-      if (
-        page <
-        totalPages - 3
-      ) {
-
-        result.push(
-          "right"
-        );
-
-      }
-
-
-      result.push(
-        totalPages
+        (_, index) => index + 1,
       );
+    }
 
+    const result = [1];
 
-      return result;
+    if (page > 4) {
+      result.push('left');
+    }
 
-    })();
+    const start = Math.max(2, page - 2);
 
+    const end = Math.min(totalPages - 1, page + 2);
+
+    for (let current = start; current <= end; current += 1) {
+      result.push(current);
+    }
+
+    if (page < totalPages - 3) {
+      result.push('right');
+    }
+
+    result.push(totalPages);
+
+    return result;
+  })();
 
   return {
     items,
@@ -275,7 +110,6 @@ export default function useInstructionsCatalog() {
     totalPages,
     error,
     paginationItems,
-    changePage
+    changePage,
   };
-
 }
