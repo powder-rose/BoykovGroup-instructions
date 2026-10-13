@@ -17,6 +17,8 @@ import InstructionTableOfContents from './InstructionTableOfContents.jsx';
 
 import useInstructionPage from './hooks/useInstructionPage.js';
 
+import { serializeJsonLd } from '../../lib/jsonLd.js';
+
 import styles from './InstructionPage.module.css';
 
 export default function InstructionPage() {
@@ -77,12 +79,7 @@ export default function InstructionPage() {
 
   return (
     <div className={styles.page}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumbSchema),
-        }}
-      />
+      <script type="application/ld+json">{serializeJsonLd(breadcrumbSchema)}</script>
 
       <InstructionStickyHeader />
 
