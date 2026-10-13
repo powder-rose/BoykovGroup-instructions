@@ -11,6 +11,7 @@ import {
   listPublicationInboxOrders,
   PUBLIC_GENERATION_PRICE_RUB,
   PUBLIC_GENERATION_CURRENCY,
+  PUBLIC_GENERATION_ORDER_TTL_MS,
 } from '../services/publicGenerationOrderService.js';
 
 import { instructionsRepository } from '../services/instructionsRepository.js';
@@ -25,7 +26,11 @@ import { getCloudPaymentsTransaction } from '../services/cloudPaymentsApiService
 
 import { requireAdmin } from '../middleware/auth.js';
 
-import { resolvePromoCode, markPromoCodeUsed } from '../services/promoCodeService.js';
+import {
+  reservePromoCodeForOrder,
+  releasePromoCodeReservation,
+  markPromoCodeUsed,
+} from '../services/promoCodeService.js';
 
 export const publicGenerationRouter = Router();
 
@@ -162,6 +167,8 @@ publicGenerationRouter.post(
 
     const rawPromoCode = String(req.body?.promoCode ?? '').trim();
 
+    const orderExpiresAt = new Date(Date.now() + PUBLIC_GENERATION_ORDER_TTL_MS).toISOString();
+
     let pricing = {
       originalAmount: PUBLIC_GENERATION_PRICE_RUB,
 
@@ -171,7 +178,9 @@ publicGenerationRouter.post(
     };
 
     if (rawPromoCode) {
-      const promoResult = resolvePromoCode(rawPromoCode, PUBLIC_GENERATION_PRICE_RUB);
+      const promoResult = reservePromoCodeForOrder(rawPromoCode, PUBLIC_GENERATION_PRICE_RUB, {
+        expiresAt: orderExpiresAt,
+      });
 
       if (!promoResult.ok) {
         return res.status(422).json({
@@ -203,7 +212,25 @@ publicGenerationRouter.post(
           }
         : null;
 
-    const order = createPublicGenerationOrder(profession, pricing, owner);
+    let order;
+
+    try {
+      order = createPublicGenerationOrder(
+        profession,
+        {
+          ...pricing,
+
+          expiresAt: orderExpiresAt,
+        },
+        owner,
+      );
+    } catch (error) {
+      if (pricing.promo?.id && pricing.promo?.reservationId) {
+        releasePromoCodeReservation(pricing.promo.id, pricing.promo.reservationId);
+      }
+
+      throw error;
+    }
 
     return res.status(201).json({
       orderId: order.id,
@@ -436,7 +463,25 @@ publicGenerationRouter.post(
       });
 
       if (order.promo?.id) {
-        markPromoCodeUsed(order.promo.id, order.id);
+        const promoRecorded = markPromoCodeUsed(
+          order.promo.id,
+          order.id,
+          order.promo.reservationId,
+        );
+
+        if (!promoRecorded) {
+          updatePublicGenerationOrder(order.id, {
+            status: 'manual_review',
+
+            transactionId,
+
+            paidAt,
+
+            failureCode: 'PROMO_RESERVATION_INVALID',
+          });
+
+          return res.status(409).json(getPublicGenerationOrderView(order.id, accessToken));
+        }
       }
 
       console.log('[PublicGeneration Confirm] test payment:', order.id, transactionId);
@@ -457,7 +502,21 @@ publicGenerationRouter.post(
     });
 
     if (order.promo?.id) {
-      markPromoCodeUsed(order.promo.id, order.id);
+      const promoRecorded = markPromoCodeUsed(order.promo.id, order.id, order.promo.reservationId);
+
+      if (!promoRecorded) {
+        updatePublicGenerationOrder(order.id, {
+          status: 'manual_review',
+
+          transactionId,
+
+          paidAt,
+
+          failureCode: 'PROMO_RESERVATION_INVALID',
+        });
+
+        return res.status(409).json(getPublicGenerationOrderView(order.id, accessToken));
+      }
     }
 
     /*

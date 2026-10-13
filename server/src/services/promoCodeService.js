@@ -51,6 +51,10 @@ function createId() {
   return 'promo_' + Date.now().toString(36) + '_' + crypto.randomBytes(6).toString('hex');
 }
 
+function createReservationId() {
+  return 'promo_res_' + Date.now().toString(36) + '_' + crypto.randomBytes(12).toString('hex');
+}
+
 function normalizeType(value) {
   return value === 'percent' ? 'percent' : 'fixed_price';
 }
@@ -81,6 +85,131 @@ function normalizeExpiresAt(value) {
   }
 
   return date.toISOString();
+}
+
+function activeReservations(item, nowMs = Date.now()) {
+  const source = Array.isArray(item?.reservations) ? item.reservations : [];
+
+  return source.filter(reservation => {
+    const id = String(reservation?.id ?? '').trim();
+
+    const expiresAt = Date.parse(String(reservation?.expiresAt ?? ''));
+
+    return Boolean(id) && Number.isFinite(expiresAt) && expiresAt > nowMs;
+  });
+}
+
+function cleanExpiredReservations(item, nowMs = Date.now()) {
+  const source = Array.isArray(item?.reservations) ? item.reservations : [];
+
+  const active = activeReservations(item, nowMs);
+
+  return {
+    item: {
+      ...item,
+      reservations: active,
+    },
+
+    reservations: active,
+
+    changed: Array.isArray(item?.reservations) && source.length !== active.length,
+  };
+}
+
+function hasAvailableQuota(item, reservations) {
+  if (item.maxUses === null || item.maxUses === undefined) {
+    return true;
+  }
+
+  const maxUses = Number(item.maxUses);
+
+  const usedCount = Number(item.usedCount ?? 0);
+
+  return usedCount + reservations.length < maxUses;
+}
+
+function resolvePricingForItem(item, originalAmount, reservations) {
+  if (!item || item.active !== true) {
+    return {
+      ok: false,
+
+      code: 'PROMO_INVALID',
+
+      error: 'Промокод не найден или отключён',
+    };
+  }
+
+  if (item.expiresAt && Date.now() > new Date(item.expiresAt).getTime()) {
+    return {
+      ok: false,
+
+      code: 'PROMO_EXPIRED',
+
+      error: 'Срок действия промокода истёк',
+    };
+  }
+
+  if (!hasAvailableQuota(item, reservations)) {
+    return {
+      ok: false,
+
+      code: 'PROMO_LIMIT_REACHED',
+
+      error: 'Лимит использований промокода исчерпан',
+    };
+  }
+
+  const base = Number(originalAmount);
+
+  let amount = base;
+
+  if (item.type === 'percent') {
+    amount = base * (1 - Number(item.value) / 100);
+  } else {
+    amount = Number(item.value);
+  }
+
+  amount = Math.round(amount * 100) / 100;
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return {
+      ok: false,
+
+      code: 'PROMO_PRICE_INVALID',
+
+      error: 'Промокод формирует некорректную стоимость',
+    };
+  }
+
+  if (amount > base) {
+    return {
+      ok: false,
+
+      code: 'PROMO_PRICE_INVALID',
+
+      error: 'Стоимость по промокоду не может быть выше обычной',
+    };
+  }
+
+  return {
+    ok: true,
+
+    promo: {
+      id: item.id,
+
+      code: item.code,
+
+      type: item.type,
+
+      value: item.value,
+    },
+
+    originalAmount: base,
+
+    amount,
+
+    discountAmount: Math.round((base - amount) * 100) / 100,
+  };
 }
 
 function publicPromoView(item) {
@@ -161,6 +290,8 @@ export function createPromoCode(input = {}) {
 
     usedOrderIds: [],
 
+    reservations: [],
+
     expiresAt: normalizeExpiresAt(input.expiresAt),
 
     createdAt: now,
@@ -186,7 +317,9 @@ export function updatePromoCode(id, patch = {}) {
     return null;
   }
 
-  const current = items[index];
+  const cleaned = cleanExpiredReservations(items[index]);
+
+  const current = cleaned.item;
 
   let code = current.code;
 
@@ -216,6 +349,18 @@ export function updatePromoCode(id, patch = {}) {
     throw new Error('Процент скидки должен быть меньше 100');
   }
 
+  const maxUses = patch.maxUses !== undefined ? normalizeMaxUses(patch.maxUses) : current.maxUses;
+
+  if (
+    maxUses !== null &&
+    maxUses !== undefined &&
+    Number(current.usedCount ?? 0) + cleaned.reservations.length > Number(maxUses)
+  ) {
+    throw new Error(
+      'Лимит нельзя установить ниже количества уже использованных и зарезервированных применений',
+    );
+  }
+
   const updated = {
     ...current,
 
@@ -227,7 +372,7 @@ export function updatePromoCode(id, patch = {}) {
 
     active: patch.active !== undefined ? patch.active === true : current.active,
 
-    maxUses: patch.maxUses !== undefined ? normalizeMaxUses(patch.maxUses) : current.maxUses,
+    maxUses,
 
     expiresAt:
       patch.expiresAt !== undefined ? normalizeExpiresAt(patch.expiresAt) : current.expiresAt,
@@ -269,9 +414,11 @@ export function resolvePromoCode(rawCode, originalAmount) {
     };
   }
 
-  const item = readAll().find(promo => normalizeCode(promo.code) === code);
+  const items = readAll();
 
-  if (!item || item.active !== true) {
+  const index = items.findIndex(promo => normalizeCode(promo.code) === code);
+
+  if (index < 0) {
     return {
       ok: false,
 
@@ -281,82 +428,176 @@ export function resolvePromoCode(rawCode, originalAmount) {
     };
   }
 
-  if (item.expiresAt && Date.now() > new Date(item.expiresAt).getTime()) {
+  const cleaned = cleanExpiredReservations(items[index]);
+
+  if (cleaned.changed) {
+    items[index] = cleaned.item;
+
+    writeAll(items);
+  }
+
+  return resolvePricingForItem(cleaned.item, originalAmount, cleaned.reservations);
+}
+
+/*
+ * Reserve one promo application for a pending order.
+ *
+ * The operation is intentionally synchronous:
+ * read -> quota check -> reservation write contains no await/yield,
+ * so concurrent requests in the current single API process cannot
+ * interleave between the quota check and the reservation write.
+ */
+export function reservePromoCodeForOrder(rawCode, originalAmount, options = {}) {
+  const code = normalizeCode(rawCode);
+
+  if (!code) {
     return {
       ok: false,
 
-      code: 'PROMO_EXPIRED',
+      code: 'PROMO_REQUIRED',
 
-      error: 'Срок действия промокода истёк',
+      error: 'Введите промокод',
     };
   }
 
-  const usedCount = Number(item.usedCount ?? 0);
+  const reservationExpiresAt = normalizeExpiresAt(options.expiresAt);
 
-  if (item.maxUses !== null && item.maxUses !== undefined && usedCount >= Number(item.maxUses)) {
+  const reservationExpiryMs = Date.parse(String(reservationExpiresAt ?? ''));
+
+  if (
+    !reservationExpiresAt ||
+    !Number.isFinite(reservationExpiryMs) ||
+    reservationExpiryMs <= Date.now()
+  ) {
     return {
       ok: false,
 
-      code: 'PROMO_LIMIT_REACHED',
+      code: 'PROMO_RESERVATION_INVALID',
 
-      error: 'Лимит использований промокода исчерпан',
+      error: 'Не удалось зарезервировать промокод для заказа',
     };
   }
 
-  const base = Number(originalAmount);
+  const items = readAll();
 
-  let amount = base;
+  const index = items.findIndex(promo => normalizeCode(promo.code) === code);
 
-  if (item.type === 'percent') {
-    amount = base * (1 - Number(item.value) / 100);
-  } else {
-    amount = Number(item.value);
-  }
-
-  amount = Math.round(amount * 100) / 100;
-
-  if (!Number.isFinite(amount) || amount <= 0) {
+  if (index < 0) {
     return {
       ok: false,
 
-      code: 'PROMO_PRICE_INVALID',
+      code: 'PROMO_INVALID',
 
-      error: 'Промокод формирует некорректную стоимость',
+      error: 'Промокод не найден или отключён',
     };
   }
 
-  if (amount > base) {
-    return {
-      ok: false,
+  const cleaned = cleanExpiredReservations(items[index]);
 
-      code: 'PROMO_PRICE_INVALID',
+  const pricing = resolvePricingForItem(cleaned.item, originalAmount, cleaned.reservations);
 
-      error: 'Стоимость по промокоду не может быть выше обычной',
-    };
+  if (!pricing.ok) {
+    if (cleaned.changed) {
+      items[index] = cleaned.item;
+
+      writeAll(items);
+    }
+
+    return pricing;
   }
+
+  const reservation = {
+    id: createReservationId(),
+
+    createdAt: new Date().toISOString(),
+
+    expiresAt: reservationExpiresAt,
+  };
+
+  items[index] = {
+    ...cleaned.item,
+
+    reservations: [...cleaned.reservations, reservation],
+
+    updatedAt: new Date().toISOString(),
+  };
+
+  writeAll(items);
 
   return {
-    ok: true,
+    ...pricing,
 
     promo: {
-      id: item.id,
+      ...pricing.promo,
 
-      code: item.code,
-
-      type: item.type,
-
-      value: item.value,
+      reservationId: reservation.id,
     },
-
-    originalAmount: base,
-
-    amount,
-
-    discountAmount: Math.round((base - amount) * 100) / 100,
   };
 }
 
-export function markPromoCodeUsed(promoId, orderId) {
+export function isPromoCodeReservationActive(promoId, reservationId) {
+  if (!promoId || !reservationId) {
+    return false;
+  }
+
+  const items = readAll();
+
+  const index = items.findIndex(item => item.id === promoId);
+
+  if (index < 0) {
+    return false;
+  }
+
+  const cleaned = cleanExpiredReservations(items[index]);
+
+  if (cleaned.changed) {
+    items[index] = cleaned.item;
+
+    writeAll(items);
+  }
+
+  return cleaned.reservations.some(reservation => reservation.id === reservationId);
+}
+
+export function releasePromoCodeReservation(promoId, reservationId) {
+  if (!promoId || !reservationId) {
+    return false;
+  }
+
+  const items = readAll();
+
+  const index = items.findIndex(item => item.id === promoId);
+
+  if (index < 0) {
+    return false;
+  }
+
+  const cleaned = cleanExpiredReservations(items[index]);
+
+  const nextReservations = cleaned.reservations.filter(
+    reservation => reservation.id !== reservationId,
+  );
+
+  const removed = nextReservations.length !== cleaned.reservations.length;
+
+  if (!removed && !cleaned.changed) {
+    return false;
+  }
+
+  items[index] = {
+    ...cleaned.item,
+
+    reservations: nextReservations,
+
+    updatedAt: new Date().toISOString(),
+  };
+
+  writeAll(items);
+
+  return removed;
+}
+
+export function markPromoCodeUsed(promoId, orderId, reservationId = null) {
   if (!promoId || !orderId) {
     return false;
   }
@@ -369,18 +610,72 @@ export function markPromoCodeUsed(promoId, orderId) {
     return false;
   }
 
-  const current = items[index];
+  const cleaned = cleanExpiredReservations(items[index]);
+
+  const current = cleaned.item;
 
   const usedOrderIds = Array.isArray(current.usedOrderIds) ? [...current.usedOrderIds] : [];
 
+  /*
+   * Payment callbacks are allowed to repeat.
+   * Once this order consumed the promo, every later callback
+   * is a no-op success.
+   */
   if (usedOrderIds.includes(orderId)) {
+    if (cleaned.changed) {
+      items[index] = current;
+
+      writeAll(items);
+    }
+
     return true;
+  }
+
+  let reservations = cleaned.reservations;
+
+  if (reservationId) {
+    const reservationIndex = reservations.findIndex(
+      reservation => reservation.id === reservationId,
+    );
+
+    if (reservationIndex < 0) {
+      if (cleaned.changed) {
+        items[index] = current;
+
+        writeAll(items);
+      }
+
+      return false;
+    }
+
+    reservations = reservations.filter((_, position) => position !== reservationIndex);
+  } else {
+    /*
+     * Compatibility for orders created before reservations
+     * existed. They may consume a promo only when doing so
+     * cannot steal quota reserved by a newer pending order.
+     */
+    if (
+      current.maxUses !== null &&
+      current.maxUses !== undefined &&
+      Number(current.usedCount ?? 0) + reservations.length >= Number(current.maxUses)
+    ) {
+      if (cleaned.changed) {
+        items[index] = current;
+
+        writeAll(items);
+      }
+
+      return false;
+    }
   }
 
   usedOrderIds.push(orderId);
 
   items[index] = {
     ...current,
+
+    reservations,
 
     usedOrderIds,
 

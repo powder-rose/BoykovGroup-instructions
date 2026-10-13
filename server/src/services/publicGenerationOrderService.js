@@ -11,7 +11,7 @@ export const PUBLIC_GENERATION_PRICE_RUB = 500;
 
 export const PUBLIC_GENERATION_CURRENCY = 'RUB';
 
-const ORDER_TTL_MS = 60 * 60 * 1000;
+export const PUBLIC_GENERATION_ORDER_TTL_MS = 60 * 60 * 1000;
 
 fs.mkdirSync(ORDERS_DIR, {
   recursive: true,
@@ -97,8 +97,17 @@ export function createPublicGenerationOrder(profession, pricing = {}, owner = {}
         value: Number(pricing.promo.value),
 
         discountAmount: Math.round((originalAmount - amount) * 100) / 100,
+
+        reservationId: pricing.promo.reservationId ? String(pricing.promo.reservationId) : null,
       }
     : null;
+
+  const requestedExpiresAt = Date.parse(String(pricing.expiresAt ?? ''));
+
+  const expiresAt =
+    Number.isFinite(requestedExpiresAt) && requestedExpiresAt > now.getTime()
+      ? new Date(requestedExpiresAt).toISOString()
+      : new Date(now.getTime() + PUBLIC_GENERATION_ORDER_TTL_MS).toISOString();
 
   const order = {
     id: createId(),
@@ -156,7 +165,7 @@ export function createPublicGenerationOrder(profession, pricing = {}, owner = {}
 
     updatedAt: now.toISOString(),
 
-    expiresAt: new Date(now.getTime() + ORDER_TTL_MS).toISOString(),
+    expiresAt,
 
     paidAt: null,
 
