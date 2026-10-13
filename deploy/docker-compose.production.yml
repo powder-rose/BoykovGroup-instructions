@@ -20,6 +20,12 @@ services:
       - ./app/server/data:/app/data
       - ./app/server/uploads:/app/uploads
 
+      # SEO renderer reads the same frontend sources and production shell
+      # that are used by the public site.
+      - ./app/client/src:/client/src:ro
+      - ./app/client/public:/client/public:ro
+      - ./app/public_html:/public_html:ro
+
     networks:
       - boykovdocs
 
