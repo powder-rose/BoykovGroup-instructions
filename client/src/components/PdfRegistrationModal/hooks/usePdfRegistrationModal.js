@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { register as registerUser } from '../../../api/authApi.js';
 
@@ -35,6 +35,12 @@ export default function usePdfRegistrationModal({ onClose }) {
 
   const nameInputRef = useRef(null);
 
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   /*
    * Production сохраняет старый overflow,
    * блокирует body и возвращает его при закрытии.
@@ -59,6 +65,18 @@ export default function usePdfRegistrationModal({ onClose }) {
     };
   }, []);
 
+  const closeModal = useCallback(() => {
+    const reloadAfter = registeredRef.current;
+
+    onCloseRef.current?.();
+
+    if (reloadAfter) {
+      window.setTimeout(() => {
+        window.location.reload();
+      }, 0);
+    }
+  }, []);
+
   /*
    * Escape закрывает modal.
    * Если регистрация уже завершена —
@@ -76,19 +94,7 @@ export default function usePdfRegistrationModal({ onClose }) {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
-
-  function closeModal() {
-    const reloadAfter = registeredRef.current;
-
-    onClose();
-
-    if (reloadAfter) {
-      window.setTimeout(() => {
-        window.location.reload();
-      }, 0);
-    }
-  }
+  }, [closeModal]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -140,7 +146,7 @@ export default function usePdfRegistrationModal({ onClose }) {
       });
 
       closeTimerRef.current = window.setTimeout(() => {
-        onClose();
+        onCloseRef.current?.();
 
         window.location.reload();
       }, 1800);

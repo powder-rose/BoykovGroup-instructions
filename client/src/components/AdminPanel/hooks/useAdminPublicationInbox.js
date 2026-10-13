@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function useAdminPublicationInbox({ isAdmin, token }) {
   const [publicationInbox, setPublicationInbox] = useState([]);
@@ -11,43 +11,46 @@ export default function useAdminPublicationInbox({ isAdmin, token }) {
 
   const [selectedPublicationInstruction, setSelectedPublicationInstruction] = useState(null);
 
-  async function loadPublicationInbox(silent = false) {
-    if (!isAdmin || !token) {
-      setPublicationInbox([]);
+  const loadPublicationInbox = useCallback(
+    async (silent = false) => {
+      if (!isAdmin || !token) {
+        setPublicationInbox([]);
 
-      return;
-    }
-
-    if (!silent) {
-      setPublicationInboxLoading(true);
-    }
-
-    try {
-      const response = await fetch('/api/public-generation/admin/inbox', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-
-        cache: 'no-store',
-      });
-
-      const data = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(data?.error || 'Не удалось загрузить ящик публикаций.');
+        return;
       }
 
-      setPublicationInbox(Array.isArray(data?.items) ? data.items : []);
-
-      setPublicationInboxError('');
-    } catch (error) {
-      setPublicationInboxError(error?.message || 'Не удалось загрузить ящик публикаций.');
-    } finally {
       if (!silent) {
-        setPublicationInboxLoading(false);
+        setPublicationInboxLoading(true);
       }
-    }
-  }
+
+      try {
+        const response = await fetch('/api/public-generation/admin/inbox', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+
+          cache: 'no-store',
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(data?.error || 'Не удалось загрузить ящик публикаций.');
+        }
+
+        setPublicationInbox(Array.isArray(data?.items) ? data.items : []);
+
+        setPublicationInboxError('');
+      } catch (error) {
+        setPublicationInboxError(error?.message || 'Не удалось загрузить ящик публикаций.');
+      } finally {
+        if (!silent) {
+          setPublicationInboxLoading(false);
+        }
+      }
+    },
+    [isAdmin, token],
+  );
 
   useEffect(() => {
     if (!isAdmin || !token) {
@@ -65,7 +68,7 @@ export default function useAdminPublicationInbox({ isAdmin, token }) {
     return () => {
       clearInterval(timer);
     };
-  }, [isAdmin, token]);
+  }, [isAdmin, token, loadPublicationInbox]);
 
   async function reviewPublication(orderId, action) {
     if (!token || !orderId) {
