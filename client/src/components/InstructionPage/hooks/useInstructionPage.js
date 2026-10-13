@@ -35,36 +35,59 @@ export default function useInstructionPage() {
 
   const [viewStats, setViewStats] = useState(null);
 
-  async function loadInstruction() {
-    try {
-      setLoading(true);
-
-      const response = await fetch(`/api/instructions/${id}`);
-
-      if (!response.ok) {
-        throw new Error('Инструкция не найдена');
-      }
-
-      const data = await response.json();
-
-      setInstruction(data);
-
-      const listResponse = await fetch('/api/instructions?page=1&pageSize=200');
-
-      const listData = await listResponse.json();
-
-      setAllInstructions(listData.items || []);
-
-      document.title = `${data.title} | БОЙКОВГРУПП`;
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    loadInstruction();
+    const controller = new AbortController();
+
+    async function loadInstruction() {
+      try {
+        setLoading(true);
+        setError('');
+
+        const response = await fetch(`/api/instructions/${id}`, {
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error('Инструкция не найдена');
+        }
+
+        const data = await response.json();
+
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        setInstruction(data);
+
+        const listResponse = await fetch('/api/instructions?page=1&pageSize=200', {
+          signal: controller.signal,
+        });
+
+        const listData = await listResponse.json();
+
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        setAllInstructions(listData.items || []);
+
+        document.title = `${data.title} | БОЙКОВГРУПП`;
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          setError(err.message);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadInstruction();
+
+    return () => {
+      controller.abort();
+    };
   }, [id]);
 
   /*

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { createPromoCode, getPromoCodes } from '../../../api/promoCodesApi.js';
 
@@ -33,15 +33,15 @@ export default function useAdminPromoCodes({ token }) {
     type: '',
   });
 
-  function showMessage(text, type) {
+  const showMessage = useCallback((text, type) => {
     setMessage({
       text: text || '',
 
       type: type || '',
     });
-  }
+  }, []);
 
-  async function loadItems() {
+  const loadItems = useCallback(async () => {
     if (!token) {
       setItems([]);
 
@@ -59,11 +59,11 @@ export default function useAdminPromoCodes({ token }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [token, showMessage]);
 
   useEffect(() => {
     void loadItems();
-  }, [token]);
+  }, [loadItems]);
 
   function changeCreate(name, value) {
     setCreateForm(current => ({

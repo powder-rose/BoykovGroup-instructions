@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useSelector } from 'react-redux';
 
@@ -11,12 +11,19 @@ export default function useImportProgress({ importId, onComplete }) {
 
   const [error, setError] = useState('');
 
+  const onCompleteRef = useRef(onComplete);
+
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
   useEffect(() => {
     if (!importId) {
       return;
     }
 
     let timer;
+    let completionTimer;
 
     async function loadProgress() {
       try {
@@ -37,10 +44,8 @@ export default function useImportProgress({ importId, onComplete }) {
         if (data.status === 'completed') {
           clearInterval(timer);
 
-          setTimeout(() => {
-            if (onComplete) {
-              onComplete();
-            }
+          completionTimer = setTimeout(() => {
+            onCompleteRef.current?.();
           }, 2000);
         }
 
@@ -58,6 +63,10 @@ export default function useImportProgress({ importId, onComplete }) {
 
     return () => {
       clearInterval(timer);
+
+      if (completionTimer !== undefined) {
+        clearTimeout(completionTimer);
+      }
     };
   }, [importId, token]);
 

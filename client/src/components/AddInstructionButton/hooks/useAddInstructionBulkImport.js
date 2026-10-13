@@ -172,6 +172,11 @@ export default function useAddInstructionBulkImport({ token, currentQuery, files
       return () => {
         cancelled = true;
 
+        /*
+         * pollingRunRef — не DOM ref, а номер поколения polling.
+         * Инкремент намеренно инвалидирует уже запущенный цикл.
+         */
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- mutable polling generation token
         pollingRunRef.current++;
       };
     },
