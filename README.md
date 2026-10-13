@@ -1,4 +1,3 @@
-
 # BoykovDocs — инструкции по охране труда
 
 Веб-приложение для поиска, публикации, загрузки и генерации инструкций по охране труда с использованием **YandexGPT**.
@@ -127,7 +126,7 @@ http://localhost:5173
 
 ```js
 server: {
-  host: "0.0.0.0"
+  host: '0.0.0.0';
 }
 ```
 
@@ -723,8 +722,8 @@ client/src/store/
 ```js
 combineReducers({
   auth,
-  instructions
-})
+  instructions,
+});
 ```
 
 ---
