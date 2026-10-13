@@ -1,7 +1,8 @@
-import {
-  useEffect,
-  useState
-} from "react";
+import AdminInstructionTop10Table
+  from "./AdminInstructionTop10Table.jsx";
+
+import useAdminInstructionTop10
+  from "./hooks/useAdminInstructionTop10.js";
 
 import "./AdminInstructionTop10.css";
 
@@ -41,224 +42,21 @@ const PERIODS = [
 ];
 
 
-function formatNumber(
-  value
-) {
-
-  return Number(
-    value || 0
-  )
-    .toLocaleString(
-      "ru-RU"
-    );
-
-}
-
-
 export default function AdminInstructionTop10({
   token,
   hidden = false
 }) {
 
-  const [
+  const {
     period,
-    setPeriod
-  ] =
-    useState(
-      "total"
-    );
-
-  const [
-    data,
-    setData
-  ] =
-    useState(null);
-
-  const [
+    setPeriod,
+    items,
     loading,
-    setLoading
-  ] =
-    useState(true);
-
-  const [
-    error,
-    setError
-  ] =
-    useState("");
-
-
-  useEffect(() => {
-
-    if (!token) {
-
-      setData(
-        null
-      );
-
-      setLoading(
-        false
-      );
-
-      return undefined;
-
-    }
-
-
-    let cancelled =
-      false;
-
-
-    async function loadStats(
-      silent = false
-    ) {
-
-      if (!silent) {
-
-        setLoading(
-          true
-        );
-
-      }
-
-
-      try {
-
-        setError(
-          ""
-        );
-
-
-        const response =
-          await fetch(
-            `/api/admin/instruction-popularity?period=${encodeURIComponent(
-              period
-            )}`,
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`
-              },
-
-              cache:
-                "no-store"
-            }
-          );
-
-
-        const result =
-          await response
-            .json()
-            .catch(
-              () => ({})
-            );
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            result?.error ||
-            `Ошибка статистики (${response.status})`
-          );
-
-        }
-
-
-        if (!cancelled) {
-
-          setData(
-            result
-          );
-
-        }
-
-      }
-      catch(loadError) {
-
-        if (!cancelled) {
-
-          setError(
-            loadError?.message ||
-            "Не удалось загрузить статистику."
-          );
-
-        }
-
-      }
-      finally {
-
-        if (
-          !cancelled &&
-          !silent
-        ) {
-
-          setLoading(
-            false
-          );
-
-        }
-
-      }
-
-    }
-
-
-    void loadStats();
-
-
-    const timer =
-      window.setInterval(
-        () => {
-
-          void loadStats(
-            true
-          );
-
-        },
-        60000
-      );
-
-
-    return () => {
-
-      cancelled =
-        true;
-
-
-      window.clearInterval(
-        timer
-      );
-
-    };
-
-  }, [
-    token,
-    period
-  ]);
-
-
-  const items =
-    Array.isArray(
-      data?.items
-    )
-      ? data.items
-      : [];
-
-
-  function metricClass(
-    metric
-  ) {
-
-    return [
-      "boykovTop10__number",
-
-      period === metric
-        ? "boykovTop10__number--active"
-        : ""
-    ]
-      .filter(Boolean)
-      .join(" ");
-
-  }
+    error
+  } =
+    useAdminInstructionTop10(
+      token
+    );
 
 
   return (
@@ -397,146 +195,14 @@ export default function AdminInstructionTop10({
           items.length >
             0 &&
           (
-            <div
-              className="boykovTop10__tableWrap"
-            >
-
-              <table
-                className="boykovTop10__table"
-              >
-
-                <thead>
-                  <tr>
-                    <th>№</th>
-                    <th>Инструкция</th>
-                    <th>Всего</th>
-                    <th>Сегодня</th>
-                    <th>7 дней</th>
-                    <th>30 дней</th>
-                  </tr>
-                </thead>
-
-
-                <tbody>
-
-                  {
-                    items.map(
-                      item => (
-
-                        <tr
-                          key={
-                            item.id
-                          }
-                        >
-
-                          <td
-                            className="boykovTop10__rank"
-                          >
-
-                            <span
-                              className={[
-                                "boykovTop10__rankBadge",
-
-                                item.rank <=
-                                  3
-                                  ? `boykovTop10__rankBadge--${item.rank}`
-                                  : ""
-                              ]
-                                .filter(Boolean)
-                                .join(" ")}
-                            >
-                              {item.rank}
-                            </span>
-
-                          </td>
-
-
-                          <td
-                            className="boykovTop10__instruction"
-                          >
-
-                            <a
-                              className="boykovTop10__link"
-                              href={`/instrukciya-po-ohrane-truda/${encodeURIComponent(
-                                item.id
-                              )}`}
-                            >
-                              {item.title}
-                            </a>
-
-                          </td>
-
-
-                          <td
-                            className={
-                              metricClass(
-                                "total"
-                              )
-                            }
-                          >
-                            {
-                              formatNumber(
-                                item.total
-                              )
-                            }
-                          </td>
-
-
-                          <td
-                            className={
-                              metricClass(
-                                "today"
-                              )
-                            }
-                          >
-                            {
-                              formatNumber(
-                                item.today
-                              )
-                            }
-                          </td>
-
-
-                          <td
-                            className={
-                              metricClass(
-                                "7d"
-                              )
-                            }
-                          >
-                            {
-                              formatNumber(
-                                item.last7Days
-                              )
-                            }
-                          </td>
-
-
-                          <td
-                            className={
-                              metricClass(
-                                "30d"
-                              )
-                            }
-                          >
-                            {
-                              formatNumber(
-                                item.last30Days
-                              )
-                            }
-                          </td>
-
-                        </tr>
-
-                      )
-                    )
-                  }
-
-                </tbody>
-
-              </table>
-
-            </div>
+            <AdminInstructionTop10Table
+              items={
+                items
+              }
+              period={
+                period
+              }
+            />
           )
         }
 

@@ -555,3 +555,14 @@
   }
 
 }
+
+
+/* AUTH INPUT FOCUS */
+.form input:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
+.form input:focus {
+  outline: none !important;
+}

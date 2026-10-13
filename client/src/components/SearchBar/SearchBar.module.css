@@ -60,3 +60,32 @@
 .clear:hover {
   background: var(--color-primary);
 }
+
+
+/*
+ * ============================================================
+ * SEARCH FOUNDATION EXCEPTION
+ * ============================================================
+ */
+
+.input {
+  outline: none !important;
+}
+
+.input:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+}
+
+:global(main) input.input {
+  border: revert;
+  border-radius: revert;
+  background: revert;
+  box-shadow: revert;
+}
+
+:global(main) input.input:focus {
+  outline: none !important;
+  border-color: revert;
+  box-shadow: revert;
+}
