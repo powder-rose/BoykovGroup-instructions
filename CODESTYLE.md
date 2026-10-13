@@ -146,6 +146,12 @@ Apply safe ESLint fixes:
 
     npm run lint:fix
 
+Run the complete local quality gate:
+
+    npm run quality:check
+
+The quality gate checks formatting, ESLint, backend tests and the frontend production build.
+
 Formatting and semantic fixes should normally be committed separately.
 
 ## 10. Migration policy

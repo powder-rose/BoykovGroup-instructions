@@ -1,0 +1,46 @@
+name: Quality Gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-gate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            client/package-lock.json
+            server/package-lock.json
+
+      - name: Install code-style tooling
+        run: npm ci
+
+      - name: Install frontend dependencies
+        run: npm ci --prefix client
+
+      - name: Install backend dependencies
+        run: npm ci --prefix server
+
+      - name: Run quality gate
+        run: npm run quality:check
