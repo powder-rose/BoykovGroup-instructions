@@ -1,6 +1,22 @@
 import styles from './InstructionPage.module.css';
 
-function renderInstructionParagraph(paragraph, index) {
+function makeStableTextEntries(values, prefix) {
+  const occurrences = new Map();
+
+  return values.map(value => {
+    const text = String(value ?? '');
+    const occurrence = occurrences.get(text) ?? 0;
+
+    occurrences.set(text, occurrence + 1);
+
+    return {
+      key: `${prefix}:${text}:${occurrence}`,
+      value,
+    };
+  });
+}
+
+function renderInstructionParagraph(paragraph, paragraphKey) {
   const text = String(paragraph ?? '').trim();
 
   /*
@@ -9,7 +25,7 @@ function renderInstructionParagraph(paragraph, index) {
    * 1.4. Работник должен: - пункт; - пункт; - пункт.
    */
   if (!/:\\s*-\\s+/.test(text)) {
-    return <p key={index}>{text}</p>;
+    return <p key={paragraphKey}>{text}</p>;
   }
 
   const parts = text.split(/\\s+-\\s+/);
@@ -22,16 +38,16 @@ function renderInstructionParagraph(paragraph, index) {
    * Один дефис ещё не считаем списком.
    */
   if (!lead || items.length < 2) {
-    return <p key={index}>{text}</p>;
+    return <p key={paragraphKey}>{text}</p>;
   }
 
   return (
-    <div key={index} className={styles.paragraphWithList}>
+    <div key={paragraphKey} className={styles.paragraphWithList}>
       <p className={styles.paragraphLead}>{lead}</p>
 
       <ul className={styles.inlineList}>
-        {items.map((item, itemIndex) => (
-          <li key={itemIndex}>{item}</li>
+        {makeStableTextEntries(items, `${paragraphKey}:item`).map(entry => (
+          <li key={entry.key}>{entry.value}</li>
         ))}
       </ul>
     </div>
@@ -51,8 +67,8 @@ export default function InstructionSections({ sections }) {
         >
           <h2>{section.heading}</h2>
 
-          {section.paragraphs.map((paragraph, index) =>
-            renderInstructionParagraph(paragraph, index),
+          {makeStableTextEntries(section.paragraphs, `section-${section.number}:paragraph`).map(
+            entry => renderInstructionParagraph(entry.value, entry.key),
           )}
         </section>
       ))}

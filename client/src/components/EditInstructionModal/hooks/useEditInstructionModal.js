@@ -6,12 +6,22 @@ import { selectAuthToken } from '../../../store/authSlice.js';
 
 import { getInstructionHistory, rollbackInstruction } from '../../../api/instructionsApi.js';
 
+let editorSectionKeySequence = 0;
+
+function createEditorSectionKey() {
+  editorSectionKeySequence += 1;
+
+  return `editor-section-${editorSectionKeySequence}`;
+}
+
 function prepareInstruction(instruction) {
   return {
     ...instruction,
 
     sections: (Array.isArray(instruction?.sections) ? instruction.sections : []).map(section => ({
       ...section,
+
+      __editorKey: section.__editorKey || createEditorSectionKey(),
 
       paragraphs: Array.isArray(section.paragraphs) ? [...section.paragraphs] : [],
 
@@ -153,6 +163,8 @@ export default function useEditInstructionModal({ instruction, onSave }) {
           ...sections,
 
           {
+            __editorKey: createEditorSectionKey(),
+
             number: sections.length + 1,
 
             heading: '',
@@ -186,15 +198,17 @@ export default function useEditInstructionModal({ instruction, onSave }) {
       const payload = {
         ...data,
 
-        sections: (data.sections || []).map(({ __editorText, ...section }) => ({
-          ...section,
+        sections: (data.sections || []).map(
+          ({ __editorKey: _editorKey, __editorText, ...section }) => ({
+            ...section,
 
-          paragraphs: String(__editorText ?? '')
-            .replace(/\r\n?/g, '\n')
-            .split(/\n\s*\n/u)
-            .map(paragraph => paragraph.trim())
-            .filter(Boolean),
-        })),
+            paragraphs: String(__editorText ?? '')
+              .replace(/\r\n?/g, '\n')
+              .split(/\n\s*\n/u)
+              .map(paragraph => paragraph.trim())
+              .filter(Boolean),
+          }),
+        ),
       };
 
       await onSave(payload);

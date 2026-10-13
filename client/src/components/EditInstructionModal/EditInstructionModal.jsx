@@ -49,7 +49,7 @@ export default function EditInstructionModal({ instruction, onClose, onSave }) {
 
         {(data.sections || []).map((section, sectionIndex) => (
           <EditInstructionSection
-            key={`${section.number}-${sectionIndex}`}
+            key={section.__editorKey}
             section={section}
             sectionIndex={sectionIndex}
             onRemove={removeSection}
