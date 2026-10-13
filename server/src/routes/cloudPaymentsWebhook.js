@@ -16,7 +16,7 @@ import { instructionsRepository } from '../services/instructionsRepository.js';
 
 import { normalizeProfessionKey } from '../services/professionNormalizer.js';
 
-import { markPromoCodeUsed } from '../services/promoCodeService.js';
+import { isPromoCodeReservationActive, markPromoCodeUsed } from '../services/promoCodeService.js';
 
 export const cloudPaymentsWebhookRouter = Router();
 
@@ -150,6 +150,16 @@ cloudPaymentsWebhookRouter.post(
     }
 
     if (order.status !== 'pending_payment') {
+      return res.json({
+        code: 13,
+      });
+    }
+
+    if (
+      order.promo?.id &&
+      order.promo?.reservationId &&
+      !isPromoCodeReservationActive(order.promo.id, order.promo.reservationId)
+    ) {
       return res.json({
         code: 13,
       });
@@ -340,7 +350,27 @@ cloudPaymentsWebhookRouter.post(
       });
 
       if (order.promo?.id) {
-        markPromoCodeUsed(order.promo.id, order.id);
+        const promoRecorded = markPromoCodeUsed(
+          order.promo.id,
+          order.id,
+          order.promo.reservationId,
+        );
+
+        if (!promoRecorded) {
+          updatePublicGenerationOrder(order.id, {
+            status: 'manual_review',
+
+            transactionId,
+
+            paidAt: new Date().toISOString(),
+
+            failureCode: 'PROMO_RESERVATION_INVALID',
+          });
+
+          return res.json({
+            code: 0,
+          });
+        }
       }
 
       return res.json({
@@ -361,7 +391,23 @@ cloudPaymentsWebhookRouter.post(
     });
 
     if (order.promo?.id) {
-      markPromoCodeUsed(order.promo.id, order.id);
+      const promoRecorded = markPromoCodeUsed(order.promo.id, order.id, order.promo.reservationId);
+
+      if (!promoRecorded) {
+        updatePublicGenerationOrder(order.id, {
+          status: 'manual_review',
+
+          transactionId,
+
+          paidAt: new Date().toISOString(),
+
+          failureCode: 'PROMO_RESERVATION_INVALID',
+        });
+
+        return res.json({
+          code: 0,
+        });
+      }
     }
 
     /*
