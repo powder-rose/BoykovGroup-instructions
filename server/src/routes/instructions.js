@@ -22,10 +22,10 @@ import {
   listBulkImportBatches
 } from "../services/bulkImportBatchService.js";
 
+
 import {
   ensureBulkImportWorker
 } from "../services/bulkImportWorkerService.js";
-
 import { Router } from "express";
 import multer from "multer";
 
@@ -87,20 +87,6 @@ import {
   getAutoGenerationSettings,
   setAutoGenerationEnabled
 } from "../services/autoGenerationSettingsService.js";
-
-// ============================================================
-// BULK IMPORT STARTUP RECOVERY
-// ============================================================
-//
-// Passenger может завершить процесс во время импорта.
-// Состояние batch хранится на диске.
-//
-// При загрузке приложения проверяем незавершённые batch.
-// Глобальный filesystem lock в bulkImportWorkerService
-// гарантирует, что очередь одновременно обрабатывает
-// только один Passenger process.
-//
-void ensureBulkImportWorker();
 
 export const instructionsRouter =
   Router();

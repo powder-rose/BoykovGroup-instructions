@@ -10,13 +10,6 @@ const DAILY_CRON_EXPRESSION =
   "0 * * * *";
 
 
-/**
- * Запускает автогенерацию только по cron.
- *
- * ВАЖНО:
- * при старте/restart Passenger генерация
- * больше не запускается автоматически.
- */
 export function startDailyGenerationJob() {
 
   if (
@@ -29,24 +22,32 @@ export function startDailyGenerationJob() {
       `[ScheduledGeneration] Некорректный cron: "${DAILY_CRON_EXPRESSION}"`
     );
 
-    return;
+
+    return async () => {};
+
   }
 
 
-  cron.schedule(
-    DAILY_CRON_EXPRESSION,
-    async () => {
+  const activeRuns =
+    new Set();
+
+
+  async function runGeneration() {
+
+    try {
 
       console.log(
         "[ScheduledGeneration] Cron trigger"
       );
+
 
       const result =
         await runScheduledGeneration();
 
 
       if (
-        result.status === "generated"
+        result.status ===
+        "generated"
       ) {
 
         console.log(
@@ -54,11 +55,13 @@ export function startDailyGenerationJob() {
         );
 
         return;
+
       }
 
 
       if (
-        result.status === "skipped"
+        result.status ===
+        "skipped"
       ) {
 
         console.log(
@@ -66,6 +69,7 @@ export function startDailyGenerationJob() {
         );
 
         return;
+
       }
 
 
@@ -74,21 +78,80 @@ export function startDailyGenerationJob() {
       );
 
     }
-  );
+    catch (error) {
+
+      console.error(
+        "[ScheduledGeneration] Ошибка:",
+        error
+      );
+
+    }
+
+  }
+
+
+  function startTrackedRun() {
+
+    const promise =
+      runGeneration();
+
+
+    activeRuns.add(
+      promise
+    );
+
+
+    promise.then(
+      () =>
+        activeRuns.delete(
+          promise
+        ),
+
+      () =>
+        activeRuns.delete(
+          promise
+        )
+    );
+
+
+    return promise;
+
+  }
+
+
+  const task =
+    cron.schedule(
+      DAILY_CRON_EXPRESSION,
+      () => {
+
+        void startTrackedRun();
+
+      }
+    );
 
 
   console.log(
     `[ScheduledGeneration] Cron зарегистрирован: "${DAILY_CRON_EXPRESSION}"`
   );
 
-  /*
-   * НИЧЕГО здесь сразу не генерируем.
-   *
-   * Раньше здесь был:
-   *
-   * runScheduledGeneration()
-   *
-   * Из-за этого каждый restart Passenger
-   * запускал новую платную генерацию.
-   */
+
+  return async () => {
+
+    task.stop();
+
+
+    while (
+      activeRuns.size > 0
+    ) {
+
+      await Promise.allSettled(
+        [
+          ...activeRuns
+        ]
+      );
+
+    }
+
+  };
+
 }

@@ -1,4 +1,8 @@
 import { buildInstructionIntro } from "../utils/instructionIntro.js";
+
+import {
+  createBackgroundTaskController
+} from "../lifecycle/backgroundTaskController.js";
 import fs from "node:fs";
 import path from "node:path";
 import {
@@ -85,6 +89,10 @@ fs.mkdirSync(
 
 const processingOrders =
   new Set();
+
+
+const publicGenerationBackgroundTasks =
+  createBackgroundTaskController();
 
 
 function lockPath(
@@ -450,9 +458,8 @@ async function refundRejectedOrder(
       error
     );
 
-
-    const timer =
-      setTimeout(
+    publicGenerationBackgroundTasks
+      .scheduleTimeout(
         () => {
 
           queuePublicGenerationOrder(
@@ -462,14 +469,6 @@ async function refundRejectedOrder(
         },
         60 * 1000
       );
-
-
-    if (
-      typeof timer.unref ===
-        "function"
-    ) {
-      timer.unref();
-    }
 
 
     return updated;
@@ -968,25 +967,39 @@ export function queuePublicGenerationOrder(
   orderId
 ) {
 
-  setImmediate(
-    () => {
+  return (
+    publicGenerationBackgroundTasks
+      .scheduleImmediate(
+        async () => {
 
-      processPublicGenerationOrder(
-        orderId
-      )
-      .catch(
-        error => {
+          try {
 
-          console.error(
-            "[PublicPaidGeneration] queue error:",
-            error
-          );
+            await processPublicGenerationOrder(
+              orderId
+            );
+
+          }
+          catch (error) {
+
+            console.error(
+              "[PublicPaidGeneration] queue error:",
+              error
+            );
+
+          }
 
         }
-      );
-
-    }
+      )
   );
+
+}
+
+
+export async function stopPublicGenerationProcessing() {
+
+  await publicGenerationBackgroundTasks
+    .stop();
+
 }
 
 
