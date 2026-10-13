@@ -10,10 +10,18 @@ import {
   updateImportFile,
 } from '../src/services/importHistoryService.js';
 
+const TEST_JWT_SECRET = 'boykovdocs-backend-http-test-only-jwt-secret-7f4f3f70';
+
+let previousJwtSecret;
+
 let server = null;
 let baseUrl = '';
 
 before(async () => {
+  previousJwtSecret = process.env.JWT_SECRET;
+
+  process.env.JWT_SECRET = TEST_JWT_SECRET;
+
   const app = createApp({
     clientOrigin: 'http://localhost:5173',
   });
@@ -32,20 +40,26 @@ before(async () => {
 });
 
 after(async () => {
-  if (!server || !server.listening) {
-    return;
+  try {
+    if (server?.listening) {
+      await new Promise((resolve, reject) => {
+        server.close(error => {
+          if (error) {
+            reject(error);
+            return;
+          }
+
+          resolve();
+        });
+      });
+    }
+  } finally {
+    if (previousJwtSecret === undefined) {
+      delete process.env.JWT_SECRET;
+    } else {
+      process.env.JWT_SECRET = previousJwtSecret;
+    }
   }
-
-  await new Promise((resolve, reject) => {
-    server.close(error => {
-      if (error) {
-        reject(error);
-        return;
-      }
-
-      resolve();
-    });
-  });
 });
 
 test('GET /api/health returns healthy API status', async () => {

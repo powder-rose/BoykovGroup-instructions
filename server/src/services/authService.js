@@ -1,9 +1,62 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-insecure-secret-change-me';
-
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '12h';
+
+const MIN_JWT_SECRET_BYTES = 32;
+
+const INSECURE_JWT_SECRETS = new Set([
+  'dev-insecure-secret-change-me',
+  'change-me-to-a-long-random-string',
+  'change-me',
+  'secret',
+  'jwt-secret',
+]);
+
+function createJwtConfigurationError(message) {
+  const error = new Error(`JWT_SECRET ${message}`);
+
+  error.code = 'JWT_SECRET_INVALID';
+
+  return error;
+}
+
+function getJwtSecret() {
+  const raw = process.env.JWT_SECRET;
+
+  if (typeof raw !== 'string' || !raw.trim()) {
+    throw createJwtConfigurationError('is required');
+  }
+
+  const secret = raw.trim();
+
+  if (raw !== secret) {
+    throw createJwtConfigurationError('must not contain leading or trailing whitespace');
+  }
+
+  if (Buffer.byteLength(secret, 'utf8') < MIN_JWT_SECRET_BYTES) {
+    throw createJwtConfigurationError(`must contain at least ${MIN_JWT_SECRET_BYTES} bytes`);
+  }
+
+  if (INSECURE_JWT_SECRETS.has(secret.toLowerCase())) {
+    throw createJwtConfigurationError('uses a known insecure placeholder value');
+  }
+
+  return secret;
+}
+
+/*
+ * Production entrypoint вызывает эту проверку до открытия HTTP-порта.
+ *
+ * Сами JWT operations тоже читают secret через getJwtSecret(),
+ * поэтому auth остаётся fail-closed даже при использовании модулей
+ * вне стандартного server/src/index.js bootstrap.
+ */
+export function assertJwtConfiguration() {
+  getJwtSecret();
+
+  return true;
+}
 
 function getAdminCredentials() {
   return {
@@ -43,7 +96,7 @@ export function issueAdminToken() {
       login: 'admin',
       role: 'admin',
     },
-    JWT_SECRET,
+    getJwtSecret(),
     {
       expiresIn: JWT_EXPIRES_IN,
     },
@@ -58,7 +111,7 @@ export function issueUserToken(user) {
       email: user.email,
       role: 'user',
     },
-    JWT_SECRET,
+    getJwtSecret(),
     {
       expiresIn: JWT_EXPIRES_IN,
     },
@@ -66,5 +119,5 @@ export function issueUserToken(user) {
 }
 
 export function verifyToken(token) {
-  return jwt.verify(token, JWT_SECRET);
+  return jwt.verify(token, getJwtSecret());
 }
