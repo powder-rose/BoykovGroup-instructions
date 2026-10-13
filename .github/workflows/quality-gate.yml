@@ -73,6 +73,7 @@ jobs:
             -d \
             --name boykovdocs-lifecycle-test \
             -e PORT=4000 \
+            -e JWT_SECRET=boykovdocs-ci-only-jwt-secret-9e8d0c6a4f2b7d31 \
             -e CLIENT_ORIGIN=http://localhost:5173 \
             -e SHUTDOWN_TIMEOUT_MS=15000 \
             -e "DAILY_GENERATION_CRON=59 23 31 12 *" \

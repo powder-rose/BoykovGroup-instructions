@@ -8,7 +8,7 @@ import { startDailySiteStatsEmailJob } from './jobs/dailySiteStatsEmailJob.js';
 
 import { createGracefulShutdown } from './lifecycle/gracefulShutdown.js';
 
-import { isAdminConfigured } from './services/authService.js';
+import { assertJwtConfiguration, isAdminConfigured } from './services/authService.js';
 
 import {
   ensureBulkImportWorker,
@@ -21,6 +21,20 @@ import {
 } from './services/publicPaidGenerationService.js';
 
 import { isYandexGptConfigured } from './services/yandexGptService.js';
+
+/*
+ * SECURITY_BOOTSTRAP
+ *
+ * JWT configuration is mandatory.
+ * Never open the HTTP port with a missing, weak or known placeholder secret.
+ */
+try {
+  assertJwtConfiguration();
+} catch (error) {
+  console.error(`[Startup] ${error?.message || 'Invalid JWT configuration'}`);
+
+  process.exit(1);
+}
 
 const app = createApp();
 
