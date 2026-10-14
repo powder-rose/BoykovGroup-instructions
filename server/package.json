@@ -27,5 +27,10 @@
     "nodemailer": "10.1.0",
     "pdf-parse": "^1.1.1",
     "pdfkit": "^0.20.1"
+  },
+  "overrides": {
+    "mammoth": {
+      "argparse": "2.0.1"
+    }
   }
 }
