@@ -1,4 +1,26 @@
+import { fetchWithTimeout } from '../utils/fetchWithTimeout.js';
+
 const YANDEX_GPT_URL = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion';
+
+const DEFAULT_YANDEX_MODERATION_HTTP_TIMEOUT_MS = 30_000;
+
+function getYandexModerationHttpTimeoutMs() {
+  const configured = Number.parseInt(
+    String(process.env.YANDEX_MODERATION_HTTP_TIMEOUT_MS ?? ''),
+    10,
+  );
+
+  return Number.isFinite(configured) && configured > 0
+    ? configured
+    : DEFAULT_YANDEX_MODERATION_HTTP_TIMEOUT_MS;
+}
+
+function yandexModerationFetch(url, options) {
+  return fetchWithTimeout(globalThis.fetch, url, options, {
+    timeoutMs: getYandexModerationHttpTimeoutMs(),
+    timeoutCode: 'YANDEX_MODERATION_HTTP_TIMEOUT',
+  });
+}
 
 function getConfig() {
   const apiKey = String(process.env.YANDEX_API_KEY ?? '').trim();
@@ -116,7 +138,7 @@ REJECT:
 }
 `.trim();
 
-  const response = await fetch(YANDEX_GPT_URL, {
+  const response = await yandexModerationFetch(YANDEX_GPT_URL, {
     method: 'POST',
 
     headers: {

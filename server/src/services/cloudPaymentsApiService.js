@@ -1,3 +1,22 @@
+import { fetchWithTimeout } from '../utils/fetchWithTimeout.js';
+
+const DEFAULT_CLOUDPAYMENTS_HTTP_TIMEOUT_MS = 15_000;
+
+function getCloudPaymentsHttpTimeoutMs() {
+  const configured = Number.parseInt(String(process.env.CLOUDPAYMENTS_HTTP_TIMEOUT_MS ?? ''), 10);
+
+  return Number.isFinite(configured) && configured > 0
+    ? configured
+    : DEFAULT_CLOUDPAYMENTS_HTTP_TIMEOUT_MS;
+}
+
+function cloudPaymentsFetch(url, options) {
+  return fetchWithTimeout(globalThis.fetch, url, options, {
+    timeoutMs: getCloudPaymentsHttpTimeoutMs(),
+    timeoutCode: 'CLOUDPAYMENTS_HTTP_TIMEOUT',
+  });
+}
+
 function getCredentials() {
   const publicId = String(process.env.CLOUDPAYMENTS_PUBLIC_ID ?? '').trim();
 
@@ -48,7 +67,7 @@ export async function getCloudPaymentsTransaction(transactionId) {
 
   const authorization = Buffer.from(`${publicId}:${apiSecret}`, 'utf8').toString('base64');
 
-  const response = await fetch('https://api.cloudpayments.ru/payments/get', {
+  const response = await cloudPaymentsFetch('https://api.cloudpayments.ru/payments/get', {
     method: 'POST',
 
     headers: {
@@ -212,7 +231,7 @@ export async function refundCloudPaymentsTransaction({
     .join('-')
     .slice(0, 180);
 
-  const response = await fetch('https://api.cloudpayments.ru/payments/refund', {
+  const response = await cloudPaymentsFetch('https://api.cloudpayments.ru/payments/refund', {
     method: 'POST',
 
     headers: {
