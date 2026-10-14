@@ -135,6 +135,18 @@ function cleanProfessionForUse(value = '') {
     .trim();
 }
 
+function hasUnsupportedControlCharacters(value) {
+  for (const character of value) {
+    const code = character.charCodeAt(0);
+
+    if ((code < 0x20 && code !== 0x09 && code !== 0x0a && code !== 0x0d) || code === 0x7f) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 /*
  * ------------------------------------------------------------
  * Мат
@@ -963,7 +975,7 @@ export function moderateProfessionRequest(value) {
    * Управляющие символы кроме обычных пробелов
    * в названии профессии не нужны.
    */
-  if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/u.test(cleaned)) {
+  if (hasUnsupportedControlCharacters(cleaned)) {
     return reject(MODERATION_REASON.INVALID_FORMAT);
   }
 

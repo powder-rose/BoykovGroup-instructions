@@ -71,7 +71,7 @@ function readJsonLines(file) {
     return [];
   }
 
-  let text = '';
+  let text;
 
   try {
     text = fs.readFileSync(file, 'utf8');
@@ -749,11 +749,19 @@ function acquireLock() {
     if (Date.now() - stat.mtimeMs > 2 * 60 * 60 * 1000) {
       fs.unlinkSync(LOCK_FILE);
     }
-  } catch {}
+  } catch (error) {
+    if (error?.code !== 'ENOENT') {
+      console.error('[DailySiteStats] Failed to inspect or remove stale lock:', error);
+    }
+  }
 
   try {
     return fs.openSync(LOCK_FILE, 'wx');
-  } catch {
+  } catch (error) {
+    if (error?.code !== 'EEXIST') {
+      console.error('[DailySiteStats] Failed to acquire lock:', error);
+    }
+
     return null;
   }
 }
@@ -761,11 +769,17 @@ function acquireLock() {
 function releaseLock(descriptor) {
   try {
     fs.closeSync(descriptor);
-  } catch {}
+  } catch (error) {
+    console.error('[DailySiteStats] Failed to close lock descriptor:', error);
+  }
 
   try {
     fs.unlinkSync(LOCK_FILE);
-  } catch {}
+  } catch (error) {
+    if (error?.code !== 'ENOENT') {
+      console.error('[DailySiteStats] Failed to remove lock file:', error);
+    }
+  }
 }
 
 async function sendReport({ test = false } = {}) {

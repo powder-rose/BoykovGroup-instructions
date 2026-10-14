@@ -63,12 +63,13 @@ export async function processImportFile({
       // НОВАЯ ВЕРСИЯ
       // =====================
 
-      case 'new_version':
+      case 'new_version': {
         const versioned = createNewVersion(result.previous, result.instruction);
 
         savedInstruction = instructionsRepository.save(versioned);
 
         break;
+      }
 
       default:
         throw new Error(`Неизвестное действие импорта: ${result.action}`);
