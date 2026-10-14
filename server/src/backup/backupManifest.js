@@ -1,0 +1,21 @@
+﻿export const backupManifest = {
+  version: '1.0',
+
+  /*
+   * Production business data required
+   * for application recovery.
+   */
+  includedPaths: ['server/src/data'],
+
+  /*
+   * Runtime/build artifacts are recreated
+   * during deployment and are not backed up.
+   */
+  excludedPaths: ['node_modules', 'dist', 'logs', '.git'],
+
+  /*
+   * Keep enough history to recover
+   * from accidental corruption.
+   */
+  retentionDays: 14,
+};
