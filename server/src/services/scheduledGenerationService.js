@@ -1,7 +1,8 @@
 import {
   acquireScheduledGenerationLock,
-  releaseScheduledGenerationLock
-} from "./scheduledGenerationFileLock.js";
+  releaseScheduledGenerationLock,
+  startScheduledGenerationLockHeartbeat,
+} from './scheduledGenerationFileLock.js';
 
 import {
   isAutoGenerationEnabled
@@ -161,6 +162,11 @@ export async function runScheduledGeneration(
   }
 
 
+  const stopHeartbeat =
+    startScheduledGenerationLockHeartbeat(
+      lock,
+    );
+
   try {
 
     return await runScheduledGenerationCore(
@@ -170,8 +176,10 @@ export async function runScheduledGeneration(
   }
   finally {
 
+    stopHeartbeat();
+
     releaseScheduledGenerationLock(
-      lock
+      lock,
     );
   }
 }

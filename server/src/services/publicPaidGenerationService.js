@@ -1,7 +1,12 @@
 import { buildInstructionIntro } from '../utils/instructionIntro.js';
 
 import { createBackgroundTaskController } from '../lifecycle/backgroundTaskController.js';
-import fs from 'node:fs';
+
+import {
+  acquireFileLeaseLock,
+  releaseFileLeaseLock,
+  startFileLeaseHeartbeat,
+} from '../utils/fileLeaseLock.js';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -35,11 +40,28 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const LOCKS_DIR = path.join(__dirname, '..', 'data', 'publicGenerationLocks');
 
-const LOCK_STALE_MS = 30 * 60 * 1000;
+const DEFAULT_PUBLIC_GENERATION_LOCK_TTL_MS = 30 * 60 * 1000;
 
-fs.mkdirSync(LOCKS_DIR, {
-  recursive: true,
-});
+const configuredLockTtlMs = Number(process.env.PUBLIC_GENERATION_LOCK_TTL_MS);
+
+const PUBLIC_GENERATION_LOCK_TTL_MS =
+  Number.isFinite(configuredLockTtlMs) && configuredLockTtlMs > 0
+    ? configuredLockTtlMs
+    : DEFAULT_PUBLIC_GENERATION_LOCK_TTL_MS;
+
+const DEFAULT_PUBLIC_GENERATION_LOCK_HEARTBEAT_MS = Math.max(
+  1,
+  Math.min(5 * 60 * 1000, Math.floor(PUBLIC_GENERATION_LOCK_TTL_MS / 3)),
+);
+
+const configuredHeartbeatMs = Number(process.env.PUBLIC_GENERATION_LOCK_HEARTBEAT_MS);
+
+const PUBLIC_GENERATION_LOCK_HEARTBEAT_MS =
+  Number.isFinite(configuredHeartbeatMs) &&
+  configuredHeartbeatMs > 0 &&
+  configuredHeartbeatMs < PUBLIC_GENERATION_LOCK_TTL_MS
+    ? configuredHeartbeatMs
+    : DEFAULT_PUBLIC_GENERATION_LOCK_HEARTBEAT_MS;
 
 const processingOrders = new Set();
 
@@ -49,55 +71,28 @@ function lockPath(orderId) {
   return path.join(LOCKS_DIR, `${orderId}.lock`);
 }
 
-function tryAcquireOrderLock(orderId) {
-  const filepath = lockPath(orderId);
+function acquireOrderLock(orderId) {
+  return acquireFileLeaseLock({
+    filePath: lockPath(orderId),
 
-  try {
-    const fd = fs.openSync(filepath, 'wx');
+    staleMs: PUBLIC_GENERATION_LOCK_TTL_MS,
 
-    fs.writeFileSync(
-      fd,
-      JSON.stringify({
-        pid: process.pid,
+    metadata: {
+      kind: 'public-generation-order',
 
-        createdAt: new Date().toISOString(),
-      }),
-    );
-
-    fs.closeSync(fd);
-
-    return true;
-  } catch (error) {
-    if (error.code !== 'EEXIST') {
-      throw error;
-    }
-
-    try {
-      const stat = fs.statSync(filepath);
-
-      const age = Date.now() - stat.mtimeMs;
-
-      if (age > LOCK_STALE_MS) {
-        fs.unlinkSync(filepath);
-
-        return tryAcquireOrderLock(orderId);
-      }
-    } catch {
-      return false;
-    }
-
-    return false;
-  }
+      orderId,
+    },
+  });
 }
 
-function releaseOrderLock(orderId) {
-  try {
-    fs.unlinkSync(lockPath(orderId));
-  } catch (error) {
-    if (error.code !== 'ENOENT') {
-      console.error('[PublicPaidGeneration] lock release:', error.message);
-    }
-  }
+function startOrderLockHeartbeat(lock, orderId) {
+  return startFileLeaseHeartbeat(lock, {
+    intervalMs: PUBLIC_GENERATION_LOCK_HEARTBEAT_MS,
+
+    onError(error) {
+      console.error('[PublicPaidGeneration] lock heartbeat:', orderId, error?.message || error);
+    },
+  });
 }
 
 function findExisting(profession) {
@@ -438,9 +433,13 @@ export async function processPublicGenerationOrder(orderId) {
     return;
   }
 
-  if (!tryAcquireOrderLock(orderId)) {
+  const lock = acquireOrderLock(orderId);
+
+  if (!lock.acquired) {
     return;
   }
+
+  const stopHeartbeat = startOrderLockHeartbeat(lock, orderId);
 
   processingOrders.add(orderId);
 
@@ -471,7 +470,16 @@ export async function processPublicGenerationOrder(orderId) {
   } finally {
     processingOrders.delete(orderId);
 
-    releaseOrderLock(orderId);
+    stopHeartbeat();
+
+    const released = releaseFileLeaseLock(lock);
+
+    if (!released) {
+      console.warn(
+        '[PublicPaidGeneration] order lock is no longer owned by this process:',
+        orderId,
+      );
+    }
   }
 }
 
