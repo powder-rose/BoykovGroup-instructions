@@ -3,6 +3,8 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
+import { createBufferedFileAppender } from '../utils/asyncFileWriter.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const DATA_DIR = path.join(__dirname, '..', 'data', 'analytics');
@@ -11,16 +13,19 @@ const EVENTS_FILE = path.join(DATA_DIR, 'visitor-events.jsonl');
 
 const MOSCOW_TIMEZONE = 'Europe/Moscow';
 
-function ensureStorage() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, {
-      recursive: true,
-    });
-  }
+const visitorEventWriter = createBufferedFileAppender({
+  filePath: EVENTS_FILE,
 
-  if (!fs.existsSync(EVENTS_FILE)) {
-    fs.writeFileSync(EVENTS_FILE, '', 'utf-8');
-  }
+  label: 'visitor-page-views',
+});
+
+function ensureStorage() {
+  /*
+   * Runtime writes are handled by asyncFileWriter.
+   *
+   * The hot path must not create files
+   * synchronously inside the event loop.
+   */
 }
 
 function getDayKey(date = new Date()) {
@@ -166,7 +171,7 @@ export function recordVisitorPageView({ visitorId }) {
     visitor: hashVisitorId(normalized),
   };
 
-  fs.appendFileSync(EVENTS_FILE, JSON.stringify(event) + '\n', 'utf-8');
+  visitorEventWriter.append(`${JSON.stringify(event)}\n`);
 
   return true;
 }

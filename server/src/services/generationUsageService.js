@@ -3,9 +3,17 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { nanoid } from 'nanoid';
 
+import { createBufferedFileAppender } from '../utils/asyncFileWriter.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const USAGE_PATH = path.join(__dirname, '..', 'data', 'generationUsage.jsonl');
+
+const usageEventWriter = createBufferedFileAppender({
+  filePath: USAGE_PATH,
+
+  label: 'generation-usage',
+});
 
 /*
  * Актуальные синхронные тарифы Yandex AI Studio,
@@ -100,19 +108,7 @@ function getModelPrice(model) {
 }
 
 function appendEvent(event) {
-  try {
-    fs.mkdirSync(path.dirname(USAGE_PATH), {
-      recursive: true,
-    });
-
-    fs.appendFileSync(USAGE_PATH, JSON.stringify(event) + '\n', 'utf-8');
-  } catch (error) {
-    /*
-     * Ошибка статистики не должна ломать
-     * саму генерацию инструкции.
-     */
-    console.error('[GenerationUsage] Не удалось записать статистику:', error.message);
-  }
+  usageEventWriter.append(`${JSON.stringify(event)}\n`);
 }
 
 export function createGenerationUsageId(source = 'generation') {

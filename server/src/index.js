@@ -2,6 +2,8 @@ import 'dotenv/config';
 
 import { createApp } from './app.js';
 
+import { flushAsyncFileWrites } from './utils/asyncFileWriter.js';
+
 import { startDailyGenerationJob } from './jobs/dailyGenerationJob.js';
 
 import { startDailySiteStatsEmailJob } from './jobs/dailySiteStatsEmailJob.js';
@@ -123,6 +125,8 @@ async function handleShutdown(signal) {
 
   try {
     await shutdown(signal);
+
+    await flushAsyncFileWrites();
 
     console.log('[Shutdown] completed');
 

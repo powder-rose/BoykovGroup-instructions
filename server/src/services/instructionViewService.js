@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { createLatestAtomicJsonWriter } from '../utils/asyncFileWriter.js';
+
 const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
@@ -9,6 +11,12 @@ const __dirname = path.dirname(__filename);
 const DATA_FILE = path.join(__dirname, '..', 'data', 'instructionViews.json');
 
 let data = loadData();
+
+const viewsWriter = createLatestAtomicJsonWriter({
+  filePath: DATA_FILE,
+
+  label: 'instruction-views',
+});
 
 function loadData() {
   try {
@@ -29,17 +37,7 @@ function loadData() {
 }
 
 function saveData() {
-  const directory = path.dirname(DATA_FILE);
-
-  fs.mkdirSync(directory, {
-    recursive: true,
-  });
-
-  const temporary = `${DATA_FILE}.tmp`;
-
-  fs.writeFileSync(temporary, JSON.stringify(data, null, 2), 'utf8');
-
-  fs.renameSync(temporary, DATA_FILE);
+  viewsWriter.write(data);
 }
 
 function getDateKey(date = new Date()) {
