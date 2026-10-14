@@ -3,20 +3,26 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
+import { createBufferedFileAppender } from '../utils/asyncFileWriter.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const DATA_DIR = path.join(__dirname, '..', 'data', 'analytics');
 
 const DOWNLOAD_EVENTS_FILE = path.join(DATA_DIR, 'download-events.jsonl');
 
-function ensureStorage() {
-  fs.mkdirSync(DATA_DIR, {
-    recursive: true,
-  });
+const downloadEventWriter = createBufferedFileAppender({
+  filePath: DOWNLOAD_EVENTS_FILE,
 
-  if (!fs.existsSync(DOWNLOAD_EVENTS_FILE)) {
-    fs.writeFileSync(DOWNLOAD_EVENTS_FILE, '', 'utf8');
-  }
+  label: 'instruction-downloads',
+});
+
+function ensureStorage() {
+  /*
+   * Runtime writes are handled by asyncFileWriter.
+   *
+   * Readers still handle missing files safely.
+   */
 }
 
 function hashUserId(value) {
@@ -61,7 +67,7 @@ export function recordInstructionDownload({ instructionId, title, userId }) {
     downloader: hashUserId(user),
   };
 
-  fs.appendFileSync(DOWNLOAD_EVENTS_FILE, JSON.stringify(event) + '\n', 'utf8');
+  downloadEventWriter.append(`${JSON.stringify(event)}\n`);
 
   return true;
 }
