@@ -1,5 +1,7 @@
 import { buildInstructionIntro } from '../utils/instructionIntro.js';
 import fetch from 'node-fetch';
+
+import { fetchWithTimeout } from '../utils/fetchWithTimeout.js';
 import {
   SECTION_DEFINITIONS,
   buildSystemPrompt,
@@ -10,6 +12,23 @@ import { getProfessionGenitive } from '../utils/professionGenitive.js';
 import { createGenerationUsageId, recordGenerationUsageCall } from './generationUsageService.js';
 
 const YANDEX_GPT_URL = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion';
+
+const DEFAULT_YANDEX_GPT_HTTP_TIMEOUT_MS = 120_000;
+
+function getYandexGptHttpTimeoutMs() {
+  const configured = Number.parseInt(String(process.env.YANDEX_GPT_HTTP_TIMEOUT_MS ?? ''), 10);
+
+  return Number.isFinite(configured) && configured > 0
+    ? configured
+    : DEFAULT_YANDEX_GPT_HTTP_TIMEOUT_MS;
+}
+
+function yandexGptFetch(url, options) {
+  return fetchWithTimeout(fetch, url, options, {
+    timeoutMs: getYandexGptHttpTimeoutMs(),
+    timeoutCode: 'YANDEX_GPT_HTTP_TIMEOUT',
+  });
+}
 
 function getConfig() {
   const apiKey = process.env.YANDEX_API_KEY;
@@ -34,7 +53,7 @@ function estimateMaxTokens(requiredCount) {
 }
 
 async function callYandexGpt(messages, { apiKey, folderId, model }, maxTokens, usageMeta = {}) {
-  const response = await fetch(YANDEX_GPT_URL, {
+  const response = await yandexGptFetch(YANDEX_GPT_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
