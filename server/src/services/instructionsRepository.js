@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -72,8 +73,52 @@ class InstructionsRepository {
 
     const filePath = path.join(this.dir, `${instruction.id}.json`);
 
-    fs.writeFileSync(filePath, JSON.stringify(instruction, null, 2), 'utf-8');
+    /*
+     * Никогда не пишем новый JSON непосредственно
+     * поверх последней успешно сохранённой версии.
+     *
+     * Сначала полностью записываем временный файл
+     * в той же директории, затем атомарно заменяем
+     * целевой файл через rename.
+     */
+    const temporaryPath = path.join(
+      this.dir,
+      `.${path.basename(filePath)}.${process.pid}.${randomUUID()}.tmp`,
+    );
 
+    try {
+      fs.writeFileSync(temporaryPath, JSON.stringify(instruction, null, 2), {
+        encoding: 'utf-8',
+        flush: true,
+      });
+
+      fs.renameSync(temporaryPath, filePath);
+    } catch (error) {
+      /*
+       * После неудачной записи или rename
+       * удаляем только незавершённый временный файл.
+       *
+       * Последняя успешно сохранённая инструкция
+       * остаётся нетронутой.
+       */
+      try {
+        if (fs.existsSync(temporaryPath)) {
+          fs.unlinkSync(temporaryPath);
+        }
+      } catch {
+        /*
+         * Ошибка cleanup не должна скрывать
+         * исходную ошибку сохранения.
+         */
+      }
+
+      throw error;
+    }
+
+    /*
+     * Cache обновляем только после успешного
+     * atomic commit файла на диск.
+     */
     this.cache.set(instruction.id, instruction);
 
     return instruction;
