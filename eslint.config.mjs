@@ -122,6 +122,8 @@ export default [
     },
 
     rules: {
+      ...js.configs.recommended.rules,
+
       eqeqeq: [
         'error',
         'always',

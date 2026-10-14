@@ -331,12 +331,6 @@ function jsonRequest(body, extra = {}) {
   return {
     method: 'POST',
 
-    headers: {
-      'content-type': 'application/json',
-
-      ...(extra.headers ?? {}),
-    },
-
     body: JSON.stringify(body),
 
     ...extra,

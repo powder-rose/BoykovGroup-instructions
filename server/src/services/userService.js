@@ -48,7 +48,7 @@ function readUsers() {
   } catch (error) {
     console.error('Unable to read users storage:', error);
 
-    throw new Error('Не удалось прочитать базу пользователей');
+    throw new Error('Не удалось прочитать базу пользователей', { cause: error });
   }
 }
 

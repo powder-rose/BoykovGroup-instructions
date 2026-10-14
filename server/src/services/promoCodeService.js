@@ -161,15 +161,10 @@ function resolvePricingForItem(item, originalAmount, reservations) {
 
   const base = Number(originalAmount);
 
-  let amount = base;
+  const discountedAmount =
+    item.type === 'percent' ? base * (1 - Number(item.value) / 100) : Number(item.value);
 
-  if (item.type === 'percent') {
-    amount = base * (1 - Number(item.value) / 100);
-  } else {
-    amount = Number(item.value);
-  }
-
-  amount = Math.round(amount * 100) / 100;
+  const amount = Math.round(discountedAmount * 100) / 100;
 
   if (!Number.isFinite(amount) || amount <= 0) {
     return {

@@ -327,7 +327,7 @@ function getSuspiciousImportedProfessionReason(value = '') {
     return 'в названии обнаружена ссылка';
   }
 
-  if (/[<>{}\[\]]|={2,}|_{3,}/u.test(profession)) {
+  if (/[<>{}[\]]|={2,}|_{3,}/u.test(profession)) {
     return 'в названии обнаружены ' + 'служебные символы';
   }
 

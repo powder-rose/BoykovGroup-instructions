@@ -53,7 +53,7 @@ async function acquireWorkerLock() {
       throw error;
     }
 
-    let stat = null;
+    let stat;
 
     try {
       stat = await fs.stat(WORKER_OWNER);

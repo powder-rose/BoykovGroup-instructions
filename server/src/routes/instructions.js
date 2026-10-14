@@ -25,6 +25,7 @@ import {
 import { ensureBulkImportWorker } from '../services/bulkImportWorkerService.js';
 import { Router } from 'express';
 import multer from 'multer';
+import { nanoid } from 'nanoid';
 
 import { addToQueue } from '../services/importQueue.js';
 
