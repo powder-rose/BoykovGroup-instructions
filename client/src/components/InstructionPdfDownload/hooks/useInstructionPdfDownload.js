@@ -68,6 +68,8 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
 
   const isAdmin = user?.role === 'admin';
 
+  const isCatalogDownload = !downloadUrl && !isAdmin;
+
   const isVerifiedUser = user?.role === 'user' && user?.emailVerified === true;
 
   const isLockedUser = user?.role === 'user' && user?.emailVerified !== true;
@@ -143,7 +145,16 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
         URL.revokeObjectURL(objectUrl);
       }, 5000);
 
-      showMessage('PDF успешно сформирован.', 'success');
+      const remaining = response.headers.get('X-Download-Remaining');
+
+      const quotaMessage =
+        isCatalogDownload &&
+        response.headers.get('X-Download-Limit') === '5' &&
+        /^[0-5]$/.test(remaining || '')
+          ? ` Осталось скачиваний из каталога: ${remaining} из 5.`
+          : '';
+
+      showMessage(`PDF успешно сформирован.${quotaMessage}`, 'success');
     } catch (error) {
       console.error('PDF download error:', error);
 
@@ -177,6 +188,7 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
     isDownloading,
     message,
     isLockedUser,
+    isCatalogDownload,
     handleClick,
   };
 }

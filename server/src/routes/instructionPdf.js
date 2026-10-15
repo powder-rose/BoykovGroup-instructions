@@ -12,6 +12,7 @@ import { createInstructionPdfBuffer } from '../services/instructionPdfService.js
 import { getInstructionPdfCompanyProfile } from '../services/instructionPdfProfile.js';
 
 import { recordInstructionDownload } from '../services/downloadStatsService.js';
+import { downloadQuotaService } from '../services/downloadQuotaService.js';
 
 export const instructionPdfRouter = Router();
 
@@ -20,6 +21,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const PDF_ERROR_LOG = path.resolve(__dirname, '../../data/pdf-download-errors.log');
+
+function sendDownloadLimit(res, quota) {
+  return res.status(403).json({
+    code: 'DOWNLOAD_LIMIT_REACHED',
+    error:
+      'Достигнут лимит: 5 скачиваний инструкций из каталога на аккаунт за всё время. Оплаченные инструкции доступны в личном кабинете.',
+    limit: quota.limit,
+    used: quota.used,
+    remaining: quota.remaining,
+  });
+}
 
 function writePdfError({ error, stage, instructionId, user }) {
   try {
@@ -73,6 +85,11 @@ instructionPdfRouter.get(
       });
     }
 
+    // Express also routes HEAD through GET. Metadata requests never spend a download.
+    if (req.method === 'HEAD') {
+      return res.type('application/pdf').end();
+    }
+
     /*
      * ======================================================
      * PDF
@@ -118,6 +135,12 @@ instructionPdfRouter.get(
     let stage = 'before-generation';
 
     try {
+      if (req.user.role === 'user') {
+        stage = 'check-download-quota';
+        const quota = downloadQuotaService.get(req.user.sub);
+        if (quota.remaining === 0) return sendDownloadLimit(res, quota);
+      }
+
       stage = 'generate-pdf';
 
       const pdf = await createInstructionPdfBuffer(instruction, {
@@ -136,6 +159,19 @@ instructionPdfRouter.get(
 
       if (pdf.subarray(0, 4).toString() !== '%PDF') {
         throw new Error('Generated buffer does not contain PDF header');
+      }
+
+      if (res.destroyed) return;
+
+      if (req.user.role === 'user') {
+        stage = 'consume-download-quota';
+        // Persist the final atomic check before delivery; concurrent PDF generation
+        // cannot let multiple requests spend the last remaining download.
+        const quota = downloadQuotaService.consume(req.user.sub);
+        if (!quota.allowed) return sendDownloadLimit(res, quota);
+        res.set('X-Download-Limit', String(quota.limit));
+        res.set('X-Download-Remaining', String(quota.remaining));
+        res.append('Access-Control-Expose-Headers', 'X-Download-Limit, X-Download-Remaining');
       }
 
       /*
@@ -167,6 +203,11 @@ instructionPdfRouter.get(
 
       stage = 'send-buffer';
 
+      // A counted attachment must be sent in full, never converted by Express
+      // into an empty 304 response based on a previous PDF's cache validators.
+      delete req.headers['if-none-match'];
+      delete req.headers['if-modified-since'];
+
       return res.send(pdf);
     } catch (error) {
       writePdfError({
@@ -188,6 +229,13 @@ instructionPdfRouter.get(
        */
 
       if (!res.headersSent) {
+        if (stage === 'check-download-quota' || stage === 'consume-download-quota') {
+          return res.status(503).json({
+            code: 'DOWNLOAD_QUOTA_UNAVAILABLE',
+            error: 'Не удалось проверить лимит скачиваний. Попробуйте позже.',
+          });
+        }
+
         return res.status(500).json({
           error: 'Не удалось сформировать PDF',
         });

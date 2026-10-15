@@ -17,6 +17,7 @@ export default function InstructionPdfDownload({
     isDownloading,
     message,
     isLockedUser,
+    isCatalogDownload,
     handleClick,
   } = useInstructionPdfDownload(instructionId, downloadUrl);
 
@@ -57,7 +58,10 @@ export default function InstructionPdfDownload({
           <span className="boykovPdfDownload__text">{buttonText}</span>
         </button>
 
-        <span className="boykovPdfDownload__status" />
+        <span className="boykovPdfDownload__status">
+          {isCatalogDownload &&
+            'Каталог: не более 5 скачиваний на аккаунт за всё время, включая повторные.'}
+        </span>
       </div>
 
       {isRegistrationOpen && <PdfRegistrationModal onClose={() => setRegistrationOpen(false)} />}

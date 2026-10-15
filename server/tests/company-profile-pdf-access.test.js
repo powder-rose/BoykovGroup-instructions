@@ -68,7 +68,7 @@ function replaceExactly(source, before, after) {
   return source.replace(before, after);
 }
 
-async function fixture(t) {
+async function fixture(t, { pdfFailure = false } = {}) {
   // Keep bare dependencies resolvable while every writable repository is isolated.
   const root = fs.mkdtempSync(path.join(serverRoot, 'boykovdocs-company-pdf-access-'));
   const previousSecret = process.env.JWT_SECRET;
@@ -158,6 +158,18 @@ export const instructionsRepository = {
 `,
   );
   const statsModule = stub('downloadStats', 'export function recordInstructionDownload() {}\n');
+  const quotaFile = path.join(dataDirectory, 'download-quotas.json');
+  const quotaServiceUrl = pathToFileURL(
+    path.join(serverRoot, 'src/services/downloadQuotaService.js'),
+  ).href;
+  const quotaModule = stub(
+    'downloadQuota',
+    `import { createDownloadQuotaService } from ${JSON.stringify(quotaServiceUrl)};
+export const downloadQuotaService = createDownloadQuotaService({
+  file: ${JSON.stringify(quotaFile)},
+  historyFile: ${JSON.stringify(path.join(root, 'download-events.jsonl'))},
+});\n`,
+  );
   const orderModule = copy('services/publicGenerationOrderService.js', {
     transform: source =>
       replaceExactly(
@@ -182,6 +194,15 @@ export const markPromoCodeUsed = unexpected;
       '../middleware/pdfAccess.js': accessModule,
       '../services/instructionPdfProfile.js': pdfProfileModule,
       '../services/downloadStatsService.js': statsModule,
+      '../services/downloadQuotaService.js': quotaModule,
+      ...(pdfFailure
+        ? {
+            '../services/instructionPdfService.js': stub(
+              'failedPdf',
+              "export async function createInstructionPdfBuffer() { throw new Error('PDF test failure'); }\n",
+            ),
+          }
+        : {}),
     },
     transform: source =>
       replaceExactly(
@@ -204,6 +225,7 @@ export const markPromoCodeUsed = unexpected;
   const { publicGenerationRouter } = await import(paidRouteModule);
   const orders = await import(orderModule);
   const repository = await import(repositoryModule);
+  const { downloadQuotaService: quotaService } = await import(quotaModule);
   const app = express();
   app.use(express.json());
   app.use(attachUser);
@@ -212,8 +234,9 @@ export const markPromoCodeUsed = unexpected;
   server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
 
-  const request = (url, { userId = 'a', token, headers = {} } = {}) =>
+  const request = (url, { userId = 'a', token, headers = {}, method = 'GET' } = {}) =>
     fetch(`http://127.0.0.1:${server.address().port}${url}`, {
+      method,
       headers: {
         ...(userId === null
           ? {}
@@ -223,7 +246,7 @@ export const markPromoCodeUsed = unexpected;
         ...headers,
       },
     });
-  return { request, store, users, orders, repository };
+  return { request, store, users, orders, repository, quotaService, quotaFile };
 }
 
 async function pdfText(response) {
@@ -290,7 +313,8 @@ test('public instruction PDFs enforce verified access and isolate fresh company 
 });
 
 test('paid PDFs remain owner-only, permit an unverified purchaser and never serialize company details', async t => {
-  const { request, store, users, orders, repository } = await fixture(t);
+  const { request, store, users, orders, repository, quotaService } = await fixture(t);
+  for (let index = 0; index < 5; index += 1) quotaService.consume('unverified');
   const created = orders.createPublicGenerationOrder(
     'Работник',
     {},
@@ -359,4 +383,98 @@ test('paid PDFs remain owner-only, permit an unverified purchaser and never seri
   assertProfile(fallback, updated, [profiles.a, profiles.b]);
   assert.ok(fallback.includes('SHARED_DOCUMENT_TEXT'));
   assert.deepEqual(repository.instruction, sharedInstruction);
+  assert.equal(quotaService.get('unverified').remaining, 0);
+});
+
+test('catalog quota allows exactly five downloads across concurrent requests, instructions and sessions', async t => {
+  const { request, quotaService, repository } = await fixture(t);
+  const url = '/api/instructions/shared-instruction/pdf';
+  const responses = await Promise.all(Array.from({ length: 10 }, () => request(url)));
+  const downloads = responses.filter(response => response.status === 200);
+  const blocked = responses.filter(response => response.status === 403);
+  assert.equal(downloads.length, 5);
+  assert.equal(blocked.length, 5);
+  assert.deepEqual(
+    downloads.map(response => Number(response.headers.get('x-download-remaining'))).sort(),
+    [0, 1, 2, 3, 4],
+  );
+  for (const response of downloads) {
+    assert.equal(response.headers.get('x-download-limit'), '5');
+    assert.match(response.headers.get('cache-control'), /no-store/);
+    assert.ok((await response.arrayBuffer()).byteLength >= 1000);
+  }
+  for (const response of blocked) {
+    const body = await response.json();
+    assert.equal(body.code, 'DOWNLOAD_LIMIT_REACHED');
+    assert.equal(body.remaining, 0);
+    assert.match(body.error, /5 скачиваний/);
+  }
+  assert.deepEqual(quotaService.get('a'), { limit: 5, used: 5, remaining: 0 });
+
+  repository.instruction.id = 'another-instruction';
+  const anotherUrl = '/api/instructions/another-instruction/pdf';
+  const newToken = issueUserToken({ id: 'a', email: 'a@example.test', name: 'New session' });
+  const next = await request(anotherUrl, { token: newToken });
+  assert.equal(next.status, 403);
+  await next.json();
+  await pdfText(await request(anotherUrl, { userId: 'b' }));
+  assert.equal(quotaService.get('b').used, 1);
+
+  for (let index = 0; index < 6; index += 1) {
+    const admin = await request(anotherUrl, { token: issueAdminToken() });
+    assert.equal(admin.headers.get('x-download-limit'), null);
+    await pdfText(admin);
+  }
+});
+
+test('denied access, missing instructions, HEAD and PDF generation failures do not spend downloads', async t => {
+  const { request, quotaService } = await fixture(t, { pdfFailure: true });
+  const url = '/api/instructions/shared-instruction/pdf';
+  for (const [auth, status] of [
+    [{ userId: null }, 401],
+    [{ userId: 'unverified' }, 403],
+    [{ userId: 'deleted' }, 401],
+    [{ method: 'HEAD' }, 200],
+    [{}, 500],
+  ]) {
+    const response = await request(url, auth);
+    assert.equal(response.status, status);
+    await response.arrayBuffer();
+  }
+  const missing = await request('/api/instructions/missing/pdf');
+  assert.equal(missing.status, 404);
+  await missing.json();
+  assert.equal(quotaService.get('a').used, 0);
+  assert.equal(quotaService.get('unverified').used, 0);
+});
+
+test('conditional catalog requests deliver a full PDF for the consumed download', async t => {
+  const { request, quotaService } = await fixture(t);
+  const response = await request('/api/instructions/shared-instruction/pdf', {
+    headers: { 'If-None-Match': '*' },
+  });
+  await pdfText(response);
+  assert.equal(quotaService.get('a').used, 1);
+});
+
+test('unreadable quota fails closed without blocking paid PDFs', async t => {
+  const { request, quotaFile, orders } = await fixture(t);
+  fs.writeFileSync(quotaFile, 'corrupted quota');
+  const blocked = await request('/api/instructions/shared-instruction/pdf');
+  assert.equal(blocked.status, 503);
+  assert.equal((await blocked.json()).code, 'DOWNLOAD_QUOTA_UNAVAILABLE');
+
+  const order = orders.createPublicGenerationOrder(
+    'Работник',
+    {},
+    {
+      userId: 'a',
+      email: 'a@example.test',
+    },
+  );
+  orders.updatePublicGenerationOrder(order.id, {
+    status: 'completed',
+    generatedInstruction: structuredClone(privateInstruction),
+  });
+  await pdfText(await request(`/api/public-generation/my-orders/${order.id}/pdf`));
 });

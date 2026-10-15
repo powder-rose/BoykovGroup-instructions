@@ -19,6 +19,29 @@
   let authPromise =
     null;
 
+  const CATALOG_DOWNLOAD_NOTE =
+    "Каталог: не более 5 скачиваний на аккаунт за всё время, включая повторные.";
+
+
+  function updateCatalogDownloadNote(status, user) {
+    const note = user?.role === "admin" ? "" : CATALOG_DOWNLOAD_NOTE;
+    if (status.textContent !== note) {
+      status.textContent = note;
+    }
+  }
+
+
+  function getDownloadSuccessMessage(response, user) {
+    const remaining = response.headers.get("X-Download-Remaining");
+    const quotaMessage =
+      user?.role !== "admin" &&
+      response.headers.get("X-Download-Limit") === "5" &&
+      /^[0-5]$/.test(remaining || "")
+        ? ` Осталось скачиваний из каталога: ${remaining} из 5.`
+        : "";
+    return `PDF успешно сформирован.${quotaMessage}`;
+  }
+
 
   function getToken() {
 
@@ -1165,7 +1188,8 @@
   async function downloadPdf(
     instructionId,
     token,
-    control
+    control,
+    user
   ) {
 
     if (
@@ -1294,7 +1318,7 @@
 
 
       control.status.textContent =
-        "Файл готов";
+        getDownloadSuccessMessage(response, user);
 
     }
 
@@ -1455,8 +1479,7 @@
         "Скачать PDF";
 
 
-      control.status.textContent =
-        "";
+      updateCatalogDownloadNote(control.status, user);
 
 
       control.button.onclick =
@@ -1506,8 +1529,7 @@
         "Подтвердите e-mail для PDF";
 
 
-      control.status.textContent =
-        "";
+      updateCatalogDownloadNote(control.status, user);
 
 
       return;
@@ -1527,8 +1549,7 @@
       "Скачать PDF";
 
 
-    control.status.textContent =
-      "";
+    updateCatalogDownloadNote(control.status, user);
 
 
     control.button.onclick =
@@ -1537,7 +1558,8 @@
         void downloadPdf(
           instructionId,
           token,
-          control
+          control,
+          user
         );
 
       };
@@ -1922,7 +1944,8 @@
   async function stablePdfDownload(
     instructionId,
     token,
-    button
+    button,
+    user
   ) {
 
     const wrapper =
@@ -2107,7 +2130,7 @@
 
 
       showPdfMessage(
-        "PDF успешно сформирован.",
+        getDownloadSuccessMessage(response, user),
         "success"
       );
 
@@ -2244,7 +2267,8 @@
         await stablePdfDownload(
           instructionId,
           token,
-          button
+          button,
+          user
         );
 
         return;
@@ -2264,7 +2288,8 @@
         await stablePdfDownload(
           instructionId,
           token,
-          button
+          button,
+          user
         );
 
         return;

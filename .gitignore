@@ -83,6 +83,8 @@ server/data/users.json
 server/data/registration-consents.json
 server/data/company-profiles.json
 server/data/company-profiles.json.*.tmp
+server/data/download-quotas.json
+server/data/download-quotas.json.*
 
 # Development/repair backups
 *.backup
