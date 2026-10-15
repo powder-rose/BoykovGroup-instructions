@@ -9,7 +9,9 @@ const DEFAULT_FILE = fileURLToPath(new URL('../../data/company-profiles.json', i
 
 function profileView(record) {
   return {
-    companyProfile: { ...EMPTY_COMPANY_PROFILE, ...record?.companyProfile },
+    companyProfile: Object.fromEntries(
+      Object.keys(EMPTY_COMPANY_PROFILE).map(name => [name, record?.companyProfile?.[name] ?? '']),
+    ),
     updatedAt: record?.updatedAt ?? null,
     onboardingCompletedAt: record?.onboardingCompletedAt ?? null,
   };

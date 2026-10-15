@@ -125,7 +125,7 @@ test('bad fields return 400 without overwriting existing profile; clearing remai
   const { request, store } = await fixture(t);
   const initial = await request('', {
     method: 'PUT',
-    body: { companyProfile: { headPosition: 'Директор' } },
+    body: { companyProfile: { headFullName: 'Петров Пётр Петрович' } },
   });
   await initial.arrayBuffer();
   for (const companyProfile of [
@@ -139,7 +139,7 @@ test('bad fields return 400 without overwriting existing profile; clearing remai
     assert.equal(response.status, 400);
     await response.arrayBuffer();
   }
-  assert.equal(store.getView('a').companyProfile.headPosition, 'Директор');
+  assert.equal(store.getView('a').companyProfile.headFullName, 'Петров Пётр Петрович');
   const cleared = await request('', { method: 'PUT', body: { companyProfile: {} } });
   assert.equal(cleared.status, 200);
   assert.deepEqual((await cleared.json()).companyProfile, EMPTY_COMPANY_PROFILE);

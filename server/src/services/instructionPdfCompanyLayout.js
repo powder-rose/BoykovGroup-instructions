@@ -83,39 +83,28 @@ export function renderInstructionCompanyHeader(document, profile, downloadedAt, 
   document.x = left;
   document.y = y + BLOCK_GAP;
 
-  const position = text(profile?.headPosition);
   const fullName = text(profile?.headFullName);
-  const approvalWidth = width * 0.72;
+  const positionLabel = 'Должность руководителя';
+  const approvalWidth = width / 2;
   const approvalLeft = left + width - approvalWidth;
-  const availableTextWidth = approvalWidth - SIGNATURE_WIDTH - SIGNATURE_GAP * 2;
-  font(document, fonts);
-  const naturalPositionWidth = position ? document.widthOfString(position) + 1 : 88;
-  const naturalNameWidth = fullName ? document.widthOfString(fullName) + 1 : 120;
-  const fitsOneLine = naturalPositionWidth + naturalNameWidth <= availableTextWidth;
-  const positionWidth = fitsOneLine ? naturalPositionWidth : availableTextWidth * 0.48;
-  const nameWidth = fitsOneLine ? naturalNameWidth : availableTextWidth - positionWidth;
-  const rowWidth = positionWidth + SIGNATURE_GAP * 2 + SIGNATURE_WIDTH + nameWidth;
-  const rowLeft = left + width - rowWidth;
-  const signatureX = rowLeft + positionWidth + SIGNATURE_GAP;
-  const nameX = signatureX + SIGNATURE_WIDTH + SIGNATURE_GAP;
+  const nameWidth = approvalWidth - SIGNATURE_WIDTH - SIGNATURE_GAP;
+  const nameX = approvalLeft + SIGNATURE_WIDTH + SIGNATURE_GAP;
   const approvalHeight = measure(document, 'УТВЕРЖДАЮ', approvalWidth, fonts, true);
-  const positionHeight = measure(document, position, positionWidth, fonts);
-  const signatureHeight = measure(document, fullName, nameWidth, fonts);
-  const rowHeight = Math.max(positionHeight, signatureHeight);
+  const positionHeight = measure(document, positionLabel, approvalWidth, fonts);
+  const rowHeight = measure(document, fullName, nameWidth, fonts);
   const date = formatInstructionDownloadDate(downloadedAt);
   const dateHeight = measure(document, date, approvalWidth, fonts);
-  pageSpace(document, approvalHeight + rowHeight + dateHeight + 12);
+  pageSpace(document, approvalHeight + positionHeight + rowHeight + dateHeight + 20);
   y = document.y;
   y +=
     field(document, 'УТВЕРЖДАЮ', approvalLeft, y, approvalWidth, fonts, {
-      align: 'right',
       bold: true,
-    }) + 6;
-  field(document, position, rowLeft, y, positionWidth, fonts);
-  rule(document, signatureX, y + BODY_SIZE, SIGNATURE_WIDTH);
+    }) + 8;
+  y += field(document, positionLabel, approvalLeft, y, approvalWidth, fonts) + 6;
+  rule(document, approvalLeft, y + BODY_SIZE, SIGNATURE_WIDTH);
   field(document, fullName, nameX, y, nameWidth, fonts);
   y += rowHeight + 6;
-  y += field(document, date, approvalLeft, y, approvalWidth, fonts, { align: 'right' });
+  y += field(document, date, approvalLeft, y, approvalWidth, fonts);
   document.x = left;
   document.y = y + BLOCK_GAP;
 }
