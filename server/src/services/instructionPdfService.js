@@ -4,6 +4,10 @@ import { fileURLToPath } from 'node:url';
 
 import PDFDocument from 'pdfkit';
 import { richTextToPlainText } from '../shared/instructionDocument.js';
+import {
+  renderInstructionCompanyHeader,
+  renderInstructionCompanySignature,
+} from './instructionPdfCompanyLayout.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -60,8 +64,19 @@ function normalizeText(value) {
     .trim();
 }
 
+// Remove only the generic sentence from PDF output, including wrapped or
+// formatted copies. Stored instructions and substantive wording stay intact.
+function instructionBodyText(value) {
+  return normalizeText(value)
+    .replace(
+      /(?<![\p{L}\p{N}_])Настоящая\s+инструкция\s+устанавливает\s+требования\s+безопасности\s+при\s+выполнении\s+работ\.[ \t]*/giu,
+      '',
+    )
+    .trim();
+}
+
 function sectionHeading(section) {
-  const heading = normalizeText(section?.heading);
+  const heading = instructionBodyText(section?.heading);
 
   const number = section?.number;
 
@@ -85,10 +100,11 @@ function sectionHeading(section) {
 function renderRichInstruction(document, content, { regularFont, boldFont }) {
   function render(node, prefix = '') {
     if (node.type === 'paragraph' || node.type === 'heading') {
-      const text = richTextToPlainText(node);
+      const originalText = richTextToPlainText(node);
+      const text = instructionBodyText(originalText);
 
-      if (!text.trim()) {
-        document.moveDown(0.5);
+      if (!text) {
+        if (!originalText.trim()) document.moveDown(0.5);
         return;
       }
 
@@ -108,7 +124,7 @@ function renderRichInstruction(document, content, { regularFont, boldFont }) {
       document.table({
         data: (node.content || []).map(row =>
           (row.content || []).map(cell => ({
-            text: richTextToPlainText(cell),
+            text: instructionBodyText(richTextToPlainText(cell)),
             rowSpan: cell.attrs?.rowspan || 1,
             colSpan: cell.attrs?.colspan || 1,
             type: cell.type === 'tableHeader' ? 'TH' : 'TD',
@@ -150,7 +166,10 @@ function renderRichInstruction(document, content, { regularFont, boldFont }) {
   render(content);
 }
 
-export function createInstructionPdfBuffer(instruction) {
+export function createInstructionPdfBuffer(
+  instruction,
+  { companyProfile, downloadedAt = new Date() } = {},
+) {
   return new Promise((resolve, reject) => {
     const regularFont = findFont(REGULAR_FONT_CANDIDATES);
 
@@ -164,7 +183,7 @@ export function createInstructionPdfBuffer(instruction) {
 
     const title = normalizeText(instruction?.title) || 'Инструкция по охране труда';
 
-    const intro = normalizeText(instruction?.intro);
+    const intro = instructionBodyText(instruction?.intro);
 
     const sections = Array.isArray(instruction?.sections) ? instruction.sections : [];
 
@@ -202,6 +221,11 @@ export function createInstructionPdfBuffer(instruction) {
       resolve(Buffer.concat(chunks));
     });
 
+    renderInstructionCompanyHeader(document, companyProfile, downloadedAt, {
+      regularFont,
+      boldFont,
+    });
+
     document.font(boldFont).fontSize(18).fillColor('#172033').text(title, {
       align: 'left',
 
@@ -210,6 +234,7 @@ export function createInstructionPdfBuffer(instruction) {
 
     if (instruction.instructionContent?.type === 'doc') {
       renderRichInstruction(document, instruction.instructionContent, { regularFont, boldFont });
+      renderInstructionCompanySignature(document, companyProfile, { regularFont, boldFont });
       document.end();
       return;
     }
@@ -234,7 +259,7 @@ export function createInstructionPdfBuffer(instruction) {
       const paragraphs = Array.isArray(section?.paragraphs) ? section.paragraphs : [];
 
       for (const paragraph of paragraphs) {
-        const text = normalizeText(paragraph);
+        const text = instructionBodyText(paragraph);
 
         if (!text) {
           continue;
@@ -248,6 +273,7 @@ export function createInstructionPdfBuffer(instruction) {
       }
     }
 
+    renderInstructionCompanySignature(document, companyProfile, { regularFont, boldFont });
     document.end();
   });
 }

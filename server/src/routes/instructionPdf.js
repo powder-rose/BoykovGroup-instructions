@@ -9,6 +9,7 @@ import { instructionsRepository } from '../services/instructionsRepository.js';
 import { requirePdfAccess } from '../middleware/pdfAccess.js';
 
 import { createInstructionPdfBuffer } from '../services/instructionPdfService.js';
+import { getInstructionPdfCompanyProfile } from '../services/instructionPdfProfile.js';
 
 import { recordInstructionDownload } from '../services/downloadStatsService.js';
 
@@ -119,7 +120,9 @@ instructionPdfRouter.get(
     try {
       stage = 'generate-pdf';
 
-      const pdf = await createInstructionPdfBuffer(instruction);
+      const pdf = await createInstructionPdfBuffer(instruction, {
+        companyProfile: getInstructionPdfCompanyProfile(req.user),
+      });
 
       stage = 'validate-buffer';
 

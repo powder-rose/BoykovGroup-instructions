@@ -17,6 +17,7 @@ import {
 import { instructionsRepository } from '../services/instructionsRepository.js';
 
 import { createInstructionPdfBuffer } from '../services/instructionPdfService.js';
+import { getInstructionPdfCompanyProfile } from '../services/instructionPdfProfile.js';
 
 import { normalizeProfessionKey } from '../services/professionNormalizer.js';
 
@@ -621,7 +622,9 @@ publicGenerationRouter.get(
     }
 
     try {
-      const pdf = await createInstructionPdfBuffer(instruction);
+      const pdf = await createInstructionPdfBuffer(instruction, {
+        companyProfile: getInstructionPdfCompanyProfile(req.user),
+      });
 
       const safeOrderId = String(order.id ?? 'order')
         .replace(/[^a-zA-Z0-9_-]+/g, '-')
