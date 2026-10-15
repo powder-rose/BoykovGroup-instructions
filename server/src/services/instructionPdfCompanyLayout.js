@@ -84,13 +84,13 @@ export function renderInstructionCompanyHeader(document, profile, downloadedAt, 
   document.y = y + BLOCK_GAP;
 
   const fullName = text(profile?.headFullName);
-  const positionLabel = 'Должность руководителя';
+  const position = text(profile?.headPosition);
   const approvalWidth = width / 2;
   const approvalLeft = left + width - approvalWidth;
   const nameWidth = approvalWidth - SIGNATURE_WIDTH - SIGNATURE_GAP;
   const nameX = approvalLeft + SIGNATURE_WIDTH + SIGNATURE_GAP;
   const approvalHeight = measure(document, 'УТВЕРЖДАЮ', approvalWidth, fonts, true);
-  const positionHeight = measure(document, positionLabel, approvalWidth, fonts);
+  const positionHeight = measure(document, position, approvalWidth, fonts);
   const rowHeight = measure(document, fullName, nameWidth, fonts);
   const date = formatInstructionDownloadDate(downloadedAt);
   const dateHeight = measure(document, date, approvalWidth, fonts);
@@ -100,7 +100,7 @@ export function renderInstructionCompanyHeader(document, profile, downloadedAt, 
     field(document, 'УТВЕРЖДАЮ', approvalLeft, y, approvalWidth, fonts, {
       bold: true,
     }) + 8;
-  y += field(document, positionLabel, approvalLeft, y, approvalWidth, fonts) + 6;
+  y += field(document, position, approvalLeft, y, approvalWidth, fonts) + 6;
   rule(document, approvalLeft, y + BODY_SIZE, SIGNATURE_WIDTH);
   field(document, fullName, nameX, y, nameWidth, fonts);
   y += rowHeight + 6;

@@ -43,6 +43,7 @@ const profiles = {
   a: {
     companyName: 'ООО «Компания Альфа»',
     inn: '7701234567',
+    headPosition: 'Руководитель Альфа',
     headFullName: 'Альфов Алексей Алексеевич',
     occupationalSafetyPosition: 'Специалист Альфа',
     occupationalSafetyFullName: 'Альфина Анна Андреевна',
@@ -50,6 +51,7 @@ const profiles = {
   b: {
     companyName: 'ООО «Компания Бета»',
     inn: '7812345678',
+    headPosition: 'Руководитель Бета',
     headFullName: 'Бетов Борис Борисович',
     occupationalSafetyPosition: 'Специалист Бета',
     occupationalSafetyFullName: 'Бетова Белла Борисовна',
@@ -57,6 +59,7 @@ const profiles = {
   unverified: {
     companyName: 'ООО «Компания покупателя»',
     inn: '5001234567',
+    headPosition: 'Руководитель покупателя',
     headFullName: 'Покупателев Павел Петрович',
   },
 };

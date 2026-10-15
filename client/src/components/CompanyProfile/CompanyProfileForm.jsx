@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-const FORM_MODULE_URL = '/assets/company-profile-form.js?v=20261015-company-profile-v2';
+const FORM_MODULE_URL = '/assets/company-profile-form.js?v=20261015-company-profile-v3';
 
 /** Uses the same form as the standalone personal account. */
 export default function CompanyProfileForm({ token, onComplete, onController }) {

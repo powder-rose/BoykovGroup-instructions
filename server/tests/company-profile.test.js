@@ -37,7 +37,7 @@ function fixture(t) {
   };
 }
 
-test('company profile normalizes only five optional fields and validates all data before saving', () => {
+test('company profile normalizes only six optional fields and validates all data before saving', () => {
   assert.deepEqual(normalizeCompanyProfile({}), EMPTY_COMPANY_PROFILE);
   assert.deepEqual(normalizeCompanyProfile({ companyName: ' ООО  «Тест» ', ignored: 'secret' }), {
     ...EMPTY_COMPANY_PROFILE,
@@ -53,9 +53,11 @@ test('company profile normalizes only five optional fields and validates all dat
     { inn: '1234' },
     { inn: '123456789a' },
     { companyName: 42 },
+    { headPosition: {} },
     { occupationalSafetyPosition: {} },
     { headFullName: null },
     { companyName: 'a'.repeat(301) },
+    { headPosition: 'a'.repeat(201) },
     { occupationalSafetyPosition: 'a'.repeat(201) },
     { companyName: 'bad\nheader' },
     { companyName: 'bad\u0000header' },
@@ -92,30 +94,30 @@ test('profiles survive restart, isolate users and atomically enqueue only meanin
   assert.deepEqual(state().outbox[2].companyProfile, EMPTY_COMPANY_PROFILE);
 });
 
-test('legacy head position is omitted without changing other details or queuing another email', t => {
+test('head position survives restart, reaches notifications and only meaningful changes enqueue mail', t => {
   const { repository, file, state, now } = fixture(t);
   const saved = repository.save(user, {
     companyName: 'ООО «Тест»',
+    headPosition: '  Генеральный   директор  ',
     headFullName: 'Петров Пётр Петрович',
   });
-  const legacy = state();
-  legacy.profiles[user.id].companyProfile.headPosition = 'LEGACY_HEAD_POSITION';
-  legacy.outbox[0].companyProfile.headPosition = 'LEGACY_HEAD_POSITION';
-  fs.writeFileSync(file, JSON.stringify(legacy));
+  assert.equal(saved.companyProfile.headPosition, 'Генеральный директор');
 
   const restarted = createCompanyProfileRepository({ file, now });
   assert.deepEqual(restarted.getView(user.id), saved);
   assert.deepEqual(restarted.dismiss(user.id), saved);
-  assert.deepEqual(
-    restarted.save(user, { ...saved.companyProfile, headPosition: 'IGNORED_OLD_FORM_VALUE' }),
-    saved,
-  );
+  assert.deepEqual(restarted.save(user, saved.companyProfile), saved);
   assert.equal(state().outbox.length, 1);
 
   const notification = formatCompanyProfileNotification(restarted.getPending()[0]);
-  assert.doesNotMatch(notification.text, /LEGACY_HEAD_POSITION|Должность руководителя/u);
-  assert.doesNotMatch(notification.html, /LEGACY_HEAD_POSITION|Должность руководителя/u);
+  assert.ok(notification.text.includes('Генеральный директор'));
+  assert.ok(notification.html.includes('Генеральный директор'));
   assert.ok(notification.text.includes(saved.companyProfile.headFullName));
+
+  const changed = restarted.save(user, { ...saved.companyProfile, headPosition: 'Директор' });
+  assert.equal(changed.companyProfile.headPosition, 'Директор');
+  assert.equal(state().outbox.length, 2);
+  assert.equal(state().outbox[1].companyProfile.headPosition, 'Директор');
 });
 
 test('blank initial save and dismiss complete onboarding without sending mail or changing data', t => {
