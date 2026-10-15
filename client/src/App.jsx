@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 
 import { useDispatch } from 'react-redux';
 
@@ -19,9 +19,6 @@ import CookieConsent from './components/CookieConsent/CookieConsent.jsx';
 import VisitorTracker from './components/VisitorTracker/VisitorTracker.jsx';
 
 import { restoreSession } from './store/authSlice.js';
-
-const ArticlesPage = lazy(() => import('./pages/ArticlesPage/ArticlesPage.jsx'));
-const ArticlePage = lazy(() => import('./pages/ArticlePage/ArticlePage.jsx'));
 
 export default function App() {
   const dispatch = useDispatch();
@@ -48,20 +45,15 @@ export default function App() {
     <>
       <VisitorTracker />
 
-      <Suspense fallback={<p role="status">Загрузка страницы…</p>}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
 
-          <Route path="/instrukcii-po-ohrane-truda" element={<InstructionsCatalog />} />
+        <Route path="/instrukcii-po-ohrane-truda" element={<InstructionsCatalog />} />
 
-          <Route path="/srochnaya-generaciya-instrukcii" element={<UrgentGenerationPage />} />
+        <Route path="/srochnaya-generaciya-instrukcii" element={<UrgentGenerationPage />} />
 
-          <Route path="/instrukciya-po-ohrane-truda/:id" element={<InstructionPage />} />
-
-          <Route path="/stati" element={<ArticlesPage />} />
-          <Route path="/stati/:slug" element={<ArticlePage />} />
-        </Routes>
-      </Suspense>
+        <Route path="/instrukciya-po-ohrane-truda/:id" element={<InstructionPage />} />
+      </Routes>
 
       <SiteFooter />
 

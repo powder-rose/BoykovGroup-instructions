@@ -46,6 +46,7 @@ export default [
       'server/src/data/publicGenerationOrders/**',
       'server/src/data/analytics/**',
       'server/src/data/instruction-history/**',
+      'server/src/data/instruction-drafts/**',
       'server/src/data/deleted-instructions/**',
     ],
   },

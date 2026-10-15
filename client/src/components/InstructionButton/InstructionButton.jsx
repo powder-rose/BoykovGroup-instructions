@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './InstructionButton.module.css';
 import GeneratedInstructionBadge from '../GeneratedInstructionBadge/GeneratedInstructionBadge.jsx';
+import { getInstructionPath } from '../../lib/instructionLinks.js';
 
 export default function InstructionButton({ instruction, isAdmin, onDelete, onEdit, isDeleting }) {
   const [confirming, setConfirming] = useState(false);
@@ -11,7 +12,7 @@ export default function InstructionButton({ instruction, isAdmin, onDelete, onEd
       <Link
         className={styles.clickArea}
 
-        to={`/instrukciya-po-ohrane-truda/${instruction.id}`}
+        to={getInstructionPath(instruction)}
       >
         <span className={styles.index} aria-hidden="true" />
 

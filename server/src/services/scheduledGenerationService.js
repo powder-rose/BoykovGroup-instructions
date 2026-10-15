@@ -44,7 +44,7 @@ function pickNextProfession() {
   const queue = loadQueue();
   for (const profession of queue) {
     const id = slugify(profession);
-    if (id && !instructionsRepository.exists(id) && !isGenerationInFlight(id)) {
+    if (id && !instructionsRepository.getBySlug(id) && !isGenerationInFlight(id)) {
       return { profession, id };
     }
   }
@@ -102,7 +102,7 @@ async function runScheduledGenerationCore(
       // ),     -   ,
       //      .   
       //  ,    .
-      const alreadySaved = instructionsRepository.getById(next.id);
+      const alreadySaved = instructionsRepository.getBySlug(next.id);
       if (alreadySaved) return alreadySaved;
 
       const generated =

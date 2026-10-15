@@ -346,7 +346,7 @@ function getAlias(value = '') {
   return normalizeSearchText(normalizeProfessionKey(normalizeSearchText(value)));
 }
 
-function getSearchScore(instruction, query) {
+function getSearchScore(instruction, query, { allowPartialMatch = false } = {}) {
   const queryNormalized = normalizeQuery(query);
 
   if (!queryNormalized) {
@@ -493,6 +493,25 @@ function getSearchScore(instruction, query) {
     return 710 + Math.round(titleCoverage * 80);
   }
 
+  if (allowPartialMatch) {
+    // Related documents may share a profession without sharing every qualifier in an H1.
+    const meaningfulQuery = queryTokens.filter(
+      token => token.length >= 4 && !SEARCH_STOP_WORDS.has(token),
+    );
+    const candidates = [...new Set([...professionTokens, ...titleTokens])].filter(
+      token => token.length >= 4 && !SEARCH_STOP_WORDS.has(token),
+    );
+    const matches = meaningfulQuery
+      .map(token => Math.max(0, ...candidates.map(candidate => tokenSimilarity(token, candidate))))
+      .filter(score => score >= 0.82);
+
+    if (matches.length) {
+      const coverage = matches.reduce((sum, value) => sum + value, 0) / meaningfulQuery.length;
+
+      return 100 + Math.round(coverage * 400);
+    }
+  }
+
   return 0;
 }
 
@@ -509,7 +528,11 @@ const MIN_SEARCH_SCORE = 750;
  * Используется и API-каталогом,
  * и SEO-поиском.
  */
-export function rankInstructionsByQuery(instructions, query, { sort = 'relevance' } = {}) {
+export function rankInstructionsByQuery(
+  instructions,
+  query,
+  { sort = 'relevance', allowPartialMatch = false } = {},
+) {
   const input = Array.isArray(instructions) ? instructions : [];
 
   const trimmed = String(query ?? '').trim();
@@ -522,9 +545,9 @@ export function rankInstructionsByQuery(instructions, query, { sort = 'relevance
     .map(instruction => ({
       instruction,
 
-      score: getSearchScore(instruction, trimmed),
+      score: getSearchScore(instruction, trimmed, { allowPartialMatch }),
     }))
-    .filter(item => item.score >= MIN_SEARCH_SCORE);
+    .filter(item => item.score >= (allowPartialMatch ? 1 : MIN_SEARCH_SCORE));
 
   const popularity = sort === 'popular' ? getPopularityMap(input.length) : null;
 
@@ -570,6 +593,8 @@ export function rankInstructionsByQuery(instructions, query, { sort = 'relevance
 function toSummary(instruction) {
   return {
     id: instruction.id,
+
+    slug: instruction.slug || instruction.id,
 
     title: instruction.title,
 

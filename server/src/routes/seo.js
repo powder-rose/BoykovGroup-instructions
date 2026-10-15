@@ -4,9 +4,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Router } from 'express';
 import { instructionsRepository } from '../services/instructionsRepository.js';
-import { listPublishedArticles } from '../services/articlesRepository.js';
-
-const router = Router();
+import { renderRichTextContentToHtml } from '../services/richTextContent.js';
+import { getRelatedInstructions } from '../services/instructionEditorService.js';
+import {
+  getInstructionDocument,
+  getInstructionOutline,
+  getInstructionPublicPath,
+  getInstructionSeo,
+} from '../shared/instructionDocument.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, '../../..');
@@ -233,7 +238,7 @@ function getSiteUrl(req) {
 }
 
 function getInstructionUrl(req, instruction) {
-  return `${getSiteUrl(req)}/instrukciya-po-ohrane-truda/${encodeURIComponent(instruction.id)}`;
+  return `${getSiteUrl(req)}${getInstructionPublicPath(instruction)}`;
 }
 
 function getDateModified(instruction) {
@@ -247,8 +252,8 @@ function getDateModified(instruction) {
   );
 }
 
-function getIndexableInstructions(query = '') {
-  const result = instructionsRepository.getAll();
+function getIndexableInstructions(query, repository) {
+  const result = repository.getAll();
 
   const instructions = Array.isArray(result)
     ? result
@@ -260,6 +265,7 @@ function getIndexableInstructions(query = '') {
 
   const visible = instructions
     .filter(instruction => instruction && instruction.id && instruction.title)
+    .filter(instruction => String(instruction.status || '').toLowerCase() !== 'draft')
     .filter(
       instruction =>
         !['draft', 'noindex'].includes(String(instruction.seoStatus || '').toLowerCase()),
@@ -280,17 +286,6 @@ function getIndexableInstructions(query = '') {
       sensitivity: 'base',
     }),
   );
-}
-
-function makeDescription(instruction) {
-  const title = String(instruction.title || '').trim();
-  const profession = String(instruction.profession || '').trim();
-
-  const source = profession
-    ? `${title}. Требования охраны труда, порядок безопасного выполнения работ и действия работника в аварийных ситуациях.`
-    : `${title}. Полный текст инструкции по охране труда.`;
-
-  return source.length <= 165 ? source : `${source.slice(0, 162).trimEnd()}…`;
 }
 
 function renderSiteLinkButton() {
@@ -444,42 +439,6 @@ function renderMainHero({ headingTag = 'h1' } = {}) {
     </section>`;
 }
 
-function renderSections(instruction) {
-  if (!Array.isArray(instruction.sections)) return '';
-
-  return instruction.sections
-    .map((section, index) => {
-      const number = section.number ?? index + 1;
-      const heading = section.heading || section.title || section.name || `Раздел ${number}`;
-
-      const paragraphs = Array.isArray(section.paragraphs)
-        ? section.paragraphs
-        : Array.isArray(section.items)
-          ? section.items
-          : [];
-
-      return `
-        <section class="InstructionModal_section">
-          <h2 class="InstructionModal_sectionHeading">
-            ${escapeHtml(number)}. ${escapeHtml(heading)}
-          </h2>
-          ${paragraphs
-            .map(
-              paragraph => `
-                <p class="InstructionModal_paragraph">
-                  ${escapeHtml(
-                    typeof paragraph === 'string'
-                      ? paragraph
-                      : (paragraph?.text ?? paragraph?.content ?? ''),
-                  )}
-                </p>`,
-            )
-            .join('')}
-        </section>`;
-    })
-    .join('\n');
-}
-
 /*
  * HTML, который поисковый робот получает до выполнения React.
  * После запуска React createRoot заменяет эту разметку приложением.
@@ -491,7 +450,7 @@ function injectProductionRoot(productionHtml, content) {
     throw new Error('[SEO] Production index.html does not contain replaceable #root');
   }
 
-  return productionHtml.replace(rootPattern, `<div id="root">${content}</div>`);
+  return productionHtml.replace(rootPattern, () => `<div id="root">${content}</div>`);
 }
 
 function renderCatalogSeoBody(instructions, query = '') {
@@ -513,7 +472,7 @@ function renderCatalogSeoBody(instructions, query = '') {
             .map(
               instruction => `
                 <li>
-                  <a href="/instrukciya-po-ohrane-truda/${encodeURIComponent(instruction.id)}">
+                  <a href="${escapeHtml(getInstructionPublicPath(instruction))}">
                     ${escapeHtml(instruction.title)}
                   </a>
                 </li>`,
@@ -524,10 +483,40 @@ function renderCatalogSeoBody(instructions, query = '') {
     </main>`;
 }
 
-function renderInstructionSeoBody(instruction) {
+function renderInstructionSeoBody(instruction, relatedInstructions) {
   const title = String(instruction.title || 'Инструкция по охране труда').trim();
+  const webIntro = String(instruction.webIntro || '').trim();
+  const document = getInstructionDocument(instruction);
+  const outline = getInstructionOutline(document);
+  const related = relatedInstructions(instruction);
 
-  const intro = String(instruction.intro || '').trim();
+  const contents = outline.length
+    ? `<nav class="instruction-outline" aria-label="Содержание инструкции">
+        <h2>Содержание инструкции</h2>
+        <ol>${outline
+          .map(
+            item =>
+              `<li data-level="${item.level}"><a href="#${escapeHtml(item.id)}">${escapeHtml(item.label)}</a></li>`,
+          )
+          .join('')}</ol>
+      </nav>`
+    : '';
+
+  const explanation = instruction.explanationContent
+    ? `<div class="instruction-explanation">${renderRichTextContentToHtml(instruction.explanationContent, { headingIdPrefix: 'explanation-section' })}</div>`
+    : '';
+
+  const relatedLinks = related.length
+    ? `<aside class="instruction-related" aria-label="Похожие инструкции">
+        <h2>Похожие инструкции</h2>
+        <ul>${related
+          .map(
+            item =>
+              `<li><a href="${escapeHtml(getInstructionPublicPath(item))}">${escapeHtml(item.title)}</a></li>`,
+          )
+          .join('')}</ul>
+      </aside>`
+    : '';
 
   return `
     <main class="SeoPrerender_instruction">
@@ -541,10 +530,19 @@ function renderInstructionSeoBody(instruction) {
 
       <article>
         <h1>${escapeHtml(title)}</h1>
-
-        ${intro ? `<p>${escapeHtml(intro)}</p>` : ''}
-
-        ${renderSections(instruction)}
+        ${webIntro ? `<p class="instruction-web-intro">${escapeHtml(webIntro)}</p>` : ''}
+        ${contents}
+        <section class="instruction-document" aria-label="Полный текст инструкции">
+          ${renderRichTextContentToHtml(document, { headingIdPrefix: 'instruction-section' })}
+        </section>
+        <div class="instruction-pdf-download">
+          <button type="button" id="boykov-instruction-pdf-download"
+            data-instruction-pdf-download="${escapeHtml(instruction.id)}">Скачать PDF</button>
+          <p>Скачивание доступно после входа в аккаунт с подтверждённым e-mail.</p>
+          <noscript>Для скачивания PDF включите JavaScript.</noscript>
+        </div>
+        ${explanation}
+        ${relatedLinks}
       </article>
     </main>`;
 }
@@ -573,7 +571,7 @@ function redirectTrailingSlash(req, res) {
   return true;
 }
 
-function renderInstructionsCatalogPage(req, instructions, query = '') {
+function renderInstructionsCatalogPage(req, instructions, query, indexPath) {
   const siteUrl = getSiteUrl(req);
   const canonical = `${siteUrl}/instrukcii-po-ohrane-truda`;
   const hasQuery = Boolean(String(query || '').trim());
@@ -617,9 +615,7 @@ function renderInstructionsCatalogPage(req, instructions, query = '') {
    *
    * Сервер подменяет только SEO-данные head.
    */
-  const productionIndexUrl = new URL('../../../public_html/index.html', import.meta.url);
-
-  let productionHtml = fs.readFileSync(productionIndexUrl, 'utf-8');
+  let productionHtml = fs.readFileSync(indexPath, 'utf-8');
 
   if (!/id=["']root["']/iu.test(productionHtml)) {
     throw new Error('[SEO] Production index.html does not contain #root');
@@ -636,7 +632,7 @@ function renderInstructionsCatalogPage(req, instructions, query = '') {
    */
   productionHtml = productionHtml.replace(
     /<title>[\s\S]*?<\/title>/iu,
-    `<title>${escapeHtml(pageTitle)}</title>`,
+    () => `<title>${escapeHtml(pageTitle)}</title>`,
   );
 
   productionHtml = productionHtml
@@ -648,7 +644,9 @@ function renderInstructionsCatalogPage(req, instructions, query = '') {
     .replace(/<meta\b[^>]*property=["']og:title["'][^>]*>/giu, '')
     .replace(/<meta\b[^>]*property=["']og:description["'][^>]*>/giu, '')
     .replace(/<meta\b[^>]*property=["']og:url["'][^>]*>/giu, '')
-    .replace(/<meta\b[^>]*property=["']og:site_name["'][^>]*>/giu, '');
+    .replace(/<meta\b[^>]*property=["']og:site_name["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*name=["']twitter:[^"']+["'][^>]*>/giu, '')
+    .replace(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/giu, '');
 
   const robotsValue = hasQuery ? 'noindex, follow' : 'index, follow, max-image-preview:large';
 
@@ -707,18 +705,18 @@ function renderInstructionsCatalogPage(req, instructions, query = '') {
     throw new Error('[SEO] Production index.html does not contain </head>');
   }
 
-  productionHtml = productionHtml.replace(/<\/head>/iu, `${seoHead}\n</head>`);
+  productionHtml = productionHtml.replace(/<\/head>/iu, () => `${seoHead}\n</head>`);
 
   productionHtml = injectProductionRoot(productionHtml, renderCatalogSeoBody(instructions, query));
 
   return productionHtml;
 }
 
-function renderInstructionPage(req, instruction) {
+function renderInstructionPage(req, instruction, indexPath, relatedInstructions) {
   const siteUrl = getSiteUrl(req);
   const canonical = getInstructionUrl(req, instruction);
   const title = String(instruction.title || 'Инструкция по охране труда').trim();
-  const description = makeDescription(instruction);
+  const { title: seoTitle, description } = getInstructionSeo(instruction);
   const modified = getDateModified(instruction);
 
   const seoStatus = String(instruction.seoStatus || '').toLowerCase();
@@ -743,8 +741,8 @@ function renderInstructionPage(req, instruction) {
     },
   };
 
-  if (instruction.createdAt) {
-    articleSchema.datePublished = instruction.createdAt;
+  if (instruction.publishedAt || instruction.createdAt) {
+    articleSchema.datePublished = instruction.publishedAt || instruction.createdAt;
   }
 
   if (modified) {
@@ -808,9 +806,7 @@ function renderInstructionPage(req, instruction) {
    * SEO-метаданные конкретной инструкции
    * остаются серверными.
    */
-  const productionIndexUrl = new URL('../../../public_html/index.html', import.meta.url);
-
-  let productionHtml = fs.readFileSync(productionIndexUrl, 'utf-8');
+  let productionHtml = fs.readFileSync(indexPath, 'utf-8');
 
   if (!/id=["']root["']/iu.test(productionHtml)) {
     throw new Error('[SEO] Production index.html does not contain #root');
@@ -825,7 +821,7 @@ function renderInstructionPage(req, instruction) {
    */
   productionHtml = productionHtml.replace(
     /<title>[\s\S]*?<\/title>/iu,
-    `<title>${escapeHtml(title)} | ${escapeHtml(BRAND_NAME)}</title>`,
+    () => `<title>${escapeHtml(seoTitle)}</title>`,
   );
 
   /*
@@ -842,7 +838,9 @@ function renderInstructionPage(req, instruction) {
     .replace(/<meta\b[^>]*property=["']og:title["'][^>]*>/giu, '')
     .replace(/<meta\b[^>]*property=["']og:description["'][^>]*>/giu, '')
     .replace(/<meta\b[^>]*property=["']og:url["'][^>]*>/giu, '')
-    .replace(/<meta\b[^>]*property=["']og:site_name["'][^>]*>/giu, '');
+    .replace(/<meta\b[^>]*property=["']og:site_name["'][^>]*>/giu, '')
+    .replace(/<meta\b[^>]*name=["']twitter:[^"']+["'][^>]*>/giu, '')
+    .replace(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/giu, '');
 
   const seoHead = `
   <!-- SEO_INSTRUCTION_PRODUCTION_SHELL_V1 -->
@@ -874,7 +872,7 @@ function renderInstructionPage(req, instruction) {
 
   <meta
     property="og:title"
-    content="${escapeHtml(title)}"
+    content="${escapeHtml(seoTitle)}"
   >
 
   <meta
@@ -892,16 +890,19 @@ function renderInstructionPage(req, instruction) {
     content="${escapeHtml(BRAND_NAME)}"
   >
 
-  <script type="application/ld+json">${jsonForHtml(schema)}</script>
+  <script type="application/ld+json" data-instruction-seo>${jsonForHtml(schema)}</script>
 `;
 
   if (!/<\/head>/iu.test(productionHtml)) {
     throw new Error('[SEO] Production index.html does not contain </head>');
   }
 
-  productionHtml = productionHtml.replace(/<\/head>/iu, `${seoHead}\n</head>`);
+  productionHtml = productionHtml.replace(/<\/head>/iu, () => `${seoHead}\n</head>`);
 
-  productionHtml = injectProductionRoot(productionHtml, renderInstructionSeoBody(instruction));
+  productionHtml = injectProductionRoot(
+    productionHtml,
+    renderInstructionSeoBody(instruction, relatedInstructions),
+  );
 
   return productionHtml;
 }
@@ -954,88 +955,99 @@ const PUBLIC_ASSETS = new Map([
   ['/team/nikolay-boykov.png', path.join(CLIENT_PUBLIC_DIR, 'team', 'nikolay-boykov.png')],
 ]);
 
-for (const [urlPath, filePath] of PUBLIC_ASSETS) {
-  router.get(urlPath, (req, res, next) => {
-    if (!fs.existsSync(filePath)) return next();
-    return res.sendFile(filePath);
-  });
-}
+export function createSeoRouter({
+  repository = instructionsRepository,
+  indexPath = new URL('../../../public_html/index.html', import.meta.url),
+  relatedInstructions = getRelatedInstructions,
+} = {}) {
+  const router = Router();
 
-router.get('/instrukcii-po-ohrane-truda', (req, res, next) => {
-  if (redirectTrailingSlash(req, res)) return;
-
-  try {
-    const query = String(req.query.q || '').trim();
-    const instructions = getIndexableInstructions(query);
-
-    res
-      .status(200)
-      .set('Cache-Control', 'public, max-age=300')
-      .type('html')
-      .send(renderInstructionsCatalogPage(req, instructions, query));
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.get('/instrukciya-po-ohrane-truda/:id', (req, res, next) => {
-  const redirectId = INSTRUCTION_REDIRECTS.get(req.params.id);
-
-  if (redirectId) {
-    const target =
-      `${getSiteUrl(req)}/instrukciya-po-ohrane-truda/` + encodeURIComponent(redirectId);
-
-    return res.redirect(301, target);
+  for (const [urlPath, filePath] of PUBLIC_ASSETS) {
+    router.get(urlPath, (req, res, next) => {
+      if (!fs.existsSync(filePath)) return next();
+      return res.sendFile(filePath);
+    });
   }
 
-  if (redirectTrailingSlash(req, res)) return;
+  router.get('/instrukcii-po-ohrane-truda', (req, res, next) => {
+    if (redirectTrailingSlash(req, res)) return;
 
-  try {
-    const instruction = instructionsRepository.getById(req.params.id);
+    try {
+      const query = String(req.query.q || '').trim();
+      const instructions = getIndexableInstructions(query, repository);
 
-    if (!instruction) {
-      return res.status(404).type('html').send(renderNotFoundPage());
+      res
+        .status(200)
+        .set('Cache-Control', 'public, max-age=300')
+        .type('html')
+        .send(renderInstructionsCatalogPage(req, instructions, query, indexPath));
+    } catch (error) {
+      next(error);
     }
+  });
 
-    res
-      .status(200)
-      .set('Cache-Control', 'public, max-age=300')
-      .type('html')
-      .send(renderInstructionPage(req, instruction));
-  } catch (error) {
-    next(error);
-  }
-});
+  router.get('/instrukciya-po-ohrane-truda/:id', (req, res, next) => {
+    try {
+      const redirectId = INSTRUCTION_REDIRECTS.get(req.params.id);
+      const instruction = repository.getBySlug(redirectId || req.params.id);
+      const queryIndex = req.originalUrl.indexOf('?');
+      const query = queryIndex < 0 ? '' : req.originalUrl.slice(queryIndex);
 
-router.get('/sitemap.xml', (req, res, next) => {
-  try {
-    const instructions = getIndexableInstructions();
-    const articleUrls = listPublishedArticles()
-      .map(
-        article => `  <url>
-    <loc>${escapeXml(`${getSiteUrl(req)}/stati/${encodeURIComponent(article.slug)}`)}</loc>
-    <lastmod>${escapeXml(article.updatedAt.slice(0, 10))}</lastmod>
-  </url>`,
-      )
-      .join('\n');
+      if (
+        redirectId &&
+        (!instruction ||
+          req.params.id !== (instruction.slug || instruction.id) ||
+          req.path.endsWith('/'))
+      ) {
+        const target = instruction
+          ? getInstructionUrl(req, instruction)
+          : `${getSiteUrl(req)}/instrukciya-po-ohrane-truda/${encodeURIComponent(redirectId)}`;
 
-    const urls = instructions
-      .map(instruction => {
-        const loc = getInstructionUrl(req, instruction);
-        const modified = getDateModified(instruction);
+        return res.redirect(301, `${target}${query}`);
+      }
 
-        return [
-          '  <url>',
-          `    <loc>${escapeXml(loc)}</loc>`,
-          modified ? `    <lastmod>${escapeXml(String(modified).slice(0, 10))}</lastmod>` : '',
-          '  </url>',
-        ]
-          .filter(Boolean)
-          .join('\n');
-      })
-      .join('\n');
+      if (
+        !instruction ||
+        String(instruction.status || '').toLowerCase() === 'draft' ||
+        String(instruction.seoStatus || '').toLowerCase() === 'draft'
+      ) {
+        return res.status(404).type('html').send(renderNotFoundPage());
+      }
 
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+      if (req.params.id !== (instruction.slug || instruction.id) || req.path.endsWith('/')) {
+        return res.redirect(301, `${getInstructionUrl(req, instruction)}${query}`);
+      }
+
+      res
+        .status(200)
+        .set('Cache-Control', 'no-store')
+        .type('html')
+        .send(renderInstructionPage(req, instruction, indexPath, relatedInstructions));
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.get('/sitemap.xml', (req, res, next) => {
+    try {
+      const instructions = getIndexableInstructions('', repository);
+      const urls = instructions
+        .map(instruction => {
+          const loc = getInstructionUrl(req, instruction);
+          const modified = getDateModified(instruction);
+
+          return [
+            '  <url>',
+            `    <loc>${escapeXml(loc)}</loc>`,
+            modified ? `    <lastmod>${escapeXml(String(modified).slice(0, 10))}</lastmod>` : '',
+            '  </url>',
+          ]
+            .filter(Boolean)
+            .join('\n');
+        })
+        .join('\n');
+
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>${escapeXml(`${getSiteUrl(req)}/`)}</loc>
@@ -1044,20 +1056,16 @@ router.get('/sitemap.xml', (req, res, next) => {
     <loc>${escapeXml(`${getSiteUrl(req)}/instrukcii-po-ohrane-truda`)}</loc>
   </url>
 ${urls}
-  <url>
-    <loc>${escapeXml(`${getSiteUrl(req)}/stati`)}</loc>
-  </url>
-${articleUrls}
 </urlset>`;
 
-    res.status(200).set('Cache-Control', 'public, max-age=300').type('application/xml').send(xml);
-  } catch (error) {
-    next(error);
-  }
-});
+      res.status(200).set('Cache-Control', 'public, max-age=300').type('application/xml').send(xml);
+    } catch (error) {
+      next(error);
+    }
+  });
 
-router.get('/robots.txt', (req, res) => {
-  const content = `User-agent: *
+  router.get('/robots.txt', (req, res) => {
+    const content = `User-agent: *
 Allow: /
 
 Disallow: /api/
@@ -1065,7 +1073,10 @@ Disallow: /api/
 Sitemap: ${getSiteUrl(req)}/sitemap.xml
 `;
 
-  res.status(200).set('Cache-Control', 'public, max-age=3600').type('text/plain').send(content);
-});
+    res.status(200).set('Cache-Control', 'public, max-age=3600').type('text/plain').send(content);
+  });
 
-export default router;
+  return router;
+}
+
+export default createSeoRouter();

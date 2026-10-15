@@ -5,8 +5,8 @@ import express from 'express';
 import morgan from 'morgan';
 
 import { attachUser } from './middleware/auth.js';
-import { adminArticlesRouter, articlesRouter } from './routes/articles.js';
-import articleSeoRouter from './routes/articleSeo.js';
+import { adminInstructionsRouter } from './routes/adminInstructions.js';
+import { instructionPagesRouter } from './routes/instructionPages.js';
 
 import { createRateLimiters } from './middleware/rateLimits.js';
 
@@ -66,7 +66,7 @@ export function createApp({
 
   app.use('/api/public-generation/cloudpayments', cloudPaymentsWebhookRouter);
 
-  app.use('/api/admin/articles', express.json({ limit: '2mb' }));
+  app.use('/api/admin/instructions', express.json({ limit: '2mb' }));
   app.use(express.json());
 
   app.use(morgan('dev'));
@@ -110,8 +110,7 @@ export function createApp({
   });
 
   app.use('/api/auth', authRouter);
-  app.use('/api/admin/articles', adminArticlesRouter);
-  app.use('/api/articles', articlesRouter);
+  app.use('/api/admin/instructions', adminInstructionsRouter);
 
   app.use('/api/promo-codes', promoCodesRouter);
 
@@ -127,9 +126,10 @@ export function createApp({
 
   app.use('/api/instructions', instructionViewsRouter);
 
+  app.use('/api/instructions', instructionPagesRouter);
+
   app.use('/api/instructions', instructionsRouter);
 
-  app.use('/', articleSeoRouter);
   app.use('/', seoRouter);
 
   app.use('/', thanksRouter);

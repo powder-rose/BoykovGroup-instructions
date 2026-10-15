@@ -3,11 +3,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { InstructionEditorError } from './instructionEditorError.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const DATA_DIR = path.join(__dirname, '..', 'data', 'instructions');
 
-class InstructionsRepository {
+export class InstructionsRepository {
   constructor(dir) {
     this.dir = dir;
 
@@ -50,6 +52,17 @@ class InstructionsRepository {
     return this.cache.get(id) || null;
   }
 
+  getBySlug(slug) {
+    return (
+      this.getAll().find(
+        instruction =>
+          instruction.id === slug ||
+          instruction.slug === slug ||
+          instruction.slugAliases?.includes(slug),
+      ) || null
+    );
+  }
+
   exists(id) {
     return this.cache.has(id);
   }
@@ -69,6 +82,26 @@ class InstructionsRepository {
   save(instruction) {
     if (!instruction?.id) {
       throw new Error('Инструкция должна иметь id');
+    }
+
+    // Generation, imports and rollbacks share the same public URL namespace as the editor.
+    const addresses = new Set([
+      instruction.id,
+      instruction.slug || instruction.id,
+      ...(instruction.slugAliases || []),
+    ]);
+
+    for (const existing of this.cache.values()) {
+      if (existing.id === instruction.id) continue;
+
+      const reserved = [existing.id, existing.slug || existing.id, ...(existing.slugAliases || [])];
+
+      if (reserved.some(address => addresses.has(address))) {
+        throw new InstructionEditorError('Этот адрес уже занят другой инструкцией', {
+          status: 409,
+          code: 'INSTRUCTION_SLUG_CONFLICT',
+        });
+      }
     }
 
     const filePath = path.join(this.dir, `${instruction.id}.json`);

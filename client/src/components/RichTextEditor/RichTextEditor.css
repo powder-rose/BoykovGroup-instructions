@@ -1,0 +1,120 @@
+.rich-text-editor-shell {
+  border: 1px solid #cbd2dc;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.rich-text-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding: 12px;
+  border-bottom: 1px solid #dce1e8;
+  background: #f6f8fb;
+}
+
+.rich-text-editor-toolbar button {
+  min-height: 34px;
+  padding: 6px 9px;
+  border: 1px solid #d4dae2;
+  border-radius: 5px;
+  background: white;
+  color: #233249;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.rich-text-editor-toolbar button:hover,
+.rich-text-editor-toolbar button.is-active {
+  background: #e7efff;
+  border-color: #2563eb;
+}
+
+.rich-text-editor-toolbar button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.rich-text-editor-toolbar__table {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.rich-text-editor-shell .tiptap {
+  min-height: 360px;
+  padding: 24px;
+  outline: none;
+  color: #172136;
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.rich-text-editor-shell .tiptap:focus {
+  box-shadow: inset 0 0 0 2px #c4d6f6;
+}
+
+.rich-text-editor-shell .tiptap p {
+  margin: 0 0 1em;
+}
+
+.rich-text-editor-shell .tiptap h2,
+.rich-text-editor-shell .tiptap h3 {
+  margin: 1.3em 0 0.6em;
+  line-height: 1.3;
+}
+
+.rich-text-editor-shell .tiptap ul,
+.rich-text-editor-shell .tiptap ol {
+  padding-left: 28px;
+}
+
+.rich-text-editor-shell .tiptap blockquote {
+  border-left: 4px solid #446f9f;
+  background: #f0f5fa;
+  margin: 18px 0;
+  padding: 16px 20px;
+}
+
+.rich-text-editor-shell .tiptap a {
+  color: #1559aa;
+  text-decoration: underline;
+}
+
+.rich-text-editor-shell .tiptap table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin: 18px 0;
+}
+
+.rich-text-editor-shell .tiptap td,
+.rich-text-editor-shell .tiptap th {
+  position: relative;
+  border: 1px solid #bbc7d5;
+  padding: 9px;
+  vertical-align: top;
+  min-width: 30px;
+}
+
+.rich-text-editor-shell .tiptap th {
+  background: #edf2f7;
+}
+
+.rich-text-editor-shell .tiptap .selectedCell::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: #2563eb1c;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .rich-text-editor-shell .tiptap {
+    padding: 16px;
+  }
+}

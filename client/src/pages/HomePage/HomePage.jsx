@@ -1,10 +1,8 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 
 import Header from '../../components/Header/Header.jsx';
 
 import AdminPanel from '../../components/AdminPanel/AdminPanel.jsx';
-
-import EditInstructionModal from '../../components/EditInstructionModal/EditInstructionModal.jsx';
 
 import HomeCompactHeader from './components/HomeCompactHeader/HomeCompactHeader.jsx';
 
@@ -21,6 +19,10 @@ import useInfiniteInstructions from './hooks/useInfiniteInstructions.js';
 import useInstructionEditor from './hooks/useInstructionEditor.js';
 
 import styles from '../../App.module.css';
+
+const EditInstructionModal = lazy(
+  () => import('../../components/EditInstructionModal/EditInstructionModal.jsx'),
+);
 
 export default function HomePage() {
   const [importId, setImportId] = useState(null);
@@ -67,7 +69,7 @@ export default function HomePage() {
     loadMoreError,
   });
 
-  const { editingInstruction, openInstructionEditor, closeInstructionEditor, saveInstruction } =
+  const { editingInstruction, openInstructionEditor, closeInstructionEditor, instructionSaved } =
     useInstructionEditor({
       query: debouncedQuery,
 
@@ -112,11 +114,13 @@ export default function HomePage() {
       />
 
       {editingInstruction && (
-        <EditInstructionModal
-          instruction={editingInstruction}
-          onClose={closeInstructionEditor}
-          onSave={saveInstruction}
-        />
+        <Suspense fallback={<p role="status">Загрузка редактора…</p>}>
+          <EditInstructionModal
+            instruction={editingInstruction}
+            onClose={closeInstructionEditor}
+            onSaved={instructionSaved}
+          />
+        </Suspense>
       )}
     </div>
   );

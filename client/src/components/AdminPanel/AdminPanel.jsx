@@ -16,7 +16,7 @@ import useAdminGenerationStats from './hooks/useAdminGenerationStats.js';
 import useAdminDashboardTab from './hooks/useAdminDashboardTab.js';
 import styles from './AdminPanel.module.css';
 
-const AdminArticles = lazy(() => import('../AdminArticles/AdminArticles.jsx'));
+const AdminInstructions = lazy(() => import('../AdminInstructions/AdminInstructions.jsx'));
 
 export default function AdminPanel({ importId, onImportCreated, onRefresh }) {
   const isAdmin = useSelector(selectIsAdmin);
@@ -60,10 +60,14 @@ export default function AdminPanel({ importId, onImportCreated, onRefresh }) {
       {isAdmin && token && (
         <Suspense
           fallback={
-            adminDashboardTab === 'articles' ? <p role="status">Загрузка редактора…</p> : null
+            adminDashboardTab === 'instructions' ? <p role="status">Загрузка редактора…</p> : null
           }
         >
-          <AdminArticles token={token} hidden={adminDashboardTab !== 'articles'} />
+          <AdminInstructions
+            token={token}
+            hidden={adminDashboardTab !== 'instructions'}
+            onRefresh={onRefresh}
+          />
         </Suspense>
       )}
 

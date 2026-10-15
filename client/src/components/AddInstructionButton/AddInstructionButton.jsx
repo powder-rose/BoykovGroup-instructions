@@ -20,7 +20,7 @@ export default function AddInstructionButton({ onImportCreated }) {
     <div className={styles.wrapper}>
       <button type="button" className={styles.addBtn} onClick={() => setIsModalOpen(true)}>
         <span className={styles.plus}>+</span>
-        добавить инструкцию
+        Импортировать инструкцию
       </button>
 
       {isModalOpen && (

@@ -31,11 +31,12 @@ export default function InstructionArticleMeta({ instruction, isAdmin, viewStats
 
       {isAdmin && (
         <button
+          type="button"
           className={styles.editButton}
 
           onClick={onEdit}
         >
-          Редактировать статью
+          Редактировать инструкцию
         </button>
       )}
     </div>

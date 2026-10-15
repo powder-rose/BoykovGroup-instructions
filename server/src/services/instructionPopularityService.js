@@ -105,6 +105,8 @@ export function getInstructionPopularity({ period = 'total', limit = 10 } = {}) 
       const item = {
         id: instruction.id,
 
+        slug: instruction.slug || instruction.id,
+
         title: instruction.title || instruction.profession || instruction.id,
 
         profession: instruction.profession || '',

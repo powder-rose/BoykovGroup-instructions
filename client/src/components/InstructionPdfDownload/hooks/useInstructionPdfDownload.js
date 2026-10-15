@@ -8,6 +8,8 @@ import {
   selectIsRestoringSession,
 } from '../../../store/authSlice.js';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
 function getPdfFileName(response, instructionId) {
   const disposition = response.headers.get('Content-Disposition') || '';
 
@@ -78,7 +80,8 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
     setIsDownloading(true);
 
     try {
-      const url = downloadUrl || `/api/instructions/${encodeURIComponent(instructionId)}/pdf`;
+      const url =
+        downloadUrl || `${API_BASE_URL}/api/instructions/${encodeURIComponent(instructionId)}/pdf`;
 
       const response = await fetch(url, {
         method: 'GET',

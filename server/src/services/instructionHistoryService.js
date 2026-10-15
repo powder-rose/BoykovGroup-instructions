@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { instructionsRepository } from './instructionsRepository.js';
+import { assertNoPendingInstructionDraft } from './instructionDraftGuard.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -117,6 +118,8 @@ export function rollbackInstruction(instructionId) {
     throw error;
   }
 
+  assertNoPendingInstructionDraft(current);
+
   const snapshots = listSnapshots(instructionId);
 
   if (snapshots.length === 0) {
@@ -156,6 +159,17 @@ export function rollbackInstruction(instructionId) {
      * ID менять запрещено.
      */
     id: current.id,
+
+    revision: Number(current.revision || 0) + 1,
+
+    slugAliases: [
+      ...new Set([
+        current.id,
+        current.slug || current.id,
+        ...(current.slugAliases || []),
+        ...(snapshot.slugAliases || []),
+      ]),
+    ].filter(value => value !== (snapshot.slug || current.id)),
 
     /*
      * Показываем реальное время отката.

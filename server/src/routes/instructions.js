@@ -1,8 +1,11 @@
 import {
-  saveInstructionSnapshot,
   rollbackInstruction,
   getInstructionHistoryInfo,
 } from '../services/instructionHistoryService.js';
+import { getInstructionDocument } from '../shared/instructionDocument.js';
+import { instructionEditorService } from '../services/instructionEditorService.js';
+import { InstructionEditorError } from '../services/instructionEditorError.js';
+import { assertNoPendingInstructionDraft } from '../services/instructionDraftGuard.js';
 
 import {
   bulkImportUpload,
@@ -343,7 +346,7 @@ instructionsRouter.post('/generate', requireAdmin, async (req, res) => {
 
   try {
     const instruction = await runExclusive(id, async () => {
-      const existing = instructionsRepository.getById(id);
+      const existing = instructionsRepository.getBySlug(id);
 
       if (existing) {
         return existing;
@@ -382,8 +385,9 @@ instructionsRouter.post('/generate', requireAdmin, async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    res.status(502).json({
+    res.status(error.status || 502).json({
       error: error.message,
+      ...(error.code ? { code: error.code } : {}),
     });
   }
 });
@@ -537,23 +541,23 @@ instructionsRouter.put(
       });
     }
 
-    const updated = {
-      ...existing,
+    assertNoPendingInstructionDraft(existing);
 
-      ...req.body,
+    const input = req.body || {};
+    const legacyBodyChanged = Object.hasOwn(input, 'intro') || Object.hasOwn(input, 'sections');
+    const instructionContent =
+      input.instructionContent ||
+      (legacyBodyChanged
+        ? getInstructionDocument({ ...existing, ...input, instructionContent: undefined })
+        : getInstructionDocument(existing));
+    const result = instructionEditorService.save(existing.id, {
+      ...input,
+      instructionContent,
+      status: 'published',
+      revision: input.revision ?? existing.revision ?? 0,
+    });
 
-      id: existing.id,
-
-      version: existing.version ? (Number(existing.version) + 0.1).toFixed(1) : '1.1',
-
-      updatedAt: new Date().toISOString(),
-    };
-
-    saveInstructionSnapshot(existing);
-
-    instructionsRepository.save(updated);
-
-    res.json(updated);
+    res.json(result.instruction);
   },
 );
 
@@ -590,7 +594,7 @@ instructionsRouter.post('/:id/rollback', requireAdmin, (req, res) => {
       });
     }
 
-    if (error?.code === 'NO_HISTORY') {
+    if (error?.code === 'NO_HISTORY' || error?.code === 'INSTRUCTION_DRAFT_CONFLICT') {
       return res.status(409).json({
         error: error.message,
       });
@@ -621,11 +625,20 @@ instructionsRouter.delete(
       });
     }
 
-    instructionsRepository.remove(req.params.id);
+    assertNoPendingInstructionDraft(existing);
+    instructionEditorService.remove(existing.id, {
+      revision: req.body?.revision ?? existing.revision ?? 0,
+    });
 
     res.status(204).end();
   },
 );
+
+instructionsRouter.use((error, req, res, next) => {
+  if (!(error instanceof InstructionEditorError)) return next(error);
+  if (error.status >= 500) console.error('[Instruction editor]', error);
+  return res.status(error.status).json({ error: error.message, code: error.code });
+});
 
 // =========================
 // SCHEDULE GENERATION
