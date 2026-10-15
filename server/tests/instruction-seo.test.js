@@ -136,7 +136,7 @@ test('instruction HTML keeps PDF above the protected rich document and preserves
   assert.ok(html.includes('<div class="instruction-explanation" data-copy-protected="true">'));
   assert.match(html, /<style data-copy-protection>[\s\S]*?user-select: none;[\s\S]*?<\/style>/u);
   assert.equal((html.match(/data-instruction-pdf-download="stable-id"/gu) || []).length, 1);
-  assert.ok(html.includes('Скачивание доступно после входа в аккаунт с подтверждённым e-mail.'));
+  assert.ok(html.includes('5 скачиваний на аккаунт за всё время'));
   assert.ok(html.includes('<table><tbody><tr>'));
   assert.ok(html.includes('Замены $&amp; $$ остаются текстом'));
   assert.equal((html.match(/id="root"/gu) || []).length, 1);

@@ -4,7 +4,7 @@ export default function InstructionArticleMeta({ instruction, isAdmin, viewStats
   return (
     <div className={styles.articleMeta}>
       <div className={styles.versionInfo}>
-        <span>Версия документа: {instruction.version || '1.0'}</span>
+        <span>Версия {instruction.version || '1.0'}</span>
 
         <span>
           Обновлено:{' '}

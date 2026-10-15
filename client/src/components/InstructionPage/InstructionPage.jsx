@@ -83,16 +83,16 @@ export default function InstructionPage() {
             </InstructionCopyGuard>
 
             <div className={styles.instructionDocument}>
-              <div className={styles.documentLabel}>Текст инструкции</div>
-              <InstructionArticleMeta
-                instruction={instruction}
-                isAdmin={isAdmin}
-                viewStats={viewStats}
-                onEdit={() => setEditOpen(true)}
-              />
-              <div className={styles.documentDownload}>
-                <InstructionPdfDownload instructionId={instruction.id} />
-                <p>Для скачивания PDF войдите в аккаунт с подтверждённым e-mail.</p>
+              <div className={styles.documentToolbar}>
+                <InstructionArticleMeta
+                  instruction={instruction}
+                  isAdmin={isAdmin}
+                  viewStats={viewStats}
+                  onEdit={() => setEditOpen(true)}
+                />
+                <div className={styles.documentDownload}>
+                  <InstructionPdfDownload instructionId={instruction.id} />
+                </div>
               </div>
               <InstructionCopyGuard allowCopy={isAdmin}>
                 <InstructionTableOfContents items={outline} />

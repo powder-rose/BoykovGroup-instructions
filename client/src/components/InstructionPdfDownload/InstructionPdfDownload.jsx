@@ -53,14 +53,13 @@ export default function InstructionPdfDownload({
           disabled={isRestoring || isDownloading || isLockedUser}
           onClick={handleClick}
         >
-          <span className="boykovPdfDownload__badge">PDF</span>
+          <span className="boykovPdfDownload__badge" aria-hidden="true" />
 
           <span className="boykovPdfDownload__text">{buttonText}</span>
         </button>
 
         <span className="boykovPdfDownload__status">
-          {isCatalogDownload &&
-            'Каталог: не более 5 скачиваний на аккаунт за всё время, включая повторные.'}
+          {isCatalogDownload && '5 скачиваний на аккаунт за всё время'}
         </span>
       </div>
 
