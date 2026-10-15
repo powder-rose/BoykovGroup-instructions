@@ -550,10 +550,13 @@ function renderInstructionSeoBody(instruction, relatedInstructions) {
           <h1>${escapeHtml(title)}</h1>
           ${webIntro ? `<p class="instruction-web-intro">${escapeHtml(webIntro)}</p>` : ''}
         </header>
-        <div class="instruction-pdf-download">
-          <button type="button" id="boykov-instruction-pdf-download"
-            data-instruction-pdf-download="${escapeHtml(instruction.id)}">Скачать PDF</button>
-          <p>Скачивание доступно после входа в аккаунт с подтверждённым e-mail.</p>
+        <div id="boykov-instruction-pdf-download" class="instruction-pdf-download boykovPdfDownload">
+          <button type="button" class="boykovPdfDownload__button"
+            data-instruction-pdf-download="${escapeHtml(instruction.id)}">
+            <span class="boykovPdfDownload__badge" aria-hidden="true"></span>
+            <span class="boykovPdfDownload__text">Скачать PDF</span>
+          </button>
+          <span class="boykovPdfDownload__status">5 скачиваний на аккаунт за всё время</span>
           <noscript>Для скачивания PDF включите JavaScript.</noscript>
         </div>
         <div class="instruction-reading" data-copy-protected="true">

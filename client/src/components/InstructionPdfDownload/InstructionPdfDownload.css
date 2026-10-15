@@ -1,12 +1,15 @@
 /* ===== INSTRUCTION PDF DOWNLOAD ===== */
 
+.instruction-pdf-download.boykovPdfDownload {
+  margin: 16px 0 20px;
+}
+
 .boykovPdfDownload {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-
-  margin: 18px 0 22px;
+  gap: 8px 14px;
+  margin: 0;
 }
 
 .boykovPdfDownload__button {
@@ -15,27 +18,28 @@
   justify-content: center;
   gap: 10px;
 
-  min-height: 42px;
+  min-height: 48px;
 
-  padding: 9px 15px;
+  padding: 12px 20px;
 
-  border: 1px solid #b9c3d1;
+  border: 1px solid #2563eb;
 
-  border-radius: 8px;
+  border-radius: 10px;
 
-  background: #ffffff;
+  background: #2563eb;
 
-  color: #27364c;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 
   cursor: pointer;
 
   font: inherit;
 
-  font-size: 13px;
+  font-size: 15px;
 
   font-weight: 700;
 
-  line-height: 1;
+  line-height: 1.25;
 
   transition:
     transform 0.16s ease,
@@ -46,48 +50,35 @@
 }
 
 .boykovPdfDownload__badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-width: 35px;
-
-  padding: 5px 6px;
-
-  border-radius: 5px;
-
-  background: #eef4fd;
-
-  color: #397bd9;
-
-  font-size: 9px;
-
-  line-height: 1;
-
-  letter-spacing: 0.08em;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  background: currentColor;
+  font-size: 0;
+  mask: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpath d="M12 3v12m-5-5 5 5 5-5M5 16v4h14v-4"/%3E%3C/svg%3E')
+    center / contain no-repeat;
 }
 
 .boykovPdfDownload__button:hover:not(:disabled) {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 
-  border-color: #397bd9;
+  border-color: #1d4ed8;
 
-  background: #234f95;
+  background: #1d4ed8;
 
   color: #ffffff;
 
-  box-shadow: 0 8px 20px rgba(35, 79, 149, 0.15);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
 }
 
-.boykovPdfDownload__button:hover:not(:disabled) .boykovPdfDownload__badge {
-  background: rgba(255, 255, 255, 0.14);
-
-  color: #ffffff;
+.boykovPdfDownload__button:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 3px;
 }
 
 .boykovPdfDownload__button:disabled {
   cursor: default;
-
+  box-shadow: none;
   opacity: 0.58;
 }
 
@@ -102,13 +93,27 @@
 .boykovPdfDownload__status {
   color: #697589;
 
-  font-size: 11px;
+  font-size: 12px;
 
   line-height: 1.4;
 }
 
+.boykovPdfDownload__status:empty {
+  display: none;
+}
+
 .boykovPdfDownload--loading .boykovPdfDownload__button {
   cursor: wait;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boykovPdfDownload__button {
+    transition: none;
+  }
+
+  .boykovPdfDownload__button:hover:not(:disabled) {
+    transform: none;
+  }
 }
 
 @media (max-width: 650px) {

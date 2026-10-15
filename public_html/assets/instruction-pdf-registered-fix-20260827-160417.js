@@ -20,7 +20,7 @@
     null;
 
   const CATALOG_DOWNLOAD_NOTE =
-    "Каталог: не более 5 скачиваний на аккаунт за всё время, включая повторные.";
+    "5 скачиваний на аккаунт за всё время";
 
 
   function updateCatalogDownloadNote(status, user) {
@@ -208,6 +208,8 @@
 
     badge.className =
       "boykovPdfDownload__badge";
+
+    badge.setAttribute("aria-hidden", "true");
 
 
     badge.textContent =
