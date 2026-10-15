@@ -1,0 +1,272 @@
+.article-editor-shell {
+  border: 1px solid #cbd2dc;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.article-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding: 12px;
+  border-bottom: 1px solid #dce1e8;
+  background: #f6f8fb;
+}
+
+.article-editor-toolbar button,
+.article-editor-instruction__actions button {
+  min-height: 34px;
+  padding: 6px 9px;
+  border: 1px solid #d4dae2;
+  border-radius: 5px;
+  background: white;
+  color: #233249;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.article-editor-toolbar button:hover,
+.article-editor-toolbar button.is-active {
+  background: #e7efff;
+  border-color: #2563eb;
+}
+
+.article-editor-toolbar button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.article-editor-toolbar .article-editor-toolbar__instruction {
+  margin-left: auto;
+  background: #1f3f6d;
+  color: #fff;
+  border-color: #1f3f6d;
+  font-weight: 700;
+}
+
+.article-editor-toolbar__table {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.article-editor-shell .tiptap {
+  min-height: 360px;
+  padding: 24px;
+  outline: none;
+  color: #172136;
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.article-editor-shell .tiptap:focus {
+  box-shadow: inset 0 0 0 2px #c4d6f6;
+}
+
+.article-editor-shell .tiptap p {
+  margin: 0 0 1em;
+}
+
+.article-editor-shell .tiptap h2,
+.article-editor-shell .tiptap h3 {
+  margin: 1.3em 0 0.6em;
+  line-height: 1.3;
+}
+
+.article-editor-shell .tiptap ul,
+.article-editor-shell .tiptap ol {
+  padding-left: 28px;
+}
+
+.article-editor-shell .tiptap blockquote {
+  border-left: 4px solid #446f9f;
+  background: #f0f5fa;
+  margin: 18px 0;
+  padding: 16px 20px;
+}
+
+.article-editor-shell .tiptap a {
+  color: #1559aa;
+  text-decoration: underline;
+}
+
+.article-editor-shell .tiptap table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  margin: 18px 0;
+}
+
+.article-editor-shell .tiptap td,
+.article-editor-shell .tiptap th {
+  position: relative;
+  border: 1px solid #bbc7d5;
+  padding: 9px;
+  vertical-align: top;
+  min-width: 30px;
+}
+
+.article-editor-shell .tiptap th {
+  background: #edf2f7;
+}
+
+.article-editor-shell .tiptap .selectedCell::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: #2563eb1c;
+  pointer-events: none;
+}
+
+.article-editor-instruction {
+  border: 1px solid #a7bfdc;
+  border-left: 4px solid #345f92;
+  border-radius: 8px;
+  margin: 24px 0;
+  padding: 20px;
+  background: #f6f9fd;
+}
+
+.article-editor-instruction.is-selected {
+  outline: 2px solid #3a7ad1;
+  outline-offset: 2px;
+}
+
+.article-editor-instruction__head,
+.article-editor-instruction__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.article-editor-instruction__head {
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #345f92;
+}
+
+.article-editor-instruction__text {
+  white-space: pre-wrap;
+  max-height: 360px;
+  overflow: auto;
+  line-height: 1.65;
+  font-size: 14px;
+}
+
+.article-editor-instruction__download {
+  margin-top: 18px;
+  padding-top: 15px;
+  border-top: 1px solid #cbd8e8;
+  font-size: 14px;
+  font-weight: 700;
+  color: #254d80;
+}
+
+.article-editor-instruction__download small,
+.article-editor-hint {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  color: #627087;
+}
+
+.article-editor-hint {
+  margin: 0;
+  padding: 12px 18px;
+  border-top: 1px solid #e3e8ef;
+}
+
+.article-instruction-dialog {
+  width: min(800px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  box-sizing: border-box;
+  padding: 26px;
+  border: 1px solid #d0d8e3;
+  border-radius: 12px;
+  background: #fff;
+  color: #172136;
+}
+
+.article-instruction-dialog::backdrop {
+  background: #101b2ca8;
+}
+
+.article-instruction-dialog__head,
+.article-instruction-dialog__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.article-instruction-dialog__head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.article-instruction-dialog p,
+.article-instruction-dialog small {
+  color: #5a687b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.article-instruction-dialog label {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.article-instruction-dialog input,
+.article-instruction-dialog textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #bac6d5;
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 400;
+  resize: vertical;
+}
+
+.article-instruction-dialog button {
+  padding: 10px 14px;
+  border: 1px solid #bbc8d9;
+  border-radius: 6px;
+  background: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.article-instruction-dialog button[type='submit'] {
+  background: #1f3f6d;
+  color: #fff;
+  border-color: #1f3f6d;
+}
+
+.article-instruction-dialog__footer {
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+@media (max-width: 600px) {
+  .article-editor-shell .tiptap {
+    padding: 16px;
+  }
+  .article-editor-instruction {
+    padding: 14px;
+  }
+  .article-instruction-dialog {
+    padding: 18px;
+  }
+}

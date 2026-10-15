@@ -27,6 +27,9 @@ server/src/data/publicGenerationOrders/
 server/src/data/instructionViews.json
 server/src/data/autoGenerationSettings.json
 server/src/data/instructions/
+server/src/data/articles.json
+server/src/data/articles.json.*.tmp
+server/src/data/.articles.json.*.tmp
 
 server/src/data/*usage*.json
 server/src/data/*Usage*.json

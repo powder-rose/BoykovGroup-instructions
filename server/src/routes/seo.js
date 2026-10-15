@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Router } from 'express';
 import { instructionsRepository } from '../services/instructionsRepository.js';
+import { listPublishedArticles } from '../services/articlesRepository.js';
 
 const router = Router();
 
@@ -1009,6 +1010,14 @@ router.get('/instrukciya-po-ohrane-truda/:id', (req, res, next) => {
 router.get('/sitemap.xml', (req, res, next) => {
   try {
     const instructions = getIndexableInstructions();
+    const articleUrls = listPublishedArticles()
+      .map(
+        article => `  <url>
+    <loc>${escapeXml(`${getSiteUrl(req)}/stati/${encodeURIComponent(article.slug)}`)}</loc>
+    <lastmod>${escapeXml(article.updatedAt.slice(0, 10))}</lastmod>
+  </url>`,
+      )
+      .join('\n');
 
     const urls = instructions
       .map(instruction => {
@@ -1035,6 +1044,10 @@ router.get('/sitemap.xml', (req, res, next) => {
     <loc>${escapeXml(`${getSiteUrl(req)}/instrukcii-po-ohrane-truda`)}</loc>
   </url>
 ${urls}
+  <url>
+    <loc>${escapeXml(`${getSiteUrl(req)}/stati`)}</loc>
+  </url>
+${articleUrls}
 </urlset>`;
 
     res.status(200).set('Cache-Control', 'public, max-age=300').type('application/xml').send(xml);

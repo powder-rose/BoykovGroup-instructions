@@ -5,6 +5,8 @@ import express from 'express';
 import morgan from 'morgan';
 
 import { attachUser } from './middleware/auth.js';
+import { adminArticlesRouter, articlesRouter } from './routes/articles.js';
+import articleSeoRouter from './routes/articleSeo.js';
 
 import { createRateLimiters } from './middleware/rateLimits.js';
 
@@ -64,6 +66,7 @@ export function createApp({
 
   app.use('/api/public-generation/cloudpayments', cloudPaymentsWebhookRouter);
 
+  app.use('/api/admin/articles', express.json({ limit: '2mb' }));
   app.use(express.json());
 
   app.use(morgan('dev'));
@@ -107,6 +110,8 @@ export function createApp({
   });
 
   app.use('/api/auth', authRouter);
+  app.use('/api/admin/articles', adminArticlesRouter);
+  app.use('/api/articles', articlesRouter);
 
   app.use('/api/promo-codes', promoCodesRouter);
 
@@ -124,6 +129,7 @@ export function createApp({
 
   app.use('/api/instructions', instructionsRouter);
 
+  app.use('/', articleSeoRouter);
   app.use('/', seoRouter);
 
   app.use('/', thanksRouter);
@@ -136,6 +142,12 @@ export function createApp({
 
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, next) => {
+    if (err.type === 'entity.too.large') {
+      return res.status(413).json({ error: 'Текст превышает допустимый размер запроса' });
+    }
+    if (err.type === 'entity.parse.failed') {
+      return res.status(400).json({ error: 'Некорректный JSON в запросе' });
+    }
     console.error(err);
 
     res.status(500).json({

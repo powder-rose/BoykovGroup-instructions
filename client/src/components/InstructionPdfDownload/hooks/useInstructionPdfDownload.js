@@ -24,7 +24,7 @@ function getPdfFileName(response, instructionId) {
   return `instruction-${instructionId}.pdf`;
 }
 
-export default function useInstructionPdfDownload(instructionId) {
+export default function useInstructionPdfDownload(instructionId, downloadUrl) {
   const token = useSelector(selectAuthToken);
 
   const user = useSelector(selectAuthUser);
@@ -78,7 +78,9 @@ export default function useInstructionPdfDownload(instructionId) {
     setIsDownloading(true);
 
     try {
-      const response = await fetch(`/api/instructions/${encodeURIComponent(instructionId)}/pdf`, {
+      const url = downloadUrl || `/api/instructions/${encodeURIComponent(instructionId)}/pdf`;
+
+      const response = await fetch(url, {
         method: 'GET',
 
         headers: {
