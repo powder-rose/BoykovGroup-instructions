@@ -2,7 +2,6 @@ const FIELDS = [
   { name: 'companyName', label: 'Название компании', maxLength: 300 },
   { name: 'inn', label: 'ИНН', maxLength: 12 },
   { name: 'headFullName', label: 'ФИО руководителя организации', maxLength: 200 },
-  { name: 'headPosition', label: 'Должность руководителя организации', maxLength: 200 },
   {
     name: 'occupationalSafetyFullName',
     label: 'ФИО ответственного по охране труда',
