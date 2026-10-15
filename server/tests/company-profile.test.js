@@ -73,7 +73,10 @@ test('profiles survive restart, isolate users and atomically enqueue only meanin
   const first = repository.save(user, { companyName: ' ООО  «Тест» ', inn: '1234567890' });
   assert.equal(first.companyProfile.companyName, 'ООО «Тест»');
   assert.equal(state().outbox.length, 1);
-  assert.equal(fs.statSync(file).mode & 0o777, 0o600);
+  // Windows does not expose POSIX owner/group permission bits.
+  if (process.platform !== 'win32') {
+    assert.equal(fs.statSync(file).mode & 0o777, 0o600);
+  }
   advance(5000);
   assert.deepEqual(repository.save(user, first.companyProfile), first);
   assert.equal(state().outbox.length, 1);
