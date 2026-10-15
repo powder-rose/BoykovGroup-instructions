@@ -42,6 +42,19 @@ test('backup archive can be restored with production data intact', async () => {
       }),
     );
 
+    const accountDataDir = path.join(sourceRoot, 'server', 'data');
+    fs.mkdirSync(accountDataDir, { recursive: true });
+    const companyProfiles = {
+      version: 1,
+      profiles: { 'fixture-user': { companyProfile: { companyName: 'Тестовая организация' } } },
+      outbox: [{ id: 'pending-email', user: { id: 'fixture-user' } }],
+    };
+    fs.writeFileSync(
+      path.join(accountDataDir, 'company-profiles.json'),
+      JSON.stringify(companyProfiles),
+      { mode: 0o600 },
+    );
+
     const result = await createBackup({
       sourceRoot,
 
@@ -63,11 +76,39 @@ test('backup archive can be restored with production data intact', async () => {
     assert.deepEqual(restored, {
       restored: true,
     });
+
+    assert.deepEqual(
+      JSON.parse(
+        fs.readFileSync(path.join(restoreRoot, 'server/data/company-profiles.json'), 'utf8'),
+      ),
+      companyProfiles,
+    );
+    if (process.platform !== 'win32') {
+      assert.equal(fs.statSync(result.archivePath).mode & 0o777, 0o600);
+    }
   } finally {
     fs.rmSync(sandbox, {
       recursive: true,
 
       force: true,
     });
+  }
+});
+
+test('backup allows a fresh installation without account storage but requires instruction data', async () => {
+  const { createBackup } = await import('../src/backup/backupService.js');
+  const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'boykovdocs-backup-fresh-'));
+  const sourceRoot = path.join(sandbox, 'app');
+  const outputDir = path.join(sandbox, 'backups');
+  const dataDir = path.join(sourceRoot, 'server', 'src', 'data');
+  try {
+    fs.mkdirSync(dataDir, { recursive: true });
+    fs.writeFileSync(path.join(dataDir, 'critical.json'), '{}');
+    const result = await createBackup({ sourceRoot, outputDir });
+    assert.ok(fs.existsSync(result.archivePath));
+    fs.rmSync(dataDir, { recursive: true });
+    await assert.rejects(createBackup({ sourceRoot, outputDir }), { code: 'ENOENT' });
+  } finally {
+    fs.rmSync(sandbox, { recursive: true, force: true });
   }
 });

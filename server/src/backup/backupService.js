@@ -1,5 +1,5 @@
 ﻿import { createHash } from 'node:crypto';
-import { mkdir, readFile, stat } from 'node:fs/promises';
+import { chmod, mkdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
@@ -19,19 +19,28 @@ export async function createBackup({ sourceRoot, outputDir }) {
 
   await mkdir(outputDir, {
     recursive: true,
+    mode: 0o700,
   });
 
   const archiveName = `boykovdocs-backup-${formatDate()}.tar.gz`;
 
   const archivePath = path.join(outputDir, archiveName);
 
-  const relativePaths = backupManifest.includedPaths.map(item =>
-    path.relative(sourceRoot, path.join(sourceRoot, item)),
-  );
+  const relativePaths = [];
+  for (const item of backupManifest.includedPaths) {
+    try {
+      await stat(path.join(sourceRoot, item));
+      relativePaths.push(item);
+    } catch (error) {
+      if (error.code !== 'ENOENT' || !backupManifest.optionalPaths.includes(item)) throw error;
+    }
+  }
 
   await execFileAsync('tar', ['-czf', archivePath, ...relativePaths], {
     cwd: sourceRoot,
   });
+
+  await chmod(archivePath, 0o600);
 
   /*
    * Verify archive can be listed.

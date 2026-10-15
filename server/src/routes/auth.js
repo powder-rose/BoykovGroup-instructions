@@ -29,6 +29,8 @@ export const authRouter = Router();
 
 function serializeUser(user) {
   return {
+    id: user.id,
+
     login: user.email,
 
     email: user.email,
@@ -217,6 +219,8 @@ authRouter.post('/login', (req, res) => {
  * из users.json, а не из JWT.
  */
 authRouter.get('/me', (req, res) => {
+  res.set('Cache-Control', 'private, no-store');
+
   if (!req.user) {
     return res.status(401).json({
       error: 'Не авторизован',

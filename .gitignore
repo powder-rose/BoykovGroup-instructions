@@ -81,6 +81,8 @@ server/},
 
 server/data/users.json
 server/data/registration-consents.json
+server/data/company-profiles.json
+server/data/company-profiles.json.*.tmp
 
 # Development/repair backups
 *.backup

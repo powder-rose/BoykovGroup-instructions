@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { Socket } from 'node:net';
 
 const DEFAULT_SMTP_HOST = 'smtp.beget.com';
 
@@ -34,7 +35,7 @@ export function isEmailVerificationConfigured() {
   return Boolean(config.host && config.port && config.user && config.pass && config.from);
 }
 
-function createTransporter() {
+function createTransporter(options = {}) {
   const config = getConfig();
 
   return nodemailer.createTransport({
@@ -49,6 +50,7 @@ function createTransporter() {
 
       pass: config.pass,
     },
+    ...options,
   });
 }
 
@@ -195,15 +197,43 @@ export async function sendRegistrationNotification({ name, phone, email }) {
  * Универсальная отправка системных писем
  * через существующий SMTP BoykovDocs.
  */
-export async function sendSystemEmail({ to, subject, text = '', html = '' }) {
-  const transporter = createTransporter();
-
-  return transporter.sendMail({
-    from: process.env.SMTP_FROM || process.env.SMTP_USER || 'bd@boykovdocs.ru',
-
-    to,
-    subject,
-    text,
-    html,
-  });
+export async function sendSystemEmail({ to, subject, text = '', html = '', messageId, timeoutMs }) {
+  // Keep the underlying socket so the overall deadline also aborts SMTP/TLS work.
+  const socket = timeoutMs ? new Socket() : undefined;
+  const transporter = createTransporter(
+    timeoutMs
+      ? {
+          socket,
+          connectionTimeout: timeoutMs,
+          greetingTimeout: timeoutMs,
+          socketTimeout: timeoutMs,
+        }
+      : {},
+  );
+  let timer;
+  try {
+    const delivery = transporter.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER || 'bd@boykovdocs.ru',
+      to,
+      subject,
+      text,
+      html,
+      messageId,
+    });
+    if (!timeoutMs) return await delivery;
+    return await Promise.race([
+      delivery,
+      new Promise((_, reject) => {
+        timer = setTimeout(() => {
+          const error = new Error('System email delivery timed out');
+          error.code = 'EMAIL_TIMEOUT';
+          reject(error);
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+    socket?.destroy();
+    transporter.close();
+  }
 }

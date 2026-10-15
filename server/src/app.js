@@ -11,6 +11,7 @@ import { instructionPagesRouter } from './routes/instructionPages.js';
 import { createRateLimiters } from './middleware/rateLimits.js';
 
 import { authRouter } from './routes/auth.js';
+import { companyProfileRouter } from './routes/companyProfile.js';
 
 import { cloudPaymentsWebhookRouter } from './routes/cloudPaymentsWebhook.js';
 
@@ -85,6 +86,9 @@ export function createApp({
 
   app.post('/api/auth/resend-verification', rateLimits.resendVerification);
 
+  app.put('/api/account/company-profile', rateLimits.companyProfileWrite);
+  app.post('/api/account/company-profile/dismiss', rateLimits.companyProfileWrite);
+
   app.post('/api/promo-codes/validate', rateLimits.promoValidation);
 
   app.post('/api/public-generation/validate', rateLimits.publicGenerationValidation);
@@ -110,6 +114,7 @@ export function createApp({
   });
 
   app.use('/api/auth', authRouter);
+  app.use('/api/account/company-profile', companyProfileRouter);
   app.use('/api/admin/instructions', adminInstructionsRouter);
 
   app.use('/api/promo-codes', promoCodesRouter);

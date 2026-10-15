@@ -163,6 +163,13 @@ export function createRateLimiters() {
     limit: 120,
   });
 
+  const companyProfileWrite = createLimiter({
+    identifier: 'company-profile-write',
+    windowMs: 15 * MINUTE_MS,
+    limit: 20,
+    keyGenerator: userOrIpKey,
+  });
+
   return {
     loginIp,
     loginIdentity,
@@ -173,5 +180,6 @@ export function createRateLimiters() {
     publicOrderCreation,
     paymentConfirmation,
     analyticsWrite,
+    companyProfileWrite,
   };
 }

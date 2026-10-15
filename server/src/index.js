@@ -9,6 +9,10 @@ import { startDailyGenerationJob } from './jobs/dailyGenerationJob.js';
 import { startDailySiteStatsEmailJob } from './jobs/dailySiteStatsEmailJob.js';
 
 import { createGracefulShutdown } from './lifecycle/gracefulShutdown.js';
+import {
+  startCompanyProfileNotificationWorker,
+  stopCompanyProfileNotificationWorker,
+} from './services/companyProfileService.js';
 
 import { assertJwtConfiguration, isAdminConfigured } from './services/authService.js';
 
@@ -90,6 +94,8 @@ const server = app.listen(PORT, () => {
   stopDailyGenerationJob = startDailyGenerationJob();
 
   stopDailySiteStatsEmailJob = startDailySiteStatsEmailJob();
+
+  startCompanyProfileNotificationWorker();
 });
 
 const shutdown = createGracefulShutdown({
@@ -108,6 +114,10 @@ const shutdown = createGracefulShutdown({
 
     async () => {
       await stopDailySiteStatsEmailJob();
+    },
+
+    async () => {
+      await stopCompanyProfileNotificationWorker();
     },
 
     async () => {
