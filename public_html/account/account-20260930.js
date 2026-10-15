@@ -7,6 +7,101 @@
     "boykovgroup_auth_token";
 
 
+  const COMPANY_ONBOARDING_KEY = 'boykovdocs_company_onboarding_user_v1';
+  const companyProfileRoot = document.getElementById('account-company-profile');
+  let companyProfileController = null;
+  let accountRequestId = 0;
+  let currentAccountToken = null;
+  let accountAbortController = null;
+
+  function destroyCompanyProfile() {
+    companyProfileController?.destroy();
+    companyProfileController = null;
+    companyProfileRoot?.replaceChildren();
+  }
+
+  function hasPendingCompanyProfile(userId) {
+    try {
+      return Boolean(userId) && sessionStorage.getItem(COMPANY_ONBOARDING_KEY) === String(userId);
+    } catch {
+      return false;
+    }
+  }
+
+  function clearPendingCompanyProfile(userId) {
+    try {
+      if (hasPendingCompanyProfile(userId)) sessionStorage.removeItem(COMPANY_ONBOARDING_KEY);
+    } catch {
+      /* Session storage can be unavailable. */
+    }
+  }
+
+  async function mountCompanyProfile(user, token, requestId, onboarding = hasPendingCompanyProfile(user?.id)) {
+    if (!companyProfileRoot) return;
+    destroyCompanyProfile();
+    const loading = document.createElement('p');
+    loading.className = 'company-profile__status';
+    loading.setAttribute('role', 'status');
+    loading.textContent = 'Загружаем данные компании…';
+    companyProfileRoot.append(loading);
+    try {
+      const { mountCompanyProfileForm } = await import('/assets/company-profile-form.js?v=20261015-company-profile');
+      if (requestId !== accountRequestId || getToken() !== token) return;
+      companyProfileController = mountCompanyProfileForm(companyProfileRoot, {
+        getToken,
+        mode: onboarding ? 'onboarding' : 'account',
+        onAuthenticationError() {
+          if (getToken() === token) expireSession(token);
+          else void start();
+        },
+        onComplete(_view, { action }) {
+          if (!onboarding || requestId !== accountRequestId || getToken() !== token) return;
+          if (['saved', 'dismissed', 'already-completed', 'deferred'].includes(action)) {
+            clearPendingCompanyProfile(user.id);
+            void mountCompanyProfile(user, token, requestId, false);
+          }
+        },
+      });
+    } catch {
+      if (requestId !== accountRequestId || getToken() !== token) return;
+      loading.textContent = 'Не удалось загрузить форму данных компании.';
+      loading.classList.add('company-profile__status--error');
+      const retry = document.createElement('button');
+      retry.type = 'button';
+      retry.className = 'company-profile__button';
+      retry.textContent = 'Повторить';
+      retry.addEventListener('click', () => mountCompanyProfile(user, token, requestId, onboarding));
+      companyProfileRoot.append(retry);
+      if (onboarding) {
+        const defer = document.createElement('button');
+        defer.type = 'button';
+        defer.className = 'company-profile__button';
+        defer.textContent = 'Продолжить без заполнения';
+        defer.addEventListener('click', () => {
+          clearPendingCompanyProfile(user.id);
+          companyProfileRoot.replaceChildren();
+        });
+        companyProfileRoot.append(defer);
+      }
+    }
+  }
+
+  function expireSession(token) {
+    if (getToken() !== token) return;
+    destroyCompanyProfile();
+    accountAbortController?.abort();
+    accountRequestId += 1;
+    try {
+      localStorage.removeItem(TOKEN_KEY);
+    } catch {
+      /* no-op */
+    }
+    currentAccountToken = null;
+    if (profileRoot) profileRoot.textContent = 'Требуется повторный вход.';
+    if (ordersRoot) ordersRoot.textContent = 'Чтобы увидеть инструкции, войдите в аккаунт заново.';
+    showMessage('Сессия истекла. Войдите в аккаунт заново.');
+  }
+
   const profileRoot =
     document.getElementById(
       "account-profile"
@@ -403,6 +498,10 @@
     logout.addEventListener(
       "click",
       () => {
+        destroyCompanyProfile();
+        accountAbortController?.abort();
+        accountRequestId += 1;
+        clearPendingCompanyProfile(user?.id);
 
         try {
 
@@ -1012,126 +1111,63 @@
 
 
   async function start() {
-
     clearMessage();
-
-
-    const token =
-      getToken();
-
+    destroyCompanyProfile();
+    accountAbortController?.abort();
+    accountAbortController = new AbortController();
+    const signal = accountAbortController.signal;
+    const requestId = ++accountRequestId;
+    const token = getToken();
+    currentAccountToken = token;
+    closeInstruction();
 
     if (!token) {
-
-      if (profileRoot) {
-
-        profileRoot.innerHTML =
-          `
-            <div class="accountProfile__name">
-              Требуется вход
-            </div>
-
-            <div class="accountProfile__email">
-              Войдите или зарегистрируйтесь на сайте.
-            </div>
-          `;
-
-      }
-
-
-      if (ordersRoot) {
-
-        ordersRoot.innerHTML =
-          `
-            <div class="accountEmpty">
-              Чтобы увидеть свои инструкции,
-              сначала войдите в аккаунт.
-            </div>
-          `;
-
-      }
-
-
+      if (profileRoot) profileRoot.textContent = 'Войдите или зарегистрируйтесь на сайте.';
+      if (ordersRoot) ordersRoot.textContent = 'Чтобы увидеть свои инструкции, сначала войдите в аккаунт.';
       return;
-
     }
-
+    if (profileRoot) profileRoot.textContent = 'Загружаем профиль…';
+    if (ordersRoot) ordersRoot.textContent = 'Загружаем инструкции…';
+    const options = { signal, headers: { Authorization: `Bearer ${token}` } };
+    let me;
+    try {
+      me = await api('/api/auth/me', options);
+      if (requestId !== accountRequestId || token !== getToken()) return;
+      renderProfile(me?.user);
+      void mountCompanyProfile(me?.user, token, requestId);
+    } catch (error) {
+      if (requestId !== accountRequestId || token !== getToken() || error.name === 'AbortError') return;
+      if (error?.status === 401) expireSession(token);
+      else showMessage(error?.message || 'Не удалось загрузить личный кабинет.');
+      return;
+    }
 
     try {
-
-      const [
-        me,
-        orders
-      ] =
-        await Promise.all([
-          api(
-            "/api/auth/me"
-          ),
-
-          api(
-            "/api/public-generation/my-orders"
-          )
-        ]);
-
-
-      renderProfile(
-        me?.user
-      );
-
-
-      renderOrders(
-        orders?.items
-      );
-
-    }
-    catch(error) {
-
-      if (
-        error?.status ===
-          401
-      ) {
-
-        try {
-
-          localStorage.removeItem(
-            TOKEN_KEY
-          );
-
-        }
-        catch {
-          /* no-op */
-        }
-
-
-        showMessage(
-          "Сессия истекла. Войдите в аккаунт заново."
-        );
-
-
-        if (ordersRoot) {
-
-          ordersRoot.innerHTML =
-            `
-              <div class="accountEmpty">
-                Требуется повторный вход.
-              </div>
-            `;
-
-        }
-
-
-        return;
-
+      const orders = await api('/api/public-generation/my-orders', options);
+      if (requestId !== accountRequestId || token !== getToken()) return;
+      renderOrders(orders?.items);
+    } catch (error) {
+      if (requestId !== accountRequestId || token !== getToken() || error.name === 'AbortError') return;
+      if (error?.status === 401) expireSession(token);
+      else {
+        if (ordersRoot) ordersRoot.textContent = 'Не удалось загрузить инструкции. Обновите страницу, чтобы повторить.';
+        showMessage(error?.message || 'Не удалось загрузить ваши инструкции.');
       }
-
-
-      showMessage(
-        error?.message ||
-        "Не удалось загрузить личный кабинет."
-      );
-
     }
-
   }
+
+  function refreshChangedSession() {
+    if (getToken() !== currentAccountToken) void start();
+  }
+
+  window.addEventListener('storage', event => {
+    if (event.key === TOKEN_KEY || event.key === null) refreshChangedSession();
+  });
+  window.addEventListener('focus', refreshChangedSession);
+  window.addEventListener('pageshow', refreshChangedSession);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') refreshChangedSession();
+  });
 
 
   modalClose

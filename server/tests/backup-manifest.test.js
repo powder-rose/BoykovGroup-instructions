@@ -25,6 +25,8 @@ test('backup manifest defines production data protection contract', async () => 
 
   assert.ok(includedPaths.includes('server/src/data'));
 
+  assert.ok(includedPaths.includes('server/data'));
+
   assert.ok(Array.isArray(excludedPaths));
 
   assert.ok(retentionDays >= 7, 'retention must keep at least 7 backups');

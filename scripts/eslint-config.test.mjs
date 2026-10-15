@@ -30,6 +30,7 @@ const cases = [
   ['eslint.config.mjs', nodeGlobals],
   ['client/src/eslint-probe.js', browserGlobals],
   ['client/src/eslint-probe.jsx', browserGlobals],
+  ['client/public/assets/company-profile-probe.js', browserGlobals],
 ];
 
 for (const [relativePath, validSource] of cases) {
