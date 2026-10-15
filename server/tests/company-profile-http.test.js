@@ -95,7 +95,12 @@ test('unverified real accounts save optional details, while request identity can
     method: 'PUT',
     body: {
       userId: 'b',
-      companyProfile: { companyName: 'ООО Первая', inn: '1234567890', userId: 'b' },
+      companyProfile: {
+        companyName: 'ООО Первая',
+        inn: '1234567890',
+        headPosition: 'Генеральный директор',
+        userId: 'b',
+      },
     },
   });
   assert.equal(response.status, 200);
@@ -103,6 +108,7 @@ test('unverified real accounts save optional details, while request identity can
   assert.match(response.headers.get('vary'), /Authorization/);
   const saved = await response.json();
   assert.equal(saved.companyProfile.companyName, 'ООО Первая');
+  assert.equal(saved.companyProfile.headPosition, 'Генеральный директор');
   assert.equal(saved.companyProfile.userId, undefined);
   assert.ok(saved.updatedAt);
   assert.ok(saved.onboardingCompletedAt);
@@ -133,6 +139,8 @@ test('bad fields return 400 without overwriting existing profile; clearing remai
     [],
     { inn: 'bad' },
     { headFullName: 42 },
+    { headPosition: 42 },
+    { headPosition: 'a'.repeat(201) },
     { companyName: 'too\nlong' },
   ]) {
     const response = await request('', { method: 'PUT', body: { companyProfile } });

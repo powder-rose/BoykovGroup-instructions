@@ -9,6 +9,7 @@ import { createInstructionPdfBuffer } from '../src/services/instructionPdfServic
 const profile = {
   companyName: 'ООО «Тестовая организация»',
   inn: '7701234567',
+  headPosition: 'Генеральный директор',
   headFullName: 'Петров Пётр Петрович',
   occupationalSafetyPosition: 'Специалист по охране труда',
   occupationalSafetyFullName: 'Иванов Иван Иванович',
@@ -42,7 +43,7 @@ test('company PDF uses the Moscow download date and keeps personal details separ
     instructionContent: { type: 'doc', content: [paragraph('MAIN_DOCUMENT_END')] },
   };
   const options = {
-    companyProfile: { ...profile, headPosition: 'LEGACY_HEAD_POSITION' },
+    companyProfile: structuredClone(profile),
     downloadedAt: new Date('2026-10-15T21:00:00Z'),
   };
   const originalInstruction = structuredClone(instruction);
@@ -53,7 +54,7 @@ test('company PDF uses the Moscow download date and keeps personal details separ
   assert.ok(text.includes('16.10.2026'));
   assert.ok(text.includes(`${profile.companyName}, ИНН ${profile.inn}`));
   assert.ok(text.indexOf(profile.companyName) < text.indexOf('УТВЕРЖДАЮ'));
-  assert.ok(!text.includes('LEGACY_HEAD_POSITION'));
+  assert.ok(!text.includes('Должность руководителя'));
   assert.ok(text.indexOf(profile.headFullName) > text.indexOf('УТВЕРЖДАЮ'));
   assert.ok(text.indexOf(profile.headFullName) < text.indexOf(instruction.title));
   assert.equal(text.split(profile.headFullName).length - 1, 1);
@@ -68,17 +69,17 @@ test('company PDF uses the Moscow download date and keeps personal details separ
   assert.deepEqual(options.companyProfile, originalProfile);
   const approval = pages[0].find(item => item.str === 'УТВЕРЖДАЮ');
   assert.ok(approval.transform[4] >= 297, 'Approval is in the right half of the page');
-  const positionLabel = pages[0].find(item => item.str === 'Должность руководителя');
+  const headPosition = pages[0].find(item => item.str === profile.headPosition);
   const headName = pages[0].find(item => item.str === profile.headFullName);
   const approvalDate = pages[0].find(item => item.str === '16.10.2026');
-  assert.ok(positionLabel && headName && approvalDate);
-  assert.ok(positionLabel.transform[5] < approval.transform[5]);
-  assert.ok(headName.transform[5] < positionLabel.transform[5]);
+  assert.ok(headPosition && headName && approvalDate);
+  assert.ok(headPosition.transform[5] < approval.transform[5]);
+  assert.ok(headName.transform[5] < headPosition.transform[5]);
   assert.ok(approvalDate.transform[5] < headName.transform[5]);
   assert.ok(
-    Math.abs(positionLabel.transform[4] - approval.transform[4]) < 0.1 &&
+    Math.abs(headPosition.transform[4] - approval.transform[4]) < 0.1 &&
       Math.abs(approvalDate.transform[4] - approval.transform[4]) < 0.1,
-    'Approval, position label and date share one left edge',
+    'Approval, head position and date share one left edge',
   );
   assert.ok(
     headName.transform[4] > approval.transform[4] + 72,
@@ -119,6 +120,7 @@ test('missing and blank company fields remain an unfilled template and never reu
       }),
     );
     assert.ok(text.includes('УТВЕРЖДАЮ'));
+    assert.ok(!text.includes('Должность руководителя'));
     assert.ok(text.includes('ИНН'));
     assert.ok(text.includes('15.10.2026'));
     assert.ok(text.includes('Текст документа.'));
@@ -136,6 +138,7 @@ test('long company fields and a table across pages preserve content and keep the
   const longProfile = {
     ...profile,
     companyName: repeat('Тестовое производственное объединение ', 300),
+    headPosition: repeat('Генеральный директор подразделения ', 200),
     headFullName: repeat('Петров Пётр Петрович ', 200),
     occupationalSafetyPosition: repeat('Ответственный за охрану труда подразделения ', 200),
     occupationalSafetyFullName: repeat('Иванов Иван Иванович ', 200),
