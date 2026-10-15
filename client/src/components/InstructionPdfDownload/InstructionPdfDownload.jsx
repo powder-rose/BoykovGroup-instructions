@@ -4,7 +4,11 @@ import useInstructionPdfDownload from './hooks/useInstructionPdfDownload.js';
 
 import './InstructionPdfDownload.css';
 
-export default function InstructionPdfDownload({ instructionId }) {
+export default function InstructionPdfDownload({
+  instructionId,
+  downloadUrl,
+  id = 'boykov-instruction-pdf-download',
+}) {
   const {
     user,
     isRestoring,
@@ -14,7 +18,7 @@ export default function InstructionPdfDownload({ instructionId }) {
     message,
     isLockedUser,
     handleClick,
-  } = useInstructionPdfDownload(instructionId);
+  } = useInstructionPdfDownload(instructionId, downloadUrl);
 
   if (!instructionId) {
     return null;
@@ -29,7 +33,7 @@ export default function InstructionPdfDownload({ instructionId }) {
   return (
     <>
       <div
-        id="boykov-instruction-pdf-download"
+        id={id}
         className={[
           'boykovPdfDownload',
 

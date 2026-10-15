@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { useSelector } from 'react-redux';
 
 import { selectAuthToken, selectIsAdmin } from '../../store/authSlice.js';
@@ -14,6 +15,8 @@ import useAdminPublicationInbox from './hooks/useAdminPublicationInbox.js';
 import useAdminGenerationStats from './hooks/useAdminGenerationStats.js';
 import useAdminDashboardTab from './hooks/useAdminDashboardTab.js';
 import styles from './AdminPanel.module.css';
+
+const AdminArticles = lazy(() => import('../AdminArticles/AdminArticles.jsx'));
 
 export default function AdminPanel({ importId, onImportCreated, onRefresh }) {
   const isAdmin = useSelector(selectIsAdmin);
@@ -52,6 +55,16 @@ export default function AdminPanel({ importId, onImportCreated, onRefresh }) {
 
       {isAdmin && (
         <AdminDashboardTabs activeTab={adminDashboardTab} onChange={changeAdminDashboardTab} />
+      )}
+
+      {isAdmin && token && (
+        <Suspense
+          fallback={
+            adminDashboardTab === 'articles' ? <p role="status">Загрузка редактора…</p> : null
+          }
+        >
+          <AdminArticles token={token} hidden={adminDashboardTab !== 'articles'} />
+        </Suspense>
       )}
 
       {isAdmin && (

@@ -1,0 +1,156 @@
+.page {
+  min-height: 70vh;
+}
+
+.main {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 36px 28px 80px;
+}
+
+.back {
+  display: inline-block;
+  margin-bottom: 32px;
+  color: #4278d3;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.heading {
+  max-width: 780px;
+  margin-bottom: 36px;
+}
+
+.eyebrow {
+  color: #4278d3;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.heading h1 {
+  margin: 10px 0 16px;
+  color: #172033;
+  font-family: 'Comfortaa', sans-serif;
+  font-size: 42px;
+  line-height: 1.25;
+}
+
+.heading p {
+  margin: 0;
+  color: #657187;
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 30px;
+  border: 1px solid #dce4ef;
+  border-radius: 16px;
+  background: #fff;
+  overflow-wrap: anywhere;
+  box-shadow: 0 6px 24px rgba(35, 79, 149, 0.04);
+}
+
+.card time {
+  color: #738097;
+  font-size: 13px;
+}
+
+.card h2 {
+  margin: 14px 0;
+  font-size: 24px;
+  line-height: 1.4;
+}
+
+.card h2 a {
+  color: #172033;
+  text-decoration: none;
+}
+
+.card h2 a:hover {
+  color: #4278d3;
+}
+
+.card p {
+  margin: 0 0 24px;
+  color: #657187;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.readLink {
+  display: inline-flex;
+  gap: 12px;
+  margin-top: auto;
+  color: #356abd;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.state {
+  padding: 30px;
+  border: 1px solid #dce4ef;
+  border-radius: 16px;
+  background: #fff;
+  color: #657187;
+  line-height: 1.7;
+}
+
+.state h2 {
+  margin-top: 0;
+  color: #172033;
+}
+
+.state a {
+  color: #356abd;
+}
+
+.state button {
+  padding: 10px 18px;
+  border: 1px solid #b6cbea;
+  border-radius: 8px;
+  background: #eef4fd;
+  color: #245ba7;
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .main {
+    padding: 28px 16px 60px;
+  }
+
+  .heading h1 {
+    font-size: 34px;
+  }
+
+  .heading p {
+    font-size: 16px;
+  }
+
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .card,
+  .state {
+    padding: 24px 20px;
+  }
+
+  .card h2 {
+    font-size: 22px;
+  }
+}

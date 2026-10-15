@@ -6,7 +6,7 @@ import { Router } from 'express';
 
 import { instructionsRepository } from '../services/instructionsRepository.js';
 
-import { getUserById } from '../services/userService.js';
+import { requirePdfAccess } from '../middleware/pdfAccess.js';
 
 import { createInstructionPdfBuffer } from '../services/instructionPdfService.js';
 
@@ -55,39 +55,9 @@ function writePdfError({ error, stage, instructionId, user }) {
 instructionPdfRouter.get(
   '/:id/pdf',
 
+  requirePdfAccess,
+
   async (req, res) => {
-    /*
-     * ======================================================
-     * AUTH
-     * ======================================================
-     */
-
-    if (!req.user) {
-      return res.status(401).json({
-        error: 'Требуется авторизация',
-      });
-    }
-
-    if (req.user.role === 'user') {
-      const user = getUserById(req.user.sub);
-
-      if (!user) {
-        return res.status(401).json({
-          error: 'Пользователь не найден',
-        });
-      }
-
-      if (user.emailVerified !== true) {
-        return res.status(403).json({
-          error: 'Подтвердите e-mail, чтобы скачать PDF',
-        });
-      }
-    } else if (req.user.role !== 'admin') {
-      return res.status(401).json({
-        error: 'Требуется авторизация',
-      });
-    }
-
     /*
      * ======================================================
      * INSTRUCTION
