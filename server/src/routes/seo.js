@@ -209,6 +209,23 @@ input {
 
 const EXACT_SITE_CSS = [loadGlobalClientCss(), loadClientModuleCss(), SEO_LAYOUT_CSS].join('\n\n');
 
+const COPY_PROTECTION_CSS = `
+  [data-copy-protected="true"],
+  [data-copy-protected="true"] * {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  [data-copy-protected="true"] input,
+  [data-copy-protected="true"] textarea,
+  [data-copy-protected="true"] select,
+  [data-copy-protected="true"] [contenteditable]:not([contenteditable="false"]),
+  [data-copy-protected="true"] [contenteditable]:not([contenteditable="false"]) * {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+`;
+
 function escapeHtml(value = '') {
   return String(value)
     .replaceAll('&', '&amp;')
@@ -371,7 +388,7 @@ function renderCategoryNav() {
     { label: 'Роспотребнадзор' },
     { divider: true },
     { label: 'ГО и ЧС' },
-    { label: 'Антитеррористическая безопасность' },
+    { label: 'Паспорт Безопасности', href: 'https://pasport-bezopasnosty.ru/' },
     { label: 'ные услуги' },
   ];
 
@@ -385,9 +402,9 @@ function renderCategoryNav() {
 
           return `
             <a
-              href="#"
+              href="${escapeHtml(item.href || '#')}"
               class="CategoryNav_link"
-              onclick="return false;"
+              ${item.href ? '' : 'onclick="return false;"'}
             >${escapeHtml(item.label)}</a>`;
         })
         .join('')}
@@ -503,7 +520,7 @@ function renderInstructionSeoBody(instruction, relatedInstructions) {
     : '';
 
   const explanation = instruction.explanationContent
-    ? `<div class="instruction-explanation">${renderRichTextContentToHtml(instruction.explanationContent, { headingIdPrefix: 'explanation-section' })}</div>`
+    ? `<div class="instruction-explanation" data-copy-protected="true">${renderRichTextContentToHtml(instruction.explanationContent, { headingIdPrefix: 'explanation-section' })}</div>`
     : '';
 
   const relatedLinks = related.length
@@ -529,17 +546,21 @@ function renderInstructionSeoBody(instruction, relatedInstructions) {
       </nav>
 
       <article>
-        <h1>${escapeHtml(title)}</h1>
-        ${webIntro ? `<p class="instruction-web-intro">${escapeHtml(webIntro)}</p>` : ''}
-        ${contents}
-        <section class="instruction-document" aria-label="Полный текст инструкции">
-          ${renderRichTextContentToHtml(document, { headingIdPrefix: 'instruction-section' })}
-        </section>
+        <header data-copy-protected="true">
+          <h1>${escapeHtml(title)}</h1>
+          ${webIntro ? `<p class="instruction-web-intro">${escapeHtml(webIntro)}</p>` : ''}
+        </header>
         <div class="instruction-pdf-download">
           <button type="button" id="boykov-instruction-pdf-download"
             data-instruction-pdf-download="${escapeHtml(instruction.id)}">Скачать PDF</button>
           <p>Скачивание доступно после входа в аккаунт с подтверждённым e-mail.</p>
           <noscript>Для скачивания PDF включите JavaScript.</noscript>
+        </div>
+        <div class="instruction-reading" data-copy-protected="true">
+          ${contents}
+          <section class="instruction-document" aria-label="Полный текст инструкции">
+            ${renderRichTextContentToHtml(document, { headingIdPrefix: 'instruction-section' })}
+          </section>
         </div>
         ${explanation}
         ${relatedLinks}
@@ -845,6 +866,8 @@ function renderInstructionPage(req, instruction, indexPath, relatedInstructions)
   const seoHead = `
   <!-- SEO_INSTRUCTION_PRODUCTION_SHELL_V1 -->
 
+  <style data-copy-protection>${COPY_PROTECTION_CSS}</style>
+
   <meta
     name="description"
     content="${escapeHtml(description)}"
@@ -916,6 +939,8 @@ function renderNotFoundPage() {
   <meta name="robots" content="noindex, follow">
   <title>Инструкция не найдена | ${BRAND_NAME}</title>
   <style>${EXACT_SITE_CSS}</style>
+  <link rel="stylesheet" href="/assets/instruction-copy-protection.css">
+  <script defer src="/assets/instruction-copy-protection.js"></script>
 </head>
 <body>
   <div class="App_page">

@@ -367,9 +367,9 @@
   margin-bottom: 16px;
 }
 .instruction-editor-download-preview {
-  padding-top: 22px;
-  margin-top: 22px;
-  border-top: 1px solid #cbd8e8;
+  padding-bottom: 22px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid #cbd8e8;
 }
 .instruction-editor-download-preview p,
 .instruction-editor-preview-related {

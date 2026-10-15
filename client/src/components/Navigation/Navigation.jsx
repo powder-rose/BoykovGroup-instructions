@@ -26,9 +26,9 @@ const links = [
   },
 
   {
-    label: 'Антитеррористическая безопасность',
+    label: 'Паспорт Безопасности',
 
-    href: 'https://boykovgroup.ru/antiterror',
+    href: 'https://pasport-bezopasnosty.ru/',
   },
 ];
 

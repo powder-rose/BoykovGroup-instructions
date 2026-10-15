@@ -1,0 +1,12 @@
+[data-copy-protected='true'],
+[data-copy-protected='true'] * {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+[data-copy-protected='true'] :is(input, textarea, select),
+[data-copy-protected='true'] [contenteditable]:not([contenteditable='false']),
+[data-copy-protected='true'] [contenteditable]:not([contenteditable='false']) * {
+  -webkit-user-select: text;
+  user-select: text;
+}
