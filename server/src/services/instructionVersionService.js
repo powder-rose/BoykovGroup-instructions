@@ -1,6 +1,7 @@
 import { getInstructionDocument } from '../shared/instructionDocument.js';
 import { hasPendingInstructionDraft } from './instructionDraftGuard.js';
 import { InstructionEditorError } from './instructionEditorError.js';
+import { updateInstructionEditorialMeta } from './instructionEditorialMeta.js';
 
 /**
  * Создание новой версии инструкции
@@ -24,7 +25,9 @@ export function createNewVersion(
 
   const newVersion = (currentVersion + 0.1).toFixed(1);
 
-  return {
+  const now = new Date().toISOString();
+
+  const updated = {
     ...existing,
 
     title: incoming.title,
@@ -45,7 +48,7 @@ export function createNewVersion(
 
     version: newVersion,
 
-    updatedAt: new Date().toISOString(),
+    updatedAt: now,
 
     versions: [
       ...(existing.versions || []),
@@ -63,12 +66,15 @@ export function createNewVersion(
       {
         version: newVersion,
 
-        createdAt: new Date().toISOString(),
+        createdAt: now,
 
         contentHash: incoming.contentHash,
       },
     ],
   };
+
+  updated.editorialMeta = updateInstructionEditorialMeta(existing, updated, { now });
+  return updated;
 }
 
 /**

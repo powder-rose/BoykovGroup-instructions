@@ -11,6 +11,9 @@ export function instructionToForm(instruction = {}) {
     explanationContent: instruction.explanationContent || EMPTY_DOCUMENT,
     seoTitle: instruction.seoTitle || '',
     seoDescription: instruction.seoDescription || '',
+    seoReady: instruction.editorialMeta?.seoReady === true,
+    seoAuthor: instruction.editorialMeta?.seoAuthor || '',
+    contentAuthor: instruction.editorialMeta?.contentAuthor || '',
   };
 }
 
