@@ -1,7 +1,7 @@
 import './AdminDashboardTabs.css';
 
 const TABS = [
-  { id: 'articles', label: 'Статьи' },
+  { id: 'instructions', label: 'Инструкции' },
   {
     id: 'publications',
 

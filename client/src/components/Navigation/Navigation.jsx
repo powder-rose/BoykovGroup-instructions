@@ -1,7 +1,6 @@
 import styles from './Navigation.module.css';
 
 const links = [
-  { label: 'Статьи', href: '/stati' },
   {
     label: 'Охрана труда',
 

@@ -1,144 +1,128 @@
+import { lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
-import SEO from '../SEO/SEO.jsx';
+
 import InstructionStickyHeader from '../InstructionStickyHeader/InstructionStickyHeader.jsx';
-import StructuredData from '../StructuredData/StructuredData.jsx';
 import Breadcrumbs from '../Breadcrumbs/Breadcrumbs.jsx';
-import MetaTags from '../MetaTags/MetaTags.jsx';
-import InstructionSeoBlock from '../InstructionSeoBlock/InstructionSeoBlock.jsx';
 import RelatedInstructions from '../RelatedInstructions/RelatedInstructions.jsx';
-import EditInstructionModal from '../EditInstructionModal/EditInstructionModal.jsx';
 import InstructionPdfDownload from '../InstructionPdfDownload/InstructionPdfDownload.jsx';
-
+import RichTextContent from '../RichTextContent/RichTextContent.jsx';
 import InstructionArticleMeta from './InstructionArticleMeta.jsx';
-
-import InstructionSections from './InstructionSections.jsx';
-
 import InstructionTableOfContents from './InstructionTableOfContents.jsx';
-
+import InstructionSeo from './InstructionSeo.jsx';
 import useInstructionPage from './hooks/useInstructionPage.js';
-
-import { serializeJsonLd } from '../../lib/jsonLd.js';
+import {
+  getInstructionDocument,
+  getInstructionOutline,
+} from '../../../../server/src/shared/instructionDocument.js';
 
 import styles from './InstructionPage.module.css';
+
+const EditInstructionModal = lazy(() => import('../EditInstructionModal/EditInstructionModal.jsx'));
 
 export default function InstructionPage() {
   const {
     instruction,
-    allInstructions,
+    relatedInstructions,
     loading,
     error,
+    notFound,
+    retryLoad,
     editOpen,
     setEditOpen,
     isAdmin,
     viewStats,
-    saveInstruction,
+    applyPublishedInstruction,
   } = useInstructionPage();
-
-  if (loading) {
-    return <div className={styles.page}>Загрузка инструкции...</div>;
-  }
-
-  if (error || !instruction) {
-    return (
-      <div className={styles.page}>
-        <h1>Инструкция не найдена</h1>
-
-        <Link to="/">Вернуться на главную</Link>
-      </div>
-    );
-  }
-
-  const breadcrumbSchema = {
-    '@context': 'https://schema.org',
-
-    '@type': 'BreadcrumbList',
-
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Главная',
-        item: 'https://boykovdocs.ru/',
-      },
-
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Инструкции по охране труда',
-        item: 'https://boykovdocs.ru/instrukcii-po-ohrane-truda',
-      },
-
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: instruction.title,
-        item: `https://boykovdocs.ru/instrukciya-po-ohrane-truda/${instruction.id}`,
-      },
-    ],
-  };
+  const instructionDocument = instruction ? getInstructionDocument(instruction) : null;
+  const outline = instructionDocument ? getInstructionOutline(instructionDocument) : [];
 
   return (
     <div className={styles.page}>
-      <script type="application/ld+json">{serializeJsonLd(breadcrumbSchema)}</script>
-
+      <InstructionSeo
+        instruction={instruction}
+        noindex={Boolean(
+          notFound ||
+          error ||
+          ['draft', 'noindex'].includes(String(instruction?.seoStatus || '').toLowerCase()),
+        )}
+      />
       <InstructionStickyHeader />
 
       <main className={styles.content}>
-        <SEO
-          title={`${instruction.title} | БОЙКОВГРУПП`}
-          description={`Инструкция по охране труда для профессии ${instruction.profession}. Требования безопасности, порядок выполнения работ и обязанности работника.`}
-        />
-
-        <StructuredData instruction={instruction} />
-
-        <MetaTags
-          title={`${instruction.title} | БОЙКОВГРУПП`}
-
-          description={`Инструкция по охране труда для профессии ${instruction.profession}. Требования безопасности и порядок выполнения работ.`}
-        />
-
-        <Link to="/" className={styles.back}>
+        <Link to="/instrukcii-po-ohrane-truda" className={styles.back}>
           ← Все инструкции
         </Link>
 
-        <article>
-          <Breadcrumbs instruction={instruction} />
+        {loading && <p role="status">Загрузка инструкции…</p>}
 
-          <h1 className={styles.title}>{instruction.title}</h1>
+        {notFound && (
+          <div className={styles.state}>
+            <h1>Инструкция не найдена</h1>
+            <p>Возможно, она ещё не опубликована или была удалена.</p>
+            <Link to="/instrukcii-po-ohrane-truda">Перейти к каталогу инструкций</Link>
+          </div>
+        )}
 
-          <InstructionPdfDownload instructionId={instruction.id} />
+        {error && (
+          <div className={styles.state} role="alert">
+            <h1>Не удалось загрузить инструкцию</h1>
+            <p>Проверьте соединение и попробуйте ещё раз.</p>
+            <button type="button" onClick={retryLoad}>
+              Повторить загрузку
+            </button>
+          </div>
+        )}
 
-          <InstructionArticleMeta
-            instruction={instruction}
-            isAdmin={isAdmin}
-            viewStats={viewStats}
-            onEdit={() => setEditOpen(true)}
-          />
+        {instruction && (
+          <article>
+            <Breadcrumbs instruction={instruction} />
+            <h1 className={styles.title}>{instruction.title}</h1>
+            {instruction.webIntro && <p className={styles.intro}>{instruction.webIntro}</p>}
 
-          <p className={styles.intro}>{instruction.intro}</p>
+            <div className={styles.instructionDocument}>
+              <div className={styles.documentLabel}>Текст инструкции</div>
+              <InstructionArticleMeta
+                instruction={instruction}
+                isAdmin={isAdmin}
+                viewStats={viewStats}
+                onEdit={() => setEditOpen(true)}
+              />
+              <InstructionTableOfContents items={outline} />
+              <RichTextContent
+                content={instructionDocument}
+                headingIdPrefix="instruction-section"
+              />
+              <div className={styles.documentDownload}>
+                <InstructionPdfDownload instructionId={instruction.id} />
+                <p>Для скачивания PDF войдите в аккаунт с подтверждённым e-mail.</p>
+              </div>
+            </div>
 
-          <InstructionSeoBlock instruction={instruction} />
+            {instruction.explanationContent && (
+              <section className={styles.explanation} aria-label="Пояснения к инструкции">
+                <RichTextContent content={instruction.explanationContent} />
+              </section>
+            )}
 
-          <InstructionTableOfContents sections={instruction.sections} />
-
-          <InstructionSections sections={instruction.sections} />
-
-          <RelatedInstructions
-            currentId={instruction.id}
-
-            instructions={allInstructions}
-          />
-        </article>
+            <RelatedInstructions currentId={instruction.id} instructions={relatedInstructions} />
+          </article>
+        )}
       </main>
 
-      {editOpen && (
-        <EditInstructionModal
-          instruction={instruction}
-
-          onClose={() => setEditOpen(false)}
-
-          onSave={saveInstruction}
-        />
+      {editOpen && instruction && (
+        <Suspense
+          fallback={
+            <p className={styles.editorLoading} role="status">
+              Загрузка редактора…
+            </p>
+          }
+        >
+          <EditInstructionModal
+            instruction={instruction}
+            onClose={() => setEditOpen(false)}
+            onSaved={applyPublishedInstruction}
+          />
+        </Suspense>
       )}
     </div>
   );

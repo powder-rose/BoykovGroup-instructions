@@ -1,7 +1,25 @@
+import { getInstructionDocument } from '../shared/instructionDocument.js';
+import { hasPendingInstructionDraft } from './instructionDraftGuard.js';
+import { InstructionEditorError } from './instructionEditorError.js';
+
 /**
  * Создание новой версии инструкции
  */
-export function createNewVersion(existing, incoming) {
+export function createNewVersion(
+  existing,
+  incoming,
+  { hasPendingDraft = hasPendingInstructionDraft } = {},
+) {
+  if (hasPendingDraft(existing)) {
+    throw new InstructionEditorError(
+      'У инструкции есть черновик. Сначала опубликуйте или удалите его, затем повторите импорт.',
+      {
+        status: 409,
+        code: 'INSTRUCTION_DRAFT_CONFLICT',
+      },
+    );
+  }
+
   const currentVersion = Number(existing.version || '1.0');
 
   const newVersion = (currentVersion + 0.1).toFixed(1);
@@ -18,6 +36,10 @@ export function createNewVersion(existing, incoming) {
     intro: incoming.intro,
 
     sections: incoming.sections,
+
+    instructionContent: getInstructionDocument(incoming),
+
+    revision: Number(existing.revision || 0) + 1,
 
     contentHash: incoming.contentHash,
 

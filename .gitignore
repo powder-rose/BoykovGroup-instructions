@@ -30,6 +30,7 @@ server/src/data/instructions/
 server/src/data/articles.json
 server/src/data/articles.json.*.tmp
 server/src/data/.articles.json.*.tmp
+server/src/data/instruction-drafts/
 
 server/src/data/*usage*.json
 server/src/data/*Usage*.json

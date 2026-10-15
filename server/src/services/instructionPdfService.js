@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import PDFDocument from 'pdfkit';
+import { richTextToPlainText } from '../shared/instructionDocument.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -81,6 +82,74 @@ function sectionHeading(section) {
   return `${normalizedNumber}. ${heading}`;
 }
 
+function renderRichInstruction(document, content, { regularFont, boldFont }) {
+  function render(node, prefix = '') {
+    if (node.type === 'paragraph' || node.type === 'heading') {
+      const text = richTextToPlainText(node);
+
+      if (!text.trim()) {
+        document.moveDown(0.5);
+        return;
+      }
+
+      const heading = node.type === 'heading';
+
+      document
+        .moveDown(heading ? 1.1 : 0.45)
+        .font(heading ? boldFont : regularFont)
+        .fontSize(heading ? (node.attrs?.level === 3 ? 11.5 : 12.5) : 10)
+        .fillColor('#202b3b')
+        .text(prefix + text, { align: 'left', lineGap: 3 });
+      return;
+    }
+
+    if (node.type === 'table') {
+      document.moveDown(0.8).font(regularFont).fontSize(9);
+      document.table({
+        data: (node.content || []).map(row =>
+          (row.content || []).map(cell => ({
+            text: richTextToPlainText(cell),
+            rowSpan: cell.attrs?.rowspan || 1,
+            colSpan: cell.attrs?.colspan || 1,
+            type: cell.type === 'tableHeader' ? 'TH' : 'TD',
+            font: { src: cell.type === 'tableHeader' ? boldFont : regularFont, size: 9 },
+          })),
+        ),
+        defaultStyle: { padding: 5, border: 0.5, borderColor: '#7b8491' },
+      });
+      document.font(regularFont).fontSize(10).moveDown(0.5);
+      return;
+    }
+
+    if (node.type === 'horizontalRule') {
+      document.moveDown(0.7);
+      document
+        .moveTo(document.page.margins.left, document.y)
+        .lineTo(document.page.width - document.page.margins.right, document.y)
+        .stroke('#7b8491');
+      document.moveDown(0.7);
+      return;
+    }
+
+    if (node.type === 'bulletList' || node.type === 'orderedList') {
+      const start = node.attrs?.start || 1;
+
+      (node.content || []).forEach((item, index) => {
+        const marker = node.type === 'orderedList' ? `${start + index}. ` : '• ';
+
+        (item.content || []).forEach((child, childIndex) =>
+          render(child, childIndex === 0 ? marker : ''),
+        );
+      });
+      return;
+    }
+
+    for (const child of node.content || []) render(child);
+  }
+
+  render(content);
+}
+
 export function createInstructionPdfBuffer(instruction) {
   return new Promise((resolve, reject) => {
     const regularFont = findFont(REGULAR_FONT_CANDIDATES);
@@ -138,6 +207,12 @@ export function createInstructionPdfBuffer(instruction) {
 
       lineGap: 3,
     });
+
+    if (instruction.instructionContent?.type === 'doc') {
+      renderRichInstruction(document, instruction.instructionContent, { regularFont, boldFont });
+      document.end();
+      return;
+    }
 
     if (intro) {
       document.moveDown(1).font(regularFont).fontSize(10.5).fillColor('#39465a').text(intro, {

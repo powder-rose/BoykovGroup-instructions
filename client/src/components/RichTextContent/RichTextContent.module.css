@@ -1,0 +1,115 @@
+.content {
+  color: #27364c;
+  font-size: 17px;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+
+.content p {
+  margin: 0 0 20px;
+}
+
+.content h2,
+.content h3 {
+  margin: 36px 0 18px;
+  color: #172033;
+  line-height: 1.35;
+  scroll-margin-top: 160px;
+}
+
+.content h2 {
+  font-size: 28px;
+}
+
+.content h3 {
+  font-size: 22px;
+}
+
+.content a {
+  color: #245ba7;
+  text-underline-offset: 3px;
+}
+
+.content a:hover {
+  color: #163f7b;
+}
+
+.content ul,
+.content ol {
+  padding-left: 28px;
+  margin: 0 0 22px;
+}
+
+.content li {
+  margin: 6px 0;
+}
+
+.content li > p {
+  margin: 0 0 8px;
+}
+
+.content blockquote {
+  padding: 18px 24px;
+  margin: 28px 0;
+  border-left: 4px solid #4278d3;
+  background: #f3f7fd;
+}
+
+.content blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.content code {
+  border-radius: 4px;
+  padding: 2px 5px;
+  background: #eef1f6;
+  font-size: 0.9em;
+}
+
+.content hr {
+  margin: 32px 0;
+  border: 0;
+  border-top: 1px solid #d9e2ef;
+}
+
+.tableScroll {
+  max-width: 100%;
+  margin: 24px 0;
+  overflow-x: auto;
+}
+
+.content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.content td,
+.content th {
+  min-width: 100px;
+  padding: 12px 16px;
+  border: 1px solid #d9e2ef;
+  text-align: left;
+  vertical-align: top;
+}
+
+.content th {
+  background: #f1f5fb;
+}
+
+.content td > :last-child,
+.content th > :last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 650px) {
+  .content {
+    font-size: 16px;
+  }
+  .content h2 {
+    font-size: 23px;
+  }
+  .content h3 {
+    font-size: 20px;
+  }
+}

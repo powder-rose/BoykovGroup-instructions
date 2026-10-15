@@ -77,3 +77,26 @@
   font-size: 13px;
   line-height: 1.6;
 }
+
+.sections {
+  padding-top: 24px;
+}
+
+.sections p {
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.compact .sections p,
+.compact .sections li {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.compact .sections h2 {
+  font-size: 19px;
+}
+
+.compact .sections h3 {
+  font-size: 17px;
+}
