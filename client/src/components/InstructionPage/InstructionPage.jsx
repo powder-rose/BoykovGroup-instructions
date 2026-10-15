@@ -6,6 +6,7 @@ import Breadcrumbs from '../Breadcrumbs/Breadcrumbs.jsx';
 import RelatedInstructions from '../RelatedInstructions/RelatedInstructions.jsx';
 import InstructionPdfDownload from '../InstructionPdfDownload/InstructionPdfDownload.jsx';
 import RichTextContent from '../RichTextContent/RichTextContent.jsx';
+import InstructionCopyGuard from '../InstructionCopyGuard/InstructionCopyGuard.jsx';
 import InstructionArticleMeta from './InstructionArticleMeta.jsx';
 import InstructionTableOfContents from './InstructionTableOfContents.jsx';
 import InstructionSeo from './InstructionSeo.jsx';
@@ -76,8 +77,10 @@ export default function InstructionPage() {
         {instruction && (
           <article>
             <Breadcrumbs instruction={instruction} />
-            <h1 className={styles.title}>{instruction.title}</h1>
-            {instruction.webIntro && <p className={styles.intro}>{instruction.webIntro}</p>}
+            <InstructionCopyGuard allowCopy={isAdmin}>
+              <h1 className={styles.title}>{instruction.title}</h1>
+              {instruction.webIntro && <p className={styles.intro}>{instruction.webIntro}</p>}
+            </InstructionCopyGuard>
 
             <div className={styles.instructionDocument}>
               <div className={styles.documentLabel}>Текст инструкции</div>
@@ -87,21 +90,28 @@ export default function InstructionPage() {
                 viewStats={viewStats}
                 onEdit={() => setEditOpen(true)}
               />
-              <InstructionTableOfContents items={outline} />
-              <RichTextContent
-                content={instructionDocument}
-                headingIdPrefix="instruction-section"
-              />
               <div className={styles.documentDownload}>
                 <InstructionPdfDownload instructionId={instruction.id} />
                 <p>Для скачивания PDF войдите в аккаунт с подтверждённым e-mail.</p>
               </div>
+              <InstructionCopyGuard allowCopy={isAdmin}>
+                <InstructionTableOfContents items={outline} />
+                <RichTextContent
+                  content={instructionDocument}
+                  headingIdPrefix="instruction-section"
+                />
+              </InstructionCopyGuard>
             </div>
 
             {instruction.explanationContent && (
-              <section className={styles.explanation} aria-label="Пояснения к инструкции">
+              <InstructionCopyGuard
+                as="section"
+                allowCopy={isAdmin}
+                className={styles.explanation}
+                aria-label="Пояснения к инструкции"
+              >
                 <RichTextContent content={instruction.explanationContent} />
-              </section>
+              </InstructionCopyGuard>
             )}
 
             <RelatedInstructions currentId={instruction.id} instructions={relatedInstructions} />

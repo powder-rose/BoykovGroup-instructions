@@ -89,7 +89,7 @@ async function startFixture(t, items, related = []) {
   };
 }
 
-test('instruction HTML contains complete rich document, outline, PDF marker and explanation in order', async t => {
+test('instruction HTML keeps PDF above the protected rich document and preserves complete SEO text', async t => {
   const instruction = sampleInstruction();
   const related = sampleInstruction({ id: 'related-id', slug: 'slesar', title: 'Для слесаря' });
   const { base, siteUrl } = await startFixture(t, [instruction], [related]);
@@ -101,10 +101,10 @@ test('instruction HTML contains complete rich document, outline, PDF marker and 
   const positions = [
     '<h1>Инструкция для электромонтера</h1>',
     'Вводный текст страницы &lt;безопасно&gt;',
+    'data-instruction-pdf-download="stable-id"',
     'aria-label="Содержание инструкции"',
     'УТВЕРЖДАЮ. Начало полного документа',
     'Приложение. Конец полного документа',
-    'data-instruction-pdf-download="stable-id"',
     'Разъяснения после инструкции',
     'Дополнительный текст страницы',
     'Похожие инструкции',
@@ -117,6 +117,18 @@ test('instruction HTML contains complete rich document, outline, PDF marker and 
     positions,
     [...positions].sort((a, b) => a - b),
   );
+  assert.match(
+    html,
+    /<header data-copy-protected="true">\s*<h1>Инструкция для электромонтера<\/h1>\s*<p class="instruction-web-intro">Вводный текст страницы &lt;безопасно&gt;<\/p>\s*<\/header>/u,
+  );
+  assert.match(
+    html,
+    /<div class="instruction-reading" data-copy-protected="true">\s*<nav class="instruction-outline"[\s\S]*?<section class="instruction-document"[\s\S]*?Приложение\. Конец полного документа[\s\S]*?<\/section>\s*<\/div>/u,
+  );
+  assert.ok(html.includes('<div class="instruction-explanation" data-copy-protected="true">'));
+  assert.match(html, /<style data-copy-protection>[\s\S]*?user-select: none;[\s\S]*?<\/style>/u);
+  assert.equal((html.match(/data-instruction-pdf-download="stable-id"/gu) || []).length, 1);
+  assert.ok(html.includes('Скачивание доступно после входа в аккаунт с подтверждённым e-mail.'));
   assert.ok(html.includes('<table><tbody><tr>'));
   assert.ok(html.includes('Замены $&amp; $$ остаются текстом'));
   assert.equal((html.match(/id="root"/gu) || []).length, 1);
@@ -141,6 +153,25 @@ test('instruction HTML contains complete rich document, outline, PDF marker and 
   assert.ok(html.includes('"@type":"Article"'));
   assert.ok(html.includes('"@type":"BreadcrumbList"'));
   assert.equal(html.includes('"old":true'), false);
+});
+
+test('fallback navigation exposes the Passport Safety destination as a working link', async t => {
+  const { base } = await startFixture(t, []);
+  const response = await fetch(`${base}/instrukciya-po-ohrane-truda/missing`);
+  assert.equal(response.status, 404);
+  const html = await response.text();
+  const navigation = html.match(/<nav class="CategoryNav_nav"[\s\S]*?<\/nav>/u)?.[0];
+
+  assert.ok(navigation);
+  assert.match(
+    navigation,
+    /<a\s+href="https:\/\/pasport-bezopasnosty\.ru\/"\s+class="CategoryNav_link"\s*>Паспорт Безопасности<\/a>/u,
+  );
+  assert.equal(navigation.includes('Антитеррористическая безопасность'), false);
+  assert.ok(
+    html.includes('<link rel="stylesheet" href="/assets/instruction-copy-protection.css">'),
+  );
+  assert.ok(html.includes('<script defer src="/assets/instruction-copy-protection.js"></script>'));
 });
 
 test('legacy instruction still renders its intro and every paragraph with the shared SEO fallback', async t => {

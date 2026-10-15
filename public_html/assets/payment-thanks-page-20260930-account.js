@@ -432,6 +432,8 @@
     article.className =
       "thanksDocument";
 
+    article.dataset.copyProtected = "true";
+
 
     const top =
       document.createElement(

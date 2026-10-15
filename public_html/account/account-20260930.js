@@ -588,6 +588,8 @@
     article.className =
       "instructionDocument";
 
+    article.dataset.copyProtected = "true";
+
 
     const h2 =
       document.createElement(

@@ -42,22 +42,22 @@ export default function InstructionPreview({ instruction, onClose }) {
         {instruction.webIntro && (
           <p className="admin-instruction-preview__excerpt">{instruction.webIntro}</p>
         )}
-        <InstructionTableOfContents items={outline} />
         <section
           className="instruction-editor-preview-document"
           aria-label="Полный текст инструкции"
         >
           <div className="instruction-editor-document-label">Инструкция</div>
-          <RichTextContent
-            content={instruction.instructionContent}
-            headingIdPrefix="instruction-preview-section"
-          />
           <div className="instruction-editor-download-preview">
             <button type="button" disabled>
               Скачать инструкцию в PDF
             </button>
             <p>Скачивание доступно зарегистрированным пользователям на опубликованной странице.</p>
           </div>
+          <InstructionTableOfContents items={outline} />
+          <RichTextContent
+            content={instruction.instructionContent}
+            headingIdPrefix="instruction-preview-section"
+          />
         </section>
         <RichTextContent
           content={instruction.explanationContent}
