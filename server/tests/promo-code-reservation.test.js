@@ -254,10 +254,12 @@ async function withIsolatedOrderService(callback) {
     throw new Error('publicGenerationOrderService ORDERS_DIR declaration changed unexpectedly');
   }
 
-  const isolatedSource = originalSource.replace(
-    directoryDeclaration,
-    `const ORDERS_DIR = ${JSON.stringify(ordersDirectory)};`,
-  );
+  const isolatedSource = originalSource
+    .replace(directoryDeclaration, `const ORDERS_DIR = ${JSON.stringify(ordersDirectory)};`)
+    .replace(/from '(\.{1,2}\/[^']+)'/gu, (_match, specifier) => {
+      const absolutePath = path.resolve(path.dirname(sourcePath), specifier);
+      return `from '${pathToFileURL(absolutePath).href}'`;
+    });
 
   fs.writeFileSync(modulePath, isolatedSource, 'utf8');
 

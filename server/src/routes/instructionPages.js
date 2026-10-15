@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { instructionsRepository } from '../services/instructionsRepository.js';
 import { getRelatedInstructions } from '../services/instructionEditorService.js';
+import { toPublicInstruction } from '../services/instructionPublicView.js';
 
 export function createInstructionPagesRouter({ repository = instructionsRepository } = {}) {
   const router = Router();
@@ -13,7 +14,7 @@ export function createInstructionPagesRouter({ repository = instructionsReposito
     if (!instruction) return res.status(404).json({ error: 'Инструкция не найдена' });
 
     return res.json({
-      ...instruction,
+      ...toPublicInstruction(instruction),
       slug: instruction.slug || instruction.id,
       relatedInstructions: getRelatedInstructions(instruction, { repository }),
     });

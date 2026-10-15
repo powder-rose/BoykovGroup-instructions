@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import RichTextEditor from '../RichTextEditor/RichTextEditor.jsx';
 import InstructionPreview from './InstructionPreview.jsx';
+import InstructionSeoStatus, { InstructionEditorialMeta } from './InstructionSeoStatus.jsx';
 import {
   instructionToForm,
   getDraftKey,
@@ -33,7 +34,21 @@ export default function InstructionForm({
       form,
       revision: record?.revision ?? null,
       dirty,
-      onRestore: setForm,
+      onRestore: localForm => {
+        const currentForm = instructionToForm(record || undefined);
+        setForm({
+          ...currentForm,
+          ...localForm,
+          seoReady:
+            typeof localForm.seoReady === 'boolean' ? localForm.seoReady : currentForm.seoReady,
+          seoAuthor:
+            typeof localForm.seoAuthor === 'string' ? localForm.seoAuthor : currentForm.seoAuthor,
+          contentAuthor:
+            typeof localForm.contentAuthor === 'string'
+              ? localForm.contentAuthor
+              : currentForm.contentAuthor,
+        });
+      },
     });
   const blocked = saving || Boolean(savedDraft);
 
@@ -92,6 +107,23 @@ export default function InstructionForm({
         </span>
       </div>
       <h2>{record?.id ? 'Редактирование инструкции' : 'Создать инструкцию'}</h2>
+      <div className="instruction-editorial-versions admin-instruction-form__editorial">
+        <InstructionEditorialMeta
+          metadata={record?.editorialMeta}
+          label={
+            record?.id ? (envelope.hasDraft ? 'В черновике:' : 'На сайте:') : 'Новая инструкция:'
+          }
+          isNew={!record?.id}
+          explainDetection
+        />
+        {envelope.hasDraft && envelope.hasPublishedVersion && (
+          <InstructionEditorialMeta
+            metadata={envelope.publishedEditorialMeta}
+            label="На сайте:"
+            explainDetection
+          />
+        )}
+      </div>
       {envelope.hasPublishedVersion && envelope.hasDraft && (
         <p className="admin-instructions__notice">
           На сайте доступна опубликованная версия. Сейчас вы редактируете её черновик.
@@ -155,8 +187,17 @@ export default function InstructionForm({
           <h3 id="instruction-main-editor-heading">Основная инструкция</h3>
           <p className="instruction-editor-description">
             Полный текст инструкции. Заголовки H2/H3 автоматически попадут в содержание. Кнопка
-            скачивания будет показана под этим блоком.
+            скачивания будет показана перед содержанием и текстом инструкции.
           </p>
+          <label className="admin-instruction-form__author">
+            Автор текста инструкции
+            <input
+              value={form.contentAuthor}
+              maxLength={120}
+              onChange={event => change('contentAuthor', event.target.value)}
+            />
+            <small>Имя или название редакции. Видно только администраторам.</small>
+          </label>
           <RichTextEditor
             value={form.instructionContent}
             onChange={value => change('instructionContent', value)}
@@ -182,6 +223,30 @@ export default function InstructionForm({
         <section className="admin-instruction-form__seo">
           <h3>SEO</h3>
           <p>Для публикации заполните оба SEO-поля.</p>
+          <div className="admin-instruction-form__seo-control">
+            <label className="admin-instruction-form__seo-ready">
+              <input
+                type="checkbox"
+                checked={form.seoReady === true}
+                onChange={event => change('seoReady', event.target.checked)}
+              />
+              SEO готово
+            </label>
+            <InstructionSeoStatus ready={form.seoReady === true} />
+            <small>
+              Отметьте, когда завершите SEO-работу. Статус сохранится вместе с черновиком или
+              публикацией; даты обновятся после сохранения соответствующих изменений.
+            </small>
+          </div>
+          <label>
+            Автор SEO-подготовки
+            <input
+              value={form.seoAuthor}
+              maxLength={120}
+              onChange={event => change('seoAuthor', event.target.value)}
+            />
+            <small>Подпись автора не меняет дату SEO-правок.</small>
+          </label>
           <label>
             SEO Title
             <input

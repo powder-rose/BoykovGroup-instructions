@@ -45,6 +45,7 @@ import {
 } from '../services/importHistoryService.js';
 
 import { instructionsRepository } from '../services/instructionsRepository.js';
+import { toPublicInstruction } from '../services/instructionPublicView.js';
 
 import { searchInstructions } from '../services/searchService.js';
 
@@ -320,7 +321,7 @@ instructionsRouter.get('/:id', (req, res) => {
     });
   }
 
-  res.json(instruction);
+  res.json(toPublicInstruction(instruction));
 });
 
 // =========================

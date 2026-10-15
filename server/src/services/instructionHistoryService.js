@@ -4,6 +4,10 @@ import { fileURLToPath } from 'node:url';
 
 import { instructionsRepository } from './instructionsRepository.js';
 import { assertNoPendingInstructionDraft } from './instructionDraftGuard.js';
+import {
+  getInstructionEditorialMeta,
+  updateInstructionEditorialMeta,
+} from './instructionEditorialMeta.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -17,10 +21,10 @@ const MAX_HISTORY = 30;
  * Не используем id инструкции
  * непосредственно как имя каталога.
  */
-function getInstructionHistoryDir(instructionId) {
+function getInstructionHistoryDir(instructionId, historyRoot = HISTORY_ROOT) {
   const safeId = Buffer.from(String(instructionId), 'utf8').toString('base64url');
 
-  return path.join(HISTORY_ROOT, safeId);
+  return path.join(historyRoot, safeId);
 }
 
 function ensureDirectory(directory) {
@@ -31,8 +35,8 @@ function ensureDirectory(directory) {
   }
 }
 
-function listSnapshots(instructionId) {
-  const directory = getInstructionHistoryDir(instructionId);
+function listSnapshots(instructionId, historyRoot = HISTORY_ROOT) {
+  const directory = getInstructionHistoryDir(instructionId, historyRoot);
 
   if (!fs.existsSync(directory)) {
     return [];
@@ -50,14 +54,14 @@ function listSnapshots(instructionId) {
  * Сохраняем состояние инструкции
  * ДО внесения новых изменений.
  */
-export function saveInstructionSnapshot(instruction) {
+export function saveInstructionSnapshot(instruction, { historyRoot = HISTORY_ROOT } = {}) {
   if (!instruction?.id) {
     throw new Error('Нельзя создать историю инструкции без id');
   }
 
-  ensureDirectory(HISTORY_ROOT);
+  ensureDirectory(historyRoot);
 
-  const directory = getInstructionHistoryDir(instruction.id);
+  const directory = getInstructionHistoryDir(instruction.id, historyRoot);
 
   ensureDirectory(directory);
 
@@ -85,7 +89,7 @@ export function saveInstructionSnapshot(instruction) {
    * Оставляем максимум
    * 30 предыдущих состояний.
    */
-  const snapshots = listSnapshots(instruction.id);
+  const snapshots = listSnapshots(instruction.id, historyRoot);
 
   for (const oldFile of snapshots.slice(MAX_HISTORY)) {
     try {
@@ -107,8 +111,11 @@ export function saveInstructionSnapshot(instruction) {
  * из стека истории, поэтому повторный
  * откат вернёт ещё более раннюю версию.
  */
-export function rollbackInstruction(instructionId) {
-  const current = instructionsRepository.getById(instructionId);
+export function rollbackInstruction(
+  instructionId,
+  { repository = instructionsRepository, historyRoot = HISTORY_ROOT } = {},
+) {
+  const current = repository.getById(instructionId);
 
   if (!current) {
     const error = new Error('Инструкция не найдена');
@@ -120,7 +127,7 @@ export function rollbackInstruction(instructionId) {
 
   assertNoPendingInstructionDraft(current);
 
-  const snapshots = listSnapshots(instructionId);
+  const snapshots = listSnapshots(instructionId, historyRoot);
 
   if (snapshots.length === 0) {
     const error = new Error('Для этой инструкции пока нет предыдущей версии');
@@ -177,12 +184,21 @@ export function rollbackInstruction(instructionId) {
     updatedAt: new Date().toISOString(),
   };
 
+  const snapshotMetadata = getInstructionEditorialMeta(snapshot);
+
+  restored.editorialMeta = updateInstructionEditorialMeta(current, restored, {
+    seoReady: snapshotMetadata.seoReady,
+    seoAuthor: snapshotMetadata.seoAuthor,
+    contentAuthor: snapshotMetadata.contentAuthor,
+    now: restored.updatedAt,
+  });
+
   /*
    * Сначала восстанавливаем.
    * Только после успешной записи
    * удаляем использованный snapshot.
    */
-  instructionsRepository.save(restored);
+  repository.save(restored);
 
   fs.unlinkSync(latestFile);
 

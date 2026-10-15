@@ -17,6 +17,10 @@ import { createInstructionHash } from './instructionHashService.js';
 import { rankInstructionsByQuery } from './searchService.js';
 import { normalizeRichTextContent } from './richTextContent.js';
 import { InstructionEditorError } from './instructionEditorError.js';
+import {
+  getInstructionEditorialMeta,
+  updateInstructionEditorialMeta,
+} from './instructionEditorialMeta.js';
 
 const DEFAULT_DRAFTS = fileURLToPath(new URL('../data/instruction-drafts/', import.meta.url));
 const EMPTY_DOCUMENT = { type: 'doc', content: [{ type: 'paragraph', content: [] }] };
@@ -215,10 +219,12 @@ export function createInstructionEditorService({
         seoDescription: editable.seoDescription ?? seo.description,
         status: draft ? 'draft' : 'published',
         revision,
+        editorialMeta: getInstructionEditorialMeta(editable),
       },
       hasDraft: Boolean(draft),
       hasPublishedVersion: Boolean(published),
       publicSlug: published ? published.slug || published.id : null,
+      publishedEditorialMeta: published ? getInstructionEditorialMeta(published) : null,
     };
   }
 
@@ -257,6 +263,20 @@ export function createInstructionEditorService({
   function normalize(input, existing) {
     if (!input || typeof input !== 'object' || Array.isArray(input)) {
       throw new InstructionEditorError('Некорректные данные инструкции');
+    }
+
+    if (Object.hasOwn(input, 'seoReady') && typeof input.seoReady !== 'boolean') {
+      throw new InstructionEditorError('Готовность SEO должна быть значением true или false');
+    }
+
+    for (const [field, label] of [
+      ['seoAuthor', 'Автор SEO-подготовки'],
+      ['contentAuthor', 'Автор текста инструкции'],
+    ]) {
+      if (Object.hasOwn(input, field)) {
+        const author = typeof input[field] === 'string' ? input[field].trim() : input[field];
+        textField(author, label, 120);
+      }
     }
 
     const title = textField(input.title ?? existing?.title ?? '', 'Заголовок', 200, true);
@@ -339,6 +359,8 @@ export function createInstructionEditorService({
             hasDraft: view.hasDraft,
             hasPublishedVersion: view.hasPublishedVersion,
             publicSlug: view.publicSlug,
+            editorialMeta: view.instruction.editorialMeta,
+            publishedEditorialMeta: view.publishedEditorialMeta,
           };
         })
         .sort((a, b) =>
@@ -391,6 +413,12 @@ export function createInstructionEditorService({
       };
 
       instruction.contentHash = createInstructionHash(instruction);
+      instruction.editorialMeta = updateInstructionEditorialMeta(previous?.editable, instruction, {
+        seoReady: input.seoReady,
+        seoAuthor: input.seoAuthor,
+        contentAuthor: input.contentAuthor,
+        now,
+      });
 
       if (values.status === 'draft') {
         writeDraft(instruction);

@@ -12,6 +12,14 @@ function paragraph(text) {
 test('manual PDF preserves document wording and table cells while excluding surrounding web content', async () => {
   const instruction = {
     title: 'Инструкция для электромонтёра',
+    editorialMeta: {
+      seoReady: true,
+      seoUpdatedAt: '2035-06-12T13:14:15.000Z',
+      contentUpdatedAt: '2035-06-11T13:14:15.000Z',
+      seoReadySource: 'EDITORIAL_METADATA_ONLY',
+      seoAuthor: 'SEO_EDITOR_PRIVATE_NAME',
+      contentAuthor: 'TEXT_EDITOR_PRIVATE_NAME',
+    },
     webIntro: 'WEBINTRO_ONLY: рекламное описание страницы.',
     explanationContent: {
       type: 'doc',
@@ -80,6 +88,10 @@ test('manual PDF preserves document wording and table cells while excluding surr
     'EXPLANATION_ONLY',
     'LEGACY_INTRO_ONLY',
     'LEGACY_SECTION_ONLY',
+    'EDITORIAL_METADATA_ONLY',
+    'SEO_EDITOR_PRIVATE_NAME',
+    'TEXT_EDITOR_PRIVATE_NAME',
+    '2035-06-12',
   ]) {
     assert.ok(!text.includes(excluded), `PDF must exclude ${excluded}`);
   }

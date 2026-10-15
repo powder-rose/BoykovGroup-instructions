@@ -85,8 +85,10 @@ async function fixture(t) {
       ...(body ? { body: JSON.stringify(body) } : {}),
     });
 
-  const publicRequest = suffix =>
-    fetch(`http://127.0.0.1:${server.address().port}/api/instructions${suffix}`);
+  const publicRequest = (suffix, role) =>
+    fetch(`http://127.0.0.1:${server.address().port}/api/instructions${suffix}`, {
+      headers: role ? { 'x-test-role': role } : {},
+    });
 
   return { repository, service, request, publicRequest };
 }
@@ -331,4 +333,37 @@ test('public related instructions exclude drafts and unpublished documents', asy
     assert.equal(hidden.status, 404);
     await hidden.arrayBuffer();
   }
+});
+
+test('editorial metadata remains available to admin but is absent from public page responses', async t => {
+  const { repository, service, request, publicRequest } = await fixture(t);
+  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const editorialMeta = {
+    seoReady: true,
+    seoUpdatedAt: '2026-04-01T12:00:00.000Z',
+    contentUpdatedAt: '2026-03-01T12:00:00.000Z',
+    seoAuthor: 'SEO_EDITOR_PRIVATE_NAME',
+    contentAuthor: 'TEXT_EDITOR_PRIVATE_NAME',
+  };
+  repository.save({ ...published, editorialMeta });
+
+  const adminResponse = await request(`/${published.id}`);
+  assert.equal(adminResponse.status, 200);
+  assert.equal(
+    (await adminResponse.json()).instruction.editorialMeta.seoUpdatedAt,
+    editorialMeta.seoUpdatedAt,
+  );
+
+  for (const role of [undefined, 'user', 'admin']) {
+    const response = await publicRequest(`/page/${published.slug}`, role);
+    assert.equal(response.status, 200);
+    const data = await response.json();
+    assert.equal(Object.hasOwn(data, 'editorialMeta'), false);
+    assert.equal(JSON.stringify(data).includes('SEO_EDITOR_PRIVATE_NAME'), false);
+    assert.equal(JSON.stringify(data).includes('TEXT_EDITOR_PRIVATE_NAME'), false);
+    assert.deepEqual(data.instructionContent, published.instructionContent);
+    assert.equal(data.seoDescription, published.seoDescription);
+  }
+
+  assert.deepEqual(repository.getById(published.id).editorialMeta, editorialMeta);
 });

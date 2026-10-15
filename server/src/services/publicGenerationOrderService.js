@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { toPublicInstruction } from './instructionPublicView.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -280,7 +281,7 @@ export function getPublicGenerationOrderView(id, accessToken) {
      * Полный результат доступен только владельцу,
      * прошедшему проверку x-order-token.
      */
-    instruction: order.generatedInstruction ?? null,
+    instruction: toPublicInstruction(order.generatedInstruction ?? null),
 
     generatedAt: order.generatedAt ?? null,
 
@@ -397,7 +398,7 @@ export function getPublicGenerationOrderByOwnerView(id, ownerUserId) {
 
     instructionId: order.instructionId ?? null,
 
-    instruction: order.generatedInstruction ?? null,
+    instruction: toPublicInstruction(order.generatedInstruction ?? null),
 
     generatedAt: order.generatedAt ?? null,
 

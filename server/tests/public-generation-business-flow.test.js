@@ -120,10 +120,12 @@ async function createIsolatedBusinessFlow() {
     'publicGenerationOrderService storage declaration changed',
   );
 
-  const isolatedOrderSource = orderSource.replace(
-    orderDirectoryDeclaration,
-    `const ORDERS_DIR = ${JSON.stringify(ordersDirectory)};`,
-  );
+  const isolatedOrderSource = orderSource
+    .replace(orderDirectoryDeclaration, `const ORDERS_DIR = ${JSON.stringify(ordersDirectory)};`)
+    .replace(/from '(\.{1,2}\/[^']+)'/gu, (_match, specifier) => {
+      const absolutePath = path.resolve(path.dirname(orderServicePath), specifier);
+      return `from '${pathToFileURL(absolutePath).href}'`;
+    });
 
   const isolatedOrderPath = path.join(root, 'publicGenerationOrderService.mjs');
 

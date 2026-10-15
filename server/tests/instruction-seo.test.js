@@ -52,6 +52,14 @@ function sampleInstruction(overrides = {}) {
     ]),
     createdAt: '2026-10-10T12:00:00.000Z',
     updatedAt: '2026-10-15T12:00:00.000Z',
+    editorialMeta: {
+      seoReady: true,
+      seoUpdatedAt: '2035-06-12T13:14:15.000Z',
+      contentUpdatedAt: '2035-06-11T13:14:15.000Z',
+      seoReadySource: 'EDITORIAL_METADATA_ONLY',
+      seoAuthor: 'SEO_EDITOR_PRIVATE_NAME',
+      contentAuthor: 'TEXT_EDITOR_PRIVATE_NAME',
+    },
     ...overrides,
   };
 }
@@ -153,6 +161,11 @@ test('instruction HTML keeps PDF above the protected rich document and preserves
   assert.ok(html.includes('"@type":"Article"'));
   assert.ok(html.includes('"@type":"BreadcrumbList"'));
   assert.equal(html.includes('"old":true'), false);
+  assert.equal(html.includes('editorialMeta'), false);
+  assert.equal(html.includes('EDITORIAL_METADATA_ONLY'), false);
+  assert.equal(html.includes('SEO_EDITOR_PRIVATE_NAME'), false);
+  assert.equal(html.includes('TEXT_EDITOR_PRIVATE_NAME'), false);
+  assert.equal(html.includes('2035-06-12'), false);
 });
 
 test('fallback navigation exposes the Passport Safety destination as a working link', async t => {
@@ -258,6 +271,11 @@ test('catalog and sitemap use published canonical slugs; drafts and removed arti
     assert.equal(body.includes('/stati'), false);
     assert.equal(body.includes(`/instrukciya-po-ohrane-truda/${published.id}`), false);
     assert.equal(body.includes(`/instrukciya-po-ohrane-truda/${published.slugAliases[0]}`), false);
+    assert.equal(body.includes('EDITORIAL_METADATA_ONLY'), false);
+    assert.equal(body.includes('SEO_EDITOR_PRIVATE_NAME'), false);
+    assert.equal(body.includes('TEXT_EDITOR_PRIVATE_NAME'), false);
+    assert.equal(body.includes('2035-06-12'), false);
+    if (route === '/sitemap.xml') assert.ok(body.includes('<lastmod>2026-10-15</lastmod>'));
   }
 
   for (const slug of ['missing', draft.slug, seoDraft.slug]) {
