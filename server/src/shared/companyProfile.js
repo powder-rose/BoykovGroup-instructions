@@ -1,6 +1,7 @@
 export const COMPANY_PROFILE_FIELDS = Object.freeze([
   { name: 'companyName', label: 'Название компании', maxLength: 300 },
   { name: 'inn', label: 'ИНН', maxLength: 12 },
+  { name: 'headPosition', label: 'Должность руководителя организации', maxLength: 200 },
   { name: 'headFullName', label: 'ФИО руководителя организации', maxLength: 200 },
   {
     name: 'occupationalSafetyPosition',
