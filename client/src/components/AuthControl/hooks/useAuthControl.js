@@ -6,7 +6,9 @@ import {
   selectAuthUser,
   selectIsAdmin,
   selectIsRestoringSession,
+  selectCompanyProfileOnboardingPending,
 } from '../../../store/authSlice.js';
+import { pendingCompanyProfileUserId } from '../../../lib/companyProfileOnboarding.js';
 
 const USER_TOKEN_KEY = 'boykovgroup_auth_token';
 
@@ -68,7 +70,7 @@ async function verifyUserToken(token) {
 
     const data = await response.json();
 
-    return data?.user?.role === 'user';
+    return data?.user?.role === 'user' ? data.user : false;
   } catch {
     return false;
   }
@@ -80,6 +82,7 @@ export default function useAuthControl() {
   const user = useSelector(selectAuthUser);
 
   const isRestoring = useSelector(selectIsRestoringSession);
+  const companyOnboardingPending = useSelector(selectCompanyProfileOnboardingPending);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -158,9 +161,13 @@ export default function useAuthControl() {
 
     async function start() {
       const token = getUserToken();
+      const verifiedUser = token ? await verifyUserToken(token) : null;
 
-      if (token && (await verifyUserToken(token))) {
+      if (verifiedUser) {
         if (cancelled) {
+          return;
+        }
+        if (pendingCompanyProfileUserId() === String(verifiedUser.id)) {
           return;
         }
 
@@ -232,7 +239,12 @@ export default function useAuthControl() {
    * Возвращаем его туда, откуда пришёл auth=1.
    */
   useEffect(() => {
-    if (!authReturnActiveRef.current || authReturnRedirectedRef.current || user?.role !== 'user') {
+    if (
+      !authReturnActiveRef.current ||
+      authReturnRedirectedRef.current ||
+      user?.role !== 'user' ||
+      companyOnboardingPending
+    ) {
       return;
     }
 
@@ -249,7 +261,7 @@ export default function useAuthControl() {
     }
 
     window.location.replace(destination);
-  }, [user]);
+  }, [user, companyOnboardingPending]);
 
   return {
     isAdmin,

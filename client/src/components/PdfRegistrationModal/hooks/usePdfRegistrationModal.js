@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-import { register as registerUser } from '../../../api/authApi.js';
-
-const USER_TOKEN_KEY = 'boykovgroup_auth_token';
+import { register as registerUser, selectAuthError } from '../../../store/authSlice.js';
 
 export default function usePdfRegistrationModal({ onClose }) {
+  const dispatch = useDispatch();
+  const authError = useSelector(selectAuthError);
   const [name, setName] = useState('');
 
   const [phone, setPhone] = useState('');
@@ -28,10 +29,6 @@ export default function usePdfRegistrationModal({ onClose }) {
 
     type: '',
   });
-
-  const registeredRef = useRef(false);
-
-  const closeTimerRef = useRef(null);
 
   const nameInputRef = useRef(null);
 
@@ -58,30 +55,13 @@ export default function usePdfRegistrationModal({ onClose }) {
       document.body.style.overflow = previousOverflow;
 
       window.clearTimeout(focusTimer);
-
-      if (closeTimerRef.current) {
-        window.clearTimeout(closeTimerRef.current);
-      }
     };
   }, []);
 
   const closeModal = useCallback(() => {
-    const reloadAfter = registeredRef.current;
-
     onCloseRef.current?.();
-
-    if (reloadAfter) {
-      window.setTimeout(() => {
-        window.location.reload();
-      }, 0);
-    }
   }, []);
 
-  /*
-   * Escape закрывает modal.
-   * Если регистрация уже завершена —
-   * production после закрытия reload'ит страницу.
-   */
   useEffect(() => {
     function handleKeyDown(event) {
       if (event.key === 'Escape') {
@@ -112,27 +92,23 @@ export default function usePdfRegistrationModal({ onClose }) {
     });
 
     try {
-      const data = await registerUser({
-        name: name.trim(),
+      const data = await dispatch(
+        registerUser({
+          name: name.trim(),
+          phone: phone.trim(),
+          email: email.trim(),
+          password,
+          userAgreementAccepted,
+          personalDataConsentAccepted,
+          advertisingConsentAccepted,
+        }),
+      );
 
-        phone: phone.trim(),
-
-        email: email.trim(),
-
-        password,
-
-        userAgreementAccepted,
-
-        personalDataConsentAccepted,
-
-        advertisingConsentAccepted,
-      });
-
-      if (data?.token) {
-        window.localStorage.setItem(USER_TOKEN_KEY, data.token);
+      if (!data) {
+        setBusy(false);
+        setStatus({ type: 'error', text: 'Не удалось зарегистрироваться' });
+        return;
       }
-
-      registeredRef.current = true;
 
       setRegistered(true);
 
@@ -145,11 +121,8 @@ export default function usePdfRegistrationModal({ onClose }) {
             : 'Регистрация завершена. Подтвердите e-mail по ссылке из письма.',
       });
 
-      closeTimerRef.current = window.setTimeout(() => {
-        onCloseRef.current?.();
-
-        window.location.reload();
-      }, 1800);
+      // Auth state opens the optional company-profile step without reloading this instruction.
+      onCloseRef.current?.();
     } catch (error) {
       setBusy(false);
 
@@ -188,7 +161,7 @@ export default function usePdfRegistrationModal({ onClose }) {
 
     busy,
     registered,
-    status,
+    status: status.type === 'error' && authError ? { ...status, text: authError } : status,
 
     nameInputRef,
 

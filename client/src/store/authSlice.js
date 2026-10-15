@@ -1,4 +1,9 @@
 import { login as loginRequest, register as registerRequest, fetchMe } from '../api/authApi.js';
+import {
+  clearCompanyProfileOnboarding,
+  markCompanyProfileOnboarding,
+  pendingCompanyProfileUserId,
+} from '../lib/companyProfileOnboarding.js';
 
 /*
  * Пока сохраняем историческое имя ключа.
@@ -23,6 +28,7 @@ const AUTH_FAIL = 'auth/fail';
 const AUTH_LOGOUT = 'auth/logout';
 
 const AUTH_CLEAR_ERROR = 'auth/clearError';
+const COMPANY_ONBOARDING_COMPLETE = 'auth/companyOnboardingComplete';
 
 const initialState = {
   token: null,
@@ -30,6 +36,8 @@ const initialState = {
   isRestoring: true,
   isAuthenticating: false,
   error: null,
+  companyOnboardingUserId: null,
+  companyRegistrationNotice: '',
 };
 
 export function authReducer(state = initialState, action) {
@@ -49,6 +57,8 @@ export function authReducer(state = initialState, action) {
         token: action.payload.token,
         user: action.payload.user,
         error: null,
+        companyOnboardingUserId: action.payload.companyOnboardingUserId,
+        companyRegistrationNotice: action.payload.companyRegistrationNotice,
       };
 
     case AUTH_FAIL:
@@ -59,6 +69,8 @@ export function authReducer(state = initialState, action) {
         token: null,
         user: null,
         error: action.payload,
+        companyOnboardingUserId: null,
+        companyRegistrationNotice: '',
       };
 
     case AUTH_LOGOUT:
@@ -69,12 +81,22 @@ export function authReducer(state = initialState, action) {
         isRestoring: false,
         isAuthenticating: false,
         error: null,
+        companyOnboardingUserId: null,
+        companyRegistrationNotice: '',
       };
 
     case AUTH_CLEAR_ERROR:
       return {
         ...state,
         error: null,
+      };
+
+    case COMPANY_ONBOARDING_COMPLETE:
+      if (String(state.user?.id) !== action.payload) return state;
+      return {
+        ...state,
+        companyOnboardingUserId: null,
+        companyRegistrationNotice: '',
       };
 
     default:
@@ -86,11 +108,23 @@ const authStart = () => ({
   type: AUTH_START,
 });
 
-const authSuccess = (token, user) => ({
+const authSuccess = (token, user, registration = null) => ({
   type: AUTH_SUCCESS,
   payload: {
     token,
     user,
+    companyOnboardingUserId:
+      user?.role === 'user' &&
+      user.id &&
+      (registration || pendingCompanyProfileUserId() === String(user.id))
+        ? String(user.id)
+        : null,
+    companyRegistrationNotice:
+      user?.role === 'user' && registration
+        ? user.emailVerified === true || registration.verificationEmailSent === false
+          ? 'Регистрация завершена.'
+          : 'Регистрация завершена. Подтвердите e-mail по ссылке из письма, чтобы скачивать PDF.'
+        : '',
   },
 });
 
@@ -99,7 +133,7 @@ const authFail = message => ({
   payload: message,
 });
 
-function persistAuth(data, dispatch) {
+function persistAuth(data, dispatch, registration = false) {
   const role = data.user?.role === 'admin' ? 'admin' : 'user';
 
   const storageKey = role === 'admin' ? ADMIN_TOKEN_STORAGE_KEY : USER_TOKEN_STORAGE_KEY;
@@ -108,7 +142,9 @@ function persistAuth(data, dispatch) {
 
   sessionStorage.setItem(ACTIVE_ROLE_STORAGE_KEY, role);
 
-  dispatch(authSuccess(data.token, data.user));
+  if (registration && role === 'user') markCompanyProfileOnboarding(data.user?.id);
+
+  dispatch(authSuccess(data.token, data.user, registration ? data : null));
 }
 
 /*
@@ -145,9 +181,9 @@ export function register(registration) {
     try {
       const data = await registerRequest(registration);
 
-      persistAuth(data, dispatch);
+      persistAuth(data, dispatch, true);
 
-      return true;
+      return data;
     } catch (error) {
       dispatch(authFail(error.message));
 
@@ -159,6 +195,13 @@ export function register(registration) {
 export function clearAuthError() {
   return {
     type: AUTH_CLEAR_ERROR,
+  };
+}
+
+export function completeCompanyProfileOnboarding(userId) {
+  return dispatch => {
+    clearCompanyProfileOnboarding(userId);
+    dispatch({ type: COMPANY_ONBOARDING_COMPLETE, payload: String(userId) });
   };
 }
 
@@ -245,3 +288,10 @@ export const selectIsAuthenticating = state => state.auth.isAuthenticating;
 export const selectIsRestoringSession = state => state.auth.isRestoring;
 
 export const selectAuthError = state => state.auth.error;
+
+export const selectCompanyProfileOnboardingPending = state =>
+  state.auth.user?.role === 'user' &&
+  Boolean(state.auth.companyOnboardingUserId) &&
+  state.auth.companyOnboardingUserId === String(state.auth.user.id);
+
+export const selectCompanyRegistrationNotice = state => state.auth.companyRegistrationNotice;

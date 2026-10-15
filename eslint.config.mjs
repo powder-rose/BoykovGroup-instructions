@@ -7,6 +7,7 @@ import globals from 'globals';
 
 const frontendFiles = [
   'client/src/**/*.{js,jsx}',
+  'client/public/assets/company-profile*.js',
 ];
 
 const nodeFiles = [

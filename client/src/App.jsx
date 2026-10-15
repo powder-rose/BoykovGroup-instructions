@@ -15,6 +15,7 @@ import InstructionPage from './components/InstructionPage/InstructionPage.jsx';
 import SiteFooter from './components/SiteFooter/SiteFooter.jsx';
 
 import CookieConsent from './components/CookieConsent/CookieConsent.jsx';
+import CompanyProfileOnboarding from './components/CompanyProfile/CompanyProfileOnboarding.jsx';
 
 import VisitorTracker from './components/VisitorTracker/VisitorTracker.jsx';
 
@@ -58,6 +59,8 @@ export default function App() {
       <SiteFooter />
 
       <CookieConsent />
+
+      <CompanyProfileOnboarding />
     </>
   );
 }
