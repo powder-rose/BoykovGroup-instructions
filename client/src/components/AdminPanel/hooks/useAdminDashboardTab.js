@@ -2,7 +2,15 @@ import { useState } from 'react';
 
 const ADMIN_DASHBOARD_TAB_KEY = 'boykov_admin_dashboard_tab_v1';
 
-const ADMIN_DASHBOARD_TABS = ['publications', 'instructions', 'visitors', 'top10', 'promocodes'];
+const ADMIN_DASHBOARD_TABS = [
+  'publications',
+  'instructions',
+  'visitors',
+  'top10',
+  'purchases',
+  'downloads',
+  'promocodes',
+];
 
 function getInitialAdminDashboardTab() {
   try {

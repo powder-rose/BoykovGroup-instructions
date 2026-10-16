@@ -22,6 +22,7 @@ import { importsRouter } from './routes/imports.js';
 import { instructionPdfRouter } from './routes/instructionPdf.js';
 
 import { instructionPopularityRouter } from './routes/instructionPopularity.js';
+import { commerceStatsRouter } from './routes/commerceStats.js';
 
 import { instructionsRouter } from './routes/instructions.js';
 
@@ -133,6 +134,7 @@ export function createApp({
   app.use('/api/instructions', instructionPdfRouter);
 
   app.use('/api/admin/instruction-popularity', instructionPopularityRouter);
+  app.use('/api/admin/commerce-stats', commerceStatsRouter);
 
   app.use('/api/visitor-stats', visitorStatsRouter);
 
