@@ -108,14 +108,16 @@ async function fixture(t, { pdfFailure = false } = {}) {
 
   const dataDirectory = path.join(root, 'data');
   fs.mkdirSync(dataDirectory);
-  const users = ['a', 'b', 'unverified', 'blank'].map(id => ({
+  const users = ['a', 'b', 'unverified', 'legacy', 'null-verification', 'blank'].map(id => ({
     id,
     email: `${id}@example.test`,
     name: `Пользователь ${id}`,
     role: 'user',
-    emailVerified: id !== 'unverified',
+    emailVerified:
+      id === 'legacy' ? undefined : id === 'null-verification' ? null : id !== 'unverified',
   }));
-  fs.writeFileSync(path.join(dataDirectory, 'users.json'), JSON.stringify(users));
+  const usersFile = path.join(dataDirectory, 'users.json');
+  fs.writeFileSync(usersFile, JSON.stringify(users));
   const userModule = copy('services/userService.js', {
     transform: source =>
       replaceExactly(
@@ -222,23 +224,45 @@ export const markPromoCodeUsed = unexpected;
       '../services/promoCodeService.js': unusedServices,
     },
   });
+  const consentModule = copy('services/userConsentService.js', {
+    transform: source =>
+      replaceExactly(
+        source,
+        "const DATA_DIR = path.resolve(__dirname, '../../data');",
+        `const DATA_DIR = ${JSON.stringify(dataDirectory)};`,
+      ),
+  });
+  const authModule = copy('routes/auth.js', {
+    imports: {
+      '../services/userService.js': userModule,
+      '../services/userConsentService.js': consentModule,
+      '../services/emailVerificationService.js': stub(
+        'registrationEmail',
+        'export async function sendRegistrationNotification() {}\n',
+      ),
+    },
+  });
   const { instructionPdfRouter } = await import(freeRouteModule);
   const { publicGenerationRouter } = await import(paidRouteModule);
+  const { authRouter } = await import(authModule);
   const orders = await import(orderModule);
   const repository = await import(repositoryModule);
   const { downloadQuotaService: quotaService } = await import(quotaModule);
   const app = express();
   app.use(express.json());
   app.use(attachUser);
+  app.use('/api/auth', authRouter);
   app.use('/api/instructions', instructionPdfRouter);
   app.use('/api/public-generation', publicGenerationRouter);
   server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
 
-  const request = (url, { userId = 'a', token, headers = {}, method = 'GET' } = {}) =>
+  const request = (url, { userId = 'a', token, headers = {}, method = 'GET', body } = {}) =>
     fetch(`http://127.0.0.1:${server.address().port}${url}`, {
       method,
+      body: body === undefined ? undefined : JSON.stringify(body),
       headers: {
+        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
         ...(userId === null
           ? {}
           : {
@@ -247,7 +271,7 @@ export const markPromoCodeUsed = unexpected;
         ...headers,
       },
     });
-  return { request, store, users, orders, repository, quotaService, quotaFile };
+  return { request, store, users, usersFile, orders, repository, quotaService, quotaFile };
 }
 
 async function pdfText(response) {
@@ -266,14 +290,13 @@ function assertProfile(text, own, others = []) {
   }
 }
 
-test('public instruction PDFs enforce verified access and isolate fresh company profiles per download', async t => {
+test('public instruction PDFs enforce authenticated access and isolate fresh company profiles per download', async t => {
   const { request, store, users, repository } = await fixture(t);
   const url = '/api/instructions/shared-instruction/pdf';
   for (const [auth, status] of [
     [{ userId: null }, 401],
     [{ token: 'invalid' }, 401],
     [{ userId: 'deleted' }, 401],
-    [{ userId: 'unverified' }, 403],
   ]) {
     const response = await request(url, auth);
     assert.equal(response.status, status);
@@ -311,6 +334,88 @@ test('public instruction PDFs enforce verified access and isolate fresh company 
     assert.ok(generic.includes('SHARED_DOCUMENT_TEXT'));
   }
   assert.deepEqual(repository.instruction, sharedInstruction, 'Shared publication is immutable');
+});
+
+test('registration and password login allow immediate downloads while preserving the five-download limit', async t => {
+  const { request, usersFile } = await fixture(t);
+  const credentials = { email: 'ANY.Address@example.invalid', password: 'AccountPassword-2026' };
+  const registered = await request('/api/auth/register', {
+    userId: null,
+    method: 'POST',
+    body: {
+      ...credentials,
+      name: 'Новый пользователь',
+      phone: '+7 999 000-00-01',
+      userAgreementAccepted: true,
+      personalDataConsentAccepted: true,
+    },
+  });
+  assert.equal(registered.status, 201);
+  const registration = await registered.json();
+  assert.equal(registration.verificationEmailSent, false);
+  assert.equal(registration.user.emailVerified, false);
+  const originalUsers = fs.readFileSync(usersFile, 'utf8');
+  const quotaUrl = '/api/instructions/download-quota';
+  const pdfUrl = '/api/instructions/shared-instruction/pdf';
+  const initialQuota = await request(quotaUrl, { token: registration.token });
+  assert.equal(initialQuota.status, 200);
+  assert.deepEqual(await initialQuota.json(), { limit: 5, used: 0, remaining: 5 });
+  const firstPdf = await request(pdfUrl, { token: registration.token });
+  assert.equal(firstPdf.headers.get('x-download-remaining'), '4');
+  assert.ok((await pdfText(firstPdf)).includes('SHARED_DOCUMENT_TEXT'));
+
+  const badLogin = await request('/api/auth/login', {
+    userId: null,
+    method: 'POST',
+    body: { ...credentials, password: 'wrong-password' },
+  });
+  assert.equal(badLogin.status, 401);
+  await badLogin.json();
+  const login = await request('/api/auth/login', {
+    userId: null,
+    method: 'POST',
+    body: { login: credentials.email, password: credentials.password },
+  });
+  assert.equal(login.status, 200);
+  const account = await login.json();
+  assert.equal(account.user.id, registration.user.id);
+  assert.equal(account.user.emailVerified, false);
+  const auth = { token: account.token };
+  const quotaAfterLogin = await request(quotaUrl, auth);
+  assert.deepEqual(await quotaAfterLogin.json(), { limit: 5, used: 1, remaining: 4 });
+
+  for (const remaining of [3, 2, 1, 0]) {
+    const pdf = await request(pdfUrl, auth);
+    assert.equal(pdf.headers.get('x-download-remaining'), String(remaining));
+    await pdfText(pdf);
+    const quota = await request(quotaUrl, auth);
+    assert.deepEqual(await quota.json(), { limit: 5, used: 5 - remaining, remaining });
+  }
+  const exhausted = await request(pdfUrl, auth);
+  assert.equal(exhausted.status, 403);
+  const error = await exhausted.json();
+  assert.equal(error.code, 'DOWNLOAD_LIMIT_REACHED');
+  assert.equal(error.remaining, 0);
+  assert.equal(fs.readFileSync(usersFile, 'utf8'), originalUsers);
+});
+
+test('existing accounts with false, null or missing verification status can download without migration', async t => {
+  const { request, usersFile, quotaService } = await fixture(t);
+  const originalUsers = fs.readFileSync(usersFile, 'utf8');
+  for (const userId of ['unverified', 'legacy', 'null-verification']) {
+    // Preserve an existing balance instead of granting a fresh allowance on rollout.
+    quotaService.consume(userId);
+    quotaService.consume(userId);
+    const quota = await request('/api/instructions/download-quota', { userId });
+    assert.equal(quota.status, 200);
+    assert.deepEqual(await quota.json(), { limit: 5, used: 2, remaining: 3 });
+    const pdf = await request('/api/instructions/shared-instruction/pdf', { userId });
+    assert.equal(pdf.headers.get('x-download-remaining'), '2');
+    const text = await pdfText(pdf);
+    assert.ok(text.includes('SHARED_DOCUMENT_TEXT'));
+    if (userId === 'unverified') assertProfile(text, profiles.unverified, [profiles.a, profiles.b]);
+  }
+  assert.equal(fs.readFileSync(usersFile, 'utf8'), originalUsers);
 });
 
 test('paid PDFs remain owner-only, permit an unverified purchaser and never serialize company details', async t => {
@@ -420,7 +525,6 @@ test('quota endpoint enforces access and reports unavailable storage without lim
     [{ userId: null }, 401],
     [{ token: 'invalid' }, 401],
     [{ userId: 'deleted' }, 401],
-    [{ userId: 'unverified' }, 403],
   ]) {
     const response = await request(url, auth);
     assert.equal(response.status, status);
@@ -484,7 +588,7 @@ test('denied access, missing instructions, HEAD and PDF generation failures do n
   const url = '/api/instructions/shared-instruction/pdf';
   for (const [auth, status] of [
     [{ userId: null }, 401],
-    [{ userId: 'unverified' }, 403],
+    [{ userId: 'unverified' }, 500],
     [{ userId: 'deleted' }, 401],
     [{ method: 'HEAD' }, 200],
     [{}, 500],

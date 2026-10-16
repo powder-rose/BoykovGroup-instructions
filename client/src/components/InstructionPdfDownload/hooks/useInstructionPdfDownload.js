@@ -73,13 +73,11 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
 
   const isCatalogDownload = !downloadUrl && !isAdmin;
 
-  const isVerifiedUser = user?.role === 'user' && user?.emailVerified === true;
-
-  const isLockedUser = user?.role === 'user' && user?.emailVerified !== true;
+  const isUser = user?.role === 'user';
 
   const { remaining, quotaError, refreshQuota, updateQuota } = useDownloadQuota(
     token,
-    isCatalogDownload && isVerifiedUser && !isRestoring,
+    isCatalogDownload && isUser && !isRestoring,
   );
 
   const isLimitReached = isCatalogDownload && remaining === 0;
@@ -181,7 +179,7 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
       return;
     }
 
-    if (isAdmin || isVerifiedUser) {
+    if (isAdmin || isUser) {
       void downloadPdf();
     }
   }
@@ -193,7 +191,6 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
     setRegistrationOpen: setIsRegistrationOpen,
     isDownloading,
     message,
-    isLockedUser,
     isCatalogDownload,
     isLimitReached,
     remaining,

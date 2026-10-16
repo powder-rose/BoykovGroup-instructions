@@ -115,10 +115,7 @@ export default function usePdfRegistrationModal({ onClose }) {
       setStatus({
         type: 'success',
 
-        text:
-          data?.verificationEmailSent === false
-            ? 'Регистрация завершена.'
-            : 'Регистрация завершена. Подтвердите e-mail по ссылке из письма.',
+        text: 'Регистрация завершена.',
       });
 
       // Auth state opens the optional company-profile step without reloading this instruction.

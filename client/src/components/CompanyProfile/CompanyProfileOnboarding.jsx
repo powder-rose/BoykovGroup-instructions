@@ -10,7 +10,7 @@ import {
 import CompanyProfileForm from './CompanyProfileForm.jsx';
 import './CompanyProfileOnboarding.css';
 
-function OnboardingDialog({ token, user, notice, onComplete }) {
+function OnboardingDialog({ token, notice, onComplete }) {
   const dialogRef = useRef(null);
   const controllerRef = useRef(null);
 
@@ -38,10 +38,7 @@ function OnboardingDialog({ token, user, notice, onComplete }) {
       }}
     >
       <p className="company-profile-onboarding__notice" role="status">
-        {notice ||
-          (user.emailVerified
-            ? 'Данные компании можно добавить сейчас или позже в личном кабинете.'
-            : 'Для скачивания PDF подтвердите e-mail по ссылке из письма.')}
+        {notice || 'Данные компании можно добавить сейчас или позже в личном кабинете.'}
       </p>
       <CompanyProfileForm
         token={token}
@@ -67,7 +64,6 @@ export default function CompanyProfileOnboarding() {
     <OnboardingDialog
       key={user.id}
       token={token}
-      user={user}
       notice={notice}
       onComplete={() => dispatch(completeCompanyProfileOnboarding(user.id))}
     />

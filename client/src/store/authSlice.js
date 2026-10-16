@@ -120,11 +120,7 @@ const authSuccess = (token, user, registration = null) => ({
         ? String(user.id)
         : null,
     companyRegistrationNotice:
-      user?.role === 'user' && registration
-        ? user.emailVerified === true || registration.verificationEmailSent === false
-          ? 'Регистрация завершена.'
-          : 'Регистрация завершена. Подтвердите e-mail по ссылке из письма, чтобы скачивать PDF.'
-        : '',
+      user?.role === 'user' && registration ? 'Регистрация завершена.' : '',
   },
 });
 
