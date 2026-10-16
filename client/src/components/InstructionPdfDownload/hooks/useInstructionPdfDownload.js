@@ -8,6 +8,9 @@ import {
   selectIsRestoringSession,
 } from '../../../store/authSlice.js';
 
+import { downloadQuotaFromHeaders } from '../../../lib/downloadQuota.js';
+import useDownloadQuota from './useDownloadQuota.js';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 function getPdfFileName(response, instructionId) {
@@ -74,8 +77,15 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
 
   const isLockedUser = user?.role === 'user' && user?.emailVerified !== true;
 
+  const { remaining, quotaError, refreshQuota, updateQuota } = useDownloadQuota(
+    token,
+    isCatalogDownload && isVerifiedUser && !isRestoring,
+  );
+
+  const isLimitReached = isCatalogDownload && remaining === 0;
+
   async function downloadPdf() {
-    if (!instructionId || !token || isDownloading) {
+    if (!instructionId || !token || isDownloading || isLimitReached) {
       return;
     }
 
@@ -103,6 +113,8 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
         try {
           const data = await response.json();
 
+          if (isCatalogDownload) updateQuota(data);
+
           if (data?.error) {
             errorMessage = data.error;
           }
@@ -112,6 +124,8 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
 
         throw new Error(errorMessage);
       }
+
+      if (isCatalogDownload) updateQuota(downloadQuotaFromHeaders(response.headers));
 
       const contentType = response.headers.get('Content-Type') || '';
 
@@ -145,27 +159,19 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
         URL.revokeObjectURL(objectUrl);
       }, 5000);
 
-      const remaining = response.headers.get('X-Download-Remaining');
-
-      const quotaMessage =
-        isCatalogDownload &&
-        response.headers.get('X-Download-Limit') === '5' &&
-        /^[0-5]$/.test(remaining || '')
-          ? ` Осталось скачиваний из каталога: ${remaining} из 5.`
-          : '';
-
-      showMessage(`PDF успешно сформирован.${quotaMessage}`, 'success');
+      showMessage('PDF готов к сохранению.', 'success');
     } catch (error) {
       console.error('PDF download error:', error);
 
       showMessage(error?.message || 'Не удалось скачать PDF');
     } finally {
       setIsDownloading(false);
+      if (isCatalogDownload) void refreshQuota();
     }
   }
 
   function handleClick() {
-    if (isRestoring || isDownloading) {
+    if (isRestoring || isDownloading || isLimitReached) {
       return;
     }
 
@@ -189,6 +195,9 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
     message,
     isLockedUser,
     isCatalogDownload,
+    isLimitReached,
+    remaining,
+    quotaError,
     handleClick,
   };
 }

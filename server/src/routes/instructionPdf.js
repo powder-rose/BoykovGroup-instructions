@@ -26,12 +26,26 @@ function sendDownloadLimit(res, quota) {
   return res.status(403).json({
     code: 'DOWNLOAD_LIMIT_REACHED',
     error:
-      'Достигнут лимит: 5 скачиваний инструкций из каталога на аккаунт за всё время. Оплаченные инструкции доступны в личном кабинете.',
+      'Доступные скачивания из каталога закончились. Оплаченные инструкции доступны в личном кабинете.',
     limit: quota.limit,
     used: quota.used,
     remaining: quota.remaining,
   });
 }
+
+instructionPdfRouter.get('/download-quota', requirePdfAccess, (req, res) => {
+  if (req.user.role === 'admin') return res.json({ unlimited: true });
+
+  try {
+    return res.json(downloadQuotaService.get(req.user.sub));
+  } catch (error) {
+    console.error('Download quota lookup error:', error);
+    return res.status(503).json({
+      code: 'DOWNLOAD_QUOTA_UNAVAILABLE',
+      error: 'Не удалось проверить остаток скачиваний. Попробуйте позже.',
+    });
+  }
+});
 
 function writePdfError({ error, stage, instructionId, user }) {
   try {

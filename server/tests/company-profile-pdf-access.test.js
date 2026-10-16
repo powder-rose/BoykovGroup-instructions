@@ -387,6 +387,57 @@ test('paid PDFs remain owner-only, permit an unverified purchaser and never seri
   assert.equal(quotaService.get('unverified').remaining, 0);
 });
 
+test('quota endpoint returns only the current account balance without spending downloads', async t => {
+  const { request, quotaService } = await fixture(t);
+  quotaService.consume('a');
+  quotaService.consume('a');
+  const url = '/api/instructions/download-quota';
+
+  for (const path of [url, `${url}?userId=b&remaining=5`, url]) {
+    const response = await request(path);
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get('cache-control'), /private, no-store/);
+    assert.deepEqual(await response.json(), { limit: 5, used: 2, remaining: 3 });
+  }
+
+  const other = await request(url, { userId: 'b' });
+  assert.deepEqual(await other.json(), { limit: 5, used: 0, remaining: 5 });
+  await pdfText(await request('/api/instructions/shared-instruction/pdf'));
+  const afterDownload = await request(url);
+  assert.deepEqual(await afterDownload.json(), { limit: 5, used: 3, remaining: 2 });
+
+  quotaService.consume('a');
+  quotaService.consume('a');
+  const exhausted = await request(url);
+  assert.equal(exhausted.status, 200);
+  assert.deepEqual(await exhausted.json(), { limit: 5, used: 5, remaining: 0 });
+});
+
+test('quota endpoint enforces access and reports unavailable storage without limiting admins', async t => {
+  const { request, quotaFile } = await fixture(t);
+  const url = '/api/instructions/download-quota';
+  for (const [auth, status] of [
+    [{ userId: null }, 401],
+    [{ token: 'invalid' }, 401],
+    [{ userId: 'deleted' }, 401],
+    [{ userId: 'unverified' }, 403],
+  ]) {
+    const response = await request(url, auth);
+    assert.equal(response.status, status);
+    assert.match(response.headers.get('cache-control'), /private, no-store/);
+    await response.json();
+  }
+  assert.equal(fs.existsSync(quotaFile), false);
+
+  fs.writeFileSync(quotaFile, 'invalid quota');
+  const failed = await request(url);
+  assert.equal(failed.status, 503);
+  assert.equal((await failed.json()).code, 'DOWNLOAD_QUOTA_UNAVAILABLE');
+  const admin = await request(url, { token: issueAdminToken() });
+  assert.equal(admin.status, 200);
+  assert.deepEqual(await admin.json(), { unlimited: true });
+});
+
 test('catalog quota allows exactly five downloads across concurrent requests, instructions and sessions', async t => {
   const { request, quotaService, repository } = await fixture(t);
   const url = '/api/instructions/shared-instruction/pdf';
@@ -408,7 +459,7 @@ test('catalog quota allows exactly five downloads across concurrent requests, in
     const body = await response.json();
     assert.equal(body.code, 'DOWNLOAD_LIMIT_REACHED');
     assert.equal(body.remaining, 0);
-    assert.match(body.error, /5 скачиваний/);
+    assert.match(body.error, /скачивания из каталога закончились/);
   }
   assert.deepEqual(quotaService.get('a'), { limit: 5, used: 5, remaining: 0 });
 

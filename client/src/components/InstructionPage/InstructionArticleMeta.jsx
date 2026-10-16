@@ -1,6 +1,8 @@
 import styles from './InstructionPage.module.css';
 
 export default function InstructionArticleMeta({ instruction, isAdmin, viewStats, onEdit }) {
+  if (!isAdmin) return null;
+
   return (
     <div className={styles.articleMeta}>
       <div className={styles.versionInfo}>
@@ -14,7 +16,7 @@ export default function InstructionArticleMeta({ instruction, isAdmin, viewStats
         </span>
       </div>
 
-      {isAdmin && viewStats && (
+      {viewStats && (
         <div className={styles.viewCounter}>
           <span className={styles.viewCounterLabel}>Просмотры</span>
 
@@ -29,16 +31,9 @@ export default function InstructionArticleMeta({ instruction, isAdmin, viewStats
         </div>
       )}
 
-      {isAdmin && (
-        <button
-          type="button"
-          className={styles.editButton}
-
-          onClick={onEdit}
-        >
-          Редактировать инструкцию
-        </button>
-      )}
+      <button type="button" className={styles.editButton} onClick={onEdit}>
+        Редактировать инструкцию
+      </button>
     </div>
   );
 }

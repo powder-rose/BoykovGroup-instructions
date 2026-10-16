@@ -1,14 +1,14 @@
-/* ===== INSTRUCTION PDF DOWNLOAD ===== */
-
 .instruction-pdf-download.boykovPdfDownload {
-  margin: 16px 0 20px;
+  margin: 16px 0 24px;
 }
 
 .boykovPdfDownload {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 14px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  width: 320px;
+  max-width: 100%;
   margin: 0;
 }
 
@@ -16,37 +16,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-
-  min-height: 48px;
-
-  padding: 12px 20px;
-
-  border: 1px solid #2563eb;
-
-  border-radius: 10px;
-
-  background: #2563eb;
-
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  padding: 13px 20px;
+  border: var(--border-ink);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: #fff;
+  box-shadow: 3px 3px 0 var(--color-text);
   cursor: pointer;
-
-  font: inherit;
-
-  font-size: 15px;
-
-  font-weight: 700;
-
-  line-height: 1.25;
-
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
   transition:
-    transform 0.16s ease,
-    border-color 0.16s ease,
-    background 0.16s ease,
-    color 0.16s ease,
-    box-shadow 0.16s ease;
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
 .boykovPdfDownload__badge {
@@ -54,56 +41,67 @@
   width: 20px;
   height: 20px;
   background: currentColor;
-  font-size: 0;
-  mask: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpath d="M12 3v12m-5-5 5 5 5-5M5 16v4h14v-4"/%3E%3C/svg%3E')
+  mask: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"%3E%3Cpath d="M12 3v12m-5-5 5 5 5-5M5 16v4h14v-4"/%3E%3C/svg%3E')
     center / contain no-repeat;
 }
 
-.boykovPdfDownload__button:hover:not(:disabled) {
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .boykovPdfDownload__button:hover:not(:disabled) {
+    background: var(--color-primary-hover);
+    box-shadow: 4px 4px 0 var(--color-text);
+    transform: translate(-1px, -1px);
+  }
+}
 
-  border-color: #1d4ed8;
-
-  background: #1d4ed8;
-
-  color: #ffffff;
-
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+.boykovPdfDownload__button:active:not(:disabled) {
+  box-shadow: none;
+  transform: translate(2px, 2px);
 }
 
 .boykovPdfDownload__button:focus-visible {
-  outline: 3px solid #93c5fd;
-  outline-offset: 3px;
+  outline: 3px solid var(--color-primary);
+  outline-offset: 5px;
 }
 
 .boykovPdfDownload__button:disabled {
-  cursor: default;
+  background: var(--color-primary-light);
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
   box-shadow: none;
-  opacity: 0.58;
+  cursor: default;
 }
 
-.boykovPdfDownload--locked .boykovPdfDownload__button {
-  border-color: #d7dde6;
-
-  background: #f8f9fb;
-
-  color: #687386;
+.boykovPdfDownload__text {
+  min-width: 0;
 }
 
 .boykovPdfDownload__status {
-  color: #697589;
-
+  color: var(--color-text-muted);
+  font-family: var(--font-main);
   font-size: 12px;
-
-  line-height: 1.4;
-}
-
-.boykovPdfDownload__status:empty {
-  display: none;
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .boykovPdfDownload--loading .boykovPdfDownload__button {
   cursor: wait;
+}
+
+.boykovPdfDownload--loading .boykovPdfDownload__badge {
+  background: none;
+  mask: none;
+  border: 2px solid var(--color-border);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: boykovPdfSpin 0.8s linear infinite;
+}
+
+@keyframes boykovPdfSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -111,66 +109,44 @@
     transition: none;
   }
 
-  .boykovPdfDownload__button:hover:not(:disabled) {
+  .boykovPdfDownload__button:hover:not(:disabled),
+  .boykovPdfDownload__button:active:not(:disabled) {
     transform: none;
+  }
+
+  .boykovPdfDownload--loading .boykovPdfDownload__badge {
+    animation: none;
   }
 }
 
 @media (max-width: 650px) {
   .boykovPdfDownload {
-    align-items: stretch;
-  }
-
-  .boykovPdfDownload__button {
-    width: 100%;
-  }
-
-  .boykovPdfDownload__status {
     width: 100%;
   }
 }
 
-/* ===== /INSTRUCTION PDF DOWNLOAD ===== */
-
-/*
- * ============================================================
- * PDF RESULT MESSAGE
- * ============================================================
- */
-
 .boykovPdfMessage {
   position: fixed;
-
   right: 20px;
   bottom: 20px;
-
   z-index: 100000;
-
   max-width: 380px;
-
   padding: 12px 16px;
-
   border-radius: 8px;
-
   font-size: 13px;
   line-height: 1.45;
-
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
 }
 
 .boykovPdfMessage--success {
   border: 1px solid #b9dec9;
-
   background: #edf8f2;
-
   color: #236342;
 }
 
 .boykovPdfMessage--error {
   border: 1px solid #e8c0c0;
-
   background: #fff6f6;
-
   color: #9d3535;
 }
 
@@ -178,9 +154,7 @@
   .boykovPdfMessage {
     right: 12px;
     bottom: 12px;
-
     left: 12px;
-
     max-width: none;
   }
 }
