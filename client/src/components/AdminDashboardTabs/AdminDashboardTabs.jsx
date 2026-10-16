@@ -22,11 +22,11 @@ const TABS = [
 
   {
     id: 'purchases',
-    label: 'РџРѕРєСѓРїРєРё',
+    label: 'Покупки',
   },
   {
     id: 'downloads',
-    label: 'РЎРєР°С‡РёРІР°РЅРёСЏ',
+    label: 'Скачивания',
   },
   {
     id: 'promocodes',
