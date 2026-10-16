@@ -7,6 +7,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import express from 'express';
 
+import { createCompanyProfileRouter } from '../src/routes/companyProfile.js';
+import { createCompanyProfileRepository } from '../src/services/companyProfileRepository.js';
+import { formatCompanyProfileNotification } from '../src/services/companyProfileNotificationService.js';
+
 import { verifyToken } from '../src/services/authService.js';
 
 import { attachUser } from '../src/middleware/auth.js';
@@ -107,6 +111,9 @@ async function createIsolatedAccountFlow() {
     );
 
     const isolatedUserPath = path.join(root, 'userService.mjs');
+
+    // Exercise the final persistence boundary without exporting it from the production module.
+    userSource += '\nexport { writeUsers as writeUsersForTest };\n';
 
     fs.writeFileSync(isolatedUserPath, userSource, 'utf8');
 
@@ -252,6 +259,18 @@ export function getRegistrationNotifications() {
 
     app.use('/api/auth', authRouter);
 
+    const companyProfiles = createCompanyProfileRepository({
+      file: path.join(dataDirectory, 'company-profiles.json'),
+    });
+    app.use(
+      '/api/account/company-profile',
+      createCompanyProfileRouter({
+        userLookup: userService.getUserById,
+        store: companyProfiles,
+        notifier() {},
+      }),
+    );
+
     server = await listen(app);
 
     const address = server.address();
@@ -264,7 +283,12 @@ export function getRegistrationNotifications() {
       consentsFile,
       userService,
       emailStub,
+      companyProfiles,
       baseUrl,
+
+      async restartUserService() {
+        return import(pathToFileURL(isolatedUserPath).href + `?restart=${crypto.randomUUID()}`);
+      },
 
       async request(route, options = {}) {
         return fetch(`${baseUrl}${route}`, options);
@@ -325,6 +349,10 @@ function registrationPayload(overrides = {}) {
 
     ...overrides,
   };
+}
+
+function contactDetails(user) {
+  return { name: user.name, email: user.email, phone: user.phone };
 }
 
 function jsonRequest(body, extra = {}) {
@@ -389,6 +417,11 @@ test(
 
     try {
       const password = 'BusinessFlowPassword-2026';
+      const expectedContacts = {
+        name: 'Иван Тестовый',
+        email: 'buyer.account@example.invalid',
+        phone: '+7 999 000-00-01',
+      };
 
       /*
        * ========================================
@@ -410,6 +443,7 @@ test(
       const registration = await registerResponse.json();
 
       assert.equal(registration.user.email, 'buyer.account@example.invalid');
+      assert.deepEqual(contactDetails(registration.user), expectedContacts);
 
       assert.equal(registration.user.role, 'user');
 
@@ -441,6 +475,9 @@ test(
       assert.equal(storedUser.id, tokenPayload.sub);
 
       assert.equal(storedUser.email, 'buyer.account@example.invalid');
+      assert.deepEqual(contactDetails(storedUser), expectedContacts);
+      const restarted = await flow.restartUserService();
+      assert.deepEqual(contactDetails(restarted.getUserById(storedUser.id)), expectedContacts);
 
       assert.equal(typeof storedUser.passwordHash, 'string');
 
@@ -498,7 +535,7 @@ test(
         'raw verification token must not be persisted',
       );
 
-      assert.equal(flow.emailStub.getRegistrationNotifications().length, 1);
+      assert.deepEqual(flow.emailStub.getRegistrationNotifications(), [expectedContacts]);
 
       /*
        * ========================================
@@ -516,6 +553,7 @@ test(
       const meBefore = await meBeforeResponse.json();
 
       assert.equal(meBefore.user.emailVerified, false);
+      assert.deepEqual(contactDetails(meBefore.user), expectedContacts);
 
       /*
        * ========================================
@@ -560,6 +598,7 @@ test(
       assert.equal(loginResponse.status, 200);
 
       const loginBody = await loginResponse.json();
+      assert.deepEqual(contactDetails(loginBody.user), expectedContacts);
 
       const loginPayload = verifyToken(loginBody.token);
 
@@ -614,6 +653,7 @@ test(
       const meAfter = await meAfterResponse.json();
 
       assert.equal(meAfter.user.emailVerified, true);
+      assert.deepEqual(contactDetails(meAfter.user), expectedContacts);
 
       assert.ok(meAfter.user.verifiedAt);
 
@@ -664,6 +704,7 @@ test(
       assert.equal(finalUsers.length, 1);
 
       assert.equal(finalUsers[0].emailVerified, true);
+      assert.deepEqual(contactDetails(finalUsers[0]), expectedContacts);
 
       assert.ok(finalUsers[0].verifiedAt);
 
@@ -703,8 +744,221 @@ test(
       assert.equal(flow.emailStub.getRegistrationNotifications().length, 1);
 
       assert.equal(flow.emailStub.getVerificationEmails().length, 1);
+
+      // Company details cannot clear or spoof the registration contacts.
+      const saved = await flow.request(
+        '/api/account/company-profile',
+        jsonRequest(
+          {
+            name: '',
+            phone: '',
+            email: '',
+            user: { email: 'other@example.invalid', phone: '+79999999999' },
+            companyProfile: { companyName: 'ООО Проверка', headPosition: 'Директор' },
+          },
+          {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${registration.token}` },
+          },
+        ),
+      );
+      assert.equal(saved.status, 200);
+      await saved.json();
+      assert.deepEqual(contactDetails(readJson(flow.usersFile)[0]), expectedContacts);
+      const [event] = flow.companyProfiles.getPending();
+      assert.deepEqual(contactDetails(event.user), expectedContacts);
+      const notification = formatCompanyProfileNotification(event);
+      for (const content of [notification.text, notification.html]) {
+        for (const value of Object.values(expectedContacts)) assert.ok(content.includes(value));
+        assert.ok(!content.includes('other@example.invalid'));
+      }
+      assert.deepEqual(contactDetails(restarted.getUserById(storedUser.id)), expectedContacts);
     } finally {
       await flow.cleanup();
     }
   },
 );
+
+test('registration rejects missing or malformed required contacts before creating data or mail', async () => {
+  const flow = await createIsolatedAccountFlow();
+  try {
+    const invalidContacts = [
+      ...[
+        undefined,
+        null,
+        '',
+        '   ',
+        {},
+        79990000001,
+        true,
+        [],
+        ['+79990000001'],
+        'not-a-phone',
+        '123',
+        '+79990000001\nextra',
+      ].map(phone => ({ phone })),
+      ...[
+        undefined,
+        null,
+        '',
+        '   ',
+        {},
+        ['buyer@example.invalid'],
+        { toString: 'invalid' },
+        'invalid-email',
+      ].map(email => ({ email })),
+      ...[undefined, null, '', '   ', {}, ['Имя']].map(name => ({ name })),
+    ];
+    for (const invalid of invalidContacts) {
+      const response = await flow.request(
+        '/api/auth/register',
+        jsonRequest(registrationPayload(invalid)),
+      );
+      assert.equal(response.status, 400, JSON.stringify(invalid));
+      await response.json();
+      assert.deepEqual(readJson(flow.usersFile), []);
+      assert.deepEqual(readJson(flow.consentsFile), []);
+      assert.equal(flow.emailStub.getRegistrationNotifications().length, 0);
+      assert.equal(flow.emailStub.getVerificationEmails().length, 0);
+    }
+
+    const response = await flow.request(
+      '/api/auth/register',
+      jsonRequest(
+        registrationPayload({
+          name: '  Иван   Тестовый  ',
+          phone: '  +7 (999) 000-00-01  ',
+        }),
+      ),
+    );
+    assert.equal(response.status, 201);
+    await response.json();
+    assert.deepEqual(contactDetails(readJson(flow.usersFile)[0]), {
+      name: 'Иван Тестовый',
+      phone: '+7 (999) 000-00-01',
+      email: 'buyer.account@example.invalid',
+    });
+  } finally {
+    await flow.cleanup();
+  }
+});
+
+test('storage rejects clearing saved contacts or dropping accounts while preserving legacy records', async () => {
+  const flow = await createIsolatedAccountFlow();
+  try {
+    const payload = registrationPayload();
+    const account = flow.userService.createUser(
+      payload.email,
+      payload.password,
+      payload.name,
+      payload.phone,
+    );
+    const legacy = {
+      ...readJson(flow.usersFile)[0],
+      id: 'legacy-user',
+      email: 'legacy@example.invalid',
+    };
+    delete legacy.name;
+    delete legacy.phone;
+    fs.writeFileSync(flow.usersFile, JSON.stringify([...readJson(flow.usersFile), legacy]));
+    flow.userService.createEmailVerificationToken(legacy.id);
+    const original = fs.readFileSync(flow.usersFile, 'utf8');
+
+    for (const field of ['name', 'email', 'phone']) {
+      for (const empty of [undefined, null, '', '   ', {}]) {
+        const changed = JSON.parse(original);
+        changed[0][field] = empty;
+        assert.throws(() => flow.userService.writeUsersForTest(changed), {
+          code: 'USER_CONTACTS_LOST',
+        });
+        assert.equal(fs.readFileSync(flow.usersFile, 'utf8'), original);
+      }
+      const incomplete = {
+        ...JSON.parse(original)[0],
+        id: 'new-user',
+        email: 'new@example.invalid',
+      };
+      delete incomplete[field];
+      assert.throws(
+        () => flow.userService.writeUsersForTest([...JSON.parse(original), incomplete]),
+        {
+          code: 'USER_CONTACTS_REQUIRED',
+        },
+      );
+      assert.equal(fs.readFileSync(flow.usersFile, 'utf8'), original);
+    }
+    assert.throws(() => flow.userService.writeUsersForTest([legacy]), {
+      code: 'USER_CONTACTS_LOST',
+    });
+    assert.equal(fs.readFileSync(flow.usersFile, 'utf8'), original);
+    assert.equal(flow.userService.getUserById(account.id).phone, payload.phone);
+    assert.equal(flow.userService.getUserById(legacy.id).phone, '');
+  } finally {
+    await flow.cleanup();
+  }
+});
+
+test('failed storage sync or atomic replacement retains the original accounts and cleans temporary files', async t => {
+  const flow = await createIsolatedAccountFlow();
+  try {
+    const payload = registrationPayload();
+    flow.userService.createUser(payload.email, payload.password, payload.name, payload.phone);
+    const original = fs.readFileSync(flow.usersFile, 'utf8');
+    for (const method of ['fsyncSync', 'renameSync']) {
+      const failure = Object.assign(new Error('Simulated storage failure'), { code: 'EIO' });
+      const mocked = t.mock.method(fs, method, () => {
+        throw failure;
+      });
+      try {
+        assert.throws(
+          () =>
+            flow.userService.createUser(
+              'second@example.invalid',
+              payload.password,
+              payload.name,
+              payload.phone,
+            ),
+          { code: 'EIO' },
+        );
+      } finally {
+        mocked.mock.restore();
+      }
+      assert.equal(fs.readFileSync(flow.usersFile, 'utf8'), original);
+      assert.deepEqual(fs.readdirSync(path.dirname(flow.usersFile)), ['users.json']);
+    }
+  } finally {
+    await flow.cleanup();
+  }
+});
+
+test('expired verification and subsequent token writes preserve registration contacts', async () => {
+  const flow = await createIsolatedAccountFlow();
+  try {
+    const payload = registrationPayload();
+    const account = flow.userService.createUser(
+      payload.email,
+      payload.password,
+      payload.name,
+      payload.phone,
+    );
+    const expected = contactDetails(account);
+    const verification = flow.userService.createEmailVerificationToken(account.id);
+    const expired = readJson(flow.usersFile);
+    expired[0].verificationTokenExpiresAt = '2000-01-01T00:00:00.000Z';
+    fs.writeFileSync(flow.usersFile, JSON.stringify(expired));
+    assert.throws(() => flow.userService.verifyEmailToken(verification.token), {
+      code: 'VERIFICATION_TOKEN_EXPIRED',
+    });
+    assert.deepEqual(contactDetails(readJson(flow.usersFile)[0]), expected);
+    const replacement = flow.userService.createEmailVerificationToken(account.id);
+    flow.userService.markVerificationEmailSent(account.id);
+    assert.deepEqual(
+      contactDetails(flow.userService.verifyEmailToken(replacement.token)),
+      expected,
+    );
+    const restarted = await flow.restartUserService();
+    assert.deepEqual(contactDetails(restarted.getUserById(account.id)), expected);
+  } finally {
+    await flow.cleanup();
+  }
+});

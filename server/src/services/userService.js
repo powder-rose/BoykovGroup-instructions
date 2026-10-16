@@ -15,6 +15,16 @@ const USERS_FILE = path.join(DATA_DIR, 'users.json');
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+function hasText(value) {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function isValidPhone(value) {
+  if (!hasText(value) || !/^\+?[\d() .-]+$/.test(value.trim())) return false;
+  const digits = value.replace(/\D/g, '');
+  return digits.length >= 7 && digits.length <= 15;
+}
+
 const VERIFICATION_TTL_MS = 24 * 60 * 60 * 1000;
 
 const VERIFICATION_RESEND_COOLDOWN_MS = 60 * 1000;
@@ -53,16 +63,50 @@ function readUsers() {
 }
 
 function writeUsers(users) {
-  ensureStorage();
+  const previousUsers = readUsers();
+  const previousById = new Map(previousUsers.map(user => [user.id, user]));
+  const nextById = new Map(users.map(user => [user.id, user]));
 
-  const temporaryFile = `${USERS_FILE}.${process.pid}.${Date.now()}.tmp`;
+  // Existing legacy records may lack contacts, but saved values must never be cleared.
+  for (const previous of previousUsers) {
+    const next = nextById.get(previous.id);
+    if (
+      !next ||
+      ['name', 'email', 'phone'].some(field => hasText(previous[field]) && !hasText(next[field]))
+    ) {
+      const error = new Error('Нельзя удалить пользователя или очистить сохранённые контакты');
+      error.code = 'USER_CONTACTS_LOST';
+      throw error;
+    }
+  }
 
-  fs.writeFileSync(temporaryFile, `${JSON.stringify(users, null, 2)}\n`, {
-    encoding: 'utf8',
-    mode: 0o600,
-  });
+  for (const user of users) {
+    if (
+      !previousById.has(user.id) &&
+      (!hasText(user.name) ||
+        !hasText(user.email) ||
+        !EMAIL_PATTERN.test(user.email) ||
+        !isValidPhone(user.phone))
+    ) {
+      const error = new Error('Для нового пользователя обязательны имя, email и телефон');
+      error.code = 'USER_CONTACTS_REQUIRED';
+      throw error;
+    }
+  }
 
-  fs.renameSync(temporaryFile, USERS_FILE);
+  const temporaryFile = `${USERS_FILE}.${process.pid}.${crypto.randomUUID()}.tmp`;
+  try {
+    const descriptor = fs.openSync(temporaryFile, 'wx', 0o600);
+    try {
+      fs.writeFileSync(descriptor, `${JSON.stringify(users, null, 2)}\n`, 'utf8');
+      fs.fsyncSync(descriptor);
+    } finally {
+      fs.closeSync(descriptor);
+    }
+    fs.renameSync(temporaryFile, USERS_FILE);
+  } finally {
+    fs.rmSync(temporaryFile, { force: true });
+  }
 }
 
 function publicUser(user) {
@@ -95,9 +139,9 @@ export function normalizeEmail(value) {
 }
 
 export function validateRegistration(email, password) {
-  const normalizedEmail = normalizeEmail(email);
+  const normalizedEmail = typeof email === 'string' ? normalizeEmail(email) : '';
 
-  if (!EMAIL_PATTERN.test(normalizedEmail)) {
+  if (typeof email !== 'string' || !EMAIL_PATTERN.test(normalizedEmail)) {
     return {
       ok: false,
       error: 'Укажите корректный email',
@@ -125,11 +169,9 @@ export function validateRegistration(email, password) {
 }
 
 export function createUser(email, password, name, phone) {
-  const normalizedName = String(name ?? '')
-    .trim()
-    .replace(/\s+/g, ' ');
+  const normalizedName = typeof name === 'string' ? name.trim().replace(/\s+/g, ' ') : '';
 
-  const normalizedPhone = String(phone ?? '').trim();
+  const normalizedPhone = typeof phone === 'string' ? phone.trim() : '';
 
   if (!normalizedName) {
     const error = new Error('Укажите имя');
@@ -139,8 +181,8 @@ export function createUser(email, password, name, phone) {
     throw error;
   }
 
-  if (!normalizedPhone) {
-    const error = new Error('Укажите телефон');
+  if (!isValidPhone(normalizedPhone)) {
+    const error = new Error('Укажите корректный телефон');
 
     error.code = 'VALIDATION_ERROR';
 
