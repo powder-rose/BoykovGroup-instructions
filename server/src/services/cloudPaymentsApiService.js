@@ -60,14 +60,12 @@ function normalizeTransactionId(value) {
   return number;
 }
 
-export async function getCloudPaymentsTransaction(transactionId) {
+async function queryCloudPaymentsTransaction(endpoint, body) {
   const { publicId, apiSecret } = getCredentials();
-
-  const normalizedTransactionId = normalizeTransactionId(transactionId);
 
   const authorization = Buffer.from(`${publicId}:${apiSecret}`, 'utf8').toString('base64');
 
-  const response = await cloudPaymentsFetch('https://api.cloudpayments.ru/payments/get', {
+  const response = await cloudPaymentsFetch(`https://api.cloudpayments.ru/${endpoint}`, {
     method: 'POST',
 
     headers: {
@@ -78,9 +76,7 @@ export async function getCloudPaymentsTransaction(transactionId) {
       Accept: 'application/json',
     },
 
-    body: JSON.stringify({
-      TransactionId: normalizedTransactionId,
-    }),
+    body: JSON.stringify(body),
   });
 
   const raw = await response.text();
@@ -121,6 +117,16 @@ export async function getCloudPaymentsTransaction(transactionId) {
   }
 
   return payload.Model;
+}
+
+export async function getCloudPaymentsTransaction(transactionId) {
+  return queryCloudPaymentsTransaction('payments/get', {
+    TransactionId: normalizeTransactionId(transactionId),
+  });
+}
+
+export function findCloudPaymentsTransaction(invoiceId) {
+  return queryCloudPaymentsTransaction('v2/payments/find', { InvoiceId: invoiceId });
 }
 
 /*

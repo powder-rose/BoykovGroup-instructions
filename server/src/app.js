@@ -12,6 +12,8 @@ import { createRateLimiters } from './middleware/rateLimits.js';
 
 import { authRouter } from './routes/auth.js';
 import { companyProfileRouter } from './routes/companyProfile.js';
+import { walletRouter } from './routes/wallet.js';
+import { walletWebhookRouter } from './routes/walletWebhook.js';
 
 import { cloudPaymentsWebhookRouter } from './routes/cloudPaymentsWebhook.js';
 
@@ -65,7 +67,7 @@ export function createApp({
     }),
   );
 
-  app.use('/api/public-generation/cloudpayments', cloudPaymentsWebhookRouter);
+  app.use('/api/public-generation/cloudpayments', walletWebhookRouter, cloudPaymentsWebhookRouter);
 
   app.use('/api/admin/instructions', express.json({ limit: '2mb' }));
   app.use(express.json());
@@ -88,6 +90,10 @@ export function createApp({
 
   app.put('/api/account/company-profile', rateLimits.companyProfileWrite);
   app.post('/api/account/company-profile/dismiss', rateLimits.companyProfileWrite);
+
+  app.post('/api/account/wallet/topups', rateLimits.walletWrite);
+  app.post('/api/account/wallet/topups/:id/confirm', rateLimits.walletConfirmation);
+  app.post('/api/account/wallet/purchases', rateLimits.walletWrite);
 
   app.post('/api/promo-codes/validate', rateLimits.promoValidation);
 
@@ -115,6 +121,7 @@ export function createApp({
 
   app.use('/api/auth', authRouter);
   app.use('/api/account/company-profile', companyProfileRouter);
+  app.use('/api/account/wallet', walletRouter);
   app.use('/api/admin/instructions', adminInstructionsRouter);
 
   app.use('/api/promo-codes', promoCodesRouter);

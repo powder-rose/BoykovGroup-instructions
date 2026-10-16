@@ -10,6 +10,26 @@
   const COMPANY_ONBOARDING_KEY = 'boykovdocs_company_onboarding_user_v1';
   const companyProfileRoot = document.getElementById('account-company-profile');
   let companyProfileController = null;
+  let walletController = null;
+  const walletRoot = document.getElementById('account-wallet');
+
+  function destroyWallet() {
+    walletController?.destroy();
+    walletController = null;
+    walletRoot?.replaceChildren();
+  }
+
+  async function mountWallet(token, requestId) {
+    if (!walletRoot) return;
+    try {
+      const { mountAccountWallet } = await import('/assets/wallet-account.js?v=20261016-wallet-v1');
+      if (requestId !== accountRequestId || getToken() !== token) return;
+      walletController = mountAccountWallet(walletRoot, { getToken, onAuthenticationError: () => expireSession(token) });
+    } catch {
+      if (requestId !== accountRequestId || getToken() !== token) return;
+      walletRoot.textContent = 'Не удалось загрузить баланс. Обновите страницу, чтобы повторить.';
+    }
+  }
   let accountRequestId = 0;
   let currentAccountToken = null;
   let accountAbortController = null;
@@ -89,6 +109,7 @@
   function expireSession(token) {
     if (getToken() !== token) return;
     destroyCompanyProfile();
+    destroyWallet();
     accountAbortController?.abort();
     accountRequestId += 1;
     try {
@@ -499,6 +520,7 @@
       "click",
       () => {
         destroyCompanyProfile();
+        destroyWallet();
         accountAbortController?.abort();
         accountRequestId += 1;
         clearPendingCompanyProfile(user?.id);
@@ -1113,6 +1135,7 @@
   async function start() {
     clearMessage();
     destroyCompanyProfile();
+    destroyWallet();
     accountAbortController?.abort();
     accountAbortController = new AbortController();
     const signal = accountAbortController.signal;
@@ -1135,6 +1158,7 @@
       if (requestId !== accountRequestId || token !== getToken()) return;
       renderProfile(me?.user);
       void mountCompanyProfile(me?.user, token, requestId);
+      void mountWallet(token, requestId);
     } catch (error) {
       if (requestId !== accountRequestId || token !== getToken() || error.name === 'AbortError') return;
       if (error?.status === 401) expireSession(token);

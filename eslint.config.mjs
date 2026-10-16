@@ -8,6 +8,7 @@ import globals from 'globals';
 const frontendFiles = [
   'client/src/**/*.{js,jsx}',
   'client/public/assets/company-profile*.js',
+  'client/public/assets/wallet*.js',
 ];
 
 const nodeFiles = [

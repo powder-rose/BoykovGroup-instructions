@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { Route, Routes, useLocation } from 'react-router-dom';
 
 import HomePage from './pages/HomePage/HomePage.jsx';
+import WalletPaymentPage from './pages/WalletPaymentPage/WalletPaymentPage.jsx';
 
 import InstructionsCatalog from './components/InstructionCatalog/InstructionsCatalog.jsx';
 
@@ -48,6 +49,7 @@ export default function App() {
 
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/oplata-instrukcii" element={<WalletPaymentPage />} />
 
         <Route path="/instrukcii-po-ohrane-truda" element={<InstructionsCatalog />} />
 
