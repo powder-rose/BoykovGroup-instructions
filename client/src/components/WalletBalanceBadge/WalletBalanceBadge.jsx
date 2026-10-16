@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+
 import { selectAuthUser } from '../../store/authSlice.js';
 import { useWalletBalance } from '../../contexts/WalletBalanceContext.jsx';
 import { formatRubles } from '../../../public/assets/wallet-client.js';
@@ -13,9 +13,9 @@ export default function WalletBalanceBadge() {
   const amount = balanceMinor === null ? '—' : formatRubles(balanceMinor);
 
   return (
-    <Link
+    <a
       className={styles.badge}
-      to="/account/"
+      href="/account/"
       title="Баланс и купленные инструкции"
       aria-label={`Баланс: ${amount}. Личный кабинет`}
     >
@@ -24,6 +24,6 @@ export default function WalletBalanceBadge() {
       <span className={styles.amount} aria-live="polite">
         {amount}
       </span>
-    </Link>
+    </a>
   );
 }
