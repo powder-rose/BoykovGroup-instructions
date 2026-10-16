@@ -4,7 +4,16 @@ Each verified user account may download catalog PDFs five times in total. The
 allowance never resets. Repeated downloads of the same instruction count again.
 Admin downloads and PDFs from purchased orders are exempt.
 
-The catalog UI explains the limit. A successful response includes
+The catalog UI displays the server balance below the download button, with Russian
+plural forms. Its requested monthly wording is presentation only at this stage:
+there is no monthly reset yet, and this change does not reset existing balances.
+The authenticated `GET /api/instructions/download-quota` endpoint reads the current
+account's balance without spending it; it never accepts a target account ID.
+The UI refreshes the balance on entry, after each download and when returning to
+the tab. Failed reads show an unavailable state rather than an invented balance.
+Version and update metadata on the instruction page are visible only to admins.
+
+A successful PDF response includes
 `X-Download-Limit` and `X-Download-Remaining`. Exhausted accounts receive HTTP 403
 with code `DOWNLOAD_LIMIT_REACHED`; unavailable or corrupted quota storage returns
 HTTP 503 without delivering a PDF. Paid orders keep their existing access rules.

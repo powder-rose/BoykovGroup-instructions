@@ -556,7 +556,7 @@ function renderInstructionSeoBody(instruction, relatedInstructions) {
             <span class="boykovPdfDownload__badge" aria-hidden="true"></span>
             <span class="boykovPdfDownload__text">Скачать PDF</span>
           </button>
-          <span class="boykovPdfDownload__status">5 скачиваний на аккаунт за всё время</span>
+          <span class="boykovPdfDownload__status">Войдите, чтобы увидеть доступные инструкции</span>
           <noscript>Для скачивания PDF включите JavaScript.</noscript>
         </div>
         <div class="instruction-reading" data-copy-protected="true">

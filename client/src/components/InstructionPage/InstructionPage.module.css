@@ -101,7 +101,7 @@
 .documentToolbar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 16px 24px;
   margin-bottom: 20px;
@@ -111,7 +111,7 @@
 
 .documentDownload {
   min-width: 0;
-  margin-left: auto;
+  max-width: 100%;
 }
 
 .explanation {
@@ -417,6 +417,5 @@
 
   .documentDownload {
     width: 100%;
-    margin-left: 0;
   }
 }
