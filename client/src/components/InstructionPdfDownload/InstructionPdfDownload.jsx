@@ -3,6 +3,7 @@ import { formatAvailableInstructions } from '../../lib/downloadQuota.js';
 import useInstructionPdfDownload from './hooks/useInstructionPdfDownload.js';
 
 import './InstructionPdfDownload.css';
+import DownloadLimitModal from './DownloadLimitModal.jsx';
 
 export default function InstructionPdfDownload({
   instructionId,
@@ -11,6 +12,9 @@ export default function InstructionPdfDownload({
 }) {
   const {
     user,
+    isLimitModalOpen,
+    setIsLimitModalOpen,
+    purchaseId,
     isRestoring,
     isRegistrationOpen,
     setRegistrationOpen,
@@ -28,13 +32,14 @@ export default function InstructionPdfDownload({
   const buttonText = isDownloading
     ? 'Готовим PDF…'
     : isLimitReached
-      ? 'Скачивания закончились'
+      ? 'Купить PDF за 50 ₽'
       : 'Скачать PDF';
 
   let statusText = '';
   if (isCatalogDownload) {
     if (isRestoring) statusText = 'Проверяем доступные инструкции…';
     else if (!user) statusText = 'Войдите, чтобы увидеть доступные инструкции';
+    else if (purchaseId) statusText = 'Инструкция куплена. Повторное скачивание бесплатно';
     else if (quotaError) statusText = 'Не удалось проверить остаток скачиваний';
     else if (remaining === null) statusText = 'Проверяем доступные инструкции…';
     else statusText = formatAvailableInstructions(remaining);
@@ -51,7 +56,7 @@ export default function InstructionPdfDownload({
         <button
           type="button"
           className="boykovPdfDownload__button"
-          disabled={isRestoring || isDownloading || isLimitReached}
+          disabled={isRestoring || isDownloading}
           aria-busy={isDownloading}
           aria-describedby={statusText ? `${id}-status` : undefined}
           onClick={handleClick}
@@ -72,6 +77,13 @@ export default function InstructionPdfDownload({
           </span>
         )}
       </div>
+
+      {isLimitModalOpen && (
+        <DownloadLimitModal
+          instructionId={instructionId}
+          onClose={() => setIsLimitModalOpen(false)}
+        />
+      )}
 
       {isRegistrationOpen && <PdfRegistrationModal onClose={() => setRegistrationOpen(false)} />}
 

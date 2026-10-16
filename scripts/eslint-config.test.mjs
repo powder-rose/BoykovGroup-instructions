@@ -31,6 +31,7 @@ const cases = [
   ['client/src/eslint-probe.js', browserGlobals],
   ['client/src/eslint-probe.jsx', browserGlobals],
   ['client/public/assets/company-profile-probe.js', browserGlobals],
+  ['client/public/assets/wallet-probe.js', browserGlobals],
 ];
 
 for (const [relativePath, validSource] of cases) {

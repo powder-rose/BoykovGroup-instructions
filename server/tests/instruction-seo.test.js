@@ -303,3 +303,18 @@ test('a historical redirect cannot loop when its target adopts the old address',
   assert.equal(response.status, 200);
   assert.equal(response.headers.get('location'), null);
 });
+
+test('wallet payment page opens directly without exposing query data or allowing indexing', async t => {
+  const { base } = await startFixture(t, []);
+  const response = await fetch(
+    `${base}/oplata-instrukcii?instruction=%3Cscript%3Eprivate%3C%2Fscript%3E&topup=wt_private`,
+  );
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('cache-control'), 'private, no-store');
+  assert.equal(response.headers.get('x-robots-tag'), 'noindex, nofollow');
+  const html = await response.text();
+  assert.match(html, /<meta name="robots" content="noindex, nofollow">/u);
+  assert.equal((html.match(/name="robots"/gu) || []).length, 1);
+  assert.ok(!html.includes('wt_private'));
+  assert.ok(!html.includes('<script>private</script>'));
+});

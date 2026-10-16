@@ -10,6 +10,7 @@ import {
 
 import { downloadQuotaFromHeaders } from '../../../lib/downloadQuota.js';
 import useDownloadQuota from './useDownloadQuota.js';
+import { downloadPurchasedInstruction } from '../../../../public/assets/wallet-client.js';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -38,11 +39,24 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
 
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
 
+  const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
+
   const [isDownloading, setIsDownloading] = useState(false);
 
   const [message, setMessage] = useState(null);
 
   const messageTimerRef = useRef(null);
+  const downloadControllerRef = useRef(null);
+
+  useEffect(() => {
+    setIsLimitModalOpen(false);
+    setIsDownloading(false);
+    setMessage(null);
+    return () => {
+      downloadControllerRef.current?.abort();
+      downloadControllerRef.current = null;
+    };
+  }, [token, instructionId, downloadUrl]);
 
   useEffect(() => {
     return () => {
@@ -75,21 +89,33 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
 
   const isUser = user?.role === 'user';
 
-  const { remaining, quotaError, refreshQuota, updateQuota } = useDownloadQuota(
+  const { remaining, quotaError, refreshQuota, updateQuota, purchaseId } = useDownloadQuota(
     token,
     isCatalogDownload && isUser && !isRestoring,
+    instructionId,
   );
 
-  const isLimitReached = isCatalogDownload && remaining === 0;
+  const isLimitReached = isCatalogDownload && remaining === 0 && !purchaseId;
 
   async function downloadPdf() {
-    if (!instructionId || !token || isDownloading || isLimitReached) {
+    if (!instructionId || !token || isDownloading || downloadControllerRef.current) {
       return;
     }
 
+    const controller = new AbortController();
+    downloadControllerRef.current = controller;
     setIsDownloading(true);
 
     try {
+      if (purchaseId) {
+        await downloadPurchasedInstruction(token, purchaseId, {
+          baseUrl: API_BASE_URL,
+          signal: controller.signal,
+        });
+        if (controller.signal.aborted) return;
+        showMessage('PDF готов к сохранению.', 'success');
+        return;
+      }
       const url =
         downloadUrl || `${API_BASE_URL}/api/instructions/${encodeURIComponent(instructionId)}/pdf`;
 
@@ -103,6 +129,7 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
         },
 
         cache: 'no-store',
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -111,7 +138,12 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
         try {
           const data = await response.json();
 
+          if (controller.signal.aborted) return;
           if (isCatalogDownload) updateQuota(data);
+          if (data.code === 'DOWNLOAD_LIMIT_REACHED') {
+            setIsLimitModalOpen(true);
+            return;
+          }
 
           if (data?.error) {
             errorMessage = data.error;
@@ -132,6 +164,7 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
       }
 
       const blob = await response.blob();
+      if (controller.signal.aborted) return;
 
       if (blob.size < 1000) {
         throw new Error('Получен пустой PDF-файл');
@@ -159,23 +192,32 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
 
       showMessage('PDF готов к сохранению.', 'success');
     } catch (error) {
+      if (controller.signal.aborted) return;
       console.error('PDF download error:', error);
 
       showMessage(error?.message || 'Не удалось скачать PDF');
     } finally {
-      setIsDownloading(false);
-      if (isCatalogDownload) void refreshQuota();
+      if (downloadControllerRef.current === controller) {
+        downloadControllerRef.current = null;
+        setIsDownloading(false);
+        if (isCatalogDownload && !controller.signal.aborted) void refreshQuota();
+      }
     }
   }
 
   function handleClick() {
-    if (isRestoring || isDownloading || isLimitReached) {
+    if (isRestoring || isDownloading) {
       return;
     }
 
     if (!user || !token) {
       setIsRegistrationOpen(true);
 
+      return;
+    }
+
+    if (isLimitReached) {
+      setIsLimitModalOpen(true);
       return;
     }
 
@@ -186,6 +228,9 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
 
   return {
     user,
+    isLimitModalOpen,
+    setIsLimitModalOpen,
+    purchaseId,
     isRestoring,
     isRegistrationOpen,
     setRegistrationOpen: setIsRegistrationOpen,

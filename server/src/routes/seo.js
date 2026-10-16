@@ -997,6 +997,22 @@ export function createSeoRouter({
     });
   }
 
+  router.get('/oplata-instrukcii', (req, res, next) => {
+    try {
+      const html = fs
+        .readFileSync(indexPath, 'utf8')
+        .replace(/<meta\s+[^>]*name=["']robots["'][^>]*>/giu, '')
+        .replace('</head>', '<meta name="robots" content="noindex, nofollow"></head>');
+      res
+        .set('Cache-Control', 'private, no-store')
+        .set('X-Robots-Tag', 'noindex, nofollow')
+        .type('html')
+        .send(html);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   router.get('/instrukcii-po-ohrane-truda', (req, res, next) => {
     if (redirectTrailingSlash(req, res)) return;
 

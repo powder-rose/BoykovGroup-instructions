@@ -170,7 +170,22 @@ export function createRateLimiters() {
     keyGenerator: userOrIpKey,
   });
 
+  const walletWrite = createLimiter({
+    identifier: 'wallet-write',
+    windowMs: 15 * MINUTE_MS,
+    limit: 30,
+    keyGenerator: userOrIpKey,
+  });
+  const walletConfirmation = createLimiter({
+    identifier: 'wallet-confirmation',
+    windowMs: 10 * MINUTE_MS,
+    limit: 60,
+    keyGenerator: userOrIpKey,
+  });
+
   return {
+    walletWrite,
+    walletConfirmation,
     loginIp,
     loginIdentity,
     registration,

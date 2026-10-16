@@ -1,6 +1,9 @@
 import express, { Router } from 'express';
 
-import crypto from 'node:crypto';
+import {
+  verifyCloudPaymentsHmac as verifyHmac,
+  parseCloudPaymentsNotification as parsePayload,
+} from '../utils/cloudPaymentsNotification.js';
 
 import {
   getPublicGenerationOrder,
@@ -27,58 +30,6 @@ cloudPaymentsWebhookRouter.use(
     limit: '100kb',
   }),
 );
-
-function safeEqual(left, right) {
-  if (typeof left !== 'string' || typeof right !== 'string') {
-    return false;
-  }
-
-  const a = Buffer.from(left, 'utf8');
-
-  const b = Buffer.from(right, 'utf8');
-
-  if (a.length !== b.length) {
-    return false;
-  }
-
-  return crypto.timingSafeEqual(a, b);
-}
-
-function verifyHmac(req) {
-  const secret = String(process.env.CLOUDPAYMENTS_API_SECRET ?? '');
-
-  if (!secret) {
-    console.error('[CloudPayments] CLOUDPAYMENTS_API_SECRET missing');
-
-    return false;
-  }
-
-  if (!Buffer.isBuffer(req.body)) {
-    return false;
-  }
-
-  /*
-   * Для POST CloudPayments документирует,
-   * что Content-HMAC считается от тела запроса.
-   */
-  const expected = crypto.createHmac('sha256', secret).update(req.body).digest('base64');
-
-  const received = String(req.get('Content-HMAC') ?? '');
-
-  return safeEqual(expected, received);
-}
-
-function parsePayload(req) {
-  const raw = Buffer.isBuffer(req.body) ? req.body.toString('utf8') : '';
-
-  const contentType = String(req.get('content-type') ?? '').toLowerCase();
-
-  if (contentType.includes('application/json')) {
-    return JSON.parse(raw || '{}');
-  }
-
-  return Object.fromEntries(new URLSearchParams(raw));
-}
 
 function amountIsCorrect(value, expected) {
   const amount = Number(value);

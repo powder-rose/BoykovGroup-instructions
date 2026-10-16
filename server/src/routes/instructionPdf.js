@@ -13,6 +13,7 @@ import { getInstructionPdfCompanyProfile } from '../services/instructionPdfProfi
 
 import { recordInstructionDownload } from '../services/downloadStatsService.js';
 import { downloadQuotaService } from '../services/downloadQuotaService.js';
+import { walletRepository } from '../services/walletRepository.js';
 
 export const instructionPdfRouter = Router();
 
@@ -37,7 +38,12 @@ instructionPdfRouter.get('/download-quota', requirePdfAccess, (req, res) => {
   if (req.user.role === 'admin') return res.json({ unlimited: true });
 
   try {
-    return res.json(downloadQuotaService.get(req.user.sub));
+    const quota = downloadQuotaService.get(req.user.sub);
+    if (typeof req.query.instructionId === 'string' && req.query.instructionId) {
+      const purchase = walletRepository.findPurchase(req.user.sub, req.query.instructionId);
+      return res.json({ ...quota, purchaseId: purchase?.id || null });
+    }
+    return res.json(quota);
   } catch (error) {
     console.error('Download quota lookup error:', error);
     return res.status(503).json({

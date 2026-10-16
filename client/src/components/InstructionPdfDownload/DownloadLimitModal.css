@@ -1,0 +1,110 @@
+.download-limit {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  overflow: auto;
+  box-sizing: border-box;
+  width: min(520px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 40px;
+  border: var(--border-ink);
+  border-radius: var(--radius-md);
+  color: var(--color-text);
+  background: var(--color-surface);
+  box-shadow: 8px 8px 0 rgba(26, 34, 51, 0.16);
+}
+.download-limit::backdrop {
+  background: rgba(26, 34, 51, 0.5);
+}
+.download-limit__close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  background: transparent;
+  font-size: 28px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.download-limit__eyebrow {
+  margin: 0 0 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--color-primary);
+}
+.download-limit h2 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.4;
+}
+.download-limit__description {
+  margin: 16px 0 24px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--color-text-muted);
+}
+.download-limit__price {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 20px 0;
+  border-block: 1px solid var(--color-border);
+  margin-bottom: 26px;
+}
+.download-limit__price strong {
+  font-size: 40px;
+  white-space: nowrap;
+  color: var(--color-primary);
+}
+.download-limit__price span {
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--color-text-muted);
+}
+.download-limit__buy {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 52px;
+  padding: 12px 18px;
+  border: var(--border-ink);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  box-shadow: 3px 3px 0 var(--color-text);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  text-decoration: none;
+}
+.download-limit__buy:hover {
+  background: var(--color-primary-hover);
+}
+.download-limit__later {
+  display: block;
+  margin: 20px auto 0;
+  padding: 8px;
+  border: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.download-limit :focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 4px;
+}
+@media (max-width: 500px) {
+  .download-limit {
+    padding: 38px 24px 24px;
+  }
+  .download-limit h2 {
+    font-size: 23px;
+  }
+  .download-limit__price {
+    gap: 16px;
+  }
+}
