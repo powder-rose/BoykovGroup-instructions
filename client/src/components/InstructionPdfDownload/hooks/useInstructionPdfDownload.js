@@ -9,8 +9,13 @@ import {
 } from '../../../store/authSlice.js';
 
 import { downloadQuotaFromHeaders } from '../../../lib/downloadQuota.js';
+import { useWalletBalance } from '../../../contexts/WalletBalanceContext.jsx';
 import useDownloadQuota from './useDownloadQuota.js';
-import { downloadPurchasedInstruction } from '../../../../public/assets/wallet-client.js';
+import {
+  downloadPurchasedInstruction,
+  notifyWalletUpdated,
+  purchaseCatalogInstruction,
+} from '../../../../public/assets/wallet-client.js';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -96,6 +101,7 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
   );
 
   const isLimitReached = isCatalogDownload && remaining === 0 && !purchaseId;
+  const { balanceMinor, priceMinor } = useWalletBalance();
 
   async function downloadPdf() {
     if (!instructionId || !token || isDownloading || downloadControllerRef.current) {
@@ -141,7 +147,7 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
           if (controller.signal.aborted) return;
           if (isCatalogDownload) updateQuota(data);
           if (data.code === 'DOWNLOAD_LIMIT_REACHED') {
-            setIsLimitModalOpen(true);
+            showMessage('Бесплатные скачивания закончились. Теперь инструкцию можно купить.');
             return;
           }
 
@@ -205,6 +211,56 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
     }
   }
 
+  async function buyInstruction() {
+    if (!instructionId || !token || downloadControllerRef.current) return;
+    const controller = new AbortController();
+    downloadControllerRef.current = controller;
+    setIsDownloading(true);
+
+    try {
+      // Recheck the actual server balance before charging; the header may be stale.
+      const result = await purchaseCatalogInstruction(token, instructionId, {
+        baseUrl: API_BASE_URL,
+        signal: controller.signal,
+      });
+      if (controller.signal.aborted) return;
+      if (result.kind === 'topup') {
+        notifyWalletUpdated(result.wallet);
+        setIsLimitModalOpen(true);
+        return;
+      }
+
+      // The server makes the purchase idempotent and charges the account at most once.
+      notifyWalletUpdated(result.wallet);
+      await downloadPurchasedInstruction(token, result.purchaseId, {
+        baseUrl: API_BASE_URL,
+        signal: controller.signal,
+      });
+      if (!controller.signal.aborted) {
+        showMessage('Инструкция куплена. PDF готов, повторное скачивание бесплатно.', 'success');
+      }
+    } catch (error) {
+      if (controller.signal.aborted) return;
+      if (error.code === 'INSUFFICIENT_BALANCE') {
+        notifyWalletUpdated();
+        setIsLimitModalOpen(true);
+        return;
+      }
+      if (error.code === 'FREE_DOWNLOADS_AVAILABLE') {
+        showMessage('У вас ещё есть бесплатное скачивание. Баланс не списан.');
+        return;
+      }
+      console.error('Instruction purchase error:', error);
+      showMessage(error?.message || 'Не удалось купить инструкцию.');
+    } finally {
+      if (downloadControllerRef.current === controller) {
+        downloadControllerRef.current = null;
+        setIsDownloading(false);
+        if (!controller.signal.aborted) void refreshQuota();
+      }
+    }
+  }
+
   function handleClick() {
     if (isRestoring || isDownloading) {
       return;
@@ -217,7 +273,7 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
     }
 
     if (isLimitReached) {
-      setIsLimitModalOpen(true);
+      void buyInstruction();
       return;
     }
 
@@ -238,6 +294,8 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
     message,
     isCatalogDownload,
     isLimitReached,
+    balanceMinor,
+    priceMinor,
     remaining,
     quotaError,
     handleClick,

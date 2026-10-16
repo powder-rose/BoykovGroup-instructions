@@ -3,7 +3,8 @@ import {
   formatRubles,
   walletPaymentUrl,
   downloadPurchasedInstruction,
-} from './wallet-client.js?v=20261016-wallet-v1';
+  WALLET_UPDATED_EVENT,
+} from './wallet-client.js?v=20261016-wallet-v2';
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -23,6 +24,7 @@ const formatDate = value =>
 
 export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
   const token = getToken();
+  const headerBalance = document.getElementById('account-header-balance');
   const lifetime = new AbortController();
   let request;
   let downloading = false;
@@ -113,6 +115,10 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
     history.append(entries);
     if (!wallet.history.length) history.append(element('p', 'wallet-muted', 'Операций пока нет.'));
     root.replaceChildren(summary);
+    if (headerBalance) {
+      headerBalance.textContent = `Баланс · ${formatRubles(wallet.balanceMinor)}`;
+      headerBalance.hidden = false;
+    }
     if (wallet.balanceMinor < 0)
       root.append(
         element(
@@ -144,6 +150,7 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
       if (current() && !controller.signal.aborted) render(wallet);
     } catch (error) {
       if (!current() || controller.signal.aborted) return;
+      if (headerBalance) headerBalance.hidden = true;
       if (error.status === 401) return onAuthenticationError();
       const text = element(
         'p',
@@ -162,6 +169,7 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
   };
   window.addEventListener('focus', focus);
   window.addEventListener('pageshow', focus);
+  window.addEventListener(WALLET_UPDATED_EVENT, focus);
   document.addEventListener('visibilitychange', visible);
   void refresh();
   return {
@@ -170,7 +178,9 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
       request?.abort();
       window.removeEventListener('focus', focus);
       window.removeEventListener('pageshow', focus);
+      window.removeEventListener(WALLET_UPDATED_EVENT, focus);
       document.removeEventListener('visibilitychange', visible);
+      if (headerBalance) headerBalance.hidden = true;
       root.replaceChildren();
       root.className = '';
     },

@@ -172,6 +172,14 @@
   color: var(--color-text);
 }
 
+.profileActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  min-width: 0;
+}
+
 .profile {
   flex-shrink: 0;
 
@@ -211,8 +219,13 @@
 
   .profileRow {
     gap: 18px;
-
+    flex-wrap: wrap;
     padding: 14px 0 18px;
+  }
+
+  .profileActions {
+    margin-left: auto;
+    flex-wrap: wrap;
   }
 
   .title {

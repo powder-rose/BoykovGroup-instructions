@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect } from 'react';
 
 import { useDispatch } from 'react-redux';
+import { WalletBalanceProvider } from './contexts/WalletBalanceContext.jsx';
 
 import { Route, Routes, useLocation } from 'react-router-dom';
 
@@ -44,7 +45,7 @@ export default function App() {
   }, [location.pathname]);
 
   return (
-    <>
+    <WalletBalanceProvider>
       <VisitorTracker />
 
       <Routes>
@@ -63,6 +64,6 @@ export default function App() {
       <CookieConsent />
 
       <CompanyProfileOnboarding />
-    </>
+    </WalletBalanceProvider>
   );
 }

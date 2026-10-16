@@ -36,9 +36,10 @@ export default function DownloadLimitModal({ instructionId, onClose }) {
         ×
       </button>
       <p className="download-limit__eyebrow">[ ЕЩЁ ОДНА ИНСТРУКЦИЯ ]</p>
-      <h2 id="download-limit-title">Лимит в этом месяце закончился</h2>
+      <h2 id="download-limit-title">Не хватает средств на балансе</h2>
       <p className="download-limit__description">
-        Нужную инструкцию можно купить отдельно. Она сохранится в вашем личном кабинете.
+        Пополните баланс, затем вернитесь к инструкции и нажмите «Купить инструкцию». Повторное
+        скачивание будет бесплатным.
       </p>
       <div className="download-limit__price">
         <strong>50 ₽</strong>
@@ -49,7 +50,7 @@ export default function DownloadLimitModal({ instructionId, onClose }) {
         </span>
       </div>
       <Link className="download-limit__buy" to={walletPaymentUrl(instructionId)} onClick={onClose}>
-        Купить инструкцию <span aria-hidden="true">→</span>
+        Пополнить баланс <span aria-hidden="true">→</span>
       </Link>
       <button className="download-limit__later" type="button" onClick={onClose}>
         Вернуться к инструкции

@@ -4,6 +4,7 @@ import LoginModal from '../LoginModal/LoginModal.jsx';
 import { logout } from '../../store/authSlice.js';
 
 import AuthUserMenu from './AuthUserMenu.jsx';
+import WalletBalanceBadge from '../WalletBalanceBadge/WalletBalanceBadge.jsx';
 
 import useAuthControl from './hooks/useAuthControl.js';
 
@@ -44,13 +45,16 @@ export default function AuthControl() {
 
   if (user) {
     return (
-      <AuthUserMenu
-        user={user}
-        isMenuOpen={isMenuOpen}
-        setMenuOpen={setMenuOpen}
-        dropdownRef={dropdownRef}
-        onLogout={() => dispatch(logout())}
-      />
+      <div className={styles.userControls}>
+        <WalletBalanceBadge />
+        <AuthUserMenu
+          user={user}
+          isMenuOpen={isMenuOpen}
+          setMenuOpen={setMenuOpen}
+          dropdownRef={dropdownRef}
+          onLogout={() => dispatch(logout())}
+        />
+      </div>
     );
   }
 

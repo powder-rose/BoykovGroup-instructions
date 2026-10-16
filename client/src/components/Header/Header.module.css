@@ -18,3 +18,16 @@
 
   flex-shrink: 0;
 }
+
+@media (max-width: 1024px) {
+  .header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+}
