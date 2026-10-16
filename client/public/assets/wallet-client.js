@@ -6,6 +6,16 @@ export function formatRubles(minor) {
   }).format(minor / 100);
 }
 
+export const WALLET_UPDATED_EVENT = 'boykovdocs:wallet-updated';
+
+export function notifyWalletUpdated(wallet = null) {
+  window.dispatchEvent(
+    new CustomEvent(WALLET_UPDATED_EVENT, {
+      detail: wallet ? { balanceMinor: wallet.balanceMinor, priceMinor: wallet.priceMinor } : null,
+    }),
+  );
+}
+
 export function walletPaymentUrl(instructionId, topupId) {
   const query = new URLSearchParams();
   if (instructionId) query.set('instruction', instructionId);
@@ -53,6 +63,25 @@ export async function walletRequest(
     clearTimeout(timer);
     signal?.removeEventListener('abort', abort);
   }
+}
+
+export async function purchaseCatalogInstruction(token, instructionId, options = {}) {
+  const wallet = await walletRequest(token, '', options);
+  if (
+    !Number.isSafeInteger(wallet.balanceMinor) ||
+    !Number.isSafeInteger(wallet.priceMinor) ||
+    wallet.priceMinor <= 0
+  ) {
+    throw new Error('Не удалось проверить стоимость инструкции и баланс.');
+  }
+  if (wallet.balanceMinor < wallet.priceMinor) return { kind: 'topup', wallet };
+
+  const result = await walletRequest(token, '/purchases', {
+    ...options,
+    body: { instructionId, priceMinor: wallet.priceMinor },
+  });
+  if (!result?.purchaseId) throw new Error('Покупка не подтверждена. Проверьте личный кабинет.');
+  return { kind: 'purchased', purchaseId: result.purchaseId, wallet: result.wallet };
 }
 
 export async function downloadPurchasedInstruction(token, purchaseId, options = {}) {

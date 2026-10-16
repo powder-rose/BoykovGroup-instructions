@@ -4,7 +4,6 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 
-
 const frontendFiles = [
   'client/src/**/*.{js,jsx}',
   'client/public/assets/company-profile*.js',
@@ -20,7 +19,6 @@ const nodeFiles = [
   'eslint.config.mjs',
 ];
 
-
 const unusedVariablesRule = [
   'error',
   {
@@ -29,7 +27,6 @@ const unusedVariablesRule = [
     caughtErrorsIgnorePattern: '^_',
   },
 ];
-
 
 export default [
   {
@@ -87,17 +84,17 @@ export default [
       ...eslintReact.configs.recommended.rules,
       ...reactHooks.configs.flat.recommended.rules,
 
+      // React 19-only recommendations; this project uses React 18.
+      '@eslint-react/no-context-provider': 'off',
+      '@eslint-react/no-use-context': 'off',
+
       '@eslint-react/exhaustive-deps': 'off',
       '@eslint-react/set-state-in-effect': 'off',
       'react-hooks/set-state-in-effect': 'off',
 
-      eqeqeq: [
-        'error',
-        'always',
-      ],
+      eqeqeq: ['error', 'always'],
 
-      'no-unused-vars':
-        unusedVariablesRule,
+      'no-unused-vars': unusedVariablesRule,
     },
   },
 
@@ -127,13 +124,9 @@ export default [
     rules: {
       ...js.configs.recommended.rules,
 
-      eqeqeq: [
-        'error',
-        'always',
-      ],
+      eqeqeq: ['error', 'always'],
 
-      'no-unused-vars':
-        unusedVariablesRule,
+      'no-unused-vars': unusedVariablesRule,
     },
   },
 

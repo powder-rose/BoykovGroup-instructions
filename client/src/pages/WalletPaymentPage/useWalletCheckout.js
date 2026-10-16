@@ -4,6 +4,7 @@ import {
   walletRequest,
   walletPaymentUrl,
   downloadPurchasedInstruction,
+  notifyWalletUpdated,
 } from '../../../public/assets/wallet-client.js';
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
@@ -95,6 +96,7 @@ export default function useWalletCheckout(token, instructionId, initialTopupId) 
       readingRef.current?.abort();
       setData(previous => (previous ? { ...previous, wallet: result.wallet } : previous));
       if (result.topup.status === 'paid') {
+        notifyWalletUpdated(result.wallet);
         setPendingId('');
         requestRef.current = null;
         window.history.replaceState(window.history.state, '', walletPaymentUrl(instructionId));
@@ -214,6 +216,7 @@ export default function useWalletCheckout(token, instructionId, initialTopupId) 
         if (lifeRef.current?.signal.aborted) return;
         purchaseId = result.purchaseId;
         readingRef.current?.abort();
+        notifyWalletUpdated(result.wallet);
         setData(previous => ({
           ...previous,
           wallet: result.wallet,

@@ -22,6 +22,8 @@ export default function InstructionPdfDownload({
     message,
     isCatalogDownload,
     isLimitReached,
+    balanceMinor,
+    priceMinor,
     remaining,
     quotaError,
     handleClick,
@@ -30,9 +32,9 @@ export default function InstructionPdfDownload({
   if (!instructionId) return null;
 
   const buttonText = isDownloading
-    ? 'Готовим PDF…'
+    ? 'Обрабатываем запрос…'
     : isLimitReached
-      ? 'Купить PDF за 50 ₽'
+      ? 'Купить инструкцию'
       : 'Скачать PDF';
 
   let statusText = '';
@@ -42,6 +44,12 @@ export default function InstructionPdfDownload({
     else if (purchaseId) statusText = 'Инструкция куплена. Повторное скачивание бесплатно';
     else if (quotaError) statusText = 'Не удалось проверить остаток скачиваний';
     else if (remaining === null) statusText = 'Проверяем доступные инструкции…';
+    else if (isLimitReached && priceMinor && balanceMinor !== null) {
+      statusText =
+        balanceMinor >= priceMinor
+          ? 'Стоимость 50 ₽ · спишем с баланса, без перехода к оплате'
+          : 'Стоимость 50 ₽ · если денег не хватает, предложим пополнение';
+    } else if (isLimitReached) statusText = 'Стоимость 50 ₽ · проверим баланс перед покупкой';
     else statusText = formatAvailableInstructions(remaining);
   }
 
