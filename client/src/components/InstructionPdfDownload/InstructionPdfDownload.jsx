@@ -16,7 +16,6 @@ export default function InstructionPdfDownload({
     setRegistrationOpen,
     isDownloading,
     message,
-    isLockedUser,
     isCatalogDownload,
     isLimitReached,
     remaining,
@@ -36,7 +35,6 @@ export default function InstructionPdfDownload({
   if (isCatalogDownload) {
     if (isRestoring) statusText = 'Проверяем доступные инструкции…';
     else if (!user) statusText = 'Войдите, чтобы увидеть доступные инструкции';
-    else if (isLockedUser) statusText = 'Подтвердите e-mail, чтобы скачать PDF';
     else if (quotaError) statusText = 'Не удалось проверить остаток скачиваний';
     else if (remaining === null) statusText = 'Проверяем доступные инструкции…';
     else statusText = formatAvailableInstructions(remaining);
@@ -53,7 +51,7 @@ export default function InstructionPdfDownload({
         <button
           type="button"
           className="boykovPdfDownload__button"
-          disabled={isRestoring || isDownloading || isLockedUser || isLimitReached}
+          disabled={isRestoring || isDownloading || isLimitReached}
           aria-busy={isDownloading}
           aria-describedby={statusText ? `${id}-status` : undefined}
           onClick={handleClick}

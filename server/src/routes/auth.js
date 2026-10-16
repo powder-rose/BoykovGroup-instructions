@@ -11,17 +11,10 @@ import {
   getUserById,
   verifyUserCredentials,
   normalizeEmail,
-  createEmailVerificationToken,
-  markVerificationEmailSent,
-  getVerificationResendDelay,
   verifyEmailToken,
 } from '../services/userService.js';
 
-import {
-  isEmailVerificationConfigured,
-  sendVerificationEmail,
-  sendRegistrationNotification,
-} from '../services/emailVerificationService.js';
+import { sendRegistrationNotification } from '../services/emailVerificationService.js';
 
 import { recordRegistrationConsents } from '../services/userConsentService.js';
 
@@ -45,20 +38,6 @@ function serializeUser(user) {
 
     verifiedAt: user.verifiedAt ?? null,
   };
-}
-
-async function sendUserVerification(user) {
-  const generated = createEmailVerificationToken(user.id);
-
-  await sendVerificationEmail({
-    email: user.email,
-
-    token: generated.token,
-  });
-
-  markVerificationEmailSent(user.id);
-
-  return true;
 }
 
 /*
@@ -127,18 +106,6 @@ authRouter.post('/register', async (req, res) => {
       console.error('Unable to record registration consents:', consentError);
     }
 
-    let verificationEmailSent = false;
-
-    if (isEmailVerificationConfigured()) {
-      try {
-        await sendUserVerification(user);
-
-        verificationEmailSent = true;
-      } catch (mailError) {
-        console.error('Verification email error:', mailError);
-      }
-    }
-
     const token = issueUserToken(user);
 
     return res.status(201).json({
@@ -146,7 +113,8 @@ authRouter.post('/register', async (req, res) => {
 
       user: serializeUser(user),
 
-      verificationEmailSent,
+      // Retain the response field for older clients without sending a verification email.
+      verificationEmailSent: false,
     });
   } catch (error) {
     if (error?.code === 'VALIDATION_ERROR') {
@@ -215,8 +183,8 @@ authRouter.post('/login', (req, res) => {
 /*
  * Текущий пользователь.
  *
- * Статус подтверждения email читается
- * из users.json, а не из JWT.
+ * Данные аккаунта читаются из users.json,
+ * а не из JWT.
  */
 authRouter.get('/me', (req, res) => {
   res.set('Cache-Control', 'private, no-store');
@@ -253,7 +221,8 @@ authRouter.get('/me', (req, res) => {
 });
 
 /*
- * Ссылка из письма.
+ * Совместимость с ранее отправленными ссылками.
+ * Подтверждение больше не требуется для доступа к PDF.
  */
 authRouter.get('/verify-email', (req, res) => {
   const token = req.query?.token;
@@ -270,9 +239,9 @@ authRouter.get('/verify-email', (req, res) => {
 });
 
 /*
- * Повторная отправка письма.
+ * Совместимость со старыми клиентами: новые письма подтверждения не отправляются.
  */
-authRouter.post('/resend-verification', async (req, res) => {
+authRouter.post('/resend-verification', (req, res) => {
   if (!req.user || req.user.role !== 'user') {
     return res.status(401).json({
       error: 'Требуется авторизация',
@@ -287,42 +256,9 @@ authRouter.post('/resend-verification', async (req, res) => {
     });
   }
 
-  if (user.emailVerified) {
-    return res.json({
-      ok: true,
-      emailVerified: true,
-    });
-  }
-
-  if (!isEmailVerificationConfigured()) {
-    return res.status(503).json({
-      error: 'Отправка email временно недоступна',
-    });
-  }
-
-  const retryAfter = getVerificationResendDelay(user.id);
-
-  if (retryAfter > 0) {
-    res.setHeader('Retry-After', String(retryAfter));
-
-    return res.status(429).json({
-      error: `Повторное письмо можно отправить через ${retryAfter} сек.`,
-      retryAfter,
-    });
-  }
-
-  try {
-    await sendUserVerification(user);
-
-    return res.json({
-      ok: true,
-      emailVerified: false,
-    });
-  } catch (error) {
-    console.error('Resend verification error:', error);
-
-    return res.status(502).json({
-      error: 'Не удалось отправить письмо. Попробуйте позже.',
-    });
-  }
+  return res.json({
+    ok: true,
+    emailVerified: user.emailVerified === true,
+    verificationRequired: false,
+  });
 });

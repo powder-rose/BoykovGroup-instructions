@@ -22,10 +22,6 @@ export function createRequirePdfAccess({ userLookup = getUserById } = {}) {
       return res.status(401).json({ error: 'Пользователь не найден' });
     }
 
-    if (user.emailVerified !== true) {
-      return res.status(403).json({ error: 'Подтвердите e-mail, чтобы скачать PDF' });
-    }
-
     return next();
   };
 }

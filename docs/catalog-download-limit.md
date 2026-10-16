@@ -1,8 +1,16 @@
 # Catalog PDF download limit
 
-Each verified user account may download catalog PDFs five times in total. The
+Each registered user account may download catalog PDFs five times in total. The
 allowance never resets. Repeated downloads of the same instruction count again.
 Admin downloads and PDFs from purchased orders are exempt.
+
+Email/password authentication is sufficient for downloads and quota reads.
+Registration no longer sends verification emails or creates verification tokens;
+the legacy resend endpoint also sends no email. Existing unverified accounts can
+download immediately without changing their saved verification status or balance.
+Previously issued verification links remain valid for compatibility, but have no
+effect on PDF access. Required registration contacts and admin notifications stay
+in place.
 
 The catalog UI displays the server balance below the download button, with Russian
 plural forms. Its requested monthly wording is presentation only at this stage:

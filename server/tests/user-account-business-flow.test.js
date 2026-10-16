@@ -407,7 +407,7 @@ test(
 );
 
 test(
-  'user registration login verification and ownership lifecycle stays consistent',
+  'registration and login need no email confirmation while old links remain usable',
   {
     concurrency: false,
   },
@@ -449,7 +449,7 @@ test(
 
       assert.equal(registration.user.emailVerified, false);
 
-      assert.equal(registration.verificationEmailSent, true);
+      assert.equal(registration.verificationEmailSent, false);
 
       assert.equal(typeof registration.token, 'string');
 
@@ -514,26 +514,15 @@ test(
 
       /*
        * ========================================
-       * EMAIL WAS PREPARED, NOT REALLY SENT
+       * NO VERIFICATION EMAIL OR TOKEN
        * ========================================
        */
-      const verificationEmails = flow.emailStub.getVerificationEmails();
-
-      assert.equal(verificationEmails.length, 1);
-
-      assert.equal(verificationEmails[0].email, 'buyer.account@example.invalid');
-
-      assert.equal(typeof verificationEmails[0].token, 'string');
-
-      assert.ok(verificationEmails[0].token.length > 30);
-
-      const verificationToken = verificationEmails[0].token;
-
-      assert.equal(
-        rawUsersFile.includes(verificationToken),
-        false,
-        'raw verification token must not be persisted',
-      );
+      assert.deepEqual(flow.emailStub.getVerificationEmails(), []);
+      assert.equal(storedUser.emailVerified, false);
+      assert.equal(storedUser.verifiedAt, null);
+      assert.equal(storedUser.verificationTokenHash, null);
+      assert.equal(storedUser.verificationTokenExpiresAt, null);
+      assert.equal(storedUser.verificationEmailSentAt, null);
 
       assert.deepEqual(flow.emailStub.getRegistrationNotifications(), [expectedContacts]);
 
@@ -557,7 +546,7 @@ test(
 
       /*
        * ========================================
-       * RESEND COOLDOWN
+       * LEGACY RESEND SENDS NOTHING AND DOES NOT CHANGE THE ACCOUNT
        * ========================================
        */
       const resendResponse = await flow.request('/api/auth/resend-verification', {
@@ -568,17 +557,17 @@ test(
         },
       });
 
-      assert.equal(resendResponse.status, 429);
+      assert.equal(resendResponse.status, 200);
 
       const resendBody = await resendResponse.json();
 
-      assert.ok(resendBody.retryAfter > 0);
-
-      assert.equal(
-        flow.emailStub.getVerificationEmails().length,
-        1,
-        'cooldown must prevent duplicate verification email',
-      );
+      assert.deepEqual(resendBody, {
+        ok: true,
+        emailVerified: false,
+        verificationRequired: false,
+      });
+      assert.deepEqual(flow.emailStub.getVerificationEmails(), []);
+      assert.equal(fs.readFileSync(flow.usersFile, 'utf8'), rawUsersFile);
 
       /*
        * ========================================
@@ -599,6 +588,7 @@ test(
 
       const loginBody = await loginResponse.json();
       assert.deepEqual(contactDetails(loginBody.user), expectedContacts);
+      assert.equal(loginBody.user.emailVerified, false);
 
       const loginPayload = verifyToken(loginBody.token);
 
@@ -620,9 +610,12 @@ test(
 
       /*
        * ========================================
-       * VERIFY EMAIL
+       * COMPATIBILITY WITH A TOKEN ISSUED BEFORE VERIFICATION WAS RETIRED
        * ========================================
        */
+      const { token: verificationToken } = flow.userService.createEmailVerificationToken(
+        storedUser.id,
+      );
       const verifyResponse = await flow.request(
         '/api/auth/verify-email?' +
           new URLSearchParams({
@@ -691,8 +684,9 @@ test(
       const resendVerified = await resendVerifiedResponse.json();
 
       assert.equal(resendVerified.emailVerified, true);
+      assert.equal(resendVerified.verificationRequired, false);
 
-      assert.equal(flow.emailStub.getVerificationEmails().length, 1);
+      assert.equal(flow.emailStub.getVerificationEmails().length, 0);
 
       /*
        * ========================================
@@ -743,7 +737,7 @@ test(
 
       assert.equal(flow.emailStub.getRegistrationNotifications().length, 1);
 
-      assert.equal(flow.emailStub.getVerificationEmails().length, 1);
+      assert.equal(flow.emailStub.getVerificationEmails().length, 0);
 
       // Company details cannot clear or spoof the registration contacts.
       const saved = await flow.request(
