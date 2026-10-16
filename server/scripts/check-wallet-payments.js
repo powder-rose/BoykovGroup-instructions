@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { fetchWithTimeout } from '../src/utils/fetchWithTimeout.js';
+import { assessCloudPaymentsNotification } from '../src/utils/cloudPaymentsNotificationSettings.js';
 
 const publicId = String(process.env.CLOUDPAYMENTS_PUBLIC_ID || '').trim();
 const secret = String(process.env.CLOUDPAYMENTS_API_SECRET || '').trim();
@@ -29,19 +30,21 @@ if (!publicId || !secret) {
           { timeoutMs: 15_000, timeoutCode: 'CLOUDPAYMENTS_HTTP_TIMEOUT' },
         );
         const payload = await response.json();
-        const settings = payload?.Model;
-        const valid =
-          response.ok &&
-          payload.Success === true &&
-          settings?.IsEnabled === true &&
-          settings.Address === expected &&
-          settings.HttpMethod === 'POST' &&
-          settings.Encoding === 'UTF8' &&
-          settings.Format === 'CloudPayments';
-        console.log(
-          `${type}: ${valid ? 'OK' : `проверьте настройки: POST, UTF8, CloudPayments, ${expected}`}`,
-        );
-        if (!valid) process.exitCode = 1;
+        if (!response.ok || payload?.Success !== true) {
+          console.error(`${type}: не удалось проверить настройки CloudPayments`);
+          process.exitCode = 1;
+          return;
+        }
+
+        const result = assessCloudPaymentsNotification(type, payload.Model, expected);
+        if (result.checkDisabled) {
+          console.log('check: выключен (допустимо при проверке платежа через Pay)');
+        } else {
+          console.log(
+            `${type}: ${result.valid ? 'OK' : `проверьте настройки: POST, UTF8, CloudPayments, ${expected}`}`,
+          );
+        }
+        if (!result.valid) process.exitCode = 1;
       } catch {
         console.error(`${type}: не удалось прочитать настройки CloudPayments`);
         process.exitCode = 1;
