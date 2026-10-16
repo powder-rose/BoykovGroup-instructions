@@ -223,6 +223,9 @@ export function createWalletRepository({ file = DEFAULT_FILE, io = fs } = {}) {
     state.purchases.find(row => row.userId === userId && row.instructionId === instructionId);
 
   return {
+    listAdminPurchases() {
+      return read(state => state.purchases.map(purchaseView));
+    },
     getView(userId) {
       return read(state => ({
         currency: WALLET_CURRENCY,

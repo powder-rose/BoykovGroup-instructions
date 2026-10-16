@@ -44,7 +44,7 @@ function hashUserId(value) {
  * Пользователь хранится только
  * в виде SHA-256 хеша.
  */
-export function recordInstructionDownload({ instructionId, title, userId }) {
+export function recordInstructionDownload({ instructionId, title, userId, kind = 'free' }) {
   const id = String(instructionId ?? '').trim();
 
   const user = String(userId ?? '').trim();
@@ -65,6 +65,7 @@ export function recordInstructionDownload({ instructionId, title, userId }) {
       .slice(0, 500),
 
     downloader: hashUserId(user),
+    kind: kind === 'paid' ? 'paid' : 'free',
   };
 
   downloadEventWriter.append(`${JSON.stringify(event)}\n`);

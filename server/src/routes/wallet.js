@@ -7,6 +7,7 @@ import { instructionsRepository } from '../services/instructionsRepository.js';
 import { toPublicInstruction } from '../services/instructionPublicView.js';
 import { createInstructionPdfBuffer } from '../services/instructionPdfService.js';
 import { getInstructionPdfCompanyProfile } from '../services/instructionPdfProfile.js';
+import { recordInstructionDownload } from '../services/downloadStatsService.js';
 import { INSTRUCTION_PRICE_MINOR, walletError } from '../services/walletMoney.js';
 
 export function createWalletRouter({
@@ -17,6 +18,7 @@ export function createWalletRouter({
   instructions = instructionsRepository,
   generatePdf = createInstructionPdfBuffer,
   profileLookup = getInstructionPdfCompanyProfile,
+  recordDownload = recordInstructionDownload,
 } = {}) {
   const router = Router();
   const run = handler => (req, res, next) =>
@@ -167,6 +169,23 @@ export function createWalletRouter({
       delete req.headers['if-modified-since'];
       res.set('Content-Disposition', 'attachment; filename="instruction.pdf"');
       res.set('X-Content-Type-Options', 'nosniff');
+      res.once('finish', () => {
+        if (
+          res.statusCode !== 200 ||
+          !String(res.getHeader('content-type') || '').includes('application/pdf')
+        )
+          return;
+        try {
+          recordDownload({
+            instructionId: purchase.instructionId,
+            title: purchase.title,
+            userId: req.walletUser.id,
+            kind: 'paid',
+          });
+        } catch (error) {
+          console.error('Paid PDF download stats error:', error);
+        }
+      });
       res.type('application/pdf').send(pdf);
     }),
   );

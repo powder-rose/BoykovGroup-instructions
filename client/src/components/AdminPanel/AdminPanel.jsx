@@ -5,6 +5,7 @@ import { selectAuthToken, selectIsAdmin } from '../../store/authSlice.js';
 
 import AdminVisitorStats from '../AdminVisitorStats/AdminVisitorStats.jsx';
 import AdminInstructionTop10 from '../AdminInstructionTop10/AdminInstructionTop10.jsx';
+import AdminCommerceStats from '../AdminCommerceStats/AdminCommerceStats.jsx';
 import AdminPromoCodes from '../AdminPromoCodes/AdminPromoCodes.jsx';
 import AdminDashboardTabs from '../AdminDashboardTabs/AdminDashboardTabs.jsx';
 import AdminPublicationInbox from '../AdminPublicationInbox/AdminPublicationInbox.jsx';
@@ -90,6 +91,10 @@ export default function AdminPanel({ importId, onImportCreated, onRefresh }) {
 
           <AdminInstructionTop10 token={token} hidden={adminDashboardTab !== 'top10'} />
         </>
+      )}
+
+      {isAdmin && token && ['purchases', 'downloads'].includes(adminDashboardTab) && (
+        <AdminCommerceStats key={adminDashboardTab} token={token} section={adminDashboardTab} />
       )}
 
       {isAdmin && <AdminGenerationStats stats={stats} statsError={statsError} />}

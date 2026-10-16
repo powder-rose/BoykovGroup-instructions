@@ -21,6 +21,14 @@ const TABS = [
   },
 
   {
+    id: 'purchases',
+    label: 'РџРѕРєСѓРїРєРё',
+  },
+  {
+    id: 'downloads',
+    label: 'РЎРєР°С‡РёРІР°РЅРёСЏ',
+  },
+  {
     id: 'promocodes',
 
     label: 'Промокоды',
