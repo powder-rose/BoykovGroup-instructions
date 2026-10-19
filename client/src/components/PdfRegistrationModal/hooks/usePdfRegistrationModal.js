@@ -62,20 +62,6 @@ export default function usePdfRegistrationModal({ onClose }) {
     onCloseRef.current?.();
   }, []);
 
-  useEffect(() => {
-    function handleKeyDown(event) {
-      if (event.key === 'Escape') {
-        closeModal();
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [closeModal]);
-
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -131,12 +117,6 @@ export default function usePdfRegistrationModal({ onClose }) {
     }
   }
 
-  function handleOverlayClick(event) {
-    if (event.target === event.currentTarget) {
-      closeModal();
-    }
-  }
-
   return {
     name,
     setName,
@@ -164,6 +144,5 @@ export default function usePdfRegistrationModal({ onClose }) {
 
     closeModal,
     handleSubmit,
-    handleOverlayClick,
   };
 }
