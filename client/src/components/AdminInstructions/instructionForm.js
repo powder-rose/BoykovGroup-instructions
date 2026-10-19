@@ -14,6 +14,9 @@ export function instructionToForm(instruction = {}) {
     seoReady: instruction.editorialMeta?.seoReady === true,
     seoAuthor: instruction.editorialMeta?.seoAuthor || '',
     contentAuthor: instruction.editorialMeta?.contentAuthor || '',
+    primaryCategoryId: instruction.primaryCategoryId ?? null,
+    tagIds: Array.isArray(instruction.tagIds) ? [...instruction.tagIds] : [],
+    taxonomyPatch: {},
   };
 }
 

@@ -24,6 +24,9 @@ async function request(token, path = '', options = {}) {
 export function fetchEditorInstructions(token) {
   return request(token);
 }
+export function fetchInstructionTaxonomy(token) {
+  return request(token, '/taxonomy');
+}
 export function fetchEditorInstruction(token, id) {
   return request(token, `/${encodeURIComponent(id)}`);
 }

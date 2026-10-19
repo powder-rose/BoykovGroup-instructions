@@ -179,6 +179,7 @@ export default function InstructionEditor({ instructionId, token, onClose, onCha
             key={record ? `${record.id}:${record.revision}` : 'new'}
             envelope={envelope}
             identity={identity}
+            token={token}
             saving={busy}
             history={history}
             onSave={save}

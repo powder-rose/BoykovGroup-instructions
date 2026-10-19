@@ -11,7 +11,7 @@ import {
   richTextToPlainText,
 } from '../shared/instructionDocument.js';
 import { instructionsRepository } from './instructionsRepository.js';
-import { prepareInstructionTaxonomy } from './instructionTaxonomyService.js';
+import { applyInstructionTaxonomyEditorPatch } from './instructionTaxonomyEditor.js';
 import { saveInstructionSnapshot } from './instructionHistoryService.js';
 import { normalizeProfessionKey } from './professionNormalizer.js';
 import { createInstructionHash } from './instructionHashService.js';
@@ -398,20 +398,23 @@ export function createInstructionEditorService({
       const now = new Date().toISOString();
       const profession = previous?.editable.profession || titleProfession(values.title);
       const legacy = instructionDocumentToLegacy(values.instructionContent);
-      const instruction = prepareInstructionTaxonomy({
-        ...previous?.editable,
-        ...values,
-        ...legacy,
-        id: stableId,
-        slugAliases: aliases,
-        profession,
-        professionKey: previous?.editable.professionKey || normalizeProfessionKey(profession),
-        source: previous?.editable.source || 'manual',
-        createdAt: previous?.editable.createdAt || now,
-        updatedAt: now,
-        revision: (previous?.revision || 0) + 1,
-        version: published?.version || previous?.editable.version || '1.0',
-      });
+      const instruction = applyInstructionTaxonomyEditorPatch(
+        {
+          ...previous?.editable,
+          ...values,
+          ...legacy,
+          id: stableId,
+          slugAliases: aliases,
+          profession,
+          professionKey: previous?.editable.professionKey || normalizeProfessionKey(profession),
+          source: previous?.editable.source || 'manual',
+          createdAt: previous?.editable.createdAt || now,
+          updatedAt: now,
+          revision: (previous?.revision || 0) + 1,
+          version: published?.version || previous?.editable.version || '1.0',
+        },
+        input.taxonomyPatch,
+      );
 
       instruction.contentHash = createInstructionHash(instruction);
       instruction.editorialMeta = updateInstructionEditorialMeta(previous?.editable, instruction, {
