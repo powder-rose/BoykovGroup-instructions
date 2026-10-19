@@ -8,6 +8,7 @@ import InstructionPdfDownload from '../InstructionPdfDownload/InstructionPdfDown
 import RichTextContent from '../RichTextContent/RichTextContent.jsx';
 import InstructionCopyGuard from '../InstructionCopyGuard/InstructionCopyGuard.jsx';
 import InstructionArticleMeta from './InstructionArticleMeta.jsx';
+import InstructionTaxonomy from './InstructionTaxonomy.jsx';
 import InstructionTableOfContents from './InstructionTableOfContents.jsx';
 import InstructionSeo from './InstructionSeo.jsx';
 import useInstructionPage from './hooks/useInstructionPage.js';
@@ -79,6 +80,7 @@ export default function InstructionPage() {
             <Breadcrumbs instruction={instruction} />
             <InstructionCopyGuard allowCopy={isAdmin}>
               <h1 className={styles.title}>{instruction.title}</h1>
+              <InstructionTaxonomy taxonomy={instruction.taxonomyDisplay} />
               {instruction.webIntro && <p className={styles.intro}>{instruction.webIntro}</p>}
             </InstructionCopyGuard>
 
