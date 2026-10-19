@@ -11,6 +11,7 @@ import {
   richTextToPlainText,
 } from '../shared/instructionDocument.js';
 import { instructionsRepository } from './instructionsRepository.js';
+import { getInstructionTaxonomyDisplay } from './instructionTaxonomyDisplayService.js';
 import { applyInstructionTaxonomyEditorPatch } from './instructionTaxonomyEditor.js';
 import { saveInstructionSnapshot } from './instructionHistoryService.js';
 import { normalizeProfessionKey } from './professionNormalizer.js';
@@ -221,6 +222,7 @@ export function createInstructionEditorService({
         status: draft ? 'draft' : 'published',
         revision,
         editorialMeta: getInstructionEditorialMeta(editable),
+        taxonomyDisplay: getInstructionTaxonomyDisplay(editable),
       },
       hasDraft: Boolean(draft),
       hasPublishedVersion: Boolean(published),

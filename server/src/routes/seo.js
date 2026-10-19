@@ -6,6 +6,7 @@ import { Router } from 'express';
 import { instructionsRepository } from '../services/instructionsRepository.js';
 import { renderRichTextContentToHtml } from '../services/richTextContent.js';
 import { getRelatedInstructions } from '../services/instructionEditorService.js';
+import { getInstructionTaxonomyDisplay } from '../services/instructionTaxonomyDisplayService.js';
 import {
   getInstructionDocument,
   getInstructionOutline,
@@ -123,6 +124,10 @@ const CSS_MODULES = [
     'InstructionModal',
     path.join(CLIENT_SRC_DIR, 'components', 'InstructionModal', 'InstructionModal.module.css'),
   ],
+  [
+    'InstructionTaxonomy',
+    path.join(CLIENT_SRC_DIR, 'components', 'InstructionPage', 'InstructionTaxonomy.module.css'),
+  ],
 ];
 
 function loadClientModuleCss() {
@@ -208,6 +213,13 @@ input {
 `;
 
 const EXACT_SITE_CSS = [loadGlobalClientCss(), loadClientModuleCss(), SEO_LAYOUT_CSS].join('\n\n');
+
+const INSTRUCTION_TAXONOMY_SEO_CSS = prefixCssModuleClasses(
+  readTextIfExists(
+    path.join(CLIENT_SRC_DIR, 'components', 'InstructionPage', 'InstructionTaxonomy.module.css'),
+  ),
+  'InstructionTaxonomy',
+);
 
 const COPY_PROTECTION_CSS = `
   [data-copy-protected="true"],
@@ -506,6 +518,13 @@ function renderInstructionSeoBody(instruction, relatedInstructions) {
   const document = getInstructionDocument(instruction);
   const outline = getInstructionOutline(document);
   const related = relatedInstructions(instruction);
+  const taxonomy = getInstructionTaxonomyDisplay(instruction);
+  const taxonomyHtml = taxonomy
+    ? `<div class="InstructionTaxonomy_root" aria-label="Категория и теги инструкции">
+        ${taxonomy.category ? `<span class="InstructionTaxonomy_category">Категория: ${escapeHtml(taxonomy.category.label)}</span>` : ''}
+        ${taxonomy.tags.map(tag => `<span class="InstructionTaxonomy_tag">${escapeHtml(tag.label)}</span>`).join('')}
+      </div>`
+    : '';
 
   const contents = outline.length
     ? `<nav class="instruction-outline" aria-label="Содержание инструкции">
@@ -548,6 +567,7 @@ function renderInstructionSeoBody(instruction, relatedInstructions) {
       <article>
         <header data-copy-protected="true">
           <h1>${escapeHtml(title)}</h1>
+          ${taxonomyHtml}
           ${webIntro ? `<p class="instruction-web-intro">${escapeHtml(webIntro)}</p>` : ''}
         </header>
         <div id="boykov-instruction-pdf-download" class="instruction-pdf-download boykovPdfDownload">
@@ -870,6 +890,7 @@ function renderInstructionPage(req, instruction, indexPath, relatedInstructions)
   <!-- SEO_INSTRUCTION_PRODUCTION_SHELL_V1 -->
 
   <style data-copy-protection>${COPY_PROTECTION_CSS}</style>
+  ${getInstructionTaxonomyDisplay(instruction) ? `<style data-instruction-taxonomy>${INSTRUCTION_TAXONOMY_SEO_CSS}</style>` : ''}
 
   <meta
     name="description"
