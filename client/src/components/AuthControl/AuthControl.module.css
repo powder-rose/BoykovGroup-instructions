@@ -302,3 +302,28 @@
     font-size: 12px;
   }
 }
+
+.compactUserControls {
+  max-width: min(100%, 310px);
+}
+
+.compactUserControls .accountTrigger {
+  max-width: 150px;
+  height: 46px;
+}
+
+@media (max-width: 650px) {
+  .compactUserControls .accountTrigger {
+    max-width: 140px;
+  }
+
+  .compactUserControls .accountMenu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    bottom: auto;
+    left: auto;
+    width: min(260px, calc(100vw - 32px));
+    max-width: none;
+  }
+}

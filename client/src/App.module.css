@@ -1452,6 +1452,11 @@
   pointer-events: auto;
 }
 
+/* Account menu must not be clipped by the fixed header's controls row. */
+.safeCompactHeader .stickyIntroCompact .compactControls {
+  overflow: visible;
+}
+
 .safeCompactInner {
   max-width: var(--max-width);
 
@@ -1497,8 +1502,53 @@
   top: auto;
 }
 
+/* On small screens, keep a short auth bar instead of the full compact hero. */
+@media (min-width: 761px) and (max-width: 1100px) {
+  .safeCompactHeader .stickyIntroCompact .compactControls {
+    grid-template-columns: minmax(180px, 1fr) auto;
+    gap: 12px;
+  }
+
+  .safeCompactHeader .compactLogo {
+    gap: 8px;
+  }
+}
+
 @media (max-width: 760px) {
-  .safeCompactHeader {
+  .safeCompactHeader .safeCompactInner {
+    padding: 8px 16px;
+  }
+
+  .safeCompactHeader .stickyIntroCompact .compactControls {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    height: auto;
+    max-height: none;
+    padding: 0;
+    border: 0;
+    opacity: 1;
+    overflow: visible;
+    transform: none;
+  }
+
+  .safeCompactHeader .compactSearch,
+  .safeCompactHeader nav,
+  .safeCompactHeader .hero {
+    display: none;
+  }
+
+  .safeCompactHeader .compactLogo {
+    width: 100%;
+    height: auto;
+    justify-content: flex-end;
+    padding: 0;
+    margin: 0;
+    transform: none;
+  }
+
+  /* The mobile bar keeps auth controls; the large branding lives below. */
+  .safeCompactHeader .compactLogo > a {
     display: none;
   }
 }

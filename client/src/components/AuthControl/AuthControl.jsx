@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useDispatch } from 'react-redux';
 import LoginModal from '../LoginModal/LoginModal.jsx';
 
@@ -10,7 +11,7 @@ import useAuthControl from './hooks/useAuthControl.js';
 
 import styles from './AuthControl.module.css';
 
-export default function AuthControl() {
+export default function AuthControl({ compact = false }) {
   const dispatch = useDispatch();
 
   const {
@@ -45,7 +46,11 @@ export default function AuthControl() {
 
   if (user) {
     return (
-      <div className={styles.userControls}>
+      <div
+        className={[styles.userControls, compact ? styles.compactUserControls : '']
+          .filter(Boolean)
+          .join(' ')}
+      >
         <WalletBalanceBadge />
         <AuthUserMenu
           user={user}
@@ -64,7 +69,8 @@ export default function AuthControl() {
         войти / регистрация
       </button>
 
-      {isModalOpen && <LoginModal onClose={() => setModalOpen(false)} />}
+      {isModalOpen &&
+        createPortal(<LoginModal onClose={() => setModalOpen(false)} />, document.body)}
     </>
   );
 }

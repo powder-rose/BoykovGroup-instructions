@@ -16,7 +16,7 @@ export default function HomeCompactHeader({ visible, query, onQueryChange }) {
     >
       <div className={styles.safeCompactInner}>
         <div className={styles.stickyIntroCompact}>
-          <HomeHeaderControls query={query} onQueryChange={onQueryChange} />
+          <HomeHeaderControls query={query} onQueryChange={onQueryChange} showAuth={visible} />
 
           <Navigation />
 
