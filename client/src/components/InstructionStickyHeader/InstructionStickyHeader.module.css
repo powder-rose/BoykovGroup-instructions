@@ -80,6 +80,7 @@
   align-items: stretch;
 
   justify-content: flex-end;
+  gap: 12px;
 
   margin-bottom: 3px;
 }
@@ -214,6 +215,14 @@
   }
 
   .logo {
+    display: flex;
+    justify-content: flex-end;
+    height: auto;
+    min-height: var(--control-height);
+    margin-bottom: 0;
+  }
+
+  .logo > a {
     display: none;
   }
 
@@ -286,5 +295,12 @@
   .titleLink,
   .profileLink {
     transition: none;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1024px) {
+  .controls {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
   }
 }
