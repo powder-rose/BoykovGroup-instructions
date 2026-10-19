@@ -1,0 +1,2355 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "id": "manufacturing",
+      "slug": "manufacturing",
+      "label": "Производство и станки",
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "construction",
+      "slug": "construction",
+      "label": "Строительство и монтаж",
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "electrical",
+      "slug": "electrical",
+      "label": "Электротехника и энергетика",
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "transport",
+      "slug": "transport",
+      "label": "Транспорт и спецтехника",
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "warehouse",
+      "slug": "warehouse",
+      "label": "Склад и грузовые работы",
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "retail",
+      "slug": "retail",
+      "label": "Торговля, общепит и гостиницы",
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "medical",
+      "slug": "medical",
+      "label": "Медицина и лаборатории",
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "office",
+      "slug": "office",
+      "label": "Офис, ИТ и управление",
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "property",
+      "slug": "property",
+      "label": "ЖКХ и обслуживание зданий",
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "agriculture",
+      "slug": "agriculture",
+      "label": "Сельское хозяйство и ветеринария",
+      "indexPolicy": "noindex"
+    }
+  ],
+  "tags": [
+    {
+      "id": "apparatchik",
+      "slug": "apparatchik",
+      "label": "Аппаратчик",
+      "type": "profession",
+      "aliases": ["аппаратчики"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bаппаратчик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "slesar",
+      "slug": "slesar",
+      "label": "Слесарь",
+      "type": "profession",
+      "aliases": ["слесари", "слесаря"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bслесар[ья]\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "elektromonter",
+      "slug": "elektromonter",
+      "label": "Электромонтёр",
+      "type": "profession",
+      "aliases": ["электромонтер", "электромонтёры"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bэлектромонтер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "elektrik",
+      "slug": "elektrik",
+      "label": "Электрик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bэлектрик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "elektromontazhnik",
+      "slug": "elektromontazhnik",
+      "label": "Электромонтажник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bэлектромонтажник[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kabelshchik",
+      "slug": "kabelshchik",
+      "label": "Кабельщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bкабельщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "energetik",
+      "slug": "energetik",
+      "label": "Энергетик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bэнергетик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "voditel",
+      "slug": "voditel",
+      "label": "Водитель",
+      "type": "profession",
+      "aliases": ["водители", "автоводитель"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bводител[ьяе][а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "avtoslesar",
+      "slug": "avtoslesar",
+      "label": "Автослесарь",
+      "type": "profession",
+      "aliases": ["слесарь по ремонту автомобилей"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bавтослесар[ья][а-я-]*\\b|слесар[ья] по ремонту автомобил",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "mashinist",
+      "slug": "mashinist",
+      "label": "Машинист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bмашинист[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "traktorist",
+      "slug": "traktorist",
+      "label": "Тракторист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bтракторист[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kranovshchik",
+      "slug": "kranovshchik",
+      "label": "Крановщик",
+      "type": "profession",
+      "aliases": ["машинист крана", "машинист башенного крана"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bкрановщик[а-я-]*\\b|\\bмашинист[а-я-]* (?:авто|башенного )?кран[а-я]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "ekskavatorshchik",
+      "slug": "ekskavatorshchik",
+      "label": "Экскаваторщик",
+      "type": "profession",
+      "aliases": ["машинист экскаватора"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bэкскаваторщик[а-я-]*\\b|\\bмашинист[а-я-]* экскаватор[а-я]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "stropalshchik",
+      "slug": "stropalshchik",
+      "label": "Стропальщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bстропальщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "gruzchik",
+      "slug": "gruzchik",
+      "label": "Грузчик",
+      "type": "profession",
+      "aliases": ["грузчики"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bгрузчик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kladovshchik",
+      "slug": "kladovshchik",
+      "label": "Кладовщик",
+      "type": "profession",
+      "aliases": ["кладовщики"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bкладовщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "komplektovshchik",
+      "slug": "komplektovshchik",
+      "label": "Комплектовщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bкомплектовщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "operator",
+      "slug": "operator",
+      "label": "Оператор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bоператор[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "naladchik",
+      "slug": "naladchik",
+      "label": "Наладчик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bналадчик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "tokar",
+      "slug": "tokar",
+      "label": "Токарь",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bтокар[ья][а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "frezerovshchik",
+      "slug": "frezerovshchik",
+      "label": "Фрезеровщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bфрезеровщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "svarshchik",
+      "slug": "svarshchik",
+      "label": "Сварщик",
+      "type": "profession",
+      "aliases": ["электросварщик", "газоэлектросварщик"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bсварщик[а-я-]*\\b|\\bгазоэлектросварщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "malyar",
+      "slug": "malyar",
+      "label": "Маляр",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bмаляр[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "stroitel",
+      "slug": "stroitel",
+      "label": "Строитель",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bстроител[ьяе][а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "krovelshchik",
+      "slug": "krovelshchik",
+      "label": "Кровельщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bкровельщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "betonshchik",
+      "slug": "betonshchik",
+      "label": "Бетонщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bбетонщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kamenshchik",
+      "slug": "kamenshchik",
+      "label": "Каменщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bкаменщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "shtukatur",
+      "slug": "shtukatur",
+      "label": "Штукатур",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bштукатур[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "plotnik",
+      "slug": "plotnik",
+      "label": "Плотник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bплотник[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "povar",
+      "slug": "povar",
+      "label": "Повар",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bповар[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pekar",
+      "slug": "pekar",
+      "label": "Пекарь",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bпекар[ьяе][а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "konditer",
+      "slug": "konditer",
+      "label": "Кондитер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bкондитер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "oficiant",
+      "slug": "oficiant",
+      "label": "Официант",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bофициант[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "barista",
+      "slug": "barista",
+      "label": "Бариста",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bбариста\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "barmen",
+      "slug": "barmen",
+      "label": "Бармен",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bбармен[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "prodavec",
+      "slug": "prodavec",
+      "label": "Продавец",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bпродав[ецц][а-я-]*\\b|\\bпродавца\\b|\\bпродавщиц[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kassir",
+      "slug": "kassir",
+      "label": "Кассир",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bкассир[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "gornichnaya",
+      "slug": "gornichnaya",
+      "label": "Горничная",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bгорничн[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "vrach",
+      "slug": "vrach",
+      "label": "Врач",
+      "type": "profession",
+      "aliases": ["врачи"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bврач[а-я-]*\\b",
+        "excludePattern": "\\b(?:медицинск[а-я]+ сестр[а-я]*|медсестр[а-я]*|ассистент[а-я]* врач[а-я-]*|помощник[а-я]* врач[а-я-]*)\\b"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "medsestra",
+      "slug": "medicinskaya-sestra",
+      "label": "Медицинская сестра",
+      "type": "profession",
+      "aliases": ["медсестра", "медицинские сёстры"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bмедицинск[а-я-]+ сестр[а-я-]*\\b|\\bмедсестр[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "akusherka",
+      "slug": "akusherka",
+      "label": "Акушерка",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bакушерк[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "feldsher",
+      "slug": "feldsher",
+      "label": "Фельдшер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bфельдшер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "laborant",
+      "slug": "laborant",
+      "label": "Лаборант",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bлаборант[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "rentgenolaborant",
+      "slug": "rentgenolaborant",
+      "label": "Рентгенолаборант",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bрентгенолаборант[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "sanitar",
+      "slug": "sanitar",
+      "label": "Санитар",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bсанитар[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "farmacevt",
+      "slug": "farmacevt",
+      "label": "Фармацевт",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bфармацевт[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "provizor",
+      "slug": "provizor",
+      "label": "Провизор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bпровизор[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "stomatolog",
+      "slug": "stomatolog",
+      "label": "Стоматолог",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bстоматолог[а-я-]*\\b",
+        "excludePattern": "\\b(?:ассистент[а-я]* врач[а-я-]*|медицинск[а-я]* сестр[а-я]* врач[а-я-]*)\\b"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "buhgalter",
+      "slug": "buhgalter",
+      "label": "Бухгалтер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bбухгалтер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "programmist",
+      "slug": "programmist",
+      "label": "Программист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bпрограммист[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "sistemnyj-administrator",
+      "slug": "sistemnyj-administrator",
+      "label": "Системный администратор",
+      "type": "profession",
+      "aliases": ["сисадмин"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bсистемн[а-я-]+ администратор[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "menedzher",
+      "slug": "menedzher",
+      "label": "Менеджер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bменеджер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "rukovoditel",
+      "slug": "rukovoditel",
+      "label": "Руководитель",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bруководител[ьяе][а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "direktor",
+      "slug": "direktor",
+      "label": "Директор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bдиректор[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "uborshchik",
+      "slug": "uborshchik-pomeshchenij",
+      "label": "Уборщик помещений",
+      "type": "profession",
+      "aliases": ["уборщица", "клинер", "специалист по клинингу"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bуборщик[а-я-]*\\b|\\bуборщиц[а-я-]*\\b|\\bклинер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "dvornik",
+      "slug": "dvornik",
+      "label": "Дворник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bдворник[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "santehnik",
+      "slug": "santehnik",
+      "label": "Сантехник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bсантехник[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kochegar",
+      "slug": "kochegar",
+      "label": "Кочегар",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bкочегар[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "veterinar",
+      "slug": "veterinarnyj-vrach",
+      "label": "Ветеринарный врач",
+      "type": "profession",
+      "aliases": ["ветврач"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bветеринарн[а-я-]+ врач[а-я-]*\\b|\\bветврач[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "agronom",
+      "slug": "agronom",
+      "label": "Агроном",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bагроном[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "mekhanik",
+      "slug": "mehanik",
+      "label": "Механик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bмеханик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "inzhener",
+      "slug": "inzhener",
+      "label": "Инженер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bинженер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "raboty-na-vysote",
+      "slug": "raboty-na-vysote",
+      "label": "Работы на высоте",
+      "type": "work",
+      "aliases": ["высотные работы", "работа на высоте"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "работ[а-я ,.-]* на высоте|высотн[а-я-]* работ|промышленн[а-я-]* альпинист|канатн[а-я-]* доступ|монтажн[а-я-]* на высоте",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "svarochnye-raboty",
+      "slug": "svarochnye-raboty",
+      "label": "Сварочные работы",
+      "type": "work",
+      "aliases": ["сварка", "электросварочные работы"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "сварочн[а-я-]*|сварк[а-я-]*|сварщик[а-я-]*|газоэлектросварщик[а-я-]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "raboty-na-stankah",
+      "slug": "raboty-na-stankah",
+      "label": "Работы на станках",
+      "type": "work",
+      "aliases": ["станочные работы"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bстанк[а-я-]*\\b|\\bстаночн[а-я-]*\\b|\\bтокар[ьяе][а-я-]*\\b|\\bфрезеровщик[а-я-]*\\b|\\bшлифовщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "stroitelno-montazhnye",
+      "slug": "stroitelno-montazhnye-raboty",
+      "label": "Строительно-монтажные работы",
+      "type": "work",
+      "aliases": ["строительно монтажные работы"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "строительно-монтажн|строительно[а-я-]* работ|строительн[а-я-]* лес|каменщик|бетонщик|кровельщик|штукатур|монтажн[а-я-]* конструкц",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "montazhnye-raboty",
+      "slug": "montazhnye-raboty",
+      "label": "Монтажные работы",
+      "type": "work",
+      "aliases": ["монтаж", "демонтаж"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bмонтаж[а-я-]*\\b|\\bдемонтаж[а-я-]*\\b|\\bмонтажник[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "elektromontazhnye-raboty",
+      "slug": "elektromontazhnye-raboty",
+      "label": "Электромонтажные работы",
+      "type": "work",
+      "aliases": ["электромонтаж", "монтаж кабелей"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "электромонтаж[а-я-]*|монтаж[а-я-]* кабельн[а-я-]* лини",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "ekspluataciya-elektroustanovok",
+      "slug": "raboty-v-elektroustanovkah",
+      "label": "Работы в электроустановках",
+      "type": "work",
+      "aliases": ["эксплуатация электроустановок", "работа в электроустановках"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bэлектроустанов[а-я-]*\\b|работ[а-я ]* под напряжен",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "remont-oborudovaniya",
+      "slug": "remont-oborudovaniya",
+      "label": "Ремонт оборудования",
+      "type": "work",
+      "aliases": ["ремонт станков", "обслуживание оборудования"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "ремонт[а-я ,.-]* оборудован|оборудован[а-я ,.-]* ремонт|налад[кч][а-я-]* оборудован",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pogruzochnye-raboty",
+      "slug": "pogruzochno-razgruzochnye-raboty",
+      "label": "Погрузочно-разгрузочные работы",
+      "type": "work",
+      "aliases": ["погрузка разгрузка", "ПРР"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "погруз[а-я-]*.?(?:разгруз|разгрузоч)|разгруз[а-я-]*.?(?:погруз|погрузоч)|\\bпогрузк[а-я-]*\\b|\\bразгрузк[а-я-]*\\b|\\bстропал[а-я-]*\\b|\\bстроповк[а-я-]*\\b|\\bтакелаж[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "skladskie-raboty",
+      "slug": "skladskie-raboty",
+      "label": "Складские работы",
+      "type": "work",
+      "aliases": ["складирование"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "склад[а-я-]*|кладовщик[а-я-]*|комплектовщик[а-я-]*|складирова[а-я-]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "stropalnye-raboty",
+      "slug": "stropalnye-raboty",
+      "label": "Стропальные работы",
+      "type": "work",
+      "aliases": ["строповка грузов", "такелаж"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "стропал[а-я-]*|строповк[а-я-]*|такелаж[а-я-]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "uborka-pomeschenij",
+      "slug": "uborka-pomeshchenij",
+      "label": "Уборка помещений",
+      "type": "work",
+      "aliases": ["уборка", "клининг"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "уборк[а-я-]* (?:производственн[а-я-]*|складск[а-я-]*|торгов[а-я-]*|служебн[а-я-]*|офисн[а-я-]*|в )?помещен|мойк[а-я-]* пола|уборщик|уборщиц|клинер",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "uborka-territorii",
+      "slug": "uborka-territorii",
+      "label": "Уборка территории",
+      "type": "work",
+      "aliases": ["благоустройство территории"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "уборк[а-я-]* территор|очистк[а-я-]* от снег|дворник|покос[а-я-]* трав",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "dezinfekciya",
+      "slug": "dezinfekciya",
+      "label": "Дезинфекция",
+      "type": "work",
+      "aliases": ["дезинфекционные работы"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "дезинфекц|дезинфектор",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "prigotovlenie-pishchi",
+      "slug": "prigotovlenie-pishchi",
+      "label": "Приготовление пищи",
+      "type": "work",
+      "aliases": ["приготовление блюд", "работы на кухне"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "приготовлени[а-я-]* блюд|приготовлени[а-я-]* пищ|кухонн[а-я-]* работ|\\bповар[а-я-]*\\b|\\bпекар[ьяе][а-я-]*\\b|\\bкондитер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "obsluzhivanie-posetitelej",
+      "slug": "obsluzhivanie-posetitelej",
+      "label": "Обслуживание посетителей",
+      "type": "work",
+      "aliases": ["обслуживание гостей"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "обслуживани[а-я-]* посетител|встреч[а-я-]* посетител|\\bофициант[а-я-]*\\b|\\bхостес\\b|\\bбармен[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "raboty-s-kompyuterom",
+      "slug": "rabota-za-kompyuterom",
+      "label": "Работа за компьютером",
+      "type": "work",
+      "aliases": ["работа на ПК", "работа с компьютером"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "работ[а-я ]* за компьютером|работ[а-я ]* на (?:пк|компьютер)|работ[а-я ]* с (?:компьютер|оргтехник)|\\bпрограммист[а-я-]*\\b|\\bсистемн[а-я-]+ администратор[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "laboratornye-raboty",
+      "slug": "laboratornye-raboty",
+      "label": "Лабораторные работы",
+      "type": "work",
+      "aliases": ["работа в лаборатории"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "лабораторн[а-я-]* работ|лаборатор[ия][а-я-]*|\\bлаборант[а-я-]*\\b|\\bпробоотборщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "remont-avtomobilej",
+      "slug": "remont-avtomobilej",
+      "label": "Ремонт автомобилей",
+      "type": "work",
+      "aliases": ["авторемонт", "техобслуживание автомобилей"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "ремонт[а-я ,.-]* автомобил|слесар[ья] по ремонт[а-я-]* автомобил|\\bавтослесар[ья][а-я-]*\\b|ремонт[а-я ,.-]* автотранспорт",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "derevoobrabotka",
+      "slug": "derevoobrabotka",
+      "label": "Деревообработка",
+      "type": "work",
+      "aliases": ["работа с древесиной"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "деревообраб|лесопильн|пилорам|\\bрамщик[а-я-]*\\b|многопил|горбыльник|брусовал|распиловк[а-я-]* древесин",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "okrasochnye-raboty",
+      "slug": "okrasochnye-raboty",
+      "label": "Окрасочные работы",
+      "type": "work",
+      "aliases": ["малярные работы", "покраска"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "окрасочн|покрасочн|\\bмаляр[а-я-]*\\b|краскопульт",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "zemlyanye-raboty",
+      "slug": "zemlyanye-raboty",
+      "label": "Земляные работы",
+      "type": "work",
+      "aliases": ["земляные работы"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "землян[а-я-]* работ|котлован[а-я-]*|землеройн|\\bэкскаваторщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "gazovye-raboty",
+      "slug": "gazoopasnye-raboty",
+      "label": "Газоопасные работы",
+      "type": "work",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "газоопасн|газопровод|сет[а-я-]* газопотреблен|\\bсильнодействующ[а-я-]* веществ",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "himicheskie-raboty",
+      "slug": "raboty-s-himicheskimi-veshchestvami",
+      "label": "Работы с химическими веществами",
+      "type": "work",
+      "aliases": ["работы с химикатами", "опасные вещества"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "химическ[а-я-]* сред|кислотосодерж|пестицид|агрессивн[а-я-]* веществ|азот[а-я-]*|реагент|растворител",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "vodolaznye-raboty",
+      "slug": "vodolaznye-raboty",
+      "label": "Водолазные работы",
+      "type": "work",
+      "aliases": ["подводные работы", "дайвинг"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "водолазн|подводн|акваланг|гидрокостюм|землесосн[а-я-]* плавуч",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "gornye-raboty",
+      "slug": "gornye-i-burovye-raboty",
+      "label": "Горные и буровые работы",
+      "type": "work",
+      "aliases": ["буровые работы", "горное дело"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "горн[а-я-]* мастер|горн[а-я-]* работ|взрывчат[а-я-]* материал|взрывн[а-я-]* работ|буров[а-я-]* установ|рудник|карьер",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "raboty-s-zhivotnymi",
+      "slug": "raboty-s-zhivotnymi",
+      "label": "Работы с животными",
+      "type": "work",
+      "aliases": ["уход за животными"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "работ[а-я ]* с (?:домашними|сельскохозяйственными|) животн|животновод|ветеринар[а-я-]*|скотник|пастух",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "raboty-na-selhoztehnike",
+      "slug": "rabota-na-selhoztehnike",
+      "label": "Работа на сельхозтехнике",
+      "type": "work",
+      "aliases": ["сельскохозяйственная техника"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "сельскохоз[а-я-]* техник|комбайнер|\\bтракторист[а-я-]*\\b|механизатор",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "vypolnenie-tekhosmotra",
+      "slug": "tehnicheskoe-obsluzhivanie-transporta",
+      "label": "Техническое обслуживание транспорта",
+      "type": "work",
+      "aliases": ["обслуживание автотранспорта"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "технич[а-я ]* обслуживани[а-я ]* автотранспорт|техническ[а-я ]* обслуживани[а-я ]* автомобил|\\bмеханик гаража\\b|предрейсов[а-я-]* осмотр",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "raboty-v-zamknutyh-prostranstvah",
+      "slug": "raboty-v-zamknutyh-prostranstvah",
+      "label": "Работы в замкнутых пространствах",
+      "type": "work",
+      "aliases": ["ОЗП", "работы в колодцах"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "замкнут[а-я-]* пространств|ограниченн[а-я-]* пространств|работ[а-я ]* в колодц|работ[а-я ]* в емкост",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "tipografiya",
+      "slug": "poligraficheskie-raboty",
+      "label": "Полиграфические работы",
+      "type": "work",
+      "aliases": ["флексопечать"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "флексограф|печатник[а-я-]*|типограф|плоттер|полиграфич|графическ[а-я-]* печат",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "elektroinstrument",
+      "slug": "elektroinstrument",
+      "label": "Электроинструмент",
+      "type": "equipment",
+      "aliases": ["ручной электроинструмент"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "электроинструмент|аккумуляторн[а-я-]* инструмент|электрифициров[а-я-]* инструмент|перфоратор|шуруповерт|\\bушм\\b|электропил|дрель",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "elektroustanovki",
+      "slug": "elektroustanovki",
+      "label": "Электроустановки",
+      "type": "equipment",
+      "aliases": ["электрооборудование до 1000 В"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "электроустанов[а-я-]*|эксплуатац[а-я-]* сет[а-я-]* электроснабжен|линии электропередач|\\bлэп\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pogruzchik",
+      "slug": "pogruzchik",
+      "label": "Погрузчик",
+      "type": "equipment",
+      "aliases": ["вилочный погрузчик", "электропогрузчик"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bпогрузчик[а-я-]*\\b|\\bэлектропогрузчик[а-я-]*\\b|\\bэлектроштабелер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "krany",
+      "slug": "krany",
+      "label": "Краны",
+      "type": "equipment",
+      "aliases": ["грузоподъёмные краны"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bкрановщик[а-я-]*\\b|\\bавтокран[а-я-]*\\b|\\bбашенн[а-я-]* кран\\b|грузоподъемн[а-я-]* кран|\\bмашинист крана\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kmu",
+      "slug": "kran-manipulyator",
+      "label": "Кран-манипулятор",
+      "type": "equipment",
+      "aliases": ["КМУ", "кран манипулятор"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bкму\\b|кран[а-я-]* манипулятор|манипуляторн[а-я-]* установ",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "stanki",
+      "slug": "stanki",
+      "label": "Станки",
+      "type": "equipment",
+      "aliases": ["станочное оборудование"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bстанк[а-я-]*\\b|\\bстаночн[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "stanki-chpu",
+      "slug": "stanki-s-chpu",
+      "label": "Станки с ЧПУ",
+      "type": "equipment",
+      "aliases": ["ЧПУ"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bчпу\\b|числов[а-я-]* программн[а-я-]* управлен",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "avtomobili",
+      "slug": "avtomobili",
+      "label": "Автомобили",
+      "type": "equipment",
+      "aliases": ["автотранспорт"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bавтомобил[а-я-]*\\b|\\bавтотранспорт[а-я-]*\\b|\\bавтомашин[а-я-]*\\b|\\bавтохозяйств[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "avtobus",
+      "slug": "avtobusy",
+      "label": "Автобусы",
+      "type": "equipment",
+      "aliases": ["автобус"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bавтобус[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "gruzovye-avtomobili",
+      "slug": "gruzovye-avtomobili",
+      "label": "Грузовые автомобили",
+      "type": "equipment",
+      "aliases": ["грузовики"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "грузов[а-я-]* автомобил|грузов[а-я-]* транспорт|\\bсамосвал[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "traktor",
+      "slug": "traktory",
+      "label": "Тракторы",
+      "type": "equipment",
+      "aliases": ["трактор"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bтрактор[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kotelnye",
+      "slug": "kotelnye",
+      "label": "Котельные",
+      "type": "equipment",
+      "aliases": ["котельное оборудование"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bкотельн[а-я-]*\\b|\\bкотл[а-я-]*\\b|\\bкочегар[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "gazovoe-oborudovanie",
+      "slug": "gazovoe-oborudovanie",
+      "label": "Газовое оборудование",
+      "type": "equipment",
+      "aliases": ["газовое хозяйство"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "газов[а-я-]* оборудован|газов[а-я-]* котельн|\\bгазопровод[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "sosudy-pod-davleniem",
+      "slug": "oborudovanie-pod-davleniem",
+      "label": "Оборудование под давлением",
+      "type": "equipment",
+      "aliases": ["сосуды под давлением", "газовые баллоны"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "оборудован[а-я ,.-]* под давлен|сосуд[а-я ,.-]* под давлен|баллон[а-я-]* со сжат|газов[а-я-]* баллон",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "sklad",
+      "slug": "sklad",
+      "label": "Склад",
+      "type": "equipment",
+      "aliases": ["складские помещения"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "склад[а-я-]*|\\bкладовщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "holodilnoe-oborudovanie",
+      "slug": "holodilnoe-oborudovanie",
+      "label": "Холодильное оборудование",
+      "type": "equipment",
+      "aliases": ["холодильники"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bхолодильн[а-я-]*\\b|шоков[а-я-]* заморозк",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "laboratornoe-oborudovanie",
+      "slug": "laboratornoe-oborudovanie",
+      "label": "Лабораторное оборудование",
+      "type": "equipment",
+      "aliases": ["измерительные приборы", "лабораторные приборы"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "лабораторн[а-я-]* оборудован|измерительн[а-я-]* прибор|анализатор[а-я-]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "medicinskoe-oborudovanie",
+      "slug": "medicinskoe-oborudovanie",
+      "label": "Медицинское оборудование",
+      "type": "equipment",
+      "aliases": ["медоборудование"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "медицинск[а-я-]* оборудован|стоматологическ[а-я-]* оборудован|медицинск[а-я-]* аппаратура",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "rentgen",
+      "slug": "rentgenovskoe-oborudovanie",
+      "label": "Рентгеновское оборудование",
+      "type": "equipment",
+      "aliases": ["рентген", "КТ"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "рентген[а-я-]*|\\bкт диагностики\\b|флюорограф",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kompyuter",
+      "slug": "kompyuter",
+      "label": "Компьютер",
+      "type": "equipment",
+      "aliases": ["ПК", "персональный компьютер"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bкомпьютер[а-я-]*\\b|персональн[а-я-]* компьютер|\\bпк\\b|серверн[а-я-]* оборудован",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "orgtehnika",
+      "slug": "orgtehnika",
+      "label": "Оргтехника",
+      "type": "equipment",
+      "aliases": ["офисное оборудование"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "оргтехник[а-я-]*|сканер[а-я-]*|ламинатор[а-я-]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kassovoe-oborudovanie",
+      "slug": "kassovoe-oborudovanie",
+      "label": "Кассовое оборудование",
+      "type": "equipment",
+      "aliases": ["кассовый аппарат", "ККТ"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "кассов[а-я-]* аппарат|кассов[а-я-]* оборудован|контрольно-кассов",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "poligraficheskoe-oborudovanie",
+      "slug": "poligraficheskoe-oborudovanie",
+      "label": "Полиграфическое оборудование",
+      "type": "equipment",
+      "aliases": ["печатные машины"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "флексограф|текстильн[а-я-]* принтер|печатн[а-я-]* стан|\\bплоттер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "lestnicy-stremyanki",
+      "slug": "lestnicy-i-stremyanki",
+      "label": "Лестницы и стремянки",
+      "type": "equipment",
+      "aliases": ["стремянки", "лестницы"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bстремянк[а-я-]*\\b|\\bприставн[а-я-]* лестниц[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "nasosnye-stancii",
+      "slug": "nasosnye-stancii",
+      "label": "Насосные станции",
+      "type": "equipment",
+      "aliases": ["насосное оборудование"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "насосн[а-я-]* станц|насосн[а-я-]* установ|\\bгрунтонасос[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "vodoprovod-kanalizaciya",
+      "slug": "vodoprovod-i-kanalizaciya",
+      "label": "Водопровод и канализация",
+      "type": "equipment",
+      "aliases": ["ВКХ", "водоснабжение", "канализация"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "водопроводн[а-я-]* сет|канализационн[а-я-]* сет|очистн[а-я-]* сооружен|водоснабжен[а-я-]*|канализац[а-я-]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "svarochnoe-oborudovanie",
+      "slug": "svarochnoe-oborudovanie",
+      "label": "Сварочное оборудование",
+      "type": "equipment",
+      "aliases": ["сварочный аппарат"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "сварочн[а-я-]* аппарат|сварочн[а-я-]* оборудован|электросварочн[а-я-]* аппарат",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "himicheskie-veshchestva",
+      "slug": "himicheskie-veshchestva",
+      "label": "Химические вещества",
+      "type": "equipment",
+      "aliases": ["химикаты"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "кислот[а-я-]*|химическ[а-я-]* веществ|пестицид|реагент[а-я-]*|\\bазот[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "razrabotchik",
+      "slug": "razrabotchik-po",
+      "label": "Разработчик ПО",
+      "type": "profession",
+      "aliases": ["Go-разработчик"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bразработчик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "tehnolog",
+      "slug": "tehnolog",
+      "label": "Технолог",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bтехнолог[а-я-]*\\b|\\bглавн[а-я-]* технолог\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "dizajner",
+      "slug": "dizajner",
+      "label": "Дизайнер",
+      "type": "profession",
+      "aliases": ["веб-дизайнер", "Web-дизайнер"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bдизайнер[а-я-]*\\b|\\bweb-дизайнер[а-я-]*\\b|\\bвеб-дизайнер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "ekonomist",
+      "slug": "ekonomist",
+      "label": "Экономист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bэкономист[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "analitik",
+      "slug": "analitik",
+      "label": "Аналитик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bаналитик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "yurist",
+      "slug": "yurist",
+      "label": "Юрист",
+      "type": "profession",
+      "aliases": ["юрисконсульт"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bюрист[а-я-]*\\b|\\bюрисконсульт[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "sekretar",
+      "slug": "sekretar",
+      "label": "Секретарь",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bсекретар[ьяе][а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "arhitektor",
+      "slug": "arhitektor",
+      "label": "Архитектор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bархитектор[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "proektirovshchik",
+      "slug": "proektirovshchik",
+      "label": "Проектировщик",
+      "type": "profession",
+      "aliases": ["конструктор-проектировщик"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bпроектировщик[а-я-]*\\b|\\bконструктор[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "geodezist",
+      "slug": "geodezist",
+      "label": "Геодезист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bгеодезист[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "massazhist",
+      "slug": "massazhist",
+      "label": "Массажист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bмассажист[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "psiholog",
+      "slug": "psiholog",
+      "label": "Психолог",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bпсихолог[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kosmetolog",
+      "slug": "kosmetolog",
+      "label": "Косметолог",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bкосметолог[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "stilist",
+      "slug": "stilist",
+      "label": "Стилист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bстилист[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "sortirovshchik",
+      "slug": "sortirovshchik",
+      "label": "Сортировщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bсортировщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "fasovshchik",
+      "slug": "fasovshchik",
+      "label": "Фасовщик",
+      "type": "profession",
+      "aliases": ["упаковщик"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bфасовщик[а-я-]*\\b|\\bупаковщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kontroler",
+      "slug": "kontroler",
+      "label": "Контролёр",
+      "type": "profession",
+      "aliases": ["контролер"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bконтролер[а-я-]*\\b|\\bконтролер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "brigadir",
+      "slug": "brigadir",
+      "label": "Бригадир",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bбригадир[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "graver",
+      "slug": "graver",
+      "label": "Гравёр",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bгравер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "shveya",
+      "slug": "shveya",
+      "label": "Швея",
+      "type": "profession",
+      "aliases": ["портниха"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bшве[ияю]\\b|\\bпортних[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "polirovshchik",
+      "slug": "polirovshchik",
+      "label": "Полировщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bполировщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "dezinfektor",
+      "slug": "dezinfektor",
+      "label": "Дезинфектор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bдезинфектор[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "burlshchik",
+      "slug": "burilshchik",
+      "label": "Бурильщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bбурильщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "shahter",
+      "slug": "shahter",
+      "label": "Шахтёр",
+      "type": "profession",
+      "aliases": ["шахтер", "горняк"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bшахтер[а-я-]*\\b|\\bгорняк[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "peskostrujshchik",
+      "slug": "peskostrujshchik",
+      "label": "Пескоструйщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bпескоструйщик[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "sushist",
+      "slug": "sushist",
+      "label": "Сушист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bсушист[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "parikmaher",
+      "slug": "parikmaher",
+      "label": "Парикмахер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bпарикмахер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "ohrannik",
+      "slug": "ohrannik",
+      "label": "Охранник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "\\bохранник[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "tehnologicheskie-processy",
+      "slug": "tehnologicheskie-processy",
+      "label": "Технологические процессы",
+      "type": "work",
+      "aliases": ["технологические операции"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bаппаратчик[а-я-]*\\b|технологическ[а-я-]* установ|ведени[а-я-]* технологическ[а-я-]* процесс|производственн[а-я-]* лини|\\bтехнолог[а-я-]* производств",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "slesarnye-raboty",
+      "slug": "slesarnye-raboty",
+      "label": "Слесарные работы",
+      "type": "work",
+      "aliases": ["слесарная работа"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "слесарн[а-я-]* работ|\\bслесар[ья]\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kontrol-kachestva",
+      "slug": "kontrol-kachestva",
+      "label": "Контроль качества",
+      "type": "work",
+      "aliases": ["ОТК", "качество продукции"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "контрол[а-я-]* качеств|обеспечени[а-я-]* качеств|по качеств|отдел[а-я-]* качеств|\\bотк\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "upakovka-fasovka",
+      "slug": "upakovka-i-fasovka",
+      "label": "Упаковка и фасовка",
+      "type": "work",
+      "aliases": ["упаковочные работы", "маркировка"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "упаков[кч][а-я-]*|фасов[а-я-]*|маркиров[а-я-]*|укладк[а-я-]* готов[а-я-]* продукц",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "buhgalterskij-uchet",
+      "slug": "buhgalterskij-i-finansovyj-uchet",
+      "label": "Бухгалтерский и финансовый учёт",
+      "type": "work",
+      "aliases": ["бухучёт", "учёт"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bбухгалтер[а-я-]*\\b|финансов[а-я-]* учет|денежн[а-я-]* средств|учет[а-я-]*|бухучет",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kadrovaya-rabota",
+      "slug": "kadrovoe-deloproizvodstvo",
+      "label": "Кадровое делопроизводство",
+      "type": "work",
+      "aliases": ["кадры", "HR"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "кадров[а-я-]*|отдел[а-я-]* персонал|подбор[а-я-]* персонал|управлени[а-я-]* персонал",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "prodazhi",
+      "slug": "prodazhi-i-torgovye-operacii",
+      "label": "Продажи и торговые операции",
+      "type": "work",
+      "aliases": ["продажи", "розница"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "продав[ецц][а-я-]*|\\bпродавца\\b|\\bпродавщиц[а-я-]*\\b|продаж[а-я-]*|\\bкассир[а-я-]*\\b|торгов[а-я-]* зал|розничн[а-я-]* торгов",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "logistika",
+      "slug": "logistika-i-snabzhenie",
+      "label": "Логистика и снабжение",
+      "type": "work",
+      "aliases": ["снабжение", "доставка грузов"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "логистик[а-я-]*|снабжени[а-я-]*|таможенн[а-я-]* оформлен|доставк[а-я-]* груз",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "rabota-s-dokumentami",
+      "slug": "rabota-s-dokumentami",
+      "label": "Работа с документами",
+      "type": "work",
+      "aliases": ["делопроизводство", "документооборот"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bдокумент[а-я-]*\\b|документооборот|делопроизводств|\\bсекретар[ьяе][а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "proektirovanie",
+      "slug": "proektirovanie",
+      "label": "Проектирование",
+      "type": "work",
+      "aliases": ["проектные работы"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bпроектировщик[а-я-]*\\b|\\bархитектор[а-я-]*\\b|\\bконструктор-проектировщик\\b|проектировани[а-я-]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "remont-i-servis",
+      "slug": "tehnicheskoe-obsluzhivanie-i-remont",
+      "label": "Техническое обслуживание и ремонт",
+      "type": "work",
+      "aliases": ["сервис", "ТО оборудования"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "техническ[а-я-]* обслуживани|техобслуживани|сервисн[а-я-]* служб|ремонтн[а-я-]* работ|ремонт[а-я-]* и обслуживани[а-я-]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "sterilizaciya",
+      "slug": "sterilizaciya-i-obezzarazhivanie",
+      "label": "Стерилизация и обеззараживание",
+      "type": "work",
+      "aliases": ["стерилизация инструментов"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "стерилизац|стерильн[а-я-]* материал|предстерилизацион|обеззараживани[а-я-]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "medicinskaya-diagnostika",
+      "slug": "medicinskaya-diagnostika",
+      "label": "Медицинская диагностика",
+      "type": "work",
+      "aliases": ["диагностика", "УЗИ"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "медицинск[а-я-]* диагностик|стоматологическ[а-я-]* диагностик|рентген[а-я-]*|ультразвук[а-я-]* диагностик|диагностическ[а-я-]* кабинет|\\bкт-диагностик",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kosmeticheskie-procedury",
+      "slug": "kosmeticheskie-procedury",
+      "label": "Косметические процедуры",
+      "type": "work",
+      "aliases": ["бьюти", "косметология"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "косметолог|перманентн[а-я-]* макияж|наращивани[а-я-]* ресниц|оформлени[а-я-]* бровей|массажист-эстетист",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "obsluzhivanie-zdanij",
+      "slug": "obsluzhivanie-zdanij",
+      "label": "Обслуживание зданий",
+      "type": "work",
+      "aliases": ["эксплуатация зданий"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "обслуживани[а-я-]* здан|эксплуатац[а-я-]* здан|жил[а-я-]* комплекс|обслуживани[а-я-]* помещен|ремонт[а-я-]* здан",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "tekstilnoe-proizvodstvo",
+      "slug": "shvejnye-i-tekstilnye-raboty",
+      "label": "Швейные и текстильные работы",
+      "type": "work",
+      "aliases": ["швейное производство"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bшве[ияю]\\b|текстильн[а-я-]*|кро[йя]|\\bпортних[а-я-]*\\b|пошив[а-я-]*|каландр[а-я-]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "rabota-s-ruchnym-instrumentom",
+      "slug": "rabota-s-ruchnym-instrumentom",
+      "label": "Работа с ручным инструментом",
+      "type": "work",
+      "aliases": ["работа ручным инструментом"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "ручн[а-я-]* инструмент|механизированн[а-я-]* инструмент|перфоратор|шлифмашин|электроинструмент|пескоструйн[а-я-]* инструмент",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "remont-setej",
+      "slug": "remont-kommunalnyh-setej",
+      "label": "Ремонт коммунальных сетей",
+      "type": "work",
+      "aliases": ["ремонт инженерных сетей"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "ремонт[а-я ,.-]* сет[а-я-]* (?:водоснабжен|канализац|газопотреблен)|слесар[ья] авр|аварийно-восстановительн[а-я-]* работ",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "rabota-s-pishchevym-oborudovaniem",
+      "slug": "rabota-s-pishchevym-oborudovaniem",
+      "label": "Работа с пищевым оборудованием",
+      "type": "work",
+      "aliases": ["пищевое оборудование"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "микроволнов[а-я-]* печ|слайсер|аппарат[а-я-]* приготовлени[а-я-]* кофе|шоков[а-я-]* заморозк|кухонн[а-я-]* оборудован|холодильн[а-я-]* оборудован",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "raboty-po-ohrane-truda",
+      "slug": "rabota-po-ohrane-truda",
+      "label": "Работа по охране труда",
+      "type": "work",
+      "aliases": ["специалист ОТ"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bспециалист[а-я-]* по охране труда\\b|\\bруководител[ьяе][а-я-]* службы охран[а-я-]* труда\\b|\\bинженер[а-я-]* по охране труда\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "obuchenie-i-instruktazh",
+      "slug": "obuchenie-i-instruktazh",
+      "label": "Обучение и инструктаж",
+      "type": "work",
+      "aliases": ["обучение персонала"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "\\bинструктор[а-я-]*\\b|организац[а-я-]* обучени|\\bтренер[а-я-]*\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "okazanie-pervoj-pomoshchi",
+      "slug": "okazanie-pervoj-pomoshchi",
+      "label": "Оказание первой помощи",
+      "type": "work",
+      "aliases": ["первая помощь"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "перво[а-я-]* помощ[ьи]|пострадавш[а-я-]* при несчастн",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pozharnaia-bezopasnost",
+      "slug": "pozharnaya-bezopasnost",
+      "label": "Пожарная безопасность",
+      "type": "work",
+      "aliases": ["пожаротушение"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "пожарн[а-я-]* безопасност|пожаротушен|охранно-пожарн[а-я-]* сигнализац",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "ruchnoj-instrument",
+      "slug": "ruchnoj-instrument",
+      "label": "Ручной инструмент",
+      "type": "equipment",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "ручн[а-я-]* инструмент|механизированн[а-я-]* инструмент|\\bмолоток[а-я-]*\\b|электроинструмент",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pishchevoe-oborudovanie",
+      "slug": "oborudovanie-obshchepita",
+      "label": "Оборудование общепита",
+      "type": "equipment",
+      "aliases": ["кухонное оборудование"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "кухонн[а-я-]* оборудован|шоков[а-я-]* заморозк|микроволнов[а-я-]* печ|кофемашин|слайсер|аппарат[а-я-]* приготовлени[а-я-]* кофе",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "peskostrujnoe-oborudovanie",
+      "slug": "peskostrujnoe-oborudovanie",
+      "label": "Пескоструйное оборудование",
+      "type": "equipment",
+      "aliases": ["пескоструй"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "пескоструйн[а-я-]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "printery-i-plottery",
+      "slug": "printery-i-plottery",
+      "label": "Принтеры и плоттеры",
+      "type": "equipment",
+      "aliases": ["печатающее оборудование"],
+      "suggestionRule": {
+        "field": "title",
+        "pattern": "принтер[а-я-]*|плоттер[а-я-]*|\\b3-?d принтер[а-я-]*",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    }
+  ]
+}
