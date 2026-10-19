@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { instructionsRepository } from "./instructionsRepository.js";
+import { saveInstructionWithTaxonomy } from "./instructionTaxonomyPersistence.js";
 import { generateInstructionWithYandexGpt, isYandexGptConfigured } from "./yandexGptService.js";
 import { slugify } from "../utils/slug.js";
 import { runExclusive, isGenerationInFlight } from "./generationLock.js";
@@ -122,9 +123,9 @@ async function runScheduledGenerationCore(
         generatedBy: "schedule",
         createdAt: new Date().toISOString(),
       };
-      instructionsRepository.save(built);
+      const saved = saveInstructionWithTaxonomy(instructionsRepository, built);
       console.log(`[-]   : ${built.title}`);
-      return built;
+      return saved;
     });
     return { status: "generated", instruction };
   } catch (err) {

@@ -11,6 +11,7 @@ import {
   richTextToPlainText,
 } from '../shared/instructionDocument.js';
 import { instructionsRepository } from './instructionsRepository.js';
+import { prepareInstructionTaxonomy } from './instructionTaxonomyService.js';
 import { saveInstructionSnapshot } from './instructionHistoryService.js';
 import { normalizeProfessionKey } from './professionNormalizer.js';
 import { createInstructionHash } from './instructionHashService.js';
@@ -397,7 +398,7 @@ export function createInstructionEditorService({
       const now = new Date().toISOString();
       const profession = previous?.editable.profession || titleProfession(values.title);
       const legacy = instructionDocumentToLegacy(values.instructionContent);
-      const instruction = {
+      const instruction = prepareInstructionTaxonomy({
         ...previous?.editable,
         ...values,
         ...legacy,
@@ -410,7 +411,7 @@ export function createInstructionEditorService({
         updatedAt: now,
         revision: (previous?.revision || 0) + 1,
         version: published?.version || previous?.editable.version || '1.0',
-      };
+      });
 
       instruction.contentHash = createInstructionHash(instruction);
       instruction.editorialMeta = updateInstructionEditorialMeta(previous?.editable, instruction, {

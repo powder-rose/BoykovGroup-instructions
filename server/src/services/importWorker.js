@@ -3,6 +3,7 @@ import { normalizeUploadedFilename } from '../utils/uploadedFilename.js';
 import { processInstructionFile } from './instructionProcessingService.js';
 
 import { instructionsRepository } from './instructionsRepository.js';
+import { saveInstructionWithTaxonomy } from './instructionTaxonomyPersistence.js';
 
 import { updateImportFile } from './importHistoryService.js';
 
@@ -46,7 +47,7 @@ export async function processImportFile({
       // =====================
 
       case 'new':
-        savedInstruction = instructionsRepository.save(result.instruction);
+        savedInstruction = saveInstructionWithTaxonomy(instructionsRepository, result.instruction);
 
         break;
 
@@ -66,7 +67,7 @@ export async function processImportFile({
       case 'new_version': {
         const versioned = createNewVersion(result.previous, result.instruction);
 
-        savedInstruction = instructionsRepository.save(versioned);
+        savedInstruction = saveInstructionWithTaxonomy(instructionsRepository, versioned);
 
         break;
       }

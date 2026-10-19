@@ -45,6 +45,7 @@ import {
 } from '../services/importHistoryService.js';
 
 import { instructionsRepository } from '../services/instructionsRepository.js';
+import { saveInstructionWithTaxonomy } from '../services/instructionTaxonomyPersistence.js';
 import { toPublicInstruction } from '../services/instructionPublicView.js';
 
 import { searchInstructions } from '../services/searchService.js';
@@ -377,9 +378,9 @@ instructionsRouter.post('/generate', requireAdmin, async (req, res) => {
         updatedAt: new Date().toISOString(),
       };
 
-      instructionsRepository.save(built);
+      const saved = saveInstructionWithTaxonomy(instructionsRepository, built);
 
-      return built;
+      return saved;
     });
 
     res.status(201).json(instruction);

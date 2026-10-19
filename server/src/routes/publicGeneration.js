@@ -15,6 +15,7 @@ import {
 } from '../services/publicGenerationOrderService.js';
 
 import { instructionsRepository } from '../services/instructionsRepository.js';
+import { saveInstructionWithTaxonomy } from '../services/instructionTaxonomyPersistence.js';
 
 import { createInstructionPdfBuffer } from '../services/instructionPdfService.js';
 import { getInstructionPdfCompanyProfile } from '../services/instructionPdfProfile.js';
@@ -820,7 +821,7 @@ publicGenerationRouter.post(
 
     const publishedInstruction =
       existing ||
-      instructionsRepository.save({
+      saveInstructionWithTaxonomy(instructionsRepository, {
         ...order.generatedInstruction,
 
         updatedAt: now,
