@@ -1,3 +1,7 @@
+import { Link } from 'react-router-dom';
+
+import catalogStyles from '../InstructionCatalog/InstructionsCatalog.module.css';
+
 import styles from './EmptyState.module.css';
 
 export default function EmptyState({ query, isAdmin, isGenerating, error, onGenerate }) {
@@ -18,7 +22,9 @@ export default function EmptyState({ query, isAdmin, isGenerating, error, onGene
         </svg>
       </div>
 
-      <p className={styles.text}> {query} </p>
+      <h2 className={styles.title}>Ничего не найдено</h2>
+
+      <p className={styles.text}>По запросу «{query}» инструкций не найдено.</p>
 
       {isAdmin ? (
         <>
@@ -33,7 +39,16 @@ export default function EmptyState({ query, isAdmin, isGenerating, error, onGene
           {error && <p className={styles.error}>{error}</p>}
         </>
       ) : (
-        <p className={styles.hint}>.</p>
+        <>
+          <p className={styles.hint}>
+            Но мы можем создать индивидуальную инструкцию по охране труда всего за 2 минуты.
+          </p>
+
+          <Link to="/srochnaya-generaciya-instrukcii" className={catalogStyles.emptyAction}>
+            Создать инструкцию
+            <span aria-hidden="true">→</span>
+          </Link>
+        </>
       )}
     </div>
   );
