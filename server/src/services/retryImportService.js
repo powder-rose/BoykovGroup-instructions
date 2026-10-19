@@ -15,6 +15,7 @@ import { parseImportedInstruction } from './importedInstructionParser.js';
 import { assertInstructionQuality } from './instructionQualityChecker.js';
 
 import { instructionsRepository } from './instructionsRepository.js';
+import { saveInstructionWithTaxonomy } from './instructionTaxonomyPersistence.js';
 
 import { nanoid } from 'nanoid';
 
@@ -97,7 +98,7 @@ export async function retryFailedImport(importId) {
        * импортированный документ не ремонтируем
        * и ничего в него через AI не дописываем.
        */
-      instructionsRepository.save(instruction);
+      saveInstructionWithTaxonomy(instructionsRepository, instruction);
 
       updateImportFile(importId, file.id, {
         status: 'completed',

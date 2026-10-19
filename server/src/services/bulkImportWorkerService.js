@@ -5,6 +5,7 @@ import path from 'node:path';
 import { processInstructionFile } from './instructionProcessingService.js';
 
 import { instructionsRepository } from './instructionsRepository.js';
+import { saveInstructionWithTaxonomy } from './instructionTaxonomyPersistence.js';
 
 import { createNewVersion } from './instructionVersionService.js';
 
@@ -232,7 +233,7 @@ async function claimNextFile() {
 async function saveProcessedInstruction(result) {
   switch (result.action) {
     case 'new':
-      return instructionsRepository.save(result.instruction);
+      return saveInstructionWithTaxonomy(instructionsRepository, result.instruction);
 
     case 'duplicate':
       return result.instruction;
@@ -240,7 +241,7 @@ async function saveProcessedInstruction(result) {
     case 'new_version': {
       const versioned = createNewVersion(result.previous, result.instruction);
 
-      return instructionsRepository.save(versioned);
+      return saveInstructionWithTaxonomy(instructionsRepository, versioned);
     }
 
     default:
