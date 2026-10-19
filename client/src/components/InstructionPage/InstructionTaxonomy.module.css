@@ -17,6 +17,7 @@
   font-size: 12px;
   line-height: 1.35;
   overflow-wrap: anywhere;
+  text-decoration: none;
 }
 
 .category {
@@ -31,6 +32,17 @@
   background: #f8fafc;
   color: #46566c;
   font-weight: 500;
+}
+
+.category:hover,
+.tag:hover {
+  background: #dcecff;
+}
+
+.category:focus-visible,
+.tag:focus-visible {
+  outline: 2px solid #4278d3;
+  outline-offset: 3px;
 }
 
 @media (max-width: 650px) {

@@ -49,6 +49,10 @@ import { saveInstructionWithTaxonomy } from '../services/instructionTaxonomyPers
 import { toPublicInstruction } from '../services/instructionPublicView.js';
 
 import { searchInstructions } from '../services/searchService.js';
+import {
+  getInstructionTaxonomyFilterOptions,
+  validateInstructionTaxonomyFilters,
+} from '../services/instructionTaxonomyFilterService.js';
 
 import {
   generateInstructionWithYandexGpt,
@@ -86,6 +90,11 @@ const upload = multer({
 // GET ALL
 // =========================
 
+instructionsRouter.get('/taxonomy-filters', (req, res) => {
+  res.set('Cache-Control', 'public, max-age=60');
+  res.json(getInstructionTaxonomyFilterOptions(instructionsRepository.getAll()));
+});
+
 instructionsRouter.get('/', (req, res) => {
   const q = typeof req.query.q === 'string' ? req.query.q : '';
 
@@ -98,11 +107,22 @@ instructionsRouter.get('/', (req, res) => {
    */
   const sort = req.query.sort === 'popular' ? 'popular' : 'newest';
 
-  res.json(
+  let filters;
+  try {
+    filters = validateInstructionTaxonomyFilters({
+      category: req.query.category ?? '',
+      tag: req.query.tag ?? '',
+    });
+  } catch {
+    return res.status(400).json({ error: 'Некорректные фильтры категории или тега' });
+  }
+
+  return res.json(
     searchInstructions(q, {
       page,
       pageSize,
       sort,
+      ...filters,
     }),
   );
 });

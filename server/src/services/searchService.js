@@ -3,6 +3,7 @@ import { instructionsRepository } from './instructionsRepository.js';
 import { getInstructionPopularity } from './instructionPopularityService.js';
 
 import { normalizeProfessionKey } from './professionNormalizer.js';
+import { filterInstructionsByTaxonomy } from './instructionTaxonomyFilterService.js';
 
 /*
  * SEARCH V4
@@ -606,8 +607,11 @@ function toSummary(instruction) {
   };
 }
 
-export function searchInstructions(query, { page = 1, pageSize = 6, sort = 'newest' } = {}) {
-  const all = instructionsRepository.getAll();
+export function searchInstructions(
+  query,
+  { page = 1, pageSize = 6, sort = 'newest', category = '', tag = '' } = {},
+) {
+  const all = filterInstructionsByTaxonomy(instructionsRepository.getAll(), { category, tag });
 
   const trimmed = String(query ?? '').trim();
 

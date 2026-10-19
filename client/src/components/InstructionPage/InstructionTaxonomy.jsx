@@ -1,6 +1,7 @@
+import { Link } from 'react-router-dom';
 import styles from './InstructionTaxonomy.module.css';
 
-// Display-only until the separate catalog-filtering PR supplies stable destinations.
+// Query-parameter filters navigate within the canonical catalog; they are not SEO landing pages.
 export default function InstructionTaxonomy({ taxonomy }) {
   const category = taxonomy?.category;
   const tags = Array.isArray(taxonomy?.tags) ? taxonomy.tags : [];
@@ -9,11 +10,22 @@ export default function InstructionTaxonomy({ taxonomy }) {
 
   return (
     <div className={styles.root} aria-label="Категория и теги инструкции">
-      {category && <span className={styles.category}>Категория: {category.label}</span>}
+      {category && (
+        <Link
+          to={`/instrukcii-po-ohrane-truda?category=${encodeURIComponent(category.id)}`}
+          className={styles.category}
+        >
+          Категория: {category.label}
+        </Link>
+      )}
       {tags.map(tag => (
-        <span key={tag.id} className={styles.tag}>
+        <Link
+          key={tag.id}
+          to={`/instrukcii-po-ohrane-truda?tag=${encodeURIComponent(tag.id)}`}
+          className={styles.tag}
+        >
           {tag.label}
-        </span>
+        </Link>
       ))}
     </div>
   );

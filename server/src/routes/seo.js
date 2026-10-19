@@ -8,6 +8,10 @@ import { renderRichTextContentToHtml } from '../services/richTextContent.js';
 import { getRelatedInstructions } from '../services/instructionEditorService.js';
 import { getInstructionTaxonomyDisplay } from '../services/instructionTaxonomyDisplayService.js';
 import {
+  filterInstructionsByTaxonomy,
+  validateInstructionTaxonomyFilters,
+} from '../services/instructionTaxonomyFilterService.js';
+import {
   getInstructionDocument,
   getInstructionOutline,
   getInstructionPublicPath,
@@ -281,7 +285,7 @@ function getDateModified(instruction) {
   );
 }
 
-function getIndexableInstructions(query, repository) {
+function getIndexableInstructions(query, repository, filters = {}) {
   const result = repository.getAll();
 
   const instructions = Array.isArray(result)
@@ -300,17 +304,19 @@ function getIndexableInstructions(query, repository) {
         !['draft', 'noindex'].includes(String(instruction.seoStatus || '').toLowerCase()),
     );
 
+  const filtered = filterInstructionsByTaxonomy(visible, filters);
+
   /*
    * SEO-поиск использует ту же
    * релевантность, что и API.
    */
   if (normalizedQuery) {
-    return rankInstructionsByQuery(visible, normalizedQuery, {
+    return rankInstructionsByQuery(filtered, normalizedQuery, {
       sort: 'relevance',
     });
   }
 
-  return visible.sort((a, b) =>
+  return filtered.sort((a, b) =>
     String(a.title).localeCompare(String(b.title), 'ru', {
       sensitivity: 'base',
     }),
@@ -521,8 +527,8 @@ function renderInstructionSeoBody(instruction, relatedInstructions) {
   const taxonomy = getInstructionTaxonomyDisplay(instruction);
   const taxonomyHtml = taxonomy
     ? `<div class="InstructionTaxonomy_root" aria-label="Категория и теги инструкции">
-        ${taxonomy.category ? `<span class="InstructionTaxonomy_category">Категория: ${escapeHtml(taxonomy.category.label)}</span>` : ''}
-        ${taxonomy.tags.map(tag => `<span class="InstructionTaxonomy_tag">${escapeHtml(tag.label)}</span>`).join('')}
+        ${taxonomy.category ? `<a class="InstructionTaxonomy_category" href="/instrukcii-po-ohrane-truda?category=${escapeHtml(encodeURIComponent(taxonomy.category.id))}">Категория: ${escapeHtml(taxonomy.category.label)}</a>` : ''}
+        ${taxonomy.tags.map(tag => `<a class="InstructionTaxonomy_tag" href="/instrukcii-po-ohrane-truda?tag=${escapeHtml(encodeURIComponent(tag.id))}">${escapeHtml(tag.label)}</a>`).join('')}
       </div>`
     : '';
 
@@ -615,7 +621,7 @@ function redirectTrailingSlash(req, res) {
   return true;
 }
 
-function renderInstructionsCatalogPage(req, instructions, query, indexPath) {
+function renderInstructionsCatalogPage(req, instructions, query, indexPath, hasParameters = false) {
   const siteUrl = getSiteUrl(req);
   const canonical = `${siteUrl}/instrukcii-po-ohrane-truda`;
   const hasQuery = Boolean(String(query || '').trim());
@@ -692,7 +698,7 @@ function renderInstructionsCatalogPage(req, instructions, query, indexPath) {
     .replace(/<meta\b[^>]*name=["']twitter:[^"']+["'][^>]*>/giu, '')
     .replace(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/giu, '');
 
-  const robotsValue = hasQuery ? 'noindex, follow' : 'index, follow, max-image-preview:large';
+  const robotsValue = hasParameters ? 'noindex, follow' : 'index, follow, max-image-preview:large';
 
   const seoHead = `
   <!-- SEO_CATALOG_PRODUCTION_SHELL_V1 -->
@@ -1038,14 +1044,28 @@ export function createSeoRouter({
     if (redirectTrailingSlash(req, res)) return;
 
     try {
-      const query = String(req.query.q || '').trim();
-      const instructions = getIndexableInstructions(query, repository);
+      const query = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+      let filters;
+      try {
+        filters = validateInstructionTaxonomyFilters({
+          category: req.query.category ?? '',
+          tag: req.query.tag ?? '',
+        });
+      } catch {
+        return res
+          .status(400)
+          .set('X-Robots-Tag', 'noindex, nofollow')
+          .type('text/plain')
+          .send('Некорректные фильтры категории или тега');
+      }
+      const instructions = getIndexableInstructions(query, repository, filters);
+      const hasParameters = Object.keys(req.query).length > 0;
 
-      res
+      return res
         .status(200)
         .set('Cache-Control', 'public, max-age=300')
         .type('html')
-        .send(renderInstructionsCatalogPage(req, instructions, query, indexPath));
+        .send(renderInstructionsCatalogPage(req, instructions, query, indexPath, hasParameters));
     } catch (error) {
       next(error);
     }

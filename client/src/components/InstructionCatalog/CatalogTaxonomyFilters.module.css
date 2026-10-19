@@ -1,0 +1,111 @@
+.root {
+  margin: 0 0 24px;
+  padding: 22px;
+  border: 1px solid #dce5f1;
+  border-radius: 16px;
+  background: #f8fbff;
+  box-shadow: 0 5px 18px rgba(35, 79, 149, 0.04);
+  color: var(--color-text);
+}
+
+.heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.heading h2 {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.4;
+}
+
+.heading p,
+.hint,
+.message {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(260px, 2fr);
+  align-items: end;
+  gap: 14px;
+}
+
+.tagControls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  color: #46566c;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-height: 42px;
+  box-sizing: border-box;
+  padding: 9px 12px;
+  border: 1px solid #bacce3;
+  border-radius: 9px;
+  background: #fff;
+  color: #233b58;
+  font: inherit;
+  font-weight: 500;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.reset:focus-visible {
+  outline: 2px solid #4278d3;
+  outline-offset: 2px;
+}
+
+.reset {
+  min-height: 37px;
+  padding: 8px 12px;
+  border: 1px solid #bacce3;
+  border-radius: 8px;
+  background: #fff;
+  color: #24518a;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.reset:hover {
+  background: #edf4ff;
+}
+
+.hint {
+  margin-top: 15px;
+}
+
+@media (max-width: 790px) {
+  .controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .root {
+    padding: 16px;
+  }
+  .tagControls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
