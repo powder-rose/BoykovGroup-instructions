@@ -1,71 +1,121 @@
+import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import Header from '../Header/Header.jsx';
-
-import Navigation from '../Navigation/Navigation.jsx';
-
 import InstructionSort from '../InstructionSort/InstructionSort.jsx';
-
-import { selectIsAdmin } from '../../store/authSlice.js';
-
+import InstructionListPagination from '../InstructionList/InstructionListPagination.jsx';
 import SEO from '../SEO/SEO.jsx';
 
+import { selectIsAdmin } from '../../store/authSlice.js';
+import HomeCompactHeader from '../../pages/HomePage/components/HomeCompactHeader/HomeCompactHeader.jsx';
+import HomeIntro from '../../pages/HomePage/components/HomeIntro/HomeIntro.jsx';
+import useHomeCompactHeader from '../../pages/HomePage/hooks/useHomeCompactHeader.js';
+
 import InstructionsCatalogGrid from './InstructionsCatalogGrid.jsx';
-
-import InstructionsCatalogPagination from './InstructionsCatalogPagination.jsx';
-
 import useInstructionsCatalog from './hooks/useInstructionsCatalog.js';
 
+import homeStyles from '../../App.module.css';
 import styles from './InstructionsCatalog.module.css';
 
 export default function InstructionsCatalog() {
   const isAdmin = useSelector(selectIsAdmin);
-
-  const { items, loading, page, totalPages, error, paginationItems, changePage } =
-    useInstructionsCatalog();
+  const { isCompactHeader, stickyIntroRef, stickyTriggerRef } = useHomeCompactHeader();
+  const {
+    queryInput,
+    setQueryInput,
+    query,
+    items,
+    total,
+    loading,
+    page,
+    totalPages,
+    error,
+    paginationItems,
+    changePage,
+  } = useInstructionsCatalog();
 
   return (
-    <div className={styles.page}>
+    <div className={homeStyles.page}>
       <SEO
         title="Инструкции по охране труда | БОЙКОВГРУПП"
         description="Готовые инструкции по охране труда для различных профессий. База документов по охране труда для организаций."
       />
 
-      <div className={styles.siteHeader}>
-        <Header query="" onQueryChange={() => {}} />
+      <Header query={queryInput} onQueryChange={setQueryInput} />
 
-        <Navigation />
-      </div>
+      <HomeCompactHeader
+        visible={isCompactHeader}
+        query={queryInput}
+        onQueryChange={setQueryInput}
+      />
+
+      <div ref={stickyTriggerRef} className={homeStyles.stickyTrigger} aria-hidden="true" />
+
+      <HomeIntro query={queryInput} onQueryChange={setQueryInput} containerRef={stickyIntroRef} />
 
       <main className={styles.content}>
-        <a id="boykovCatalogHomeButton" className={styles.homeButton} href="/">
-          ← На главную
-        </a>
+        <div className={styles.toolbar}>
+          <a id="boykovCatalogHomeButton" className={styles.homeButton} href="/">
+            <span aria-hidden="true">←</span> На главную
+          </a>
 
-        <h1>Инструкции по охране труда</h1>
+          {!loading && !error && items.length > 0 && (
+            <span className={homeStyles.count}>
+              {query ? 'Найдено инструкций' : 'Всего инструкций'}: {total.toLocaleString('ru-RU')}
+            </span>
+          )}
+        </div>
 
-        <p className={styles.description}>
-          Готовые инструкции по охране труда для работников различных профессий.
-        </p>
-
-        {loading && <p className={styles.catalogLoading}>Загрузка...</p>}
-
-        {error && <p className={styles.catalogError}>{error}</p>}
-
-        {!loading && !error && (
-          <>
-            <InstructionSort />
-
-            <InstructionsCatalogGrid items={items} isAdmin={isAdmin} />
-
-            <InstructionsCatalogPagination
-              page={page}
-              totalPages={totalPages}
-              paginationItems={paginationItems}
-              onChangePage={changePage}
-            />
-          </>
+        {loading && (
+          <p className={styles.status} role="status">
+            Загрузка инструкций…
+          </p>
         )}
+
+        {!loading && error && (
+          <p className={styles.error} role="alert">
+            {error}
+          </p>
+        )}
+
+        {!loading &&
+          !error &&
+          (items.length > 0 ? (
+            <>
+              <InstructionSort />
+
+              <InstructionsCatalogGrid items={items} isAdmin={isAdmin} />
+
+              <InstructionListPagination
+                currentPage={page}
+                totalPages={totalPages}
+                paginationItems={paginationItems}
+                isPageLoading={loading}
+                onChangePage={changePage}
+              />
+            </>
+          ) : (
+            <section className={styles.empty} aria-labelledby="catalog-empty-title">
+              <span className={styles.emptyEyebrow}>[ СВОЯ ИНСТРУКЦИЯ ]</span>
+
+              <h2 id="catalog-empty-title" className={styles.emptyTitle}>
+                Не нашли нужную инструкцию?
+              </h2>
+
+              <p className={styles.emptyDescription}>
+                Создадим индивидуальную инструкцию по охране труда за 2 минуты.
+              </p>
+
+              {query && (
+                <p className={styles.emptyQuery}>По запросу «{query}» ничего не найдено.</p>
+              )}
+
+              <Link to="/srochnaya-generaciya-instrukcii" className={styles.emptyAction}>
+                Сгенерировать инструкцию
+                <span aria-hidden="true">→</span>
+              </Link>
+            </section>
+          ))}
       </main>
     </div>
   );

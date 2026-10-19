@@ -4,16 +4,19 @@ import styles from './InstructionButton.module.css';
 import GeneratedInstructionBadge from '../GeneratedInstructionBadge/GeneratedInstructionBadge.jsx';
 import { getInstructionPath } from '../../lib/instructionLinks.js';
 
-export default function InstructionButton({ instruction, isAdmin, onDelete, onEdit, isDeleting }) {
+export default function InstructionButton({
+  instruction,
+  isAdmin,
+  onDelete,
+  onEdit,
+  isDeleting,
+  showAdminActions = true,
+}) {
   const [confirming, setConfirming] = useState(false);
 
   return (
     <div className={`${styles.card} ${styles.normalCard}`}>
-      <Link
-        className={styles.clickArea}
-
-        to={getInstructionPath(instruction)}
-      >
+      <Link className={styles.clickArea} to={getInstructionPath(instruction)}>
         <span className={styles.index} aria-hidden="true" />
 
         <span className={styles.body}>
@@ -27,26 +30,14 @@ export default function InstructionButton({ instruction, isAdmin, onDelete, onEd
 
       {isAdmin && instruction?.source === 'generated' && <GeneratedInstructionBadge />}
 
-      {isAdmin && (
+      {isAdmin && showAdminActions && (
         <div className={styles.adminBar}>
-          <button
-            type="button"
-
-            className={styles.adminBtn}
-
-            onClick={() => onEdit(instruction)}
-          >
+          <button type="button" className={styles.adminBtn} onClick={() => onEdit(instruction)}>
             [ редактировать ]
           </button>
 
           {!confirming ? (
-            <button
-              type="button"
-
-              className={styles.adminBtn}
-
-              onClick={() => setConfirming(true)}
-            >
+            <button type="button" className={styles.adminBtn} onClick={() => setConfirming(true)}>
               [ удалить ]
             </button>
           ) : (
@@ -55,11 +46,8 @@ export default function InstructionButton({ instruction, isAdmin, onDelete, onEd
 
               <button
                 type="button"
-
                 className={styles.confirmYes}
-
                 disabled={isDeleting}
-
                 onClick={() => onDelete(instruction.id)}
               >
                 {isDeleting ? '...' : 'да'}
@@ -67,9 +55,7 @@ export default function InstructionButton({ instruction, isAdmin, onDelete, onEd
 
               <button
                 type="button"
-
                 className={styles.confirmNo}
-
                 onClick={() => setConfirming(false)}
               >
                 нет
