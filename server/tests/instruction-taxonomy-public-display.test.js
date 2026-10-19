@@ -100,11 +100,16 @@ test('public API and SEO HTML show the same labels after H1; tags are not links'
   assert.match(header, /class="InstructionTaxonomy_root"/u);
   assert.match(
     header,
-    /class="InstructionTaxonomy_category">Категория: Электротехника и энергетика<\/span>/u,
+    /class="InstructionTaxonomy_category" href="\/instrukcii-po-ohrane-truda\?category=electrical">Категория: Электротехника и энергетика<\/a>/u,
   );
-  assert.match(header, /class="InstructionTaxonomy_tag">Слесарь<\/span>/u);
-  assert.match(header, /class="InstructionTaxonomy_tag">Электрик<\/span>/u);
-  assert.equal(header.includes('<a '), false, 'No premature tag/category URLs');
+  assert.match(
+    header,
+    /class="InstructionTaxonomy_tag" href="\/instrukcii-po-ohrane-truda\?tag=slesar">Слесарь<\/a>/u,
+  );
+  assert.match(
+    header,
+    /class="InstructionTaxonomy_tag" href="\/instrukcii-po-ohrane-truda\?tag=elektrik">Электрик<\/a>/u,
+  );
   assert.ok(header.indexOf('<h1>') < header.indexOf('InstructionTaxonomy_root'));
   assert.ok(header.indexOf('InstructionTaxonomy_root') < header.indexOf('Вступление к инструкции'));
   assert.equal((html.match(/<h1>/gu) || []).length, 1);
@@ -145,5 +150,7 @@ test('React instruction page uses the same API taxonomy display projection', () 
   assert.match(component, /<InstructionTaxonomy taxonomy=\{instruction\.taxonomyDisplay\}/u);
   assert.match(view, /className=\{styles\.category\}/u);
   assert.match(view, /className=\{styles\.tag\}/u);
-  assert.doesNotMatch(view, /<Link|<a\b/u);
+  assert.match(view, /<Link/u);
+  assert.match(view, /\?category=\$\{encodeURIComponent\(category\.id\)\}/u);
+  assert.match(view, /\?tag=\$\{encodeURIComponent\(tag\.id\)\}/u);
 });

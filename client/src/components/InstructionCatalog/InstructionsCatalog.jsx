@@ -12,6 +12,7 @@ import HomeIntro from '../../pages/HomePage/components/HomeIntro/HomeIntro.jsx';
 import useHomeCompactHeader from '../../pages/HomePage/hooks/useHomeCompactHeader.js';
 
 import InstructionsCatalogGrid from './InstructionsCatalogGrid.jsx';
+import CatalogTaxonomyFilters from './CatalogTaxonomyFilters.jsx';
 import useInstructionsCatalog from './hooks/useInstructionsCatalog.js';
 
 import homeStyles from '../../App.module.css';
@@ -24,6 +25,13 @@ export default function InstructionsCatalog() {
     queryInput,
     setQueryInput,
     query,
+    category,
+    tag,
+    filterOptions,
+    filterError,
+    changeCategory,
+    changeTag,
+    clearTaxonomy,
     items,
     total,
     loading,
@@ -39,6 +47,7 @@ export default function InstructionsCatalog() {
       <SEO
         title="Инструкции по охране труда | БОЙКОВГРУПП"
         description="Готовые инструкции по охране труда для различных профессий. База документов по охране труда для организаций."
+        noindex={Boolean(query || category || tag)}
       />
 
       <Header query={queryInput} onQueryChange={setQueryInput} />
@@ -61,10 +70,21 @@ export default function InstructionsCatalog() {
 
           {!loading && !error && items.length > 0 && (
             <span className={homeStyles.count}>
-              {query ? 'Найдено инструкций' : 'Всего инструкций'}: {total.toLocaleString('ru-RU')}
+              {query || category || tag ? 'Найдено инструкций' : 'Всего инструкций'}:{' '}
+              {total.toLocaleString('ru-RU')}
             </span>
           )}
         </div>
+
+        <CatalogTaxonomyFilters
+          options={filterOptions}
+          category={category}
+          tag={tag}
+          onCategoryChange={changeCategory}
+          onTagChange={changeTag}
+          onReset={clearTaxonomy}
+          error={filterError}
+        />
 
         {loading && (
           <p className={styles.status} role="status">
@@ -108,6 +128,11 @@ export default function InstructionsCatalog() {
 
               {query && (
                 <p className={styles.emptyQuery}>По запросу «{query}» ничего не найдено.</p>
+              )}
+              {(category || tag) && (
+                <p className={styles.emptyQuery}>
+                  С такими фильтрами пока нет инструкций. Попробуйте другую категорию или тег.
+                </p>
               )}
 
               <Link to="/srochnaya-generaciya-instrukcii" className={styles.emptyAction}>

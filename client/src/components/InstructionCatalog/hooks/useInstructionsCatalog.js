@@ -8,6 +8,14 @@ export default function useInstructionsCatalog() {
     () => new URLSearchParams(window.location.search).get('q') ?? '',
   );
   const query = useDebouncedValue(queryInput, 350).trim();
+  const [category, setCategory] = useState(
+    () => new URLSearchParams(window.location.search).get('category') ?? '',
+  );
+  const [tag, setTag] = useState(
+    () => new URLSearchParams(window.location.search).get('tag') ?? '',
+  );
+  const [filterOptions, setFilterOptions] = useState({ categories: [], tags: [] });
+  const [filterError, setFilterError] = useState('');
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -22,14 +30,59 @@ export default function useInstructionsCatalog() {
     setQueryInputState(nextQuery);
   }
 
-  // Keep the search term in the address so sorting preserves the active search.
+  function changeCategory(nextCategory) {
+    setPage(1);
+    setCategory(nextCategory);
+  }
+
+  function changeTag(nextTag) {
+    setPage(1);
+    setTag(nextTag);
+  }
+
+  function clearTaxonomy() {
+    setPage(1);
+    setCategory('');
+    setTag('');
+  }
+
+  // Keep search and filters in the address so sorting and deep links preserve them.
   useEffect(() => {
     const url = new URL(window.location.href);
-    if ((url.searchParams.get('q') ?? '') === query) return;
+    const previous = url.search;
     if (query) url.searchParams.set('q', query);
     else url.searchParams.delete('q');
-    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
-  }, [query]);
+    if (category) url.searchParams.set('category', category);
+    else url.searchParams.delete('category');
+    if (tag) url.searchParams.set('tag', tag);
+    else url.searchParams.delete('tag');
+    if (url.search !== previous) {
+      window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
+    }
+  }, [query, category, tag]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    async function loadFilterOptions() {
+      try {
+        const response = await fetch('/api/instructions/taxonomy-filters', {
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error('Не удалось загрузить категории и теги.');
+        const data = await response.json();
+        if (controller.signal.aborted) return;
+        setFilterOptions({
+          categories: Array.isArray(data?.categories) ? data.categories : [],
+          tags: Array.isArray(data?.tags) ? data.tags : [],
+        });
+      } catch {
+        if (!controller.signal.aborted) setFilterError('Фильтры временно недоступны.');
+      }
+    }
+    void loadFilterOptions();
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -45,6 +98,8 @@ export default function useInstructionsCatalog() {
           pageSize: String(PAGE_SIZE),
           sort,
         });
+        if (category) params.set('category', category);
+        if (tag) params.set('tag', tag);
 
         const response = await fetch(`/api/instructions?${params}`, {
           cache: 'no-store',
@@ -74,7 +129,7 @@ export default function useInstructionsCatalog() {
     void load();
 
     return () => controller.abort();
-  }, [page, query, sort]);
+  }, [page, query, sort, category, tag]);
 
   function changePage(nextPage) {
     if (nextPage < 1 || nextPage > totalPages || nextPage === page || loading) return;
@@ -105,6 +160,13 @@ export default function useInstructionsCatalog() {
     queryInput,
     setQueryInput,
     query,
+    category,
+    tag,
+    filterOptions,
+    filterError,
+    changeCategory,
+    changeTag,
+    clearTaxonomy,
     items,
     total,
     loading,
