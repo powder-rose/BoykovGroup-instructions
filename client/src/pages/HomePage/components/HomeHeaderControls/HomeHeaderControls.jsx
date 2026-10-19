@@ -1,11 +1,12 @@
 import SearchBar from '../../../../components/SearchBar/SearchBar.jsx';
 
 import SiteLinkButton from '../../../../components/SiteLinkButton/SiteLinkButton.jsx';
+import AuthControl from '../../../../components/AuthControl/AuthControl.jsx';
 import WalletBalanceBadge from '../../../../components/WalletBalanceBadge/WalletBalanceBadge.jsx';
 
 import styles from '../../../../App.module.css';
 
-export default function HomeHeaderControls({ query, onQueryChange }) {
+export default function HomeHeaderControls({ query, onQueryChange, showAuth = false }) {
   return (
     <div className={styles.compactControls}>
       <div className={styles.compactSearch}>
@@ -13,7 +14,7 @@ export default function HomeHeaderControls({ query, onQueryChange }) {
       </div>
 
       <div className={styles.compactLogo}>
-        <WalletBalanceBadge />
+        {showAuth ? <AuthControl compact /> : <WalletBalanceBadge />}
         <SiteLinkButton />
       </div>
     </div>
