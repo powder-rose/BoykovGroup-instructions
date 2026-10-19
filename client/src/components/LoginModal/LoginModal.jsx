@@ -40,13 +40,12 @@ export default function LoginModal({ onClose }) {
   });
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay}>
       <div
         className={styles.modal}
         role="dialog"
         aria-modal="true"
         aria-label={mode === 'login' ? 'Вход' : 'Регистрация'}
-        onClick={event => event.stopPropagation()}
       >
         <button type="button" className={styles.close} onClick={onClose} aria-label="Закрыть">
           ×

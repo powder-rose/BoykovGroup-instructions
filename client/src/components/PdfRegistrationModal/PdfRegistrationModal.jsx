@@ -32,17 +32,12 @@ export default function PdfRegistrationModal({ onClose }) {
 
     closeModal,
     handleSubmit,
-    handleOverlayClick,
   } = usePdfRegistrationModal({
     onClose,
   });
 
   return (
-    <div
-      id="boykov-pdf-registration-modal"
-      className="boykovPdfRegistration"
-      onMouseDown={handleOverlayClick}
-    >
+    <div id="boykov-pdf-registration-modal" className="boykovPdfRegistration">
       <div
         className="boykovPdfRegistration__modal"
         role="dialog"
