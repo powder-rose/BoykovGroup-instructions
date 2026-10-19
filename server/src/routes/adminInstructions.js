@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import { requireAdmin } from '../middleware/auth.js';
 import { instructionEditorService } from '../services/instructionEditorService.js';
+import { getInstructionTaxonomyCatalog } from '../services/instructionTaxonomyService.js';
 import { InstructionEditorError } from '../services/instructionEditorError.js';
 
 export function createAdminInstructionsRouter({ service = instructionEditorService } = {}) {
@@ -12,6 +13,14 @@ export function createAdminInstructionsRouter({ service = instructionEditorServi
     next();
   }, requireAdmin);
 
+  router.get('/taxonomy', (req, res) => {
+    const catalog = getInstructionTaxonomyCatalog();
+    res.json({
+      version: catalog.version,
+      categories: catalog.categories.map(({ id, label }) => ({ id, label })),
+      tags: catalog.tags.map(({ id, label, type }) => ({ id, label, type })),
+    });
+  });
   router.get('/', (req, res) => res.json({ items: service.list() }));
   router.get('/:id', (req, res) => res.json(service.get(req.params.id)));
   router.post('/', (req, res) => res.status(201).json(service.save(null, req.body)));

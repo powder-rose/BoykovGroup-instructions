@@ -9,7 +9,8 @@ function read(path) {
 test('editor classifies drafts and publications without changing repository core', () => {
   const editor = read('../src/services/instructionEditorService.js');
   const repository = read('../src/services/instructionsRepository.js');
-  assert.match(editor, /const instruction = prepareInstructionTaxonomy\(\{/u);
+  assert.match(editor, /const instruction\s*=\s*applyInstructionTaxonomyEditorPatch\s*\(/u);
+  assert.match(editor, /input\.taxonomyPatch/u);
   assert.match(editor, /writeDraft\(instruction\)/u);
   assert.match(editor, /repository\.save\(instruction\)/u);
   assert.doesNotMatch(repository, /prepareInstructionTaxonomy|saveInstructionWithTaxonomy/u);

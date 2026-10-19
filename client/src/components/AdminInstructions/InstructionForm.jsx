@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import RichTextEditor from '../RichTextEditor/RichTextEditor.jsx';
 import InstructionPreview from './InstructionPreview.jsx';
+import InstructionTaxonomyEditor from './InstructionTaxonomyEditor.jsx';
 import InstructionSeoStatus, { InstructionEditorialMeta } from './InstructionSeoStatus.jsx';
 import {
   instructionToForm,
@@ -13,6 +14,7 @@ import useInstructionDraft from './useInstructionDraft.js';
 export default function InstructionForm({
   envelope,
   identity,
+  token,
   saving,
   history,
   onSave,
@@ -54,6 +56,26 @@ export default function InstructionForm({
 
   function change(field, value) {
     setForm(current => ({ ...current, [field]: value }));
+  }
+  function changeCategory(id, mode) {
+    setForm(current => ({
+      ...current,
+      primaryCategoryId: mode === 'auto' ? null : id,
+      taxonomyPatch: {
+        ...current.taxonomyPatch,
+        category: mode === 'auto' ? { mode: 'auto' } : { mode: 'manual', id },
+      },
+    }));
+  }
+  function changeTags(ids, mode) {
+    setForm(current => ({
+      ...current,
+      tagIds: mode === 'auto' ? [] : ids,
+      taxonomyPatch: {
+        ...current.taxonomyPatch,
+        tags: mode === 'auto' ? { mode: 'auto' } : { mode: 'manual', ids },
+      },
+    }));
   }
   function close() {
     if (saving) return;
@@ -180,6 +202,13 @@ export default function InstructionForm({
             <small>Появится перед инструкцией на сайте.</small>
           </label>
         </div>
+        <InstructionTaxonomyEditor
+          token={token}
+          record={record}
+          form={form}
+          onCategory={changeCategory}
+          onTags={changeTags}
+        />
         <section
           className="admin-instruction-form__body"
           aria-labelledby="instruction-main-editor-heading"

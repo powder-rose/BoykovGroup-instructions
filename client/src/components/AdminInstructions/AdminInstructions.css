@@ -516,3 +516,126 @@
 .instruction-editor-secondary-actions small {
   flex-basis: 100%;
 }
+
+.admin-instruction-taxonomy {
+  margin: 25px 0;
+  padding: 22px;
+  border: 1px solid #dce5ef;
+  border-radius: 10px;
+  background: #f9fbfe;
+}
+
+.admin-instruction-taxonomy__header h3 {
+  margin: 0 0 8px;
+  font-size: 19px;
+  color: #1f3556;
+}
+
+.admin-instruction-taxonomy__header p {
+  margin: 0;
+  color: #65738a;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.admin-instruction-taxonomy__group {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.admin-instruction-taxonomy__group + .admin-instruction-taxonomy__group {
+  border-top: 1px solid #e1e7f0;
+  padding-top: 19px;
+}
+
+.admin-instruction-taxonomy__row,
+.admin-instruction-taxonomy__foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.admin-instruction-taxonomy__label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.admin-instruction-taxonomy__status {
+  color: #44668d;
+  font-size: 12px;
+}
+
+.admin-instruction-taxonomy__foot small {
+  flex: 1 1 240px;
+  line-height: 1.5;
+}
+
+.admin-instructions .admin-instruction-taxonomy__foot button {
+  padding: 7px 11px;
+  color: #285a94;
+  background: transparent;
+}
+
+.admin-instruction-taxonomy__hint {
+  color: #748196;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.admin-instruction-taxonomy__selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.admin-instructions .admin-instruction-taxonomy__chip {
+  border-radius: 20px;
+  background: #eaf2fc;
+  border-color: #bfd3eb;
+  color: #244f7d;
+  padding: 7px 11px;
+}
+
+.admin-instruction-taxonomy__search {
+  max-width: 560px;
+}
+
+.admin-instruction-taxonomy__results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  gap: 7px;
+  max-height: 225px;
+  overflow-y: auto;
+}
+
+.admin-instructions .admin-instruction-taxonomy__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 11px;
+  text-align: left;
+  background: #fff;
+}
+
+.admin-instruction-taxonomy__option small {
+  margin-left: auto;
+  white-space: nowrap;
+  color: #75839a;
+}
+
+.admin-instructions .admin-instruction-taxonomy__option[aria-pressed='true'] {
+  background: #eaf2fc;
+  border-color: #6d95c4;
+}
+
+@media (max-width: 640px) {
+  .admin-instruction-taxonomy {
+    padding: 16px;
+  }
+}
