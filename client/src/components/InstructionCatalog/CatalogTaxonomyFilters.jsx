@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import CatalogTagPicker from './CatalogTagPicker.jsx';
 import styles from './CatalogTaxonomyFilters.module.css';
 
 export default function CatalogTaxonomyFilters({
@@ -10,17 +10,8 @@ export default function CatalogTaxonomyFilters({
   onReset,
   error,
 }) {
-  const [tagQuery, setTagQuery] = useState('');
   const categories = options?.categories || [];
   const tags = options?.tags || [];
-  const normalizedQuery = tagQuery.trim().toLocaleLowerCase('ru-RU');
-  const matching = normalizedQuery
-    ? tags.filter(item => item.label.toLocaleLowerCase('ru-RU').includes(normalizedQuery))
-    : tags;
-  // Keep the current selection in the native select when the user searches for another tag.
-  const selected = tags.find(item => item.id === tag);
-  const visibleTags =
-    selected && !matching.some(item => item.id === tag) ? [selected, ...matching] : matching;
   const active = Boolean(category || tag);
 
   return (
@@ -48,29 +39,7 @@ export default function CatalogTaxonomyFilters({
             ))}
           </select>
         </label>
-        <div className={styles.tagControls}>
-          <label className={styles.field}>
-            <span>Найти тег</span>
-            <input
-              type="search"
-              value={tagQuery}
-              onChange={event => setTagQuery(event.target.value)}
-              placeholder="Например, слесарь или сварка"
-              aria-label="Поиск по доступным тегам"
-            />
-          </label>
-          <label className={styles.field}>
-            <span>Тег</span>
-            <select value={tag} onChange={event => onTagChange(event.target.value)}>
-              <option value="">Все теги</option>
-              {visibleTags.map(item => (
-                <option key={item.id} value={item.id}>
-                  {item.label} ({item.count})
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+        <CatalogTagPicker tags={tags} selectedId={tag} onChange={onTagChange} />
       </div>
       {error && (
         <p className={styles.message} role="status">
