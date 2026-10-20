@@ -23,6 +23,8 @@ const records = [
     profession: 'слесаря-электрика',
     primaryCategoryId: 'electrical',
     tagIds: ['slesar', 'elektrik'],
+    taxonomyMeta: { categorySource: 'manual', tagsSource: 'manual', needsReview: false },
+    instructionContent: { type: 'doc', content: [] },
     createdAt: '2026-10-18T10:00:00Z',
   },
   {
@@ -181,6 +183,16 @@ test('filtered catalog SSR matches the API and cannot create indexable tag pages
   assert.match(html, /name="robots"\s+content="noindex, follow"/u);
   assert.match(html, /rel="canonical"\s+href="[^"]+\/instrukcii-po-ohrane-truda"/u);
 
+  assert.match(
+    html,
+    /class="InstructionTaxonomy_tag" href="\/instrukcii-po-ohrane-truda\?tag=slesar">Слесарь<\/a>/u,
+  );
+  assert.match(
+    html,
+    /class="InstructionTaxonomy_tag" href="\/instrukcii-po-ohrane-truda\?tag=elektrik">Электрик<\/a>/u,
+  );
+  assert.match(html, /<style data-instruction-taxonomy>/u);
+
   const combined = await fetch(`${base}/instrukcii-po-ohrane-truda?tag=slesar&category=electrical`);
   const combinedHtml = await combined.text();
   assert.ok(combinedHtml.includes('/instrukciya-po-ohrane-truda/slesar-elektrik-filter'));
@@ -191,6 +203,31 @@ test('filtered catalog SSR matches the API and cannot create indexable tag pages
 
   const bad = await fetch(`${base}/instrukcii-po-ohrane-truda?tag=nonexistent`);
   assert.equal(bad.status, 400);
+});
+
+test('catalog summaries expose saved canonical tags without editorial metadata or documents', async t => {
+  const base = await fixture(t);
+  const response = await fetch(`${base}/api/instructions?pageSize=20`);
+  assert.equal(response.status, 200);
+  const { items } = await response.json();
+  const byId = new Map(items.map(item => [item.id, item]));
+
+  assert.deepEqual(byId.get('slesar-elektrik-filter').taxonomyDisplay, {
+    category: { id: 'electrical', label: 'Электротехника и энергетика' },
+    tags: [
+      { id: 'slesar', label: 'Слесарь' },
+      { id: 'elektrik', label: 'Электрик' },
+    ],
+  });
+  assert.deepEqual(byId.get('slesar-santekhnik-filter').taxonomyDisplay.tags, [
+    { id: 'slesar', label: 'Слесарь' },
+  ]);
+  assert.equal(Object.hasOwn(byId.get('legacy-filter'), 'taxonomyDisplay'), false);
+  for (const item of items) {
+    assert.equal(Object.hasOwn(item, 'taxonomyMeta'), false);
+    assert.equal(Object.hasOwn(item, 'instructionContent'), false);
+    assert.equal(Object.hasOwn(item, 'tagIds'), false);
+  }
 });
 
 test('catalog UI persists category and tag IDs in URL and maintains query/sorting', () => {
@@ -219,11 +256,11 @@ test('catalog UI persists category and tag IDs in URL and maintains query/sortin
     new URL('../../client/src/components/InstructionPage/InstructionTaxonomy.jsx', import.meta.url),
     'utf8',
   );
-  assert.match(hook, /searchParams\.set\('category', category\)/u);
-  assert.match(hook, /searchParams\.set\('tag', tag\)/u);
+  assert.match(hook, /searchParams\.get\('category'\)/u);
+  assert.match(hook, /searchParams\.get\('tag'\)/u);
   assert.match(hook, /params\.set\('category', category\)/u);
   assert.match(hook, /params\.set\('tag', tag\)/u);
-  assert.match(hook, /setPage\(1\)/u);
+  assert.match(hook, /next\.delete\('page'\)/u);
   assert.match(catalog, /<CatalogTaxonomyFilters/u);
   assert.match(ui, /Сбросить фильтры/u);
   assert.match(instruction, /\?category=\$\{encodeURIComponent\(category\.id\)\}/u);

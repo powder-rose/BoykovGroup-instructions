@@ -21,6 +21,7 @@ export default function InstructionSort() {
     } else {
       url.searchParams.delete('sort');
     }
+    url.searchParams.delete('page');
 
     window.location.assign(url.pathname + url.search + url.hash);
   }

@@ -27,6 +27,7 @@ export default function InstructionsCatalog() {
     query,
     category,
     tag,
+    hasParameters,
     filterOptions,
     filterError,
     changeCategory,
@@ -47,7 +48,7 @@ export default function InstructionsCatalog() {
       <SEO
         title="Инструкции по охране труда | БОЙКОВГРУПП"
         description="Готовые инструкции по охране труда для различных профессий. База документов по охране труда для организаций."
-        noindex={Boolean(query || category || tag)}
+        noindex={hasParameters}
       />
 
       <Header query={queryInput} onQueryChange={setQueryInput} />

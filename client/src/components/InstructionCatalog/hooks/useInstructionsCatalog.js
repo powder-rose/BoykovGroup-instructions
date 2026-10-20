@@ -1,65 +1,58 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { PAGE_SIZE } from '../../../constants.js';
-import { useDebouncedValue } from '../../../hooks/useDebouncedValue.js';
 
 export default function useInstructionsCatalog() {
-  const [queryInput, setQueryInputState] = useState(
-    () => new URLSearchParams(window.location.search).get('q') ?? '',
-  );
-  const query = useDebouncedValue(queryInput, 350).trim();
-  const [category, setCategory] = useState(
-    () => new URLSearchParams(window.location.search).get('category') ?? '',
-  );
-  const [tag, setTag] = useState(
-    () => new URLSearchParams(window.location.search).get('tag') ?? '',
-  );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryInput = searchParams.get('q') ?? '';
+  const query = queryInput.trim();
+  const category = searchParams.get('category') ?? '';
+  const tag = searchParams.get('tag') ?? '';
+  const sort = searchParams.get('sort') === 'popular' ? 'popular' : 'newest';
+  const requestedPage = Number(searchParams.get('page') || 1);
+  const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const hasParameters = searchParams.size > 0;
+  const previousFiltersRef = useRef({ queryInput, category, tag, sort });
+  const correctedPageRef = useRef(null);
   const [filterOptions, setFilterOptions] = useState({ categories: [], tags: [] });
   const [filterError, setFilterError] = useState('');
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState('');
-  const sort =
-    new URLSearchParams(window.location.search).get('sort') === 'popular' ? 'popular' : 'newest';
+
+  function updateFilters(updates, { replace = false } = {}) {
+    setSearchParams(
+      current => {
+        const next = new URLSearchParams(current);
+        for (const [key, value] of Object.entries(updates)) {
+          if (value) next.set(key, value);
+          else next.delete(key);
+        }
+        next.delete('page');
+        return next;
+      },
+      { replace },
+    );
+  }
 
   function setQueryInput(nextQuery) {
-    setPage(1);
-    setQueryInputState(nextQuery);
+    updateFilters({ q: nextQuery }, { replace: true });
   }
 
   function changeCategory(nextCategory) {
-    setPage(1);
-    setCategory(nextCategory);
+    updateFilters({ category: nextCategory });
   }
 
   function changeTag(nextTag) {
-    setPage(1);
-    setTag(nextTag);
+    updateFilters({ tag: nextTag });
   }
 
   function clearTaxonomy() {
-    setPage(1);
-    setCategory('');
-    setTag('');
+    updateFilters({ category: '', tag: '' });
   }
-
-  // Keep search and filters in the address so sorting and deep links preserve them.
-  useEffect(() => {
-    const url = new URL(window.location.href);
-    const previous = url.search;
-    if (query) url.searchParams.set('q', query);
-    else url.searchParams.delete('q');
-    if (category) url.searchParams.set('category', category);
-    else url.searchParams.delete('category');
-    if (tag) url.searchParams.set('tag', tag);
-    else url.searchParams.delete('tag');
-    if (url.search !== previous) {
-      window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash);
-    }
-  }, [query, category, tag]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -85,12 +78,23 @@ export default function useInstructionsCatalog() {
   }, []);
 
   useEffect(() => {
+    const requestKey = JSON.stringify([query, category, tag, sort, page]);
+    const alreadyLoaded = correctedPageRef.current === requestKey;
+    correctedPageRef.current = null;
+    if (alreadyLoaded) return;
+
     const controller = new AbortController();
+    const previous = previousFiltersRef.current;
+    const queryOnlyChanged =
+      previous.queryInput !== queryInput &&
+      previous.category === category &&
+      previous.tag === tag &&
+      previous.sort === sort;
+    previousFiltersRef.current = { queryInput, category, tag, sort };
+    setLoading(true);
+    setError('');
 
     async function load() {
-      setLoading(true);
-      setError('');
-
       try {
         const params = new URLSearchParams({
           q: query,
@@ -116,6 +120,21 @@ export default function useInstructionsCatalog() {
         setItems(Array.isArray(data?.items) ? data.items : []);
         setTotal(Math.max(0, Number(data?.total) || 0));
         setTotalPages(Math.max(1, Number(data?.totalPages) || 1));
+
+        const actualPage = Number(data?.page);
+        if (Number.isSafeInteger(actualPage) && actualPage > 0 && actualPage !== requestedPage) {
+          // The response already contains this page; correcting its URL needs no second request.
+          correctedPageRef.current = JSON.stringify([query, category, tag, sort, actualPage]);
+          setSearchParams(
+            current => {
+              const next = new URLSearchParams(current);
+              if (actualPage === 1) next.delete('page');
+              else next.set('page', String(actualPage));
+              return next;
+            },
+            { replace: true },
+          );
+        }
       } catch (loadError) {
         if (controller.signal.aborted) return;
         setError(loadError?.message || 'Не удалось загрузить инструкции.');
@@ -126,15 +145,23 @@ export default function useInstructionsCatalog() {
       }
     }
 
-    void load();
+    const timeout = window.setTimeout(() => void load(), queryOnlyChanged ? 350 : 0);
 
-    return () => controller.abort();
-  }, [page, query, sort, category, tag]);
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [page, requestedPage, query, queryInput, sort, category, tag, setSearchParams]);
 
   function changePage(nextPage) {
     if (nextPage < 1 || nextPage > totalPages || nextPage === page || loading) return;
 
-    setPage(nextPage);
+    setSearchParams(current => {
+      const next = new URLSearchParams(current);
+      if (nextPage === 1) next.delete('page');
+      else next.set('page', String(nextPage));
+      return next;
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -162,6 +189,7 @@ export default function useInstructionsCatalog() {
     query,
     category,
     tag,
+    hasParameters,
     filterOptions,
     filterError,
     changeCategory,

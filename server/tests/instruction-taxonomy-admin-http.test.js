@@ -78,7 +78,7 @@ test('taxonomy catalog is restricted to admin and exposes only safe label fields
   assert.equal(response.headers.get('cache-control'), 'private, no-store');
   const catalog = await response.json();
   assert.equal(catalog.categories.length, 10);
-  assert.equal(catalog.tags.length, 176);
+  assert.equal(catalog.tags.length, 371);
   assert.equal(catalog.tags[0].suggestionRule, undefined);
   assert.equal(catalog.tags[0].indexPolicy, undefined);
 });

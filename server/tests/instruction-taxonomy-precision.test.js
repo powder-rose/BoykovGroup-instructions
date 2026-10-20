@@ -122,9 +122,9 @@ test('construction describes the work rather than building-product vocabulary', 
 
 test('catalog IDs stay stable and explicit manual taxonomy remains authoritative', () => {
   const catalog = getInstructionTaxonomyCatalog();
-  assert.equal(catalog.version, 1);
+  assert.equal(catalog.version, 2);
   assert.equal(catalog.categories.length, 10);
-  assert.equal(catalog.tags.length, 176);
+  assert.equal(catalog.tags.length, 371);
   const manual = {
     id: 'manual-regression',
     title: 'Инструкция по охране труда для водителя',

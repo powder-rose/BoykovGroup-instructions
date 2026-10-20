@@ -4,6 +4,7 @@ import { getInstructionPopularity } from './instructionPopularityService.js';
 
 import { normalizeProfessionKey } from './professionNormalizer.js';
 import { filterInstructionsByTaxonomy } from './instructionTaxonomyFilterService.js';
+import { getInstructionTaxonomyDisplay } from './instructionTaxonomyDisplayService.js';
 
 /*
  * SEARCH V4
@@ -592,6 +593,8 @@ export function rankInstructionsByQuery(
 }
 
 function toSummary(instruction) {
+  const taxonomyDisplay = getInstructionTaxonomyDisplay(instruction);
+
   return {
     id: instruction.id,
 
@@ -604,6 +607,8 @@ function toSummary(instruction) {
     source: instruction.source,
 
     createdAt: instruction.createdAt,
+
+    ...(taxonomyDisplay ? { taxonomyDisplay } : {}),
   };
 }
 

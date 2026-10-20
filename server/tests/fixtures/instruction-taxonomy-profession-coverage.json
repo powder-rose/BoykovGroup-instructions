@@ -1,0 +1,1026 @@
+{
+  "retainedTagIds": [
+    "apparatchik",
+    "slesar",
+    "elektromonter",
+    "elektrik",
+    "elektromontazhnik",
+    "kabelshchik",
+    "energetik",
+    "voditel",
+    "avtoslesar",
+    "mashinist",
+    "traktorist",
+    "kranovshchik",
+    "ekskavatorshchik",
+    "stropalshchik",
+    "gruzchik",
+    "kladovshchik",
+    "komplektovshchik",
+    "operator",
+    "naladchik",
+    "tokar",
+    "frezerovshchik",
+    "svarshchik",
+    "malyar",
+    "stroitel",
+    "krovelshchik",
+    "betonshchik",
+    "kamenshchik",
+    "shtukatur",
+    "plotnik",
+    "povar",
+    "pekar",
+    "konditer",
+    "oficiant",
+    "barista",
+    "barmen",
+    "prodavec",
+    "kassir",
+    "gornichnaya",
+    "vrach",
+    "medsestra",
+    "akusherka",
+    "feldsher",
+    "laborant",
+    "rentgenolaborant",
+    "sanitar",
+    "farmacevt",
+    "provizor",
+    "stomatolog",
+    "buhgalter",
+    "programmist",
+    "sistemnyj-administrator",
+    "menedzher",
+    "rukovoditel",
+    "direktor",
+    "uborshchik",
+    "dvornik",
+    "santehnik",
+    "kochegar",
+    "veterinar",
+    "agronom",
+    "mekhanik",
+    "inzhener",
+    "raboty-na-vysote",
+    "svarochnye-raboty",
+    "raboty-na-stankah",
+    "stroitelno-montazhnye",
+    "montazhnye-raboty",
+    "elektromontazhnye-raboty",
+    "ekspluataciya-elektroustanovok",
+    "remont-oborudovaniya",
+    "pogruzochnye-raboty",
+    "skladskie-raboty",
+    "stropalnye-raboty",
+    "uborka-pomeschenij",
+    "uborka-territorii",
+    "dezinfekciya",
+    "prigotovlenie-pishchi",
+    "obsluzhivanie-posetitelej",
+    "raboty-s-kompyuterom",
+    "laboratornye-raboty",
+    "remont-avtomobilej",
+    "derevoobrabotka",
+    "okrasochnye-raboty",
+    "zemlyanye-raboty",
+    "gazovye-raboty",
+    "himicheskie-raboty",
+    "vodolaznye-raboty",
+    "gornye-raboty",
+    "raboty-s-zhivotnymi",
+    "raboty-na-selhoztehnike",
+    "vypolnenie-tekhosmotra",
+    "raboty-v-zamknutyh-prostranstvah",
+    "tipografiya",
+    "elektroinstrument",
+    "elektroustanovki",
+    "pogruzchik",
+    "krany",
+    "kmu",
+    "stanki",
+    "stanki-chpu",
+    "avtomobili",
+    "avtobus",
+    "gruzovye-avtomobili",
+    "traktor",
+    "kotelnye",
+    "gazovoe-oborudovanie",
+    "sosudy-pod-davleniem",
+    "sklad",
+    "holodilnoe-oborudovanie",
+    "laboratornoe-oborudovanie",
+    "medicinskoe-oborudovanie",
+    "rentgen",
+    "kompyuter",
+    "orgtehnika",
+    "kassovoe-oborudovanie",
+    "poligraficheskoe-oborudovanie",
+    "lestnicy-stremyanki",
+    "nasosnye-stancii",
+    "vodoprovod-kanalizaciya",
+    "svarochnoe-oborudovanie",
+    "himicheskie-veshchestva",
+    "razrabotchik",
+    "tehnolog",
+    "dizajner",
+    "ekonomist",
+    "analitik",
+    "yurist",
+    "sekretar",
+    "arhitektor",
+    "proektirovshchik",
+    "geodezist",
+    "massazhist",
+    "psiholog",
+    "kosmetolog",
+    "stilist",
+    "sortirovshchik",
+    "fasovshchik",
+    "kontroler",
+    "brigadir",
+    "graver",
+    "shveya",
+    "polirovshchik",
+    "dezinfektor",
+    "burlshchik",
+    "shahter",
+    "peskostrujshchik",
+    "sushist",
+    "parikmaher",
+    "ohrannik",
+    "tehnologicheskie-processy",
+    "slesarnye-raboty",
+    "kontrol-kachestva",
+    "upakovka-fasovka",
+    "buhgalterskij-uchet",
+    "kadrovaya-rabota",
+    "prodazhi",
+    "logistika",
+    "rabota-s-dokumentami",
+    "proektirovanie",
+    "remont-i-servis",
+    "sterilizaciya",
+    "medicinskaya-diagnostika",
+    "kosmeticheskie-procedury",
+    "obsluzhivanie-zdanij",
+    "tekstilnoe-proizvodstvo",
+    "rabota-s-ruchnym-instrumentom",
+    "remont-setej",
+    "rabota-s-pishchevym-oborudovaniem",
+    "raboty-po-ohrane-truda",
+    "obuchenie-i-instruktazh",
+    "okazanie-pervoj-pomoshchi",
+    "pozharnaia-bezopasnost",
+    "ruchnoj-instrument",
+    "pishchevoe-oborudovanie",
+    "peskostrujnoe-oborudovanie",
+    "printery-i-plottery"
+  ],
+  "cases": [
+    {
+      "profession": "авербандщика",
+      "expectedTagIds": ["averbandshchik"]
+    },
+    {
+      "profession": "автоклавщика",
+      "expectedTagIds": ["avtoklavshchik"]
+    },
+    {
+      "profession": "автоматчика вязальных автоматов",
+      "expectedTagIds": ["avtomatchik"]
+    },
+    {
+      "profession": "агломератчика",
+      "expectedTagIds": ["aglomeratchik"]
+    },
+    {
+      "profession": "администратора гостиницы",
+      "expectedTagIds": ["administrator"]
+    },
+    {
+      "profession": "аквадировщика",
+      "expectedTagIds": ["akvadirovshchik"]
+    },
+    {
+      "profession": "акклиматизатора",
+      "expectedTagIds": ["akklimatizator"]
+    },
+    {
+      "profession": "аккомпаниатора",
+      "expectedTagIds": ["akkompaniator"]
+    },
+    {
+      "profession": "аккумуляторщика",
+      "expectedTagIds": ["akkumulyatorshchik"]
+    },
+    {
+      "profession": "алундировщика",
+      "expectedTagIds": ["alundirovshchik"]
+    },
+    {
+      "profession": "алюминировщика электротехнических изделий",
+      "expectedTagIds": ["alyuminirovshchik"]
+    },
+    {
+      "profession": "ангобировщика санитарно-строительных изделий",
+      "expectedTagIds": ["angobirovshchik"]
+    },
+    {
+      "profession": "анодчика в производстве алюминия",
+      "expectedTagIds": ["anodchik"]
+    },
+    {
+      "profession": "антикоррозийщика",
+      "expectedTagIds": ["antikorrozijshchik"]
+    },
+    {
+      "profession": "арматурщик",
+      "expectedTagIds": ["armaturschik"]
+    },
+    {
+      "profession": "аудитора",
+      "expectedTagIds": ["auditor"]
+    },
+    {
+      "profession": "банщика",
+      "expectedTagIds": ["banshchik"]
+    },
+    {
+      "profession": "барбека",
+      "expectedTagIds": ["barbek"]
+    },
+    {
+      "profession": "вальцовщика резиновых смесей",
+      "expectedTagIds": ["valtsovshchik"]
+    },
+    {
+      "profession": "ведущего мелиоратора",
+      "expectedTagIds": ["meliorator"]
+    },
+    {
+      "profession": "эмбриолога",
+      "expectedTagIds": ["embriolog"]
+    },
+    {
+      "profession": "взрывник",
+      "expectedTagIds": ["vzryvnik"]
+    },
+    {
+      "profession": "газорезчика",
+      "expectedTagIds": ["gazorezchik"]
+    },
+    {
+      "profession": "гардеробщика",
+      "expectedTagIds": ["garderobshchik"]
+    },
+    {
+      "profession": "гидроизолировщик",
+      "expectedTagIds": ["gidroizolirovshchik"]
+    },
+    {
+      "profession": "главного шампаниста",
+      "expectedTagIds": ["shampanist"]
+    },
+    {
+      "profession": "декларанта",
+      "expectedTagIds": ["deklarant"]
+    },
+    {
+      "profession": "делопроизводителя",
+      "expectedTagIds": ["deloproizvoditel"]
+    },
+    {
+      "profession": "дерматовенеролога",
+      "expectedTagIds": ["dermatovenerolog"]
+    },
+    {
+      "profession": "диагноста",
+      "expectedTagIds": ["diagnost"]
+    },
+    {
+      "profession": "диспетчера автомобильного транспорта",
+      "expectedTagIds": ["dispetcher"]
+    },
+    {
+      "profession": "испытатель промышленных лазерных установок",
+      "expectedTagIds": ["ispytatel"]
+    },
+    {
+      "profession": "жестянщика",
+      "expectedTagIds": ["zhestyanshchik"]
+    },
+    {
+      "profession": "завхоза",
+      "expectedTagIds": ["zavhoz"]
+    },
+    {
+      "profession": "заготовщика полуфабрикатов",
+      "expectedTagIds": ["zagotovshchik"]
+    },
+    {
+      "profession": "закройщик",
+      "expectedTagIds": ["zakrojshchik"]
+    },
+    {
+      "profession": "звукооператора",
+      "expectedTagIds": ["zvukooperator"]
+    },
+    {
+      "profession": "кинолога",
+      "expectedTagIds": ["kinolog"]
+    },
+    {
+      "profession": "киномеханика",
+      "expectedTagIds": ["kinomekhanik"]
+    },
+    {
+      "profession": "колориста флексографической печати",
+      "expectedTagIds": ["kolorist"]
+    },
+    {
+      "profession": "коменданта",
+      "expectedTagIds": ["komendant"]
+    },
+    {
+      "profession": "консультанта",
+      "expectedTagIds": ["konsultant"]
+    },
+    {
+      "profession": "координатора отдела экспорта",
+      "expectedTagIds": ["koordinator"]
+    },
+    {
+      "profession": "копирайтера",
+      "expectedTagIds": ["kopirajter"]
+    },
+    {
+      "profession": "костюмера",
+      "expectedTagIds": ["kostyumer"]
+    },
+    {
+      "profession": "купажиста",
+      "expectedTagIds": ["kupazhist"]
+    },
+    {
+      "profession": "маркетолога",
+      "expectedTagIds": ["marketolog"]
+    },
+    {
+      "profession": "маркировщика",
+      "expectedTagIds": ["markirovshchik"]
+    },
+    {
+      "profession": "методиста",
+      "expectedTagIds": ["metodist"]
+    },
+    {
+      "profession": "механизатора",
+      "expectedTagIds": ["mekhanizator"]
+    },
+    {
+      "profession": "монтажника кабельных линий",
+      "expectedTagIds": ["montazhnik"]
+    },
+    {
+      "profession": "начальника отдела кадров",
+      "expectedTagIds": ["nachalnik"]
+    },
+    {
+      "profession": "нотариуса",
+      "expectedTagIds": ["notarius"]
+    },
+    {
+      "profession": "обходчика водопроводных сетей",
+      "expectedTagIds": ["obhodchik"]
+    },
+    {
+      "profession": "огнеупорщик",
+      "expectedTagIds": ["ogneuporshchik"]
+    },
+    {
+      "profession": "опрессовщика",
+      "expectedTagIds": ["opressovshchik"]
+    },
+    {
+      "profession": "отделочника",
+      "expectedTagIds": ["otdelochnik"]
+    },
+    {
+      "profession": "охотоведа",
+      "expectedTagIds": ["ohotoved"]
+    },
+    {
+      "profession": "переплетчика",
+      "expectedTagIds": ["perepletchik"]
+    },
+    {
+      "profession": "печатника флексографической печати",
+      "expectedTagIds": ["pechatnik"]
+    },
+    {
+      "profession": "плиточника",
+      "expectedTagIds": ["plitochnik"]
+    },
+    {
+      "profession": "преподавателя",
+      "expectedTagIds": ["prepodavatel"]
+    },
+    {
+      "profession": "пробоотборщик",
+      "expectedTagIds": ["probootborshchik"]
+    },
+    {
+      "profession": "продюсера",
+      "expectedTagIds": ["prodyuser"]
+    },
+    {
+      "profession": "проточника",
+      "expectedTagIds": ["protochnik"]
+    },
+    {
+      "profession": "радиомонтажника 5 разряда",
+      "expectedTagIds": ["radiomontazhnik"]
+    },
+    {
+      "profession": "радиотехника (техника) средств связи",
+      "expectedTagIds": ["radiotekhnik"]
+    },
+    {
+      "profession": "рамщика",
+      "expectedTagIds": ["ramshchik"]
+    },
+    {
+      "profession": "ревизора",
+      "expectedTagIds": ["revizor"]
+    },
+    {
+      "profession": "режиссера массовых представлений",
+      "expectedTagIds": ["rezhisser"]
+    },
+    {
+      "profession": "резчика стекла",
+      "expectedTagIds": ["rezchik"]
+    },
+    {
+      "profession": "референта",
+      "expectedTagIds": ["referent"]
+    },
+    {
+      "profession": "сборщика мебели",
+      "expectedTagIds": ["sborshchik"]
+    },
+    {
+      "profession": "сметчика",
+      "expectedTagIds": ["smetchik"]
+    },
+    {
+      "profession": "станочника",
+      "expectedTagIds": ["stanochnik"]
+    },
+    {
+      "profession": "статистика",
+      "expectedTagIds": ["statistik"]
+    },
+    {
+      "profession": "супервайзера службы хаускипинга",
+      "expectedTagIds": ["supervajzer"]
+    },
+    {
+      "profession": "техника по обслуживанию зданий",
+      "expectedTagIds": ["tekhnik"]
+    },
+    {
+      "profession": "товароведа",
+      "expectedTagIds": ["tovaroved"]
+    },
+    {
+      "profession": "тренера",
+      "expectedTagIds": ["trener"]
+    },
+    {
+      "profession": "тычковщика",
+      "expectedTagIds": ["tychkovshchik"]
+    },
+    {
+      "profession": "старшего формовщика",
+      "expectedTagIds": ["formovshchik"]
+    },
+    {
+      "profession": "химика",
+      "expectedTagIds": ["himik"]
+    },
+    {
+      "profession": "хормейстера",
+      "expectedTagIds": ["hormeyster"]
+    },
+    {
+      "profession": "цементатора",
+      "expectedTagIds": ["cementator"]
+    },
+    {
+      "profession": "шлифовщик",
+      "expectedTagIds": ["shlifovshchik"]
+    },
+    {
+      "profession": "штамповщик",
+      "expectedTagIds": ["shtampovshchik"]
+    },
+    {
+      "profession": "эколога",
+      "expectedTagIds": ["ekolog"]
+    },
+    {
+      "profession": "экспедитор",
+      "expectedTagIds": ["ekspeditor"]
+    },
+    {
+      "profession": "электромеханика по холодильному оборудованию",
+      "expectedTagIds": ["elektromekhanik"]
+    },
+    {
+      "profession": "электрослесаря",
+      "expectedTagIds": ["elektroslesar"]
+    },
+    {
+      "profession": "учетчика",
+      "expectedTagIds": ["uchetchik"]
+    },
+    {
+      "profession": "библиотекаря-библиографа",
+      "expectedTagIds": ["bibliotekar"]
+    },
+    {
+      "profession": "старшего егеря",
+      "expectedTagIds": ["eger"]
+    },
+    {
+      "profession": "столяра-мебельщика",
+      "expectedTagIds": ["stolyar"]
+    },
+    {
+      "profession": "диджея",
+      "expectedTagIds": ["didzhej"]
+    },
+    {
+      "profession": "старшего государственного инспектора",
+      "expectedTagIds": ["inspektor"]
+    },
+    {
+      "profession": "инструктора по ЛФК",
+      "expectedTagIds": ["instruktor"]
+    },
+    {
+      "profession": "авиационного техника по горюче-смазочным материалам",
+      "expectedTagIds": ["aviacionnyj-tekhnik"]
+    },
+    {
+      "profession": "антенщика-мачтовика",
+      "expectedTagIds": ["antenshchik-machtovik"]
+    },
+    {
+      "profession": "анестезиолога-реаниматолога",
+      "expectedTagIds": ["anesteziolog-reanimatolog"]
+    },
+    {
+      "profession": "видеооператора-монтажера группы визуализации",
+      "expectedTagIds": ["videooperator"]
+    },
+    {
+      "profession": "главного медицинского брата",
+      "expectedTagIds": ["medicinskij-brat"]
+    },
+    {
+      "profession": "зубного техника",
+      "expectedTagIds": ["zubnoj-tekhnik"]
+    },
+    {
+      "profession": "медицинского регистратора",
+      "expectedTagIds": ["medicinskij-registrator"]
+    },
+    {
+      "profession": "медицинского представителя",
+      "expectedTagIds": ["medicinskij-predstavitel"]
+    },
+    {
+      "profession": "кастелянши",
+      "expectedTagIds": ["kastelyansha"]
+    },
+    {
+      "profession": "курьера на личном автомобиле",
+      "expectedTagIds": ["kurier"]
+    },
+    {
+      "profession": "лепщицы",
+      "expectedTagIds": ["lepshchik"]
+    },
+    {
+      "profession": "мойщицы посуды",
+      "expectedTagIds": ["mojshchik"]
+    },
+    {
+      "profession": "работника кухни",
+      "expectedTagIds": ["kuhonnyj-rabochij"]
+    },
+    {
+      "profession": "подсобного рабочего (разнорабочего)",
+      "expectedTagIds": ["podsobnyj-rabochij"]
+    },
+    {
+      "profession": "педагога-хореографа",
+      "expectedTagIds": ["pedagog"]
+    },
+    {
+      "profession": "сторожа",
+      "expectedTagIds": ["storozh"]
+    },
+    {
+      "profession": "ранера",
+      "expectedTagIds": ["raner"]
+    },
+    {
+      "profession": "су-шефа",
+      "expectedTagIds": ["su-shef"]
+    },
+    {
+      "profession": "хостес",
+      "expectedTagIds": ["hostes"]
+    },
+    {
+      "profession": "художника-фотографа",
+      "expectedTagIds": ["hudozhnik-fotograf"]
+    },
+    {
+      "profession": "старшего биотехнолога - исследователя",
+      "expectedTagIds": ["biotehnolog"]
+    },
+    {
+      "profession": "заведующего эмбриологической лабораторией отделения врт",
+      "expectedTagIds": ["zaveduyushchij"]
+    },
+    {
+      "profession": "территориального управляющего",
+      "expectedTagIds": ["upravlyayushchij"]
+    },
+    {
+      "profession": "заместителя начальника отдела",
+      "expectedTagIds": ["zamestitel-rukovoditelya"]
+    },
+    {
+      "profession": "контрактного управляющего",
+      "expectedTagIds": ["kontraktnyj-upravlyayushchij"]
+    },
+    {
+      "profession": "производителя работ (прораба)",
+      "expectedTagIds": ["prorab"]
+    },
+    {
+      "profession": "сестры- хозяйки",
+      "expectedTagIds": ["sestra-hozyajka"]
+    },
+    {
+      "profession": "ассистента врача-стоматолога",
+      "expectedTagIds": ["assistent-vracha"]
+    },
+    {
+      "profession": "помощника врача-эпидемиолога",
+      "expectedTagIds": ["pomoshchnik-vracha"]
+    },
+    {
+      "profession": "личного ассистента",
+      "expectedTagIds": ["lichnyj-assistent"]
+    },
+    {
+      "profession": "помощника специалиста по продажам",
+      "expectedTagIds": ["pomoshchnik-po-prodazham"]
+    },
+    {
+      "profession": "помощника нотариуса",
+      "expectedTagIds": ["pomoshchnik-notariusa"]
+    },
+    {
+      "profession": "помощника печатника флексографической печати",
+      "expectedTagIds": ["pomoshchnik-pechatnika"]
+    },
+    {
+      "profession": "помощника рамщика",
+      "expectedTagIds": ["pomoshchnik-ramshchika"]
+    },
+    {
+      "profession": "помощника эмбриолога",
+      "expectedTagIds": ["pomoshchnik-embriologa"]
+    },
+    {
+      "profession": "мастера бровиста",
+      "expectedTagIds": ["brovist"]
+    },
+    {
+      "profession": "бровиста-визажиста",
+      "expectedTagIds": ["vizazhist"]
+    },
+    {
+      "profession": "мастера ногтевого сервиса",
+      "expectedTagIds": ["master-nogtevogo-servisa"]
+    },
+    {
+      "profession": "мастера перманентного макияжа",
+      "expectedTagIds": ["master-permanentnogo-makiyazha"]
+    },
+    {
+      "profession": "мастера по наращиванию ресниц",
+      "expectedTagIds": ["master-po-narashchivaniyu-resnic"]
+    },
+    {
+      "profession": "младшего мастера бижутерии",
+      "expectedTagIds": ["master-bizhuterii"]
+    },
+    {
+      "profession": "горного мастера участка БВР",
+      "expectedTagIds": ["gornyj-master"]
+    },
+    {
+      "profession": "мастера производственного участка",
+      "expectedTagIds": ["proizvodstvennyj-master"]
+    },
+    {
+      "profession": "мастера строительно-монтажных работ (СМР)",
+      "expectedTagIds": ["master-stroitelnyh-rabot"]
+    },
+    {
+      "profession": "мастера производственного обучения",
+      "expectedTagIds": ["master-proizvodstvennogo-obucheniya"]
+    },
+    {
+      "profession": "мастера - приемщика",
+      "expectedTagIds": ["master-priemshchik"]
+    },
+    {
+      "profession": "рабочего по комплексному обслуживанию и ремонту зданий",
+      "expectedTagIds": ["rabochij-po-obsluzhivaniyu-zdanij"]
+    },
+    {
+      "profession": "мастера склада",
+      "expectedTagIds": ["master-sklada"]
+    },
+    {
+      "profession": "мастера ОТК",
+      "expectedTagIds": ["master-otk"]
+    },
+    {
+      "profession": "мастера по ремонту технологического оборудования",
+      "expectedTagIds": ["master-po-remontu-oborudovaniya"]
+    },
+    {
+      "profession": "дежурного по зданию",
+      "expectedTagIds": ["dezhurnyj-po-zdaniyu"]
+    },
+    {
+      "profession": "специалиста по финансовой деятельности",
+      "expectedTagIds": ["finansist"]
+    },
+    {
+      "profession": "ведущего специалиста по охране труда",
+      "expectedTagIds": ["specialist-po-ohrane-truda"]
+    },
+    {
+      "profession": "специалиста по кадровому делопроизводству с функциями менеджера отдела продаж",
+      "expectedTagIds": ["specialist-po-kadram"]
+    },
+    {
+      "profession": "специалиста по закупкам",
+      "expectedTagIds": ["specialist-po-zakupkam"]
+    },
+    {
+      "profession": "специалиста по мто",
+      "expectedTagIds": ["specialist-po-snabzheniyu"]
+    },
+    {
+      "profession": "Специалиста по техническому контролю качества продукции",
+      "expectedTagIds": ["specialist-po-kachestvu"]
+    },
+    {
+      "profession": "специалиста ГО и ЧС и ПБ",
+      "expectedTagIds": ["specialist-po-go-i-chs"]
+    },
+    {
+      "profession": "специалиста по пожарной безопасности",
+      "expectedTagIds": ["specialist-po-pozharnoj-bezopasnosti"]
+    },
+    {
+      "profession": "специалиста 2-й линии технической поддержки",
+      "expectedTagIds": ["specialist-tehnicheskoj-podderzhki"]
+    },
+    {
+      "profession": "ведущего специалиста отдела клиентской поддержки",
+      "expectedTagIds": ["specialist-po-rabote-s-klientami"]
+    },
+    {
+      "profession": "специалиста отдела продаж",
+      "expectedTagIds": ["specialist-po-prodazham"]
+    },
+    {
+      "profession": "специалиста по документообороту",
+      "expectedTagIds": ["specialist-po-dokumentooborotu"]
+    },
+    {
+      "profession": "специалиста по договорной работе",
+      "expectedTagIds": ["specialist-po-dogovornoj-rabote"]
+    },
+    {
+      "profession": "специалиста по воинскому учету",
+      "expectedTagIds": ["specialist-po-voinskomu-uchetu"]
+    },
+    {
+      "profession": "специалиста по защите информации",
+      "expectedTagIds": ["specialist-po-zashchite-informacii"]
+    },
+    {
+      "profession": "специалиста по информационным технологиям ЕГАИС",
+      "expectedTagIds": ["specialist-po-informacionnym-tehnologiyam"]
+    },
+    {
+      "profession": "специалиста по таможенному оформлению",
+      "expectedTagIds": ["specialist-po-tamozhennomu-oformleniyu"]
+    },
+    {
+      "profession": "специалиста ПТО",
+      "expectedTagIds": ["specialist-pto"]
+    },
+    {
+      "profession": "специалиста тендерного отдела",
+      "expectedTagIds": ["specialist-po-tenderam"]
+    },
+    {
+      "profession": "специалиста по слаботочным системам",
+      "expectedTagIds": ["specialist-po-slabotochnym-sistemam"]
+    },
+    {
+      "profession": "специалиста по газовому хозяйству (ответственного за безопасную эксплуатацию)",
+      "expectedTagIds": ["specialist-po-gazovomu-hozyajstvu"]
+    },
+    {
+      "profession": "специалиста по уходу за животными",
+      "expectedTagIds": ["specialist-po-uhodu-za-zhivotnymi"]
+    },
+    {
+      "profession": "главного специалиста по организации и ведению учебной работы",
+      "expectedTagIds": ["specialist-po-uchebnoj-rabote"]
+    },
+    {
+      "profession": "старшего специалиста-техника по компьютерным сетям и системам",
+      "expectedTagIds": ["specialist-po-kompyuternym-setyam"]
+    },
+    {
+      "profession": "специалиста-техника по телекоммуникационному оборудованию",
+      "expectedTagIds": ["specialist-po-telekommunikaciyam"]
+    },
+    {
+      "profession": "HR-бизнес партнера",
+      "expectedTagIds": ["hr-biznes-partner"]
+    },
+    {
+      "profession": "куратора стандартов сервиса",
+      "expectedTagIds": ["kurator-standartov-servisa"]
+    },
+    {
+      "profession": "рабочего карты намыва",
+      "expectedTagIds": ["rabochij-karty-namyva"]
+    },
+    {
+      "profession": "регионального представителя",
+      "expectedTagIds": ["regionalnyj-predstavitel"]
+    },
+    {
+      "profession": "заместителя по общим вопросам",
+      "expectedTagIds": ["zamestitel-po-obshchim-voprosam"]
+    },
+    {
+      "profession": "сменного мастера",
+      "expectedTagIds": ["smennyj-master"]
+    },
+    {
+      "profession": "мастера-консультанта",
+      "expectedTagIds": ["master-konsultant"]
+    },
+    {
+      "profession": "помощника мастера смены",
+      "expectedTagIds": ["pomoshchnik-mastera-smeny"]
+    },
+    {
+      "profession": "старшего смены",
+      "expectedTagIds": ["starshij-smeny"]
+    },
+    {
+      "profession": "главного специалиста коммерческого отдела",
+      "expectedTagIds": ["specialist-kommercheskogo-otdela"]
+    },
+    {
+      "profession": "специалиста кредитно-страхового отдела",
+      "expectedTagIds": ["specialist-kreditno-strahovogo-otdela"]
+    },
+    {
+      "profession": "старшего специалиста отдела запасных частей",
+      "expectedTagIds": ["specialist-otdela-zapasnyh-chastej"]
+    },
+    {
+      "profession": "специалиста по возвратам",
+      "expectedTagIds": ["specialist-po-vozvratam"]
+    },
+    {
+      "profession": "Специалиста ассортимента и качества",
+      "expectedTagIds": ["specialist-assortimenta-i-kachestva"]
+    },
+    {
+      "profession": "специалиста ЕГАИС",
+      "expectedTagIds": ["specialist-egais"]
+    },
+    {
+      "profession": "специалиста отдела экспорта",
+      "expectedTagIds": ["specialist-otdela-eksporta"]
+    },
+    {
+      "profession": "специалиста по работе с МГИС «Честный знак»",
+      "expectedTagIds": ["specialist-chestnyj-znak"]
+    },
+    {
+      "profession": "специалиста жилищно-коммунального хозяйства",
+      "expectedTagIds": ["specialist-zhkh"]
+    },
+    {
+      "profession": "специалиста по работе с населением",
+      "expectedTagIds": ["specialist-po-rabote-s-naseleniem"]
+    },
+    {
+      "profession": "специалиста по покраске",
+      "expectedTagIds": ["specialist-po-pokraske"]
+    },
+    {
+      "profession": "специалиста административно-хозяйственной деятельности",
+      "expectedTagIds": ["specialist-administrativno-hozyajstvennoj-deyatelnosti"]
+    },
+    {
+      "profession": "электрогазосварщика 5-го разряда",
+      "expectedTagIds": ["svarshchik"]
+    },
+    {
+      "profession": "электросварщика ручной сварки",
+      "expectedTagIds": ["svarshchik"]
+    },
+    {
+      "profession": "газосварщика",
+      "expectedTagIds": ["svarshchik"]
+    },
+    {
+      "profession": "геймдизайнера",
+      "expectedTagIds": ["dizajner"]
+    },
+    {
+      "profession": "специалиста по клинингу",
+      "expectedTagIds": ["uborshchik"]
+    },
+    {
+      "profession": "специалиста по учету производства",
+      "expectedTagIds": ["uchetchik"]
+    },
+    {
+      "profession": "главного специалиста по методике обучения группы разработки методического обеспечения",
+      "expectedTagIds": ["metodist"]
+    },
+    {
+      "profession": "специалиста учебного отдела",
+      "expectedTagIds": ["specialist-po-uchebnoj-rabote"]
+    },
+    {
+      "profession": "мастера по монтажу, ремонту и наладке электронного оборудования",
+      "expectedTagIds": ["master-po-remontu-oborudovaniya"]
+    },
+    {
+      "profession": "помощника отдела продаж",
+      "expectedTagIds": ["pomoshchnik-po-prodazham"]
+    },
+    {
+      "profession": "медицинских братьев",
+      "expectedTagIds": ["medicinskij-brat"]
+    },
+    {
+      "profession": "кастелянш",
+      "expectedTagIds": ["kastelyansha"]
+    },
+    {
+      "profession": "мойщиц",
+      "expectedTagIds": ["mojshchik"]
+    },
+    {
+      "profession": "лепщиц",
+      "expectedTagIds": ["lepshchik"]
+    },
+    {
+      "profession": "уборщиц",
+      "expectedTagIds": ["uborshchik"]
+    },
+    {
+      "profession": "мастера смены",
+      "expectedTagIds": ["smennyj-master"]
+    }
+  ]
+}

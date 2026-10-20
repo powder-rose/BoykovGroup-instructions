@@ -80,10 +80,6 @@ export default function CatalogTaxonomyFilters({
       {!error && !categories.length && !tags.length && (
         <p className={styles.message}>Размеченных инструкций пока нет — обычный поиск доступен.</p>
       )}
-      <p className={styles.hint}>
-        Фильтры учитывают только уже назначенные категории и теги. Старые инструкции без разметки
-        по-прежнему находятся обычным поиском.
-      </p>
     </section>
   );
 }

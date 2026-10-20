@@ -106,6 +106,47 @@
   transform: translateX(3px);
 }
 
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0 20px 18px;
+  list-style: none;
+}
+
+.tagItem {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  max-width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #d9e2ed;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #46566c;
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+}
+
+.tag:hover {
+  background: #dcecff;
+  border-color: #bbd2ed;
+}
+
+.tag:focus-visible {
+  outline: 2px solid #4278d3;
+  outline-offset: 3px;
+}
+
 /* ---  :      --- */
 
 .adminBar {
