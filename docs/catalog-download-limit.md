@@ -1,50 +1,60 @@
 # Catalog PDF download limit
 
-Each registered user account may download catalog PDFs five times in total. The
-allowance never resets. Repeated downloads of the same instruction count again.
-Admin downloads and PDFs from purchased orders are exempt.
+Each registered user receives five free catalog PDF downloads per rolling calendar
+month. The renewal date is **one Moscow-calendar-month after the most recent free
+PDF download**, not the first download or a fixed first day of the month. Each
+successful free download moves the renewal date forward. A month ending on the
+31st clamps to the last day of the next month, keeping the time of day in Moscow.
+If the user downloads nothing further, their allowance renews automatically on
+the next quota read or consumption once that date has arrived. No cron is needed.
+Repeated free downloads of the same instruction count again. Admin downloads and
+purchased PDFs are exempt; purchases and wallet balances never expire with quota.
 
-Email/password authentication is sufficient for downloads and quota reads.
-Registration no longer sends verification emails or creates verification tokens;
-the legacy resend endpoint also sends no email. Existing unverified accounts can
-download immediately without changing their saved verification status or balance.
-Previously issued verification links remain valid for compatibility, but have no
-effect on PDF access. Required registration contacts and admin notifications stay
-in place.
+The authenticated `GET /api/instructions/download-quota` endpoint retains the
+existing `{ limit, used, remaining }` contract. For the account page, request
+`GET /api/instructions/download-quota?schedule=1` to additionally receive
+`lastFreeDownloadAt` and `nextResetAt` (ISO timestamps, `null` before the first
+free download or after renewal). The schedule endpoint requires the signed-in
+user and never accepts another user ID. A disabled or inaccessible quota store
+returns HTTP 503 instead of fabricated free downloads or dates.
 
-The catalog UI displays the server balance below the download button, with Russian
-plural forms. Its requested monthly wording is presentation only at this stage:
-there is no monthly reset yet, and this change does not reset existing balances.
-The authenticated `GET /api/instructions/download-quota` endpoint reads the current
-account's balance without spending it; it never accepts a target account ID.
-The UI refreshes the balance on entry, after each download and when returning to
-the tab. Failed reads show an unavailable state rather than an invented balance.
-Version and update metadata on the instruction page are visible only to admins.
+The account wallet shows the current allowance and exact renewal date, and keeps
+the existing **Пополнить баланс** button for paid purchases. It refreshes when
+the page loads and returns to the foreground. The catalog UI shows the remaining
+free downloads below the PDF button; the same quota service gates free downloads
+and paid purchases. Failed reads show errors, never invented balances.
 
-A successful PDF response includes
-`X-Download-Limit` and `X-Download-Remaining`. Exhausted accounts receive HTTP 403
-with code `DOWNLOAD_LIMIT_REACHED`; unavailable or corrupted quota storage returns
-HTTP 503 without delivering a PDF. Paid orders keep their existing access rules.
+Successful free PDF responses include `X-Download-Limit` and
+`X-Download-Remaining`; exhausted users receive HTTP 403 and code
+`DOWNLOAD_LIMIT_REACHED`. Only successfully prepared free PDFs commit usage,
+before delivery, under a cross-process lease. A disconnect after commit can still
+consume an allowance. Paid purchases retain all existing access and price rules.
 
-## Persistence and rollout
+## Persistence, migration and rollout
 
-- `server/data/download-quotas.json` stores capped counts keyed by the SHA-256 hash
-  of the account ID. It is runtime data, excluded from Git and already covered by
-  the production data volume and backup manifest.
-- On first use, the service imports valid existing catalog download events from
-  `server/src/data/analytics/download-events.jsonl`. Users with five or more
-  recorded downloads have no remaining allowance. Missing history means no
-  recorded previous downloads; malformed log lines are skipped.
-- Import runs only when the quota file is absent. Preserve the file across
-  deployments; never remove it as a way to refresh application code.
-- A short filesystem lock protects the final check and atomic counter update
-  across requests and processes. Counts survive application restarts.
-- The counter is committed after successful PDF generation and validation, just
-  before delivery. Missing files, denied access, HEAD requests, generation errors
-  and connections closed before delivery do not spend an allowance. If the
-  connection or process fails after the commit, the allowance remains spent;
-  the server cannot confirm that a browser saved the file.
+- Keep `server/data/download-quotas.json` across all deployments. It stores hashes
+  of account IDs, not user emails. Back it up together with the analytics history
+  (`server/src/data/analytics/download-events.jsonl`) **before deploying**.
+- The new file schema is `version: 2`; each account entry has `used` and
+  `lastFreeDownloadAt`. The first read of an old `version: 1` file upgrades it
+  atomically under the existing lock without resetting counters prematurely.
+- Migration uses the latest valid **free** analytics event for each account to
+  determine its last-download date. Paid events, malformed events and events in
+  the future are ignored. When a legacy count is nonzero but no trustworthy event
+  exists, the migration timestamp is used conservatively as the initial anchor.
+  This exceptional fallback delays a reset rather than crediting unverified usage.
+- When the quota file does not exist, valid historical free events are replayed
+  chronologically using the same rolling renewal rule. Import runs once; never
+  delete the quota file to force a refresh.
+- `get`, `getSchedule` and `consume` all share one lease and atomic state write.
+  Expired allowances reset lazily while holding the lease. Corrupt storage fails
+  closed without overwriting the file; simultaneous callers cannot over-consume.
+- Deploy the API and static account assets together, preserve the account HTML,
+  tracked configuration, ignored runtime files and all archived data. Verify the
+  authenticated schedule endpoint and account before enabling user traffic.
+- Avoid artificially moving the server clock or manually editing quota records.
+  Backups and restored snapshots must retain original timestamps and schema.
 
-Run `npm run quality:check` before release. The download quota tests cover
-historical import, persistence, isolated accounts, concurrent requests/processes,
-failure handling and the paid-order exemption.
+Run `npm run quality:check` in Linux CI before release. The tests cover month-end
+rules, migration, reuse after expiry, other accounts, concurrent downloads, storage
+failures and the wallet's independent purchase flow.

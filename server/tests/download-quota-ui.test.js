@@ -24,7 +24,7 @@ test('available instruction text agrees with Russian numbers, including teens an
     [101, 'доступна 101 инструкция'],
     [111, 'доступно 111 инструкций'],
   ]) {
-    assert.equal(formatAvailableInstructions(count), `Вам ${phrase} в этом месяце`);
+    assert.equal(formatAvailableInstructions(count), `Вам ${phrase} в текущем периоде`);
   }
 });
 

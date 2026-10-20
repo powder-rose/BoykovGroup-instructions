@@ -27,14 +27,14 @@ function fixture(t) {
 
 function event(userId, overrides = {}) {
   return JSON.stringify({
-    ts: '2026-10-15T09:00:00.000Z',
+    ts: new Date().toISOString(),
     instructionId: 'same-instruction',
     downloader: hash(userId),
     ...overrides,
   });
 }
 
-test('five lifetime downloads include repeats, survive restart and isolate accounts', t => {
+test('five downloads per rolling month include repeats, survive restart and isolate accounts', t => {
   const { service, options, file } = fixture(t);
   assert.equal(DOWNLOAD_LIMIT, 5);
   assert.deepEqual(service.get('user-a'), { limit: 5, used: 0, remaining: 5 });
@@ -59,8 +59,8 @@ test('five lifetime downloads include repeats, survive restart and isolate accou
   t.mock.method(Date, 'now', () => Date.parse('2036-10-15T09:00:00Z'));
   assert.deepEqual(createDownloadQuotaService(options).get('user-a'), {
     limit: 5,
-    used: 5,
-    remaining: 0,
+    used: 0,
+    remaining: 5,
   });
   assert.equal(fs.readFileSync(file, 'utf8').includes('user-a'), false);
   if (process.platform !== 'win32') assert.equal(fs.statSync(file).mode & 0o777, 0o600);
@@ -107,7 +107,7 @@ test('corrupt storage and invalid counters fail closed without replacing the fil
     '{broken',
     'null',
     '{}',
-    JSON.stringify({ version: 2, users: {} }),
+    JSON.stringify({ version: 3, users: {} }),
     JSON.stringify({ version: 1, users: [] }),
     JSON.stringify({ version: 1, users: { invalid: 0 } }),
     ...[-1, 1.5, 6, '2', null].map(count =>
