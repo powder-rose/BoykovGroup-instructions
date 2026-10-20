@@ -14,9 +14,9 @@ const links = [
   },
 
   {
-    label: 'Роспотребнадзор',
+    label: 'ХАССП',
 
-    href: 'https://boykovgroup.ru/rospotrebnadzor',
+    href: 'https://boykovgroup.ru/ppk-hassp',
   },
 
   {
