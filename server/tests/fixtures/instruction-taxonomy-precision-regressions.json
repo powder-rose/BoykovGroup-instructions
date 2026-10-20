@@ -1,0 +1,705 @@
+{
+  "source": "taxonomy-review-20261020T060910Z.csv (2200 dry-run proposals)",
+  "cases": [
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-angobirovschika-sanitarno-stroitelnyh-izdeliy-5xXZUB",
+      "title": "Инструкция по охране труда для ангобировщика санитарно-строительных изделий",
+      "profession": "ангобировщика санитарно-строительных изделий",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["stroitel", "sanitar"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-assistenta-rukovoditelya-NLWgXd",
+      "title": "Инструкция по охране труда для ассистента руководителя",
+      "profession": "ассистента руководителя",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-generalnogo-direktora-rukovoditelya-organizatsii-INNXfN",
+      "title": "Инструкция по охране труда для генерального директора (Руководителя организации)",
+      "profession": "генерального директора (Руководителя организации)",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-generalnogo-direktora-stroitelnoy-organizatsii-Z8M5c9",
+      "title": "Инструкция по охране труда для генерального директора строительной организации",
+      "profession": "генерального директора строительной организации",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["stroitel"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-hudozhestvennogo-rukovoditelya-G4wWJJ",
+      "title": "Инструкция по охране труда для художественного руководителя",
+      "profession": "художественного руководителя",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-inzhenera-gruppy-stroitelnogo-kontrolya-z9Oyaw",
+      "title": "Инструкция по охране труда для инженера группы строительного контроля",
+      "profession": "инженера группы строительного контроля",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["stroitel"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-inzhenera-stroitelnogo-kontrolya-mCj13v",
+      "title": "Инструкция по охране труда для инженера строительного контроля",
+      "profession": "инженера строительного контроля",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["stroitel"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-mastera-remontno-stroitelnogo-uchastka-5G5PeO",
+      "title": "Инструкция по охране труда для мастера ремонтно-строительного участка",
+      "profession": "мастера ремонтно-строительного участка",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["stroitel"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-mastera-stroitelno-montazhnyh-rabot-5LKovY",
+      "title": "Инструкция по охране труда для мастера строительно-монтажных работ",
+      "profession": "мастера строительно-монтажных работ",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["stroitel"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-mastera-stroitelno-montazhnyh-rabot-smr-tBtO5Q",
+      "title": "Инструкция по охране труда для мастера строительно-монтажных работ (СМР)",
+      "profession": "мастера строительно-монтажных работ (СМР)",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["stroitel"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-mastera-stroitelnogo-uchastka-KQ95VA",
+      "title": "Инструкция по охране труда для мастера строительного участка",
+      "profession": "мастера строительного участка",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["stroitel"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-mastera-stroitelnyh-i-montazhnyh-rabot-MHtshn",
+      "title": "Инструкция по охране труда для мастера строительных и монтажных работ",
+      "profession": "мастера строительных и монтажных работ",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["stroitel"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-montazhnika-sistem-vodosnabzheniya-i-kanalizatsii-q-FqUs",
+      "title": "Инструкция по охране труда для монтажника систем водоснабжения и канализации",
+      "profession": "монтажника систем водоснабжения и канализации",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["logistika"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-nachalnika-stroitelnogo-tseha-VtuoY4",
+      "title": "Инструкция по охране труда для начальника строительного цеха",
+      "profession": "начальника строительного цеха",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["stroitel"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-naladchika-tehnologicheskogo-oborudovaniya-1-go-razryada-6ddNeW",
+      "title": "Инструкция по охране труда для наладчика технологического оборудования 1-го разряда",
+      "profession": "наладчика технологического оборудования 1-го разряда",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["tehnolog"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-naladchika-tehnologicheskogo-oborudovaniya-2-go-razryada-7alW04",
+      "title": "Инструкция по охране труда для наладчика технологического оборудования 2-го разряда",
+      "profession": "наладчика технологического оборудования 2-го разряда",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["tehnolog"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-naladchika-tehnologicheskogo-oborudovaniya-3-go-razryada-gRmLFy",
+      "title": "Инструкция по охране труда для наладчика технологического оборудования 3-го разряда",
+      "profession": "наладчика технологического оборудования 3-го разряда",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["tehnolog"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-naladchika-tehnologicheskogo-oborudovaniya-8u6EYh",
+      "title": "Инструкция по охране труда для наладчика технологического оборудования",
+      "profession": "наладчик технологического оборудования",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["tehnolog"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-nauchnogo-rukovoditelya-shgZul",
+      "title": "Инструкция по охране труда для научного руководителя",
+      "profession": "научного руководителя",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-ofisnogo-sotrudnika-rabota-za-kompyuterom-KxwlMi",
+      "title": "Инструкция по охране труда для офисного сотрудника (работа за компьютером)",
+      "profession": "офисного сотрудника (работа за компьютером)",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["gornye-raboty"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-operatora-tehnologicheskih-ustanovok-a4hHwh",
+      "title": "Инструкция по охране труда для оператора технологических установок",
+      "profession": "оператора технологических установок",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["tehnolog"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-operatora-tehnologicheskogo-oborudovaniya-a6rN-1",
+      "title": "Инструкция по охране труда для оператора технологического оборудования",
+      "profession": "оператора технологического оборудования",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["tehnolog"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-pomoschnika-rukovoditelya-peSiQk",
+      "title": "Инструкция по охране труда для помощника руководителя",
+      "profession": "помощника руководителя",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-prodavtsa-magazina-stroitelnyh-materialov-OmHTfI",
+      "title": "Инструкция по охране труда для продавца магазина строительных материалов",
+      "profession": "продавца магазина строительных материалов",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["stroitel"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-proizvoditelya-rabot-9TImmj",
+      "title": "Инструкция по охране труда для производителя работ",
+      "profession": "производителя работ",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-proizvoditelya-rabot-proraba-EZw4LH",
+      "title": "Инструкция по охране труда для производителя работ (прораба)",
+      "profession": "производителя работ (прораба)",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-1-y-linii-tehnicheskoy-podderzhki-c_hBmZ",
+      "title": "Инструкция по охране труда для руководителя 1-й линии технической поддержки",
+      "profession": "руководителя 1-й линии технической поддержки",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-2-y-linii-tehnicheskoy-podderzhki-X-NHp2",
+      "title": "Инструкция по охране труда для руководителя 2-й линии технической поддержки",
+      "profession": "руководителя 2-й линии технической поддержки",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-A0dbiq",
+      "title": "Инструкция по охране труда для руководителя",
+      "profession": "руководителя",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-administrativnogo-otdela-Buj4TD",
+      "title": "Инструкция по охране труда для руководителя административного отдела",
+      "profession": "руководителя административного отдела",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-departamenta-nauchnyh-i-obrazovatelnyh-proektov-ChjiHr",
+      "title": "Инструкция по охране труда для руководителя департамента научных и образовательных проектов",
+      "profession": "руководителя департамента научных и образовательных проектов",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-departamenta-p7lVgt",
+      "title": "Инструкция по охране труда для руководителя департамента",
+      "profession": "руководителя департамента",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-gruppy-po-testirovaniyu-i-priemo-sdatochnym-ispytaniyam-wr0BGu",
+      "title": "Инструкция по охране труда для руководителя группы по тестированию и приемо-сдаточным испытаниям",
+      "profession": "руководителя группы по тестированию и приемо-сдаточным испытаниям",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-gruppy-razrabotki-metodicheskogo-obespecheniya-2HUGmO",
+      "title": "Инструкция по охране труда для руководителя группы разработки методического обеспечения",
+      "profession": "руководителя группы разработки методического обеспечения",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-gruppy-razrabotki-multimediynyh-i-graficheskih-prilozheniy-Em2_km",
+      "title": "Инструкция по охране труда для руководителя группы разработки мультимедийных и графических приложений",
+      "profession": "руководителя группы разработки мультимедийных и графических приложений",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-gruppy-razrabotki-programmnogo-obespecheniya-_5iZv7",
+      "title": "Инструкция по охране труда для руководителя группы разработки программного обеспечения",
+      "profession": "руководителя группы разработки программного обеспечения",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-gruppy-stroitelnogo-kontrolya-KMyawY",
+      "title": "Инструкция по охране труда для руководителя группы строительного контроля",
+      "profession": "руководителя группы строительного контроля",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": ["stroitel"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-gruppy-vizualizatsii-ZeUEYw",
+      "title": "Инструкция по охране труда для руководителя группы визуализации",
+      "profession": "руководителя группы визуализации",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-informatsionnyh-tehnologiy--YAsP3",
+      "title": "Инструкция по охране труда для руководителя информационных технологий",
+      "profession": "руководителя информационных технологий",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": ["tehnolog"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-kategoriynogo-otdela-Zy7LXD",
+      "title": "Инструкция по охране труда для руководителя категорийного отдела",
+      "profession": "руководителя категорийного отдела",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-kompleksnogo-tehnicheskogo-obsluzhivaniya-1tWGcS",
+      "title": "Инструкция по охране труда для руководителя комплексного технического обслуживания",
+      "profession": "руководителя комплексного технического обслуживания",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-kontent-napravleniya-rXYCPr",
+      "title": "Инструкция по охране труда для руководителя контент-направления",
+      "profession": "руководителя контент-направления",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-kreditno-strahovogo-otdela-xWBWCX",
+      "title": "Инструкция по охране труда для руководителя кредитно-страхового отдела",
+      "profession": "руководителя кредитно-страхового отдела",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-kruzhka-l21-U-",
+      "title": "Инструкция по охране труда для руководителя кружка",
+      "profession": "руководителя кружка",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-logistiki-6432F8",
+      "title": "Инструкция по охране труда для руководителя логистики",
+      "profession": "руководителя логистики",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-napravleniya-po-podboru-personala-vjhYdq",
+      "title": "Инструкция по охране труда для руководителя направления по подбору персонала",
+      "profession": "руководителя направления по подбору персонала",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-napravleniya-po-rabote-s-partnerami-kt2JJc",
+      "title": "Инструкция по охране труда для руководителя направления по работе с партнерами",
+      "profession": "руководителя направления по работе с партнерами",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-AAwl3V",
+      "title": "Инструкция по охране труда для руководителя отдела",
+      "profession": "руководителя отдела",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-kofeynogo-napravleniya-6BVNp9",
+      "title": "Инструкция по охране труда для руководителя отдела кофейного направления",
+      "profession": "руководителя отдела кофейного направления",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-kontrolya-kachestva-p4Lu2E",
+      "title": "Инструкция по охране труда для руководителя отдела контроля качества",
+      "profession": "руководителя отдела контроля качества",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-logistiki-i-snabzheniya-CeQC5R",
+      "title": "Инструкция по охране труда для руководителя отдела логистики и снабжения",
+      "profession": "руководителя отдела логистики и снабжения",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-obucheniya-i-prodvizheniya-0VRBIt",
+      "title": "Инструкция по охране труда для руководителя отдела обучения и продвижения",
+      "profession": "руководителя отдела обучения и продвижения",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-personala-L_CVsX",
+      "title": "Инструкция по охране труда для руководителя отдела персонала",
+      "profession": "руководителя отдела персонала",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-po-informatsionnym-tehnologiyam-ZjdlkU",
+      "title": "Инструкция по охране труда для руководителя отдела по информационным технологиям",
+      "profession": "руководителя отдела по информационным технологиям",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-po-rabote-s-setyami-wtKwHB",
+      "title": "Инструкция по охране труда для руководителя отдела по работе с сетями",
+      "profession": "руководителя отдела по работе с сетями",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-po-rabote-s-vendorami-2-gQJ3Br",
+      "title": "Инструкция по охране труда для руководителя отдела по работе с вендорами",
+      "profession": "руководителя отдела по работе с вендорами (2)",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-po-razrabotke-i-vnedreniyu-novyh-vkusov-xVYcTW",
+      "title": "Инструкция по охране труда для руководителя отдела по разработке и внедрению новых вкусов",
+      "profession": "руководителя отдела по разработке и внедрению новых вкусов",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-posleprodazhnogo-obsluzhivaniya-upZhKV",
+      "title": "Инструкция по охране труда для руководителя отдела послепродажного обслуживания",
+      "profession": "руководителя отдела послепродажного обслуживания",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-prodazh-4TT3w2",
+      "title": "Инструкция по охране труда для руководителя отдела продаж",
+      "profession": "руководителя отдела продаж",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-proektnyh-prodazh-WsrkRn",
+      "title": "Инструкция по охране труда для руководителя отдела проектных продаж",
+      "profession": "руководителя отдела проектных продаж",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-snabzheniya-i-logistiki-xtE6Hr",
+      "title": "Инструкция по охране труда для руководителя отдела снабжения и логистики",
+      "profession": "руководителя отдела снабжения и логистики",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-stm-i-kontraktnogo-proizvodstva-P6kZrq",
+      "title": "Инструкция по охране труда для руководителя отдела СТМ и контрактного производства",
+      "profession": "руководителя отдела СТМ и контрактного производства",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-treyd-in-bywpYE",
+      "title": "Инструкция по охране труда для руководителя отдела трейд-ин",
+      "profession": "руководителя отдела трейд-ин",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-ucheta-TRL4F2",
+      "title": "Инструкция по охране труда для руководителя отдела учета",
+      "profession": "руководителя отдела учета",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdela-upravleniya-roznitsey-FP8Iy7",
+      "title": "Инструкция по охране труда для руководителя отдела управления розницей",
+      "profession": "руководителя отдела управления розницей",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otdeleniya-nevynashivaniya-beremennosti-CaoshO",
+      "title": "Инструкция по охране труда для руководителя отделения невынашивания беременности",
+      "profession": "руководителя отделения невынашивания беременности",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-otk-qefG79",
+      "title": "Инструкция по охране труда для руководителя ОТК",
+      "profession": "руководителя ОТК",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-po-dogovornoy-rabote-UHGSJK",
+      "title": "Инструкция по охране труда для руководителя по договорной работе",
+      "profession": "руководителя по договорной работе",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-po-obsluzhivaniyu-holodilnogo-oborudovaniya-IXEPcD",
+      "title": "Инструкция по охране труда для руководителя по обслуживанию холодильного оборудования",
+      "profession": "руководителя по обслуживанию холодильного оборудования",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-podrazdeleniya-QZAG99",
+      "title": "Инструкция по охране труда для руководителя подразделения",
+      "profession": "руководителя подразделения",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-proekta-_J1Cnu",
+      "title": "Инструкция по охране труда для руководителя проекта",
+      "profession": "руководителя проекта",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-proektnogo-departamenta-0j2f8p",
+      "title": "Инструкция по охране труда для руководителя проектного департамента",
+      "profession": "руководителя проектного департамента",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-proektov-Zz6aD6",
+      "title": "Инструкция по охране труда для руководителя проектов",
+      "profession": "руководителя проектов",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-sklada-iUSsTu",
+      "title": "Инструкция по охране труда для руководителя склада",
+      "profession": "руководителя склада",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-sklada-vspomogatelnyh-materialov-M7VTSq",
+      "title": "Инструкция по охране труда для руководителя склада вспомогательных материалов",
+      "profession": "руководителя склада вспомогательных материалов",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-sluzhby-informatsionnoy-podderzhki-LKBhnU",
+      "title": "Инструкция по охране труда для руководителя службы информационной поддержки",
+      "profession": "руководителя службы информационной поддержки",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-sluzhby-montazha-IlfYtj",
+      "title": "Инструкция по охране труда для руководителя службы монтажа",
+      "profession": "руководителя службы монтажа",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-sluzhby-ohrany-truda-B2Cpu7",
+      "title": "Инструкция по охране труда для руководителя службы охраны труда",
+      "profession": "руководителя службы охраны труда",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-sluzhby-servisa-l1jxEb",
+      "title": "Инструкция по охране труда для руководителя службы сервиса",
+      "profession": "руководителя службы сервиса",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-sluzhby-upravleniya-riskami-PosFfH",
+      "title": "Инструкция по охране труда для руководителя службы управления рисками",
+      "profession": "руководителя службы управления рисками",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-sluzhby-vnutrennego-kontrolya-oiwGdS",
+      "title": "Инструкция по охране труда для руководителя службы внутреннего контроля",
+      "profession": "руководителя службы внутреннего контроля",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-tehnologicheskogo-departamenta-pLT339",
+      "title": "Инструкция по охране труда для руководителя технологического департамента",
+      "profession": "руководителя технологического департамента",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": ["tehnolog"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-tehnologicheskogo-departamenta-po-krepkomu-alkogolyu-m-khb9",
+      "title": "Инструкция по охране труда для руководителя технологического департамента по крепкому алкоголю",
+      "profession": "руководителя технологического департамента по крепкому алкоголю",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": ["tehnolog"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-tehnologicheskogo-departamenta-po-pivu-8Ek2Qp",
+      "title": "Инструкция по охране труда для руководителя технологического департамента по пиву",
+      "profession": "руководителя технологического департамента по пиву",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": ["tehnolog"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-tseha-pererabotki-fruktov-i-yagod-IiMQ48",
+      "title": "Инструкция по охране труда для руководителя цеха переработки фруктов и ягод",
+      "profession": "руководителя цеха переработки фруктов и ягод",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-rukovoditelya-yuridicheskogo-otdela-FF7nDo",
+      "title": "Инструкция по охране труда для руководителя юридического отдела",
+      "profession": "руководителя юридического отдела",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-slesarya-remontnika-sistem-vodosnabzheniya-i-kanalizatsii-wyCQ_U",
+      "title": "Инструкция по охране труда для слесаря-ремонтника систем водоснабжения и канализации",
+      "profession": "слесаря-ремонтника систем водоснабжения и канализации",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["logistika"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-sovetnika-generalnogo-direktora-rukovoditelya-montazha-YC1Zvb",
+      "title": "Инструкция по охране труда для советника генерального директора (руководителя монтажа)",
+      "profession": "советника генерального директора (руководителя монтажа)",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-spetsialista-po-kadrovomu-uchyotu-qANZrq",
+      "title": "Инструкция по охране труда для специалиста по кадровому учёту",
+      "profession": "специалиста по кадровому учёту",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["buhgalterskij-uchet"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-spetsialista-po-voinskomu-uchetu-zsdow8",
+      "title": "Инструкция по охране труда для специалиста по воинскому учету",
+      "profession": "специалиста по воинскому учету",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["buhgalterskij-uchet"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-zamestitelya-generalnogo-direktora-stroitelnoy-organizatsii-N-a0iA",
+      "title": "Инструкция по охране труда для заместителя генерального директора строительной организации",
+      "profession": "заместителя генерального директора строительной организации",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["stroitel"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-zamestitelya-rukovoditelya-0y_lY4",
+      "title": "Инструкция по охране труда для заместителя руководителя",
+      "profession": "заместителя руководителя",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-zamestitelya-rukovoditelya-organizatsii--3GaPJ",
+      "title": "Инструкция по охране труда для заместителя руководителя организации",
+      "profession": "заместителя руководителя организации",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-zamestitelya-rukovoditelya-otdela-roznitsy-t_89IN",
+      "title": "Инструкция по охране труда для заместителя руководителя отдела розницы",
+      "profession": "заместителя руководителя отдела розницы",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-zamestitelya-rukovoditelya-sklada-5-0tEo",
+      "title": "Инструкция по охране труда для заместителя руководителя склада",
+      "profession": "заместителя руководителя склада",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-dlya-zamestitelya-rukovoditelya-sluzhby-montazha-RSaYN9",
+      "title": "Инструкция по охране труда для заместителя руководителя службы монтажа",
+      "profession": "заместителя руководителя службы монтажа",
+      "forbiddenCategory": "transport",
+      "forbiddenTags": []
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-pri-ekspluatatsii-i-remonte-naruzhnyh-i-vnutrennih-setey-elektrosnabzheniya-gXL3wK",
+      "title": "Инструкция по охране труда при эксплуатации и ремонте наружных и внутренних сетей электроснабжения",
+      "profession": "при эксплуатации и ремонте наружных и внутренних сетей электроснабжения",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["logistika"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-pri-ekspluatatsii-i-remonte-naruzhnyh-i-vnutrennih-setey-vodosnabzheniya-9mLknU",
+      "title": "Инструкция по охране труда при эксплуатации и ремонте наружных и внутренних сетей водоснабжения",
+      "profession": "при эксплуатации и ремонте наружных и внутренних сетей водоснабжения",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["logistika"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-pri-vypolnenii-rabot-svyazannyh-s-vozmozhnym-vozdeystviem-silnodeystvuyuschih-veschestv-VbcTh1",
+      "title": "Инструкция по охране труда при выполнении работ, связанных с возможным воздействием сильнодействующих веществ",
+      "profession": "при выполнении работ, связанных с возможным воздействием сильнодействующих веществ",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["gazovye-raboty"]
+    },
+    {
+      "id": "instruktsiya-po-ohrane-truda-pri-zemlyanyh-rabotah-vskrytie-grunta-razrabotka-transhey-i-kotlovanov-Sq_rVO",
+      "title": "Инструкция по охране труда при земляных работах (вскрытие грунта, разработка траншей и котлованов)",
+      "profession": "при земляных работах (вскрытие грунта, разработка траншей и котлованов)",
+      "forbiddenCategory": null,
+      "forbiddenTags": ["kotelnye"]
+    }
+  ]
+}

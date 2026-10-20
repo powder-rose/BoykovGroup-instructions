@@ -370,7 +370,7 @@
       "aliases": [],
       "suggestionRule": {
         "field": "profession",
-        "pattern": "\\bстроител[ьяе][а-я-]*\\b",
+        "pattern": "\\bстроител(?:ь|я|ю|ем|и|ей|ями|ях|ям)\\b",
         "excludePattern": null
       },
       "indexPolicy": "noindex"
@@ -643,7 +643,7 @@
       "aliases": [],
       "suggestionRule": {
         "field": "profession",
-        "pattern": "\\bсанитар[а-я-]*\\b",
+        "pattern": "\\bсанитар(?:а|у|ом|ы|ов|ам|ами|ах)?\\b|\\bсанитарк(?:а|и|е|у|ой|ою|ами|ах)\\b",
         "excludePattern": null
       },
       "indexPolicy": "noindex"
@@ -1163,7 +1163,7 @@
       "aliases": [],
       "suggestionRule": {
         "field": "title",
-        "pattern": "газоопасн|газопровод|сет[а-я-]* газопотреблен|\\bсильнодействующ[а-я-]* веществ",
+        "pattern": "газоопасн|газопровод|сет[а-я-]* газопотреблен",
         "excludePattern": null
       },
       "indexPolicy": "noindex"
@@ -1202,7 +1202,7 @@
       "aliases": ["буровые работы", "горное дело"],
       "suggestionRule": {
         "field": "title",
-        "pattern": "горн[а-я-]* мастер|горн[а-я-]* работ|взрывчат[а-я-]* материал|взрывн[а-я-]* работ|буров[а-я-]* установ|рудник|карьер",
+        "pattern": "горн[а-я-]* мастер|горн[а-я-]* работ|взрывчат[а-я-]* материал|взрывн[а-я-]* работ|буров[а-я-]* установ|\\bрудник[а-я-]*\\b|карьер",
         "excludePattern": null
       },
       "indexPolicy": "noindex"
@@ -1423,7 +1423,7 @@
       "aliases": ["котельное оборудование"],
       "suggestionRule": {
         "field": "title",
-        "pattern": "\\bкотельн[а-я-]*\\b|\\bкотл[а-я-]*\\b|\\bкочегар[а-я-]*\\b",
+        "pattern": "\\bкотельн[а-я-]*\\b|\\bкотл(?!ован)[а-я-]*\\b|\\bкочегар[а-я-]*\\b",
         "excludePattern": null
       },
       "indexPolicy": "noindex"
@@ -1657,7 +1657,7 @@
       "aliases": [],
       "suggestionRule": {
         "field": "profession",
-        "pattern": "\\bтехнолог[а-я-]*\\b|\\bглавн[а-я-]* технолог\\b",
+        "pattern": "\\bтехнолог(?:а|у|ом|и|ов|ам|ами|ах)?\\b",
         "excludePattern": null
       },
       "indexPolicy": "noindex"
@@ -2060,7 +2060,7 @@
       "aliases": ["бухучёт", "учёт"],
       "suggestionRule": {
         "field": "title",
-        "pattern": "\\bбухгалтер[а-я-]*\\b|финансов[а-я-]* учет|денежн[а-я-]* средств|учет[а-я-]*|бухучет",
+        "pattern": "\\bбухгалтер[а-я-]*\\b|финансов[а-я-]* учет|денежн[а-я-]* средств|\\bбухучет[а-я-]*\\b",
         "excludePattern": null
       },
       "indexPolicy": "noindex"
@@ -2099,7 +2099,7 @@
       "aliases": ["снабжение", "доставка грузов"],
       "suggestionRule": {
         "field": "title",
-        "pattern": "логистик[а-я-]*|снабжени[а-я-]*|таможенн[а-я-]* оформлен|доставк[а-я-]* груз",
+        "pattern": "логистик[а-я-]*|\\bснабжени[а-я-]*\\b|таможенн[а-я-]* оформлен|доставк[а-я-]* груз",
         "excludePattern": null
       },
       "indexPolicy": "noindex"
