@@ -5,6 +5,7 @@ import {
   downloadPurchasedInstruction,
   WALLET_UPDATED_EVENT,
 } from './wallet-client.js?v=20261016-wallet-v2';
+import { quotaScheduleCopy } from './wallet-quota-view.js?v=20261020-monthly-quota';
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -27,6 +28,7 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
   const headerBalance = document.getElementById('account-header-balance');
   const lifetime = new AbortController();
   let request;
+  let quotaRequest;
   let downloading = false;
   const current = () => !lifetime.signal.aborted && token === getToken();
   root.className = 'account-wallet wallet-panel';
@@ -41,6 +43,12 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
       element('div', 'wallet-muted', 'Одна инструкция из каталога — 50 ₽'),
     );
     summary.append(balance, link('Пополнить баланс →', walletPaymentUrl(), 'wallet-button'));
+    const quotaPanel = element('section', 'account-wallet__quota');
+    quotaPanel.setAttribute('aria-label', 'Бесплатные скачивания');
+    quotaPanel.append(
+      element('div', 'wallet-eyebrow', '[ БЕСПЛАТНЫЕ ИНСТРУКЦИИ ]'),
+      element('p', 'wallet-muted', 'Проверяем остаток и дату обновления…'),
+    );
     const heading = element('h2', '', 'Купленные инструкции');
     const status = element('p', 'wallet-muted');
     status.setAttribute('role', 'status');
@@ -114,7 +122,7 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
     }
     history.append(entries);
     if (!wallet.history.length) history.append(element('p', 'wallet-muted', 'Операций пока нет.'));
-    root.replaceChildren(summary);
+    root.replaceChildren(summary, quotaPanel);
     if (headerBalance) {
       headerBalance.textContent = `Баланс · ${formatRubles(wallet.balanceMinor)}`;
       headerBalance.hidden = false;
@@ -138,6 +146,45 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
       root.append(note);
     }
     root.append(heading, list, status, history);
+    void refreshQuota(quotaPanel);
+  }
+
+  async function refreshQuota(panel) {
+    quotaRequest?.abort();
+    const controller = new AbortController();
+    quotaRequest = controller;
+    try {
+      const response = await fetch('/api/instructions/download-quota?schedule=1', {
+        headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+      if (response.status === 401) {
+        if (current() && !controller.signal.aborted) onAuthenticationError();
+        return;
+      }
+      if (!response.ok) throw new Error('Не удалось проверить лимит.');
+      const copy = quotaScheduleCopy(await response.json());
+      if (!copy) throw new Error('Некорректный ответ сервера.');
+      if (!current() || controller.signal.aborted || !panel.isConnected) return;
+      panel.replaceChildren(
+        element('div', 'wallet-eyebrow', '[ БЕСПЛАТНЫЕ ИНСТРУКЦИИ ]'),
+        element('strong', 'account-wallet__quota-title', copy.title),
+        element('p', 'wallet-muted', copy.description),
+      );
+    } catch {
+      if (!current() || controller.signal.aborted || !panel.isConnected) return;
+      const retry = element('button', 'wallet-button wallet-button--secondary', 'Повторить');
+      retry.type = 'button';
+      retry.addEventListener('click', () => void refreshQuota(panel));
+      panel.replaceChildren(
+        element('div', 'wallet-eyebrow', '[ БЕСПЛАТНЫЕ ИНСТРУКЦИИ ]'),
+        element('p', 'wallet-muted', 'Не удалось проверить остаток бесплатных скачиваний.'),
+        retry,
+      );
+    } finally {
+      if (quotaRequest === controller) quotaRequest = null;
+    }
   }
 
   async function refresh() {
@@ -176,6 +223,7 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
     destroy() {
       lifetime.abort();
       request?.abort();
+      quotaRequest?.abort();
       window.removeEventListener('focus', focus);
       window.removeEventListener('pageshow', focus);
       window.removeEventListener(WALLET_UPDATED_EVENT, focus);

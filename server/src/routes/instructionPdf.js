@@ -38,7 +38,10 @@ instructionPdfRouter.get('/download-quota', requirePdfAccess, (req, res) => {
   if (req.user.role === 'admin') return res.json({ unlimited: true });
 
   try {
-    const quota = downloadQuotaService.get(req.user.sub);
+    const quota =
+      req.query.schedule === '1'
+        ? downloadQuotaService.getSchedule(req.user.sub)
+        : downloadQuotaService.get(req.user.sub);
     if (typeof req.query.instructionId === 'string' && req.query.instructionId) {
       const purchase = walletRepository.findPurchase(req.user.sub, req.query.instructionId);
       return res.json({ ...quota, purchaseId: purchase?.id || null });

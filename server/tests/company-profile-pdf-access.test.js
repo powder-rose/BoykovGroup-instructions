@@ -360,6 +360,10 @@ test('registration and password login allow immediate downloads while preserving
   const initialQuota = await request(quotaUrl, { token: registration.token });
   assert.equal(initialQuota.status, 200);
   assert.deepEqual(await initialQuota.json(), { limit: 5, used: 0, remaining: 5 });
+  const initialSchedule = await request(`${quotaUrl}?schedule=1`, { token: registration.token });
+  assert.equal(initialSchedule.status, 200);
+  assert.equal((await initialSchedule.json()).nextResetAt, null);
+
   const firstPdf = await request(pdfUrl, { token: registration.token });
   assert.equal(firstPdf.headers.get('x-download-remaining'), '4');
   assert.ok((await pdfText(firstPdf)).includes('SHARED_DOCUMENT_TEXT'));
@@ -383,6 +387,11 @@ test('registration and password login allow immediate downloads while preserving
   const auth = { token: account.token };
   const quotaAfterLogin = await request(quotaUrl, auth);
   assert.deepEqual(await quotaAfterLogin.json(), { limit: 5, used: 1, remaining: 4 });
+  const scheduleAfterLogin = await request(`${quotaUrl}?schedule=1`, auth);
+  const schedule = await scheduleAfterLogin.json();
+  assert.equal(schedule.remaining, 4);
+  assert.ok(Number.isFinite(Date.parse(schedule.lastFreeDownloadAt)));
+  assert.ok(Number.isFinite(Date.parse(schedule.nextResetAt)));
 
   for (const remaining of [3, 2, 1, 0]) {
     const pdf = await request(pdfUrl, auth);

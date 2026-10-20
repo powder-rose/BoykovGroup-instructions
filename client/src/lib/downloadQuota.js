@@ -28,5 +28,5 @@ export function formatAvailableInstructions(remaining) {
     many: ['доступно', 'инструкций'],
   };
   const [available, instruction] = forms[instructionPluralRules.select(remaining)] ?? forms.many;
-  return `Вам ${available} ${remaining} ${instruction} в этом месяце`;
+  return `Вам ${available} ${remaining} ${instruction} в текущем периоде`;
 }

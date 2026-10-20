@@ -1,0 +1,35 @@
+.account-wallet__quota {
+  margin-top: 24px;
+  padding: 20px 22px;
+  border: 1px solid #dce5f1;
+  border-radius: 9px;
+  background: #f8fbff;
+}
+
+.account-wallet__quota .wallet-eyebrow {
+  margin-bottom: 6px;
+}
+
+.account-wallet__quota-title {
+  display: block;
+  color: var(--color-text, #1a2233);
+  font-size: clamp(17px, 2.3vw, 22px);
+  line-height: 1.4;
+}
+
+.account-wallet__quota .wallet-muted {
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+
+.account-wallet__quota .wallet-button {
+  min-height: 38px;
+  margin-top: 12px;
+  padding: 7px 14px;
+}
+
+@media (max-width: 540px) {
+  .account-wallet__quota {
+    padding: 18px;
+  }
+}
