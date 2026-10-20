@@ -488,6 +488,27 @@ function injectProductionRoot(productionHtml, content) {
   return productionHtml.replace(rootPattern, () => `<div id="root">${content}</div>`);
 }
 
+function renderTaxonomyTags(tags) {
+  return tags
+    .map(
+      tag =>
+        `<a class="InstructionTaxonomy_tag" href="/instrukcii-po-ohrane-truda?tag=${escapeHtml(encodeURIComponent(tag.id))}">${escapeHtml(tag.label)}</a>`,
+    )
+    .join('');
+}
+
+function renderCatalogInstruction(instruction) {
+  const tags = getInstructionTaxonomyDisplay(instruction)?.tags || [];
+
+  return `
+    <li>
+      <a href="${escapeHtml(getInstructionPublicPath(instruction))}">
+        ${escapeHtml(instruction.title)}
+      </a>
+      ${tags.length ? `<div class="InstructionTaxonomy_root" aria-label="Теги инструкции">${renderTaxonomyTags(tags)}</div>` : ''}
+    </li>`;
+}
+
 function renderCatalogSeoBody(instructions, query = '') {
   const hasQuery = Boolean(String(query || '').trim());
 
@@ -503,16 +524,7 @@ function renderCatalogSeoBody(instructions, query = '') {
         </h2>
 
         <ul class="SeoPrerender_instructionList">
-          ${instructions
-            .map(
-              instruction => `
-                <li>
-                  <a href="${escapeHtml(getInstructionPublicPath(instruction))}">
-                    ${escapeHtml(instruction.title)}
-                  </a>
-                </li>`,
-            )
-            .join('\n')}
+          ${instructions.map(renderCatalogInstruction).join('\n')}
         </ul>
       </section>
     </main>`;
@@ -528,7 +540,7 @@ function renderInstructionSeoBody(instruction, relatedInstructions) {
   const taxonomyHtml = taxonomy
     ? `<div class="InstructionTaxonomy_root" aria-label="Категория и теги инструкции">
         ${taxonomy.category ? `<a class="InstructionTaxonomy_category" href="/instrukcii-po-ohrane-truda?category=${escapeHtml(encodeURIComponent(taxonomy.category.id))}">Категория: ${escapeHtml(taxonomy.category.label)}</a>` : ''}
-        ${taxonomy.tags.map(tag => `<a class="InstructionTaxonomy_tag" href="/instrukcii-po-ohrane-truda?tag=${escapeHtml(encodeURIComponent(tag.id))}">${escapeHtml(tag.label)}</a>`).join('')}
+        ${renderTaxonomyTags(taxonomy.tags)}
       </div>`
     : '';
 
@@ -702,6 +714,8 @@ function renderInstructionsCatalogPage(req, instructions, query, indexPath, hasP
 
   const seoHead = `
   <!-- SEO_CATALOG_PRODUCTION_SHELL_V1 -->
+
+  ${instructions.some(instruction => getInstructionTaxonomyDisplay(instruction)?.tags.length) ? `<style data-instruction-taxonomy>${INSTRUCTION_TAXONOMY_SEO_CSS}</style>` : ''}
 
   <meta
     name="description"

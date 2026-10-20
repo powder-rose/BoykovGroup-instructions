@@ -13,6 +13,9 @@ export default function InstructionButton({
   showAdminActions = true,
 }) {
   const [confirming, setConfirming] = useState(false);
+  const tags = Array.isArray(instruction.taxonomyDisplay?.tags)
+    ? instruction.taxonomyDisplay.tags
+    : [];
 
   return (
     <div className={`${styles.card} ${styles.normalCard}`}>
@@ -27,6 +30,22 @@ export default function InstructionButton({
           →
         </span>
       </Link>
+
+      {tags.length > 0 && (
+        <ul className={styles.tags} aria-label="Теги инструкции">
+          {tags.map(tag => (
+            <li key={tag.id} className={styles.tagItem}>
+              <Link
+                className={styles.tag}
+                to={`/instrukcii-po-ohrane-truda?tag=${encodeURIComponent(tag.id)}`}
+                aria-label={`Показать инструкции с тегом «${tag.label}»`}
+              >
+                {tag.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {isAdmin && instruction?.source === 'generated' && <GeneratedInstructionBadge />}
 

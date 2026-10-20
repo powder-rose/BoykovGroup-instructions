@@ -24,7 +24,6 @@
 }
 
 .heading p,
-.hint,
 .message {
   margin: 6px 0 0;
   font-size: 12px;
@@ -89,10 +88,6 @@
 
 .reset:hover {
   background: #edf4ff;
-}
-
-.hint {
-  margin-top: 15px;
 }
 
 @media (max-width: 790px) {

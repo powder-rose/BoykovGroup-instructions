@@ -35,14 +35,14 @@ test('catalog search uses the existing API query, sort and page controls', () =>
   const hook = read(
     '../../client/src/components/InstructionCatalog/hooks/useInstructionsCatalog.js',
   );
-  assert.match(hook, /useDebouncedValue\(queryInput, 350\)/u);
+  assert.match(hook, /queryOnlyChanged \? 350 : 0/u);
   assert.match(hook, /q: query/u);
   assert.match(hook, /page: String\(page\)/u);
   assert.match(hook, /pageSize: String\(PAGE_SIZE\)/u);
   assert.match(hook, /sort,/u);
   assert.match(hook, /new AbortController\(\)/u);
-  assert.match(hook, /setPage\(1\)/u);
-  assert.match(hook, /history\.replaceState/u);
+  assert.match(hook, /next\.delete\('page'\)/u);
+  assert.match(hook, /useSearchParams\(\)/u);
 });
 
 test('catalog prominently links home without new CSS overrides', () => {

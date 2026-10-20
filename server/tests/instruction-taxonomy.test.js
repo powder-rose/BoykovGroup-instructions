@@ -11,10 +11,10 @@ import {
 
 const catalog = getInstructionTaxonomyCatalog();
 
-test('taxonomy contains ten categories and 176 canonical tags without alias collisions', () => {
-  assert.equal(catalog.version, 1);
+test('taxonomy contains ten categories and 371 canonical tags without alias collisions', () => {
+  assert.equal(catalog.version, 2);
   assert.equal(catalog.categories.length, 10);
-  assert.equal(catalog.tags.length, 176);
+  assert.equal(catalog.tags.length, 371);
   assert.equal(validateInstructionTaxonomyCatalog(catalog), true);
   assert.equal(
     catalog.tags.every(tag => tag.indexPolicy === 'noindex'),

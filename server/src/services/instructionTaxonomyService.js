@@ -5,6 +5,7 @@ const WORD_BOUNDARY =
   '(?:(?<=[\\p{L}\\p{N}])(?![\\p{L}\\p{N}])|(?<![\\p{L}\\p{N}])(?=[\\p{L}\\p{N}]))';
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 const TAG_TYPES = new Set(['profession', 'work', 'equipment']);
+const PROFESSION_SCOPES = new Set(['core', 'phrase']);
 
 const catalog = JSON.parse(
   fs.readFileSync(new URL('../data/instructionTaxonomyCatalog.json', import.meta.url), 'utf8'),
@@ -68,6 +69,12 @@ export function validateInstructionTaxonomyCatalog(data) {
     }
     if (item.suggestionRule.field !== (item.type === 'profession' ? 'profession' : 'title')) {
       throw new Error(`Invalid suggestion source: ${item.id}`);
+    }
+    if (
+      item.suggestionRule.scope !== undefined &&
+      (item.type !== 'profession' || !PROFESSION_SCOPES.has(item.suggestionRule.scope))
+    ) {
+      throw new Error(`Invalid profession suggestion scope: ${item.id}`);
     }
 
     compilePattern(item.suggestionRule.pattern);
@@ -247,7 +254,11 @@ export function suggestInstructionTaxonomy(instruction) {
   const tagIds = preparedTags
     .filter(({ tag, pattern, exclude }) => {
       const subject =
-        tag.type === 'profession' ? (tag.id === 'avtoslesar' ? profession : role) : title;
+        tag.type === 'profession'
+          ? tag.suggestionRule.scope === 'phrase'
+            ? profession
+            : role
+          : title;
       return subject && pattern.test(subject) && (!exclude || !exclude.test(subject));
     })
     .sort((a, b) => {

@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "categories": [
     {
       "id": "manufacturing",
@@ -176,7 +176,8 @@
       "suggestionRule": {
         "field": "profession",
         "pattern": "\\bавтослесар[ья][а-я-]*\\b|слесар[ья] по ремонту автомобил",
-        "excludePattern": null
+        "excludePattern": null,
+        "scope": "phrase"
       },
       "indexPolicy": "noindex"
     },
@@ -344,7 +345,7 @@
       "aliases": ["электросварщик", "газоэлектросварщик"],
       "suggestionRule": {
         "field": "profession",
-        "pattern": "\\bсварщик[а-я-]*\\b|\\bгазоэлектросварщик[а-я-]*\\b",
+        "pattern": "\\bсварщик[а-я-]*\\b|\\bгазоэлектросварщик[а-я-]*\\b|^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:электрогазосварщик|электросварщик|газосварщик)(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
         "excludePattern": null
       },
       "indexPolicy": "noindex"
@@ -773,8 +774,9 @@
       "aliases": ["уборщица", "клинер", "специалист по клинингу"],
       "suggestionRule": {
         "field": "profession",
-        "pattern": "\\bуборщик[а-я-]*\\b|\\bуборщиц[а-я-]*\\b|\\bклинер[а-я-]*\\b",
-        "excludePattern": null
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:уборщик(?:а|у|ом|ы|ов|ам|ами|ах)?|уборщиц(?:а|ы|е|у|ей|ам|ами|ах)?|клинер(?:а|у|ом|ы|ов|ам|ами|ах)?|специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+клинингу)\\b",
+        "excludePattern": null,
+        "scope": "phrase"
       },
       "indexPolicy": "noindex"
     },
@@ -1670,7 +1672,7 @@
       "aliases": ["веб-дизайнер", "Web-дизайнер"],
       "suggestionRule": {
         "field": "profession",
-        "pattern": "\\bдизайнер[а-я-]*\\b|\\bweb-дизайнер[а-я-]*\\b|\\bвеб-дизайнер[а-я-]*\\b",
+        "pattern": "\\bдизайнер[а-я-]*\\b|\\bweb-дизайнер[а-я-]*\\b|\\bвеб-дизайнер[а-я-]*\\b|^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*геймдизайнер(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
         "excludePattern": null
       },
       "indexPolicy": "noindex"
@@ -2348,6 +2350,2606 @@
         "field": "title",
         "pattern": "принтер[а-я-]*|плоттер[а-я-]*|\\b3-?d принтер[а-я-]*",
         "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "averbandshchik",
+      "slug": "averbandshchik",
+      "label": "Авербандщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*авербандщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "avtoklavshchik",
+      "slug": "avtoklavshchik",
+      "label": "Автоклавщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*автоклавщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "avtomatchik",
+      "slug": "avtomatchik",
+      "label": "Автоматчик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*автоматчик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "aglomeratchik",
+      "slug": "aglomeratchik",
+      "label": "Агломератчик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*агломератчик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "administrator",
+      "slug": "administrator",
+      "label": "Администратор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*администратор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "akvadirovshchik",
+      "slug": "akvadirovshchik",
+      "label": "Аквадировщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*аквадировщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "akklimatizator",
+      "slug": "akklimatizator",
+      "label": "Акклиматизатор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*акклиматизатор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "akkompaniator",
+      "slug": "akkompaniator",
+      "label": "Аккомпаниатор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*аккомпаниатор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "akkumulyatorshchik",
+      "slug": "akkumulyatorshchik",
+      "label": "Аккумуляторщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*аккумуляторщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "alundirovshchik",
+      "slug": "alundirovshchik",
+      "label": "Алундировщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*алундировщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "alyuminirovshchik",
+      "slug": "alyuminirovshchik",
+      "label": "Алюминировщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*алюминировщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "angobirovshchik",
+      "slug": "angobirovshchik",
+      "label": "Ангобировщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*ангобировщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "anodchik",
+      "slug": "anodchik",
+      "label": "Анодчик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*анодчик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "antikorrozijshchik",
+      "slug": "antikorrozijshchik",
+      "label": "Антикоррозийщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*антикоррозийщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "armaturschik",
+      "slug": "armaturschik",
+      "label": "Арматурщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*арматурщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "auditor",
+      "slug": "auditor",
+      "label": "Аудитор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:внутренн[а-я]+\\s+)?аудитор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "banshchik",
+      "slug": "banshchik",
+      "label": "Банщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*банщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "barbek",
+      "slug": "barbek",
+      "label": "Барбек",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*барбек(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "valtsovshchik",
+      "slug": "valtsovshchik",
+      "label": "Вальцовщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*вальцовщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "meliorator",
+      "slug": "meliorator",
+      "label": "Мелиоратор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*мелиоратор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "embriolog",
+      "slug": "embriolog",
+      "label": "Эмбриолог",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*эмбриолог(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "vzryvnik",
+      "slug": "vzryvnik",
+      "label": "Взрывник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*взрывник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "gazorezchik",
+      "slug": "gazorezchik",
+      "label": "Газорезчик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*газорезчик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "garderobshchik",
+      "slug": "garderobshchik",
+      "label": "Гардеробщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*гардеробщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "gidroizolirovshchik",
+      "slug": "gidroizolirovshchik",
+      "label": "Гидроизолировщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*гидроизолировщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "shampanist",
+      "slug": "shampanist",
+      "label": "Шампанист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*шампанист(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "deklarant",
+      "slug": "deklarant",
+      "label": "Декларант",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*декларант(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "deloproizvoditel",
+      "slug": "deloproizvoditel",
+      "label": "Делопроизводитель",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*делопроизводител(?:ь|я|ю|ем|и|ей|ям|ями|ях)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "dermatovenerolog",
+      "slug": "dermatovenerolog",
+      "label": "Дерматовенеролог",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*дерматовенеролог(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "diagnost",
+      "slug": "diagnost",
+      "label": "Диагност",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*диагност(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "dispetcher",
+      "slug": "dispetcher",
+      "label": "Диспетчер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*диспетчер(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "ispytatel",
+      "slug": "ispytatel",
+      "label": "Испытатель",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*испытател(?:ь|я|ю|ем|и|ей|ям|ями|ях)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "zhestyanshchik",
+      "slug": "zhestyanshchik",
+      "label": "Жестянщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*жестянщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "zavhoz",
+      "slug": "zavhoz",
+      "label": "Заведующий хозяйством",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*завхоз(?:а|у|ом|ы|ов|ам|ами|ах)?\\b|^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*заведующ[а-я]+\\s+(?:хозяйством|хозяйственным\\s+отделением)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "zagotovshchik",
+      "slug": "zagotovshchik",
+      "label": "Заготовщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*заготовщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "zakrojshchik",
+      "slug": "zakrojshchik",
+      "label": "Закройщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*закройщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "zvukooperator",
+      "slug": "zvukooperator",
+      "label": "Звукооператор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*звукооператор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kinolog",
+      "slug": "kinolog",
+      "label": "Кинолог",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*кинолог(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kinomekhanik",
+      "slug": "kinomekhanik",
+      "label": "Киномеханик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*киномеханик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kolorist",
+      "slug": "kolorist",
+      "label": "Колорист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*колорист(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "komendant",
+      "slug": "komendant",
+      "label": "Комендант",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*комендант(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "konsultant",
+      "slug": "konsultant",
+      "label": "Консультант",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*консультант(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "koordinator",
+      "slug": "koordinator",
+      "label": "Координатор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*координатор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kopirajter",
+      "slug": "kopirajter",
+      "label": "Копирайтер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*копирайтер(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kostyumer",
+      "slug": "kostyumer",
+      "label": "Костюмер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*костюмер(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kupazhist",
+      "slug": "kupazhist",
+      "label": "Купажист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*купажист(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "marketolog",
+      "slug": "marketolog",
+      "label": "Маркетолог",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*маркетолог(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "markirovshchik",
+      "slug": "markirovshchik",
+      "label": "Маркировщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*маркировщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "metodist",
+      "slug": "metodist",
+      "label": "Методист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*методист(?:а|у|ом|ы|ов|ам|ами|ах)?\\b|^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+методике\\s+обучения\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "mekhanizator",
+      "slug": "mekhanizator",
+      "label": "Механизатор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*механизатор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "montazhnik",
+      "slug": "montazhnik",
+      "label": "Монтажник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*монтажник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "nachalnik",
+      "slug": "nachalnik",
+      "label": "Начальник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*начальник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "notarius",
+      "slug": "notarius",
+      "label": "Нотариус",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*нотариус(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "obhodchik",
+      "slug": "obhodchik",
+      "label": "Обходчик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*обходчик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "ogneuporshchik",
+      "slug": "ogneuporshchik",
+      "label": "Огнеупорщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*огнеупорщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "opressovshchik",
+      "slug": "opressovshchik",
+      "label": "Опрессовщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*опрессовщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "otdelochnik",
+      "slug": "otdelochnik",
+      "label": "Отделочник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*отделочник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "ohotoved",
+      "slug": "ohotoved",
+      "label": "Охотовед",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*охотовед(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "perepletchik",
+      "slug": "perepletchik",
+      "label": "Переплётчик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*переплетчик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pechatnik",
+      "slug": "pechatnik",
+      "label": "Печатник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*печатник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "plitochnik",
+      "slug": "plitochnik",
+      "label": "Плиточник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*плиточник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "prepodavatel",
+      "slug": "prepodavatel",
+      "label": "Преподаватель",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*преподавател(?:ь|я|ю|ем|и|ей|ям|ями|ях)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "probootborshchik",
+      "slug": "probootborshchik",
+      "label": "Пробоотборщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*пробоотборщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "prodyuser",
+      "slug": "prodyuser",
+      "label": "Продюсер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*продюсер(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "protochnik",
+      "slug": "protochnik",
+      "label": "Проточник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*проточник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "radiomontazhnik",
+      "slug": "radiomontazhnik",
+      "label": "Радиомонтажник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*радиомонтажник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "radiotekhnik",
+      "slug": "radiotekhnik",
+      "label": "Радиотехник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*радиотехник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "ramshchik",
+      "slug": "ramshchik",
+      "label": "Рамщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*рамщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "revizor",
+      "slug": "revizor",
+      "label": "Ревизор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*ревизор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "rezhisser",
+      "slug": "rezhisser",
+      "label": "Режиссёр",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*режиссер(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "rezchik",
+      "slug": "rezchik",
+      "label": "Резчик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*резчик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "referent",
+      "slug": "referent",
+      "label": "Референт",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*референт(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "sborshchik",
+      "slug": "sborshchik",
+      "label": "Сборщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*сборщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "smetchik",
+      "slug": "smetchik",
+      "label": "Сметчик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*сметчик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "stanochnik",
+      "slug": "stanochnik",
+      "label": "Станочник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*станочник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "statistik",
+      "slug": "statistik",
+      "label": "Статистик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*статистик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "supervajzer",
+      "slug": "supervajzer",
+      "label": "Супервайзер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*супервайзер(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "tekhnik",
+      "slug": "tekhnik",
+      "label": "Техник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*техник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "tovaroved",
+      "slug": "tovaroved",
+      "label": "Товаровед",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*товаровед(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "trener",
+      "slug": "trener",
+      "label": "Тренер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*тренер(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "tychkovshchik",
+      "slug": "tychkovshchik",
+      "label": "Тычковщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*тычковщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "formovshchik",
+      "slug": "formovshchik",
+      "label": "Формовщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*формовщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "himik",
+      "slug": "himik",
+      "label": "Химик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*химик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "hormeyster",
+      "slug": "hormeyster",
+      "label": "Хормейстер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*хормейстер(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "cementator",
+      "slug": "cementator",
+      "label": "Цементатор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*цементатор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "shlifovshchik",
+      "slug": "shlifovshchik",
+      "label": "Шлифовщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*шлифовщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "shtampovshchik",
+      "slug": "shtampovshchik",
+      "label": "Штамповщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*штамповщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "ekolog",
+      "slug": "ekolog",
+      "label": "Эколог",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*эколог(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "ekspeditor",
+      "slug": "ekspeditor",
+      "label": "Экспедитор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*экспедитор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "elektromekhanik",
+      "slug": "elektromekhanik",
+      "label": "Электромеханик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*электромеханик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "elektroslesar",
+      "slug": "elektroslesar",
+      "label": "Электрослесарь",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*электрослесар(?:ь|я|ю|ем|и|ей|ям|ями|ях)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "uchetchik",
+      "slug": "uchetchik",
+      "label": "Учётчик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*учетчик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b|^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+учету\\s+производства\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "bibliotekar",
+      "slug": "bibliotekar",
+      "label": "Библиотекарь",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*библиотекар(?:ь|я|ю|ем|и|ей|ям|ями|ях)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "eger",
+      "slug": "eger",
+      "label": "Егерь",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*егер(?:ь|я|ю|ем|и|ей|ям|ями|ях)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "stolyar",
+      "slug": "stolyar",
+      "label": "Столяр",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*столяр(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "didzhej",
+      "slug": "didzhej",
+      "label": "Диджей",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*дидже(?:й|я|ю|ем|и|ев|ям|ями|ях)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "inspektor",
+      "slug": "inspektor",
+      "label": "Инспектор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:государственн[а-я]+\\s+)?инспектор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "instruktor",
+      "slug": "instruktor",
+      "label": "Инструктор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*инструктор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "aviacionnyj-tekhnik",
+      "slug": "aviacionnyj-tekhnik",
+      "label": "Авиационный техник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*авиационн[а-я]+\\s+техник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "antenshchik-machtovik",
+      "slug": "antenshchik-machtovik",
+      "label": "Антенщик-мачтовик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*антенщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\s*[-–—]\\s*мачтовик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "anesteziolog-reanimatolog",
+      "slug": "anesteziolog-reanimatolog",
+      "label": "Анестезиолог-реаниматолог",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:врач(?:а|у|ом|ы|ов|ам|ами|ах)?\\s*[-–—]?\\s*)?анестезиолог(?:а|у|ом|ы|ов|ам|ами|ах)?\\s*[-–—]\\s*реаниматолог(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "videooperator",
+      "slug": "videooperator",
+      "label": "Видеооператор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*видеооператор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "medicinskij-brat",
+      "slug": "medicinskij-brat",
+      "label": "Медицинский брат",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*медицинск[а-я]+\\s+брат(?:а|у|ом|е|ья|ьев|ьям|ьями|ьях)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "zubnoj-tekhnik",
+      "slug": "zubnoj-tekhnik",
+      "label": "Зубной техник",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*зубн[а-я]+\\s+техник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "medicinskij-registrator",
+      "slug": "medicinskij-registrator",
+      "label": "Медицинский регистратор",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*медицинск[а-я]+\\s+регистратор(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "medicinskij-predstavitel",
+      "slug": "medicinskij-predstavitel",
+      "label": "Медицинский представитель",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*медицинск[а-я]+\\s+представител(?:ь|я|ю|ем|и|ей|ям|ями|ях)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kastelyansha",
+      "slug": "kastelyansha",
+      "label": "Кастелянша",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*кастелянш(?:а|и|е|у|ей|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kurier",
+      "slug": "kurier",
+      "label": "Курьер",
+      "type": "profession",
+      "aliases": ["доставщик"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:курьер|доставщик)(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "lepshchik",
+      "slug": "lepshchik",
+      "label": "Лепщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:лепщик(?:а|у|ом|ы|ов|ам|ами|ах)?|лепщиц(?:а|ы|е|у|ей|ам|ами|ах)?)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "mojshchik",
+      "slug": "mojshchik",
+      "label": "Мойщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:мойщик(?:а|у|ом|ы|ов|ам|ами|ах)?|мойщиц(?:а|ы|е|у|ей|ам|ами|ах)?|посудомойщиц(?:а|ы|е|у|ей|ам|ами|ах)?)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kuhonnyj-rabochij",
+      "slug": "kuhonnyj-rabochij",
+      "label": "Кухонный рабочий",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:кухонн[а-я]+\\s+рабоч[а-я]+|кухонно-техническ[а-я]+\\s+работник(?:а|у|ом|ы|ов|ам|ами|ах)?|работник(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+кухни)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "podsobnyj-rabochij",
+      "slug": "podsobnyj-rabochij",
+      "label": "Подсобный рабочий",
+      "type": "profession",
+      "aliases": ["разнорабочий"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:подсобн[а-я]+\\s+рабоч[а-я]+|разнорабоч(?:ий|его|ему|им|ем|ие|их|ими))\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pedagog",
+      "slug": "pedagog",
+      "label": "Педагог",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*педагог(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "storozh",
+      "slug": "storozh",
+      "label": "Сторож",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*сторож(?:а|у|ем|и|ей|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "raner",
+      "slug": "raner",
+      "label": "Раннер",
+      "type": "profession",
+      "aliases": ["ранер"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*раннер(?:а|у|ом|ы|ов|ам|ами|ах)?\\b|^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*ранер(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "su-shef",
+      "slug": "su-shef",
+      "label": "Су-шеф",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*су\\s*[-–—]\\s*шеф(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "hostes",
+      "slug": "hostes",
+      "label": "Хостес",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*хостес\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "hudozhnik-fotograf",
+      "slug": "hudozhnik-fotograf",
+      "label": "Художник-фотограф",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*художник(?:а|у|ом|ы|ов|ам|ами|ах)?\\s*[-–—]\\s*фотограф(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "biotehnolog",
+      "slug": "biotehnolog",
+      "label": "Биотехнолог",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*биотехнолог(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "zaveduyushchij",
+      "slug": "zaveduyushchij",
+      "label": "Заведующий",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*заведующ(?:ий|его|ему|им|ем|ая|ей|ую|ие|их|ими)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "upravlyayushchij",
+      "slug": "upravlyayushchij",
+      "label": "Управляющий",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:(?:региональн|территориальн)[а-я]+\\s+)?управляющ(?:ий|его|ему|им|ем|ая|ей|ую|ие|их|ими)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "zamestitel-rukovoditelya",
+      "slug": "zamestitel-rukovoditelya",
+      "label": "Заместитель руководителя",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*заместител(?:ь|я|ю|ем|и|ей|ям|ями|ях)\\s+(?:начальник(?:а|у|ом|ы|ов|ам|ами|ах)?|заведующ[а-я]+|директор(?:а|у|ом|ы|ов|ам|ами|ах)?|руководител(?:ь|я|ю|ем|и|ей|ям|ями|ях))\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kontraktnyj-upravlyayushchij",
+      "slug": "kontraktnyj-upravlyayushchij",
+      "label": "Контрактный управляющий",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*контрактн[а-я]+\\s+управляющ[а-я]+\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "prorab",
+      "slug": "prorab",
+      "label": "Прораб",
+      "type": "profession",
+      "aliases": ["производитель работ"],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:прораб(?:а|у|ом|ы|ов|ам|ами|ах)?|производител(?:ь|я|ю|ем|и|ей|ям|ями|ях)\\s+работ)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "sestra-hozyajka",
+      "slug": "sestra-hozyajka",
+      "label": "Сестра-хозяйка",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*сестр(?:а|ы|е|у|ой|ою)\\s*[-–—]\\s*хозяйк(?:а|и|е|у|ой|ою)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "assistent-vracha",
+      "slug": "assistent-vracha",
+      "label": "Ассистент врача",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*ассистент(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+врач(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pomoshchnik-vracha",
+      "slug": "pomoshchnik-vracha",
+      "label": "Помощник врача",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*помощник(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+врач(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "lichnyj-assistent",
+      "slug": "lichnyj-assistent",
+      "label": "Личный ассистент",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*личн[а-я]+\\s+ассистент(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pomoshchnik-po-prodazham",
+      "slug": "pomoshchnik-po-prodazham",
+      "label": "Помощник по продажам",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*помощник(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:специалиста\\s+по|отдела|по)\\s+продаж(?:ам)?\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pomoshchnik-notariusa",
+      "slug": "pomoshchnik-notariusa",
+      "label": "Помощник нотариуса",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*помощник(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+нотариус(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pomoshchnik-pechatnika",
+      "slug": "pomoshchnik-pechatnika",
+      "label": "Помощник печатника",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*помощник(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+печатник(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pomoshchnik-ramshchika",
+      "slug": "pomoshchnik-ramshchika",
+      "label": "Помощник рамщика",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*помощник(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+рамщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pomoshchnik-embriologa",
+      "slug": "pomoshchnik-embriologa",
+      "label": "Помощник эмбриолога",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*помощник(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+эмбриолог(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "brovist",
+      "slug": "brovist",
+      "label": "Бровист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+)?бровист(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "vizazhist",
+      "slug": "vizazhist",
+      "label": "Визажист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:бровист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s*[-–—]\\s*)?визажист(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "master-nogtevogo-servisa",
+      "slug": "master-nogtevogo-servisa",
+      "label": "Мастер ногтевого сервиса",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+ногтевого\\s+сервиса\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "master-permanentnogo-makiyazha",
+      "slug": "master-permanentnogo-makiyazha",
+      "label": "Мастер перманентного макияжа",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+перманентного\\s+макияжа\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "master-po-narashchivaniyu-resnic",
+      "slug": "master-po-narashchivaniyu-resnic",
+      "label": "Мастер по наращиванию ресниц",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+наращиванию\\s+ресниц\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "master-bizhuterii",
+      "slug": "master-bizhuterii",
+      "label": "Мастер бижутерии",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+бижутерии\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "gornyj-master",
+      "slug": "gornyj-master",
+      "label": "Горный мастер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*горн[а-я]+\\s+мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "proizvodstvennyj-master",
+      "slug": "proizvodstvennyj-master",
+      "label": "Производственный мастер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:производственн[а-я]+\\s+мастер(?:а|у|ом|ы|ов|ам|ами|ах)?|мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:\\(?начальника\\s+производственных\\s+процессов|производственного\\s+участка|участка|цеха))\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "master-stroitelnyh-rabot",
+      "slug": "master-stroitelnyh-rabot",
+      "label": "Мастер строительных работ",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*мастер(?:а|у|ом|ы|ов|ам|ами|ах)?(?:-универсал(?:а|у|ом|ы|ов|ам|ами|ах)?)?\\s+(?:(?:строительных|строительно-монтажных|отделочных|монтажных|сантехнических|декоративных)(?:\\s+и\\s+монтажных)?\\s+работ|(?:ремонтно-строительного|строительного)\\s+участка)\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "master-proizvodstvennogo-obucheniya",
+      "slug": "master-proizvodstvennogo-obucheniya",
+      "label": "Мастер производственного обучения",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+производственного\\s+обучения\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "master-priemshchik",
+      "slug": "master-priemshchik",
+      "label": "Мастер-приёмщик",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\s*[-–—]\\s*приемщик(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "rabochij-po-obsluzhivaniyu-zdanij",
+      "slug": "rabochij-po-obsluzhivaniyu-zdanij",
+      "label": "Рабочий по обслуживанию зданий",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*рабоч(?:ий|его|ему|им|ем|ие|их)\\s+по\\s+(?:комплексному\\s+)?обслуживанию\\s+(?:и\\s+ремонту\\s+)?зданий\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "master-sklada",
+      "slug": "master-sklada",
+      "label": "Мастер склада",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+склада\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "master-otk",
+      "slug": "master-otk",
+      "label": "Мастер ОТК",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+отк\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "master-po-remontu-oborudovaniya",
+      "slug": "master-po-remontu-oborudovaniya",
+      "label": "Мастер по ремонту оборудования",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+(?:ремонту\\s+(?:технологического\\s+)?|монтажу,\\s+ремонту\\s+и\\s+наладке\\s+электронного\\s+)оборудования\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "dezhurnyj-po-zdaniyu",
+      "slug": "dezhurnyj-po-zdaniyu",
+      "label": "Дежурный по зданию",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*дежурн(?:ый|ого|ому|ым|ом|ая|ой|ую)\\s+по\\s+зданию\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "finansist",
+      "slug": "finansist",
+      "label": "Финансист",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:финансист(?:а|у|ом|ы|ов|ам|ами|ах)?\\b|специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+финансовой\\s+деятельности\\b)",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-ohrane-truda",
+      "slug": "specialist-po-ohrane-truda",
+      "label": "Специалист по охране труда",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:по\\s+|отдела\\s+по\\s+)охране\\s+труда\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-kadram",
+      "slug": "specialist-po-kadram",
+      "label": "Специалист по кадрам",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:по\\s+(?:кадрам|кадровому\\s+(?:делопроизводству|учету)|работе\\s+с\\s+персоналом)|отдела\\s+кадров)\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-zakupkam",
+      "slug": "specialist-po-zakupkam",
+      "label": "Специалист по закупкам",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:специалист(?:а|у|ом|ы|ов|ам|ами|ах)?|агент(?:а|у|ом|ы|ов|ам|ами|ах)?)\\s+по\\s+закупкам\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-snabzheniyu",
+      "slug": "specialist-po-snabzheniyu",
+      "label": "Специалист по снабжению",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:по\\s+(?:снабжению|мто|логистике\\s+и\\s+снабжению)|омтс)\\b|^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:снабженец|снабженца|снабженцу|снабженцем|снабженцы|снабженцев)\\b|^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*агент(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+логистике\\s+и\\s+снабжению\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-kachestvu",
+      "slug": "specialist-po-kachestvu",
+      "label": "Специалист по контролю качества",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:(?:по\\s+(?:техническому\\s+)?|отдела\\s+технического\\s+)?контрол[яю]\\s+качества|контроля\\s+качества|отдела\\s+технического\\s+контроля)\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-go-i-chs",
+      "slug": "specialist-po-go-i-chs",
+      "label": "Специалист по ГО и ЧС",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:по\\s+)?го\\s+и\\s+чс\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-pozharnoj-bezopasnosti",
+      "slug": "specialist-po-pozharnoj-bezopasnosti",
+      "label": "Специалист по пожарной безопасности",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+пожарной\\s+безопасности\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-tehnicheskoj-podderzhki",
+      "slug": "specialist-tehnicheskoj-podderzhki",
+      "label": "Специалист технической поддержки",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:2-й\\s+линии\\s+)?технической\\s+поддержки\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-rabote-s-klientami",
+      "slug": "specialist-po-rabote-s-klientami",
+      "label": "Специалист по работе с клиентами",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:по\\s+работе\\s+с\\s+клиентами|отдела\\s+клиентской\\s+поддержки)\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-prodazham",
+      "slug": "specialist-po-prodazham",
+      "label": "Специалист по продажам",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:по\\s+продажам|отдела\\s+продаж)\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-dokumentooborotu",
+      "slug": "specialist-po-dokumentooborotu",
+      "label": "Специалист по документообороту",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+документообороту\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-dogovornoj-rabote",
+      "slug": "specialist-po-dogovornoj-rabote",
+      "label": "Специалист по договорной работе",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+договорной\\s+работе\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-voinskomu-uchetu",
+      "slug": "specialist-po-voinskomu-uchetu",
+      "label": "Специалист по воинскому учёту",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+воинскому\\s+учету\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-zashchite-informacii",
+      "slug": "specialist-po-zashchite-informacii",
+      "label": "Специалист по защите информации",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+защите\\s+информации\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-informacionnym-tehnologiyam",
+      "slug": "specialist-po-informacionnym-tehnologiyam",
+      "label": "Специалист по информационным технологиям",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+информационным\\s+технологиям\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-tamozhennomu-oformleniyu",
+      "slug": "specialist-po-tamozhennomu-oformleniyu",
+      "label": "Специалист по таможенному оформлению",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+таможенному\\s+(?:оформлению|контролю)\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-pto",
+      "slug": "specialist-pto",
+      "label": "Специалист ПТО",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+пто\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-tenderam",
+      "slug": "specialist-po-tenderam",
+      "label": "Специалист по тендерам",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:тендерного\\s+отдела|по\\s+тендерам)\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-slabotochnym-sistemam",
+      "slug": "specialist-po-slabotochnym-sistemam",
+      "label": "Специалист по слаботочным системам",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+слаботочным\\s+системам\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-gazovomu-hozyajstvu",
+      "slug": "specialist-po-gazovomu-hozyajstvu",
+      "label": "Специалист по газовому хозяйству",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+газовому\\s+хозяйству\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-uhodu-za-zhivotnymi",
+      "slug": "specialist-po-uhodu-za-zhivotnymi",
+      "label": "Специалист по уходу за животными",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+уходу\\s+за\\s+животными\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-uchebnoj-rabote",
+      "slug": "specialist-po-uchebnoj-rabote",
+      "label": "Специалист по учебной работе",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:по\\s+организации\\s+и\\s+ведению\\s+учебной\\s+работы|по\\s+учебной\\s+работе|учебного\\s+отдела)\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-kompyuternym-setyam",
+      "slug": "specialist-po-kompyuternym-setyam",
+      "label": "Специалист по компьютерным сетям",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?(?:\\s*[-–—]\\s*техник(?:а|у|ом|ы|ов|ам|ами|ах)?)?\\s+по\\s+компьютерным\\s+сетям\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-telekommunikaciyam",
+      "slug": "specialist-po-telekommunikaciyam",
+      "label": "Специалист по телекоммуникационному оборудованию",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?(?:\\s*[-–—]\\s*техник(?:а|у|ом|ы|ов|ам|ами|ах)?)?\\s+по\\s+телекоммуникационному\\s+оборудованию\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "hr-biznes-partner",
+      "slug": "hr-biznes-partner",
+      "label": "HR-бизнес-партнёр",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*hr\\s*[-–—]\\s*бизнес\\s*[-–— ]\\s*партнер(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "kurator-standartov-servisa",
+      "slug": "kurator-standartov-servisa",
+      "label": "Куратор стандартов сервиса",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*куратор(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+стандартов\\s+сервиса\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "rabochij-karty-namyva",
+      "slug": "rabochij-karty-namyva",
+      "label": "Рабочий карты намыва",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*рабоч(?:ий|его|ему|им|ем|ие|их|ими)\\s+карты\\s+намыва\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "regionalnyj-predstavitel",
+      "slug": "regionalnyj-predstavitel",
+      "label": "Региональный представитель",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*региональн[а-я]+\\s+представител(?:ь|я|ю|ем|и|ей|ям|ями|ях)\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "zamestitel-po-obshchim-voprosam",
+      "slug": "zamestitel-po-obshchim-voprosam",
+      "label": "Заместитель по общим вопросам",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*заместител(?:ь|я|ю|ем|и|ей|ям|ями|ях)\\s+по\\s+общим\\s+вопросам\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "smennyj-master",
+      "slug": "smennyj-master",
+      "label": "Сменный мастер",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*(?:сменн[а-я]+\\s+мастер(?:а|у|ом|ы|ов|ам|ами|ах)?|мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+смены)\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "master-konsultant",
+      "slug": "master-konsultant",
+      "label": "Мастер-консультант",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*мастер(?:а|у|ом|ы|ов|ам|ами|ах)?\\s*[-–—]\\s*консультант(?:а|у|ом|ы|ов|ам|ами|ах)?\\b",
+        "excludePattern": null
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "pomoshchnik-mastera-smeny",
+      "slug": "pomoshchnik-mastera-smeny",
+      "label": "Помощник мастера смены",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*помощник(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:мастера\\s+смены|сменного\\s+мастера)\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "starshij-smeny",
+      "slug": "starshij-smeny",
+      "label": "Старший смены",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*старш(?:ий|его|ему|им|ем|ая|ей|ую|ие|их|ими)\\s+смены\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-kommercheskogo-otdela",
+      "slug": "specialist-kommercheskogo-otdela",
+      "label": "Специалист коммерческого отдела",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+коммерческого\\s+отдела\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-kreditno-strahovogo-otdela",
+      "slug": "specialist-kreditno-strahovogo-otdela",
+      "label": "Специалист кредитно-страхового отдела",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+кредитно[-–—]страхового\\s+отдела\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-otdela-zapasnyh-chastej",
+      "slug": "specialist-otdela-zapasnyh-chastej",
+      "label": "Специалист отдела запасных частей",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+отдела\\s+запасных\\s+частей\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-vozvratam",
+      "slug": "specialist-po-vozvratam",
+      "label": "Специалист по возвратам",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+возвратам\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-assortimenta-i-kachestva",
+      "slug": "specialist-assortimenta-i-kachestva",
+      "label": "Специалист ассортимента и качества",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:ассортимента\\s+и\\s+качества|по\\s+ассортименту\\s+и\\s+качеству)\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-egais",
+      "slug": "specialist-egais",
+      "label": "Специалист ЕГАИС",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+егаис\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-otdela-eksporta",
+      "slug": "specialist-otdela-eksporta",
+      "label": "Специалист отдела экспорта",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+отдела\\s+экспорта\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-chestnyj-znak",
+      "slug": "specialist-chestnyj-znak",
+      "label": "Специалист по работе с МГИС «Честный знак»",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+работе\\s+с\\s+мгис\\s+[«\"]?честный\\s+знак\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-zhkh",
+      "slug": "specialist-zhkh",
+      "label": "Специалист ЖКХ",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:жилищно[-–—]коммунального\\s+хозяйства|жкх)\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-rabote-s-naseleniem",
+      "slug": "specialist-po-rabote-s-naseleniem",
+      "label": "Специалист по работе с населением",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+работе\\s+с\\s+населением\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-po-pokraske",
+      "slug": "specialist-po-pokraske",
+      "label": "Специалист по покраске",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+по\\s+покраске\\b",
+        "excludePattern": null,
+        "scope": "phrase"
+      },
+      "indexPolicy": "noindex"
+    },
+    {
+      "id": "specialist-administrativno-hozyajstvennoj-deyatelnosti",
+      "slug": "specialist-administrativno-hozyajstvennoj-deyatelnosti",
+      "label": "Специалист административно-хозяйственной деятельности",
+      "type": "profession",
+      "aliases": [],
+      "suggestionRule": {
+        "field": "profession",
+        "pattern": "^(?:(?:главн|ведущ|старш|младш|сменн)[а-я]*\\s+)*специалист(?:а|у|ом|ы|ов|ам|ами|ах)?\\s+(?:по\\s+)?административно[-–—]хозяйственной\\s+деятельности\\b",
+        "excludePattern": null,
+        "scope": "phrase"
       },
       "indexPolicy": "noindex"
     }
