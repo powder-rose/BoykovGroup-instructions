@@ -73,6 +73,12 @@ function assertOriginals(f) {
   }
 }
 
+function emulatePlatform(t, platform) {
+  const descriptor = Object.getOwnPropertyDescriptor(process, 'platform');
+  Object.defineProperty(process, 'platform', { ...descriptor, value: platform });
+  t.after(() => Object.defineProperty(process, 'platform', descriptor));
+}
+
 test('profession backfill only appends profession IDs and preserves categories and editorial data', () => {
   const before = instruction();
   const snapshot = structuredClone(before);
@@ -183,13 +189,17 @@ test('apply stores every original byte, preserves access and manual choices and 
   for (const [file, bytes] of f.originals) {
     const originalPath = path.join(f.backup, 'originals', file);
     assert.deepEqual(fs.readFileSync(originalPath), bytes);
-    assert.equal(fs.statSync(originalPath).mode & 0o777, 0o600);
+    if (process.platform !== 'win32') {
+      assert.equal(fs.statSync(originalPath).mode & 0o777, 0o600);
+    }
   }
   const after = fs.statSync(path.join(f.directory, '00.json'));
   assert.equal(after.mode & 0o7777, before.mode & 0o7777);
   assert.equal(after.uid, before.uid);
   assert.equal(after.gid, before.gid);
-  assert.equal(fs.statSync(f.backup).mode & 0o777, 0o700);
+  if (process.platform !== 'win32') {
+    assert.equal(fs.statSync(f.backup).mode & 0o777, 0o700);
+  }
   const manifest = JSON.parse(fs.readFileSync(path.join(f.backup, 'manifest.json'), 'utf8'));
   assert.equal(manifest.records.length, 3);
   assert.equal(manifest.records[0].originalSha256.length, 64);
@@ -275,22 +285,13 @@ test('a failure after rename still restores the row whose replacement did not re
   const f = fixture(t);
   const plan = createProfessionTagBackfillPlan(f.directory);
   const originalRename = fs.renameSync;
-  const originalSync = fs.fsyncSync;
-  let failNextSync = false;
   let renamed = false;
   t.mock.method(fs, 'renameSync', (source, destination) => {
     originalRename(source, destination);
     if (!renamed) {
       renamed = true;
-      failNextSync = true;
+      throw new Error('Simulated failure after a completed rename');
     }
-  });
-  t.mock.method(fs, 'fsyncSync', fd => {
-    if (failNextSync) {
-      failNextSync = false;
-      throw new Error('Simulated directory fsync failure');
-    }
-    return originalSync(fd);
   });
   assert.throws(() => applyProfessionTagBackfill(plan, f.backup), /Rollback: restored/u);
   assertOriginals(f);
@@ -350,4 +351,122 @@ test('rollback refuses to overwrite a newer edit and keeps original and candidat
   );
   const failure = JSON.parse(fs.readFileSync(path.join(f.backup, 'failed.json'), 'utf8'));
   assert.equal(failure.rollbackStatus, 'blocked');
+});
+
+test('emulated Windows skips directory handles while retaining regular-file fsync', t => {
+  const f = fixture(t);
+  const plan = createProfessionTagBackfillPlan(f.directory);
+  const originalOpen = fs.openSync;
+  const originalSync = fs.fsyncSync;
+  let directoryOpens = 0;
+  let fileSyncs = 0;
+  emulatePlatform(t, 'win32');
+  t.mock.method(fs, 'openSync', (file, ...args) => {
+    if (fs.statSync(file, { throwIfNoEntry: false })?.isDirectory()) {
+      directoryOpens++;
+      throw Object.assign(new Error('Windows directory handles cannot be synced'), {
+        code: 'EPERM',
+      });
+    }
+    return originalOpen(file, ...args);
+  });
+  t.mock.method(fs, 'fsyncSync', fd => {
+    assert.equal(fs.fstatSync(fd).isFile(), true);
+    fileSyncs++;
+    return originalSync(fd);
+  });
+
+  assert.deepEqual(applyProfessionTagBackfill(plan, f.backup), {
+    applied: 1,
+    backupDirectory: f.backup,
+  });
+  assert.equal(directoryOpens, 0);
+  assert.ok(fileSyncs >= 7);
+  assert.deepEqual(readInstruction(f.directory).tagIds, [workIds[0], 'slesar', 'elektrik']);
+  assert.deepEqual(
+    fs.readFileSync(path.join(f.backup, 'originals', '00.json')),
+    f.originals.get('00.json'),
+  );
+});
+
+test('emulated Windows propagates regular-file EPERM during backup before applying changes', t => {
+  const f = fixture(t);
+  const plan = createProfessionTagBackfillPlan(f.directory);
+  const originalOpen = fs.openSync;
+  const originalSync = fs.fsyncSync;
+  let backupFd;
+  let injected = false;
+  emulatePlatform(t, 'win32');
+  t.mock.method(fs, 'openSync', (file, ...args) => {
+    const fd = originalOpen(file, ...args);
+    if (file === path.join(f.backup, 'originals', '00.json')) backupFd = fd;
+    return fd;
+  });
+  t.mock.method(fs, 'fsyncSync', fd => {
+    if (fd === backupFd && !injected) {
+      injected = true;
+      assert.equal(fs.fstatSync(fd).isFile(), true);
+      throw Object.assign(new Error('Simulated regular-file fsync EPERM'), { code: 'EPERM' });
+    }
+    return originalSync(fd);
+  });
+
+  assert.throws(
+    () => applyProfessionTagBackfill(plan, f.backup),
+    error => {
+      assert.equal(error.cause.code, 'EPERM');
+      assert.match(error.message, /regular-file fsync EPERM.*Rollback: not-needed/u);
+      return true;
+    },
+  );
+  assert.equal(injected, true);
+  assertOriginals(f);
+  assert.equal(fs.existsSync(path.join(f.backup, 'completed.json')), false);
+  assert.equal(fs.existsSync(path.join(f.directory, '.profession-tags-backfill.lock')), false);
+});
+
+test('emulated POSIX propagates directory fsync errors before applying changes', t => {
+  const f = fixture(t);
+  const plan = createProfessionTagBackfillPlan(f.directory);
+  const proxy = path.join(f.root, 'directory-handle-proxy');
+  fs.writeFileSync(proxy, 'Directory handle test proxy');
+  const originalOpen = fs.openSync;
+  const originalSync = fs.fsyncSync;
+  const originalClose = fs.closeSync;
+  const directoryFds = new Set();
+  let injected = false;
+  emulatePlatform(t, 'linux');
+  t.mock.method(fs, 'openSync', (file, ...args) => {
+    if (fs.statSync(file, { throwIfNoEntry: false })?.isDirectory()) {
+      const fd = originalOpen(proxy, 'r+');
+      directoryFds.add(fd);
+      return fd;
+    }
+    return originalOpen(file, ...args);
+  });
+  t.mock.method(fs, 'closeSync', fd => {
+    directoryFds.delete(fd);
+    return originalClose(fd);
+  });
+  t.mock.method(fs, 'fsyncSync', fd => {
+    if (directoryFds.has(fd) && !injected) {
+      injected = true;
+      throw Object.assign(new Error('Simulated directory fsync EIO'), { code: 'EIO' });
+    }
+    return originalSync(fd);
+  });
+
+  assert.throws(
+    () => applyProfessionTagBackfill(plan, f.backup),
+    error => {
+      assert.equal(error.cause.code, 'EIO');
+      assert.match(error.message, /directory fsync EIO.*Rollback: not-needed/u);
+      return true;
+    },
+  );
+  assert.equal(injected, true);
+  assert.equal(directoryFds.size, 0);
+  assertOriginals(f);
+  assert.equal(fs.existsSync(path.join(f.backup, 'completed.json')), false);
+  assert.equal(fs.existsSync(path.join(f.directory, '.profession-tags-backfill.lock')), false);
 });

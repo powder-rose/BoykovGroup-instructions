@@ -52,10 +52,18 @@ node server/scripts/backfillInstructionProfessionTags.js \
   --backup /absolute/path/to/backup-parent/profession-tags-NEW-RUN
 ```
 
-The CLI creates a private backup containing every original file's exact bytes,
+The CLI creates a backup containing every original file's exact bytes,
 changed candidates, and a manifest with hashes and file metadata before the first
-replacement. It rechecks the snapshot and uses atomic replacements preserving
-file mode, owner and group.
+replacement. It rechecks the snapshot and uses atomic replacements. On POSIX,
+backup permissions are restricted and replacements preserve file mode, owner and
+group. Windows does not implement those POSIX access distinctions; backup access
+depends on the destination's Windows permissions, which this CLI does not manage.
+
+Regular-file contents are flushed before replacements on every platform. POSIX
+directory entries are also flushed. Windows skips only directory-handle flushing,
+which is unsupported there; errors flushing regular files still abort the run and
+trigger guarded rollback after a replacement. Windows therefore does not provide
+the same directory-entry crash-durability guarantee as POSIX in this CLI.
 
 Only missing profession IDs are appended. Existing tags retain their order, and
 categories, document content, URLs, SEO and other instruction fields retain their
