@@ -43,6 +43,8 @@ function readRegularFile(file) {
 }
 
 function syncDirectory(directory) {
+  // Windows cannot flush directory handles; regular-file flushes remain mandatory.
+  if (process.platform === 'win32') return;
   const fd = fs.openSync(directory, 'r');
   try {
     fs.fsyncSync(fd);
