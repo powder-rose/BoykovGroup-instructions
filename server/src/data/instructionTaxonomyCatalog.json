@@ -4953,5 +4953,3816 @@
       },
       "indexPolicy": "noindex"
     }
-  ]
+  ],
+  "registrySeed": {
+    "schemaVersion": 1,
+    "revision": 0,
+    "root": {
+      "code": "ROOT",
+      "kind": "root",
+      "name": "Инструкции по охране труда",
+      "slug": "instrukcii-po-ohrane-truda",
+      "parentCode": null,
+      "h1": "Инструкции по охране труда",
+      "seoTitle": "",
+      "seoDescription": "",
+      "introContent": {
+        "type": "doc",
+        "content": []
+      },
+      "seoContent": {
+        "type": "doc",
+        "content": []
+      },
+      "canonicalUrl": "",
+      "status": "draft",
+      "indexingEnabled": false,
+      "sortOrder": 0
+    },
+    "catalogs": [
+      {
+        "code": "H01",
+        "kind": "catalog",
+        "name": "По профессиям и должностям",
+        "slug": "po-professiyam-i-dolzhnostyam",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда по профессиям",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 0,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 9,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/"
+        },
+        "routeApproved": false
+      },
+      {
+        "code": "H02",
+        "kind": "catalog",
+        "name": "По видам работ",
+        "slug": "po-vidam-rabot",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда по видам работ",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 1,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 10,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/"
+        },
+        "routeApproved": true
+      }
+    ],
+    "sections": [
+      {
+        "code": "P01",
+        "kind": "section",
+        "name": "Руководители и управленческий персонал",
+        "slug": "rukovoditeli",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для руководителей",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 0,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 11,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/rukovoditeli/"
+        }
+      },
+      {
+        "code": "P02",
+        "kind": "section",
+        "name": "Бухгалтерия и финансы",
+        "slug": "buhgalteriya-i-finansy",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для бухгалтеров и финансовых работников",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 1,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 12,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/buhgalteriya-i-finansy/"
+        }
+      },
+      {
+        "code": "P03",
+        "kind": "section",
+        "name": "Кадры и делопроизводство",
+        "slug": "kadry-i-deloproizvodstvo",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для кадровых работников и делопроизводителей",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 2,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 13,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/kadry-i-deloproizvodstvo/"
+        }
+      },
+      {
+        "code": "P04",
+        "kind": "section",
+        "name": "Офисные и административные работники",
+        "slug": "ofisnye-rabotniki",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для офисных и административных работников",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 3,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 14,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/ofisnye-rabotniki/"
+        }
+      },
+      {
+        "code": "P05",
+        "kind": "section",
+        "name": "Информационные технологии",
+        "slug": "it-spetsialisty",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для IT-специалистов",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 4,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 15,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/it-spetsialisty/"
+        }
+      },
+      {
+        "code": "P06",
+        "kind": "section",
+        "name": "Инженеры и технические специалисты",
+        "slug": "inzhenernye-professii",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для инженеров и технических специалистов",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 5,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 16,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/inzhenernye-professii/"
+        }
+      },
+      {
+        "code": "P07",
+        "kind": "section",
+        "name": "Промышленность и производство",
+        "slug": "promyshlennost-i-proizvodstvo",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников производства",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 6,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 17,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/promyshlennost-i-proizvodstvo/"
+        }
+      },
+      {
+        "code": "P08",
+        "kind": "section",
+        "name": "Металлообработка и станочные профессии",
+        "slug": "metalloobrabotka",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников металлообработки и станочных профессий",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 7,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 18,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/metalloobrabotka/"
+        }
+      },
+      {
+        "code": "P09",
+        "kind": "section",
+        "name": "Строительство и монтаж",
+        "slug": "stroitelstvo-i-montazh",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников строительства и монтажа",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 8,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 19,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/stroitelstvo-i-montazh/"
+        }
+      },
+      {
+        "code": "P10",
+        "kind": "section",
+        "name": "Электроэнергетика и электротехнический персонал",
+        "slug": "elektrotehnicheskiy-personal",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для электротехнического персонала",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 9,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 20,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/elektrotehnicheskiy-personal/"
+        }
+      },
+      {
+        "code": "P11",
+        "kind": "section",
+        "name": "Автотранспорт и спецтехника",
+        "slug": "avtotransport",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для водителей и работников автотранспорта",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 10,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 21,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/avtotransport/"
+        }
+      },
+      {
+        "code": "P12",
+        "kind": "section",
+        "name": "Авиационный, железнодорожный и водный транспорт",
+        "slug": "transport-drugie-vidy",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников авиационного, железнодорожного и водного транспорта",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 11,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 22,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/transport-drugie-vidy/"
+        }
+      },
+      {
+        "code": "P13",
+        "kind": "section",
+        "name": "Склады и логистика",
+        "slug": "sklady-i-logistika",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников склада и логистики",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 12,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 23,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/sklady-i-logistika/"
+        }
+      },
+      {
+        "code": "P14",
+        "kind": "section",
+        "name": "Торговля и продажи",
+        "slug": "torgovlya",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников торговли",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 13,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 24,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/torgovlya/"
+        }
+      },
+      {
+        "code": "P15",
+        "kind": "section",
+        "name": "Общественное питание и пищевое производство",
+        "slug": "obshchestvennoe-pitanie",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников общественного питания",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 14,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 25,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/obshchestvennoe-pitanie/"
+        }
+      },
+      {
+        "code": "P16",
+        "kind": "section",
+        "name": "Медицинские работники",
+        "slug": "meditsinskie-rabotniki",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для медицинских работников",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 15,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 26,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/meditsinskie-rabotniki/"
+        }
+      },
+      {
+        "code": "P17",
+        "kind": "section",
+        "name": "Образование и воспитание",
+        "slug": "obrazovanie",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников образования",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 16,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 27,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/obrazovanie/"
+        }
+      },
+      {
+        "code": "P18",
+        "kind": "section",
+        "name": "Сельское хозяйство и ветеринария",
+        "slug": "selskoe-hozyaystvo",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников сельского хозяйства и ветеринарии",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 17,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 28,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/selskoe-hozyaystvo/"
+        }
+      },
+      {
+        "code": "P19",
+        "kind": "section",
+        "name": "ЖКХ, эксплуатация зданий и уборка",
+        "slug": "zhkh-i-obsluzhivanie-zdaniy",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников ЖКХ и обслуживающего персонала",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 18,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 29,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/zhkh-i-obsluzhivanie-zdaniy/"
+        }
+      },
+      {
+        "code": "P20",
+        "kind": "section",
+        "name": "Бытовые услуги, гостиницы и красота",
+        "slug": "uslugi-i-gostinitsy",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников сферы услуг и гостиниц",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 19,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 30,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/uslugi-i-gostinitsy/"
+        }
+      },
+      {
+        "code": "P21",
+        "kind": "section",
+        "name": "Культура, спорт, дизайн и медиа",
+        "slug": "kultura-sport-media",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников культуры, спорта и медиа",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 20,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 31,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/kultura-sport-media/"
+        }
+      },
+      {
+        "code": "P22",
+        "kind": "section",
+        "name": "Охрана и безопасность",
+        "slug": "ohrana-i-bezopasnost",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников охраны и служб безопасности",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 21,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 32,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/ohrana-i-bezopasnost/"
+        }
+      },
+      {
+        "code": "P23",
+        "kind": "section",
+        "name": "Лаборатории и научные работники",
+        "slug": "laboratorii-i-nauka",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников лабораторий",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 22,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 33,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/laboratorii-i-nauka/"
+        }
+      },
+      {
+        "code": "P24",
+        "kind": "section",
+        "name": "Горнодобывающая и нефтегазовая отрасль",
+        "slug": "gornaya-i-neftegazovaya-otrasl",
+        "parentCode": "H01",
+        "h1": "Инструкции по охране труда для работников горнодобывающей и нефтегазовой отрасли",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 23,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 34,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/gornaya-i-neftegazovaya-otrasl/"
+        }
+      },
+      {
+        "code": "W01",
+        "kind": "section",
+        "name": "Работы на высоте",
+        "slug": "raboty-na-vysote",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при работе на высоте",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 0,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 35,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/raboty-na-vysote/"
+        }
+      },
+      {
+        "code": "W02",
+        "kind": "section",
+        "name": "Электромонтажные и электротехнические работы",
+        "slug": "elektromontazhnye-raboty",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при электромонтажных и электротехнических работах",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 1,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 36,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/elektromontazhnye-raboty/"
+        }
+      },
+      {
+        "code": "W03",
+        "kind": "section",
+        "name": "Сварочные и огневые работы",
+        "slug": "svarochnye-i-ognevye-raboty",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при сварочных и огневых работах",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 2,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 37,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/svarochnye-i-ognevye-raboty/"
+        }
+      },
+      {
+        "code": "W04",
+        "kind": "section",
+        "name": "Строительные и монтажные работы",
+        "slug": "stroitelno-montazhnye-raboty",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при строительных и монтажных работах",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 3,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 38,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/stroitelno-montazhnye-raboty/"
+        }
+      },
+      {
+        "code": "W05",
+        "kind": "section",
+        "name": "Погрузочно-разгрузочные и складские работы",
+        "slug": "pogruzochno-razgruzochnye-raboty",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при погрузочно-разгрузочных работах",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 4,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 39,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/pogruzochno-razgruzochnye-raboty/"
+        }
+      },
+      {
+        "code": "W06",
+        "kind": "section",
+        "name": "Станочные и металлообрабатывающие работы",
+        "slug": "rabota-na-stankah",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при работе на станках",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 5,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 40,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/rabota-na-stankah/"
+        }
+      },
+      {
+        "code": "W07",
+        "kind": "section",
+        "name": "Ремонт и техническое обслуживание",
+        "slug": "remont-i-to",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при ремонте и техническом обслуживании оборудования",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 6,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 41,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/remont-i-to/"
+        }
+      },
+      {
+        "code": "W08",
+        "kind": "section",
+        "name": "Работа с ручным и электрическим инструментом",
+        "slug": "rabota-s-instrumentom",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при работе с инструментом",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 7,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 42,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/rabota-s-instrumentom/"
+        }
+      },
+      {
+        "code": "W09",
+        "kind": "section",
+        "name": "Химические и лабораторные работы",
+        "slug": "himicheskie-i-laboratornye-raboty",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при лабораторных работах и работе с химическими веществами",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 8,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 43,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/himicheskie-i-laboratornye-raboty/"
+        }
+      },
+      {
+        "code": "W10",
+        "kind": "section",
+        "name": "Уборка, дезинфекция и санитарная обработка",
+        "slug": "uborka-i-dezinfektsiya",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при уборке и дезинфекции",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 9,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 44,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/uborka-i-dezinfektsiya/"
+        }
+      },
+      {
+        "code": "W11",
+        "kind": "section",
+        "name": "Грузоподъёмные и стропальные работы",
+        "slug": "gruzopodemnye-raboty",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при работе с грузоподъёмными механизмами",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 10,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 45,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/gruzopodemnye-raboty/"
+        }
+      },
+      {
+        "code": "W12",
+        "kind": "section",
+        "name": "Эксплуатация автотранспорта и спецтехники",
+        "slug": "ekspluatatsiya-transporta",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при эксплуатации транспорта и спецтехники",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 11,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 46,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/ekspluatatsiya-transporta/"
+        }
+      },
+      {
+        "code": "W13",
+        "kind": "section",
+        "name": "Приготовление пищи и пищевое оборудование",
+        "slug": "prigotovlenie-pishchi",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при приготовлении пищи и работе с пищевым оборудованием",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 12,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 47,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/prigotovlenie-pishchi/"
+        }
+      },
+      {
+        "code": "W14",
+        "kind": "section",
+        "name": "Медицинские и ветеринарные процедуры",
+        "slug": "meditsinskie-protsedury",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при медицинских и ветеринарных процедурах",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 13,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 48,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/meditsinskie-protsedury/"
+        }
+      },
+      {
+        "code": "W15",
+        "kind": "section",
+        "name": "Работа на компьютере и с оргтехникой",
+        "slug": "kompyuter-i-orgtehnika",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при работе на компьютере и с оргтехникой",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 14,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 49,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/kompyuter-i-orgtehnika/"
+        }
+      },
+      {
+        "code": "W16",
+        "kind": "section",
+        "name": "Газоопасные работы и оборудование под давлением",
+        "slug": "gazoopasnye-raboty",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при газоопасных работах и работе с оборудованием под давлением",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 15,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 50,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/gazoopasnye-raboty/"
+        }
+      },
+      {
+        "code": "W17",
+        "kind": "section",
+        "name": "Пожароопасные, взрывоопасные и опасные работы",
+        "slug": "raboty-povyshennoy-opasnosti",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при выполнении работ повышенной опасности",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 16,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 51,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/raboty-povyshennoy-opasnosti/"
+        }
+      },
+      {
+        "code": "W18",
+        "kind": "section",
+        "name": "Земляные, подземные и горные работы",
+        "slug": "zemlyanye-i-gornye-raboty",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при земляных, подземных и горных работах",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 17,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 52,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/zemlyanye-i-gornye-raboty/"
+        }
+      },
+      {
+        "code": "W19",
+        "kind": "section",
+        "name": "Водолазные и работы на воде",
+        "slug": "vodolaznye-raboty",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при водолазных и работах на воде",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 18,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 53,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/vodolaznye-raboty/"
+        }
+      },
+      {
+        "code": "W20",
+        "kind": "section",
+        "name": "Работа с производственным оборудованием",
+        "slug": "promyshlennoe-oborudovanie",
+        "parentCode": "H02",
+        "h1": "Инструкции по охране труда при работе с производственным оборудованием",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 19,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 54,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/promyshlennoe-oborudovanie/"
+        }
+      },
+      {
+        "code": "W21",
+        "kind": "section",
+        "name": "Кассовые операции и работа с денежными средствами",
+        "slug": "kassovye-operatsii",
+        "parentCode": "H02",
+        "h1": "",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 20,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 2764,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/kassovye-operatsii/"
+        }
+      },
+      {
+        "code": "W22",
+        "kind": "section",
+        "name": "Парикмахерские, косметические и бытовые работы",
+        "slug": "kosmeticheskie-i-bytovye-raboty",
+        "parentCode": "H02",
+        "h1": "",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 21,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 2765,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/kosmeticheskie-i-bytovye-raboty/"
+        }
+      },
+      {
+        "code": "W23",
+        "kind": "section",
+        "name": "Торговые операции и обслуживание клиентов",
+        "slug": "torgovye-operatsii",
+        "parentCode": "H02",
+        "h1": "",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 22,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 2766,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/torgovye-operatsii/"
+        }
+      },
+      {
+        "code": "W24",
+        "kind": "section",
+        "name": "Административные, учётные и организационные работы",
+        "slug": "administrativnye-raboty",
+        "parentCode": "H02",
+        "h1": "",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 23,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 2767,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/administrativnye-raboty/"
+        }
+      },
+      {
+        "code": "W25",
+        "kind": "section",
+        "name": "Образовательные, культурные и массовые мероприятия",
+        "slug": "obrazovatelnye-i-massovye-meropriyatiya",
+        "parentCode": "H02",
+        "h1": "",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 24,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 2768,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/obrazovatelnye-i-massovye-meropriyatiya/"
+        }
+      },
+      {
+        "code": "W26",
+        "kind": "section",
+        "name": "Сельскохозяйственные работы и уход за животными",
+        "slug": "selskohozyajstvennye-raboty",
+        "parentCode": "H02",
+        "h1": "",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 25,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 2769,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/selskohozyajstvennye-raboty/"
+        }
+      },
+      {
+        "code": "W27",
+        "kind": "section",
+        "name": "Охранные работы и обеспечение безопасности",
+        "slug": "ohrannye-raboty",
+        "parentCode": "H02",
+        "h1": "",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 26,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 2770,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/ohrannye-raboty/"
+        }
+      },
+      {
+        "code": "W28",
+        "kind": "section",
+        "name": "Оказание первой помощи и действия в аварийных ситуациях",
+        "slug": "pervaya-pomoshch-i-avariynye-situatsii",
+        "parentCode": "H02",
+        "h1": "",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 27,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 2771,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/po-vidam-rabot/pervaya-pomoshch-i-avariynye-situatsii/"
+        }
+      }
+    ],
+    "tags": [
+      {
+        "code": "T01",
+        "kind": "tag",
+        "name": "Аппаратчики",
+        "slug": "apparatchiki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: аппаратчики",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 0,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 55,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/apparatchiki/"
+        }
+      },
+      {
+        "code": "T02",
+        "kind": "tag",
+        "name": "Бухгалтеры",
+        "slug": "buhgaltery",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: бухгалтеры",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 1,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 56,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/buhgaltery/"
+        }
+      },
+      {
+        "code": "T03",
+        "kind": "tag",
+        "name": "Водители",
+        "slug": "voditeli",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: водители",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 2,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 57,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/voditeli/"
+        }
+      },
+      {
+        "code": "T04",
+        "kind": "tag",
+        "name": "Врачи",
+        "slug": "vrachi",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: врачи",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 3,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 58,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/vrachi/"
+        }
+      },
+      {
+        "code": "T05",
+        "kind": "tag",
+        "name": "Медицинские сёстры",
+        "slug": "meditsinskie-sestry",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: медицинские сёстры",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 4,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 59,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/meditsinskie-sestry/"
+        }
+      },
+      {
+        "code": "T06",
+        "kind": "tag",
+        "name": "Инженеры",
+        "slug": "inzhenery",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: инженеры",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 5,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 60,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/inzhenery/"
+        }
+      },
+      {
+        "code": "T07",
+        "kind": "tag",
+        "name": "Электромонтёры",
+        "slug": "elektromontery",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: электромонтёры",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 6,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 61,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/elektromontery/"
+        }
+      },
+      {
+        "code": "T08",
+        "kind": "tag",
+        "name": "Слесари",
+        "slug": "slesari",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: слесари",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 7,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 62,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/slesari/"
+        }
+      },
+      {
+        "code": "T09",
+        "kind": "tag",
+        "name": "Операторы",
+        "slug": "operatory",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: операторы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 8,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 63,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/operatory/"
+        }
+      },
+      {
+        "code": "T10",
+        "kind": "tag",
+        "name": "Машинисты",
+        "slug": "mashinisty",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: машинисты",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 9,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 64,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/mashinisty/"
+        }
+      },
+      {
+        "code": "T11",
+        "kind": "tag",
+        "name": "Сварщики",
+        "slug": "svarshchiki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: сварщики",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 10,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 65,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/svarshchiki/"
+        }
+      },
+      {
+        "code": "T12",
+        "kind": "tag",
+        "name": "Монтажники",
+        "slug": "montazhniki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: монтажники",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 11,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 66,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/montazhniki/"
+        }
+      },
+      {
+        "code": "T13",
+        "kind": "tag",
+        "name": "Кладовщики",
+        "slug": "kladovshchiki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: кладовщики",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 12,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 67,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/kladovshchiki/"
+        }
+      },
+      {
+        "code": "T14",
+        "kind": "tag",
+        "name": "Грузчики",
+        "slug": "gruzchiki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: грузчики",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 13,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 68,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/gruzchiki/"
+        }
+      },
+      {
+        "code": "T15",
+        "kind": "tag",
+        "name": "Продавцы",
+        "slug": "prodavtsy",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: продавцы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 14,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 69,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/prodavtsy/"
+        }
+      },
+      {
+        "code": "T16",
+        "kind": "tag",
+        "name": "Кассиры",
+        "slug": "kassiry",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: кассиры",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 15,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 70,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/kassiry/"
+        }
+      },
+      {
+        "code": "T17",
+        "kind": "tag",
+        "name": "Повара",
+        "slug": "povara",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: повара",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 16,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 71,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/povara/"
+        }
+      },
+      {
+        "code": "T18",
+        "kind": "tag",
+        "name": "Кондитеры и пекари",
+        "slug": "konditery-i-pekari",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: кондитеры и пекари",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 17,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 72,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/konditery-i-pekari/"
+        }
+      },
+      {
+        "code": "T19",
+        "kind": "tag",
+        "name": "Учителя",
+        "slug": "uchitelya",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: учителя",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 18,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 73,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/uchitelya/"
+        }
+      },
+      {
+        "code": "T20",
+        "kind": "tag",
+        "name": "Воспитатели",
+        "slug": "vospitateli",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: воспитатели",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 19,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 74,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/vospitateli/"
+        }
+      },
+      {
+        "code": "T21",
+        "kind": "tag",
+        "name": "Руководители",
+        "slug": "rukovoditeli",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: руководители",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 20,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 75,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/rukovoditeli/"
+        }
+      },
+      {
+        "code": "T22",
+        "kind": "tag",
+        "name": "Начальники подразделений",
+        "slug": "nachalniki-podrazdeleniy",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: начальники подразделений",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 21,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 76,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/nachalniki-podrazdeleniy/"
+        }
+      },
+      {
+        "code": "T23",
+        "kind": "tag",
+        "name": "Менеджеры",
+        "slug": "menedzhery",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: менеджеры",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 22,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 77,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/menedzhery/"
+        }
+      },
+      {
+        "code": "T24",
+        "kind": "tag",
+        "name": "Специалисты по охране труда",
+        "slug": "spetsialisty-po-ohrane-truda",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: специалисты по охране труда",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 23,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 78,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/spetsialisty-po-ohrane-truda/"
+        }
+      },
+      {
+        "code": "T25",
+        "kind": "tag",
+        "name": "Администраторы",
+        "slug": "administratory",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: администраторы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 24,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 79,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/administratory/"
+        }
+      },
+      {
+        "code": "T26",
+        "kind": "tag",
+        "name": "Программисты",
+        "slug": "programmisty",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: программисты",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 25,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 80,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/programmisty/"
+        }
+      },
+      {
+        "code": "T27",
+        "kind": "tag",
+        "name": "Техники",
+        "slug": "tehniki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: техники",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 26,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 81,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/tehniki/"
+        }
+      },
+      {
+        "code": "T28",
+        "kind": "tag",
+        "name": "Токари",
+        "slug": "tokari",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: токари",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 27,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 82,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/tokari/"
+        }
+      },
+      {
+        "code": "T29",
+        "kind": "tag",
+        "name": "Наладчики",
+        "slug": "naladchiki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: наладчики",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 28,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 83,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/naladchiki/"
+        }
+      },
+      {
+        "code": "T30",
+        "kind": "tag",
+        "name": "Лаборанты",
+        "slug": "laboranty",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: лаборанты",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 29,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 84,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/laboranty/"
+        }
+      },
+      {
+        "code": "T31",
+        "kind": "tag",
+        "name": "Охранники",
+        "slug": "ohranniki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: охранники",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 30,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 85,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/ohranniki/"
+        }
+      },
+      {
+        "code": "T32",
+        "kind": "tag",
+        "name": "Ветеринарные работники",
+        "slug": "veterinarnye-rabotniki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: ветеринарные работники",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 31,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 86,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/veterinarnye-rabotniki/"
+        }
+      },
+      {
+        "code": "T33",
+        "kind": "tag",
+        "name": "Уборщики",
+        "slug": "uborshchiki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: уборщики",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 32,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 87,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/uborshchiki/"
+        }
+      },
+      {
+        "code": "T34",
+        "kind": "tag",
+        "name": "Мастера",
+        "slug": "mastera",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: мастера",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 33,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 88,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/mastera/"
+        }
+      },
+      {
+        "code": "T35",
+        "kind": "tag",
+        "name": "Электрики",
+        "slug": "elektriki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: электрики",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 34,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 89,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/elektriki/"
+        }
+      },
+      {
+        "code": "T36",
+        "kind": "tag",
+        "name": "Механики",
+        "slug": "mehaniki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: механики",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 35,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 90,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/mehaniki/"
+        }
+      },
+      {
+        "code": "T37",
+        "kind": "tag",
+        "name": "Стропальщики",
+        "slug": "stropalshchiki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: стропальщики",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 36,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 91,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/stropalshchiki/"
+        }
+      },
+      {
+        "code": "T38",
+        "kind": "tag",
+        "name": "Водители погрузчиков",
+        "slug": "voditeli-pogruzchikov",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: водители погрузчиков",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 37,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 92,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/voditeli-pogruzchikov/"
+        }
+      },
+      {
+        "code": "T39",
+        "kind": "tag",
+        "name": "Системные администраторы",
+        "slug": "sistemnye-administratory",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: системные администраторы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 38,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 93,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/sistemnye-administratory/"
+        }
+      },
+      {
+        "code": "T40",
+        "kind": "tag",
+        "name": "Электроинструмент",
+        "slug": "elektroinstrument",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: электроинструмент",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 39,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 94,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/elektroinstrument/"
+        }
+      },
+      {
+        "code": "T41",
+        "kind": "tag",
+        "name": "Ручной инструмент",
+        "slug": "ruchnoy-instrument",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: ручной инструмент",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 40,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 95,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/ruchnoy-instrument/"
+        }
+      },
+      {
+        "code": "T42",
+        "kind": "tag",
+        "name": "Станки",
+        "slug": "stanki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: станки",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 41,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 96,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/stanki/"
+        }
+      },
+      {
+        "code": "T43",
+        "kind": "tag",
+        "name": "Сварочное оборудование",
+        "slug": "svarochnoe-oborudovanie",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: сварочное оборудование",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 42,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 97,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/svarochnoe-oborudovanie/"
+        }
+      },
+      {
+        "code": "T44",
+        "kind": "tag",
+        "name": "Электрооборудование",
+        "slug": "elektrooborudovanie",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: электрооборудование",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 43,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 98,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/elektrooborudovanie/"
+        }
+      },
+      {
+        "code": "T45",
+        "kind": "tag",
+        "name": "Грузоподъёмные механизмы",
+        "slug": "gruzopodemnye-mehanizmy",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: грузоподъёмные механизмы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 44,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 99,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/gruzopodemnye-mehanizmy/"
+        }
+      },
+      {
+        "code": "T46",
+        "kind": "tag",
+        "name": "Погрузчики",
+        "slug": "pogruzchiki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: погрузчики",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 45,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 100,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/pogruzchiki/"
+        }
+      },
+      {
+        "code": "T47",
+        "kind": "tag",
+        "name": "Газовые баллоны",
+        "slug": "gazovye-ballony",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: газовые баллоны",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 46,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 101,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/gazovye-ballony/"
+        }
+      },
+      {
+        "code": "T48",
+        "kind": "tag",
+        "name": "Сосуды под давлением",
+        "slug": "sosudy-pod-davleniem",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: сосуды под давлением",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 47,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 102,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/sosudy-pod-davleniem/"
+        }
+      },
+      {
+        "code": "T49",
+        "kind": "tag",
+        "name": "Компьютеры и оргтехника",
+        "slug": "kompyutery-i-orgtehnika",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: компьютеры и оргтехника",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 48,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 103,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/kompyutery-i-orgtehnika/"
+        }
+      },
+      {
+        "code": "T50",
+        "kind": "tag",
+        "name": "Кассовое оборудование",
+        "slug": "kassovoe-oborudovanie",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: кассовое оборудование",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 49,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 104,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/kassovoe-oborudovanie/"
+        }
+      },
+      {
+        "code": "T51",
+        "kind": "tag",
+        "name": "Медицинское оборудование",
+        "slug": "meditsinskoe-oborudovanie",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: медицинское оборудование",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 50,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 105,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/meditsinskoe-oborudovanie/"
+        }
+      },
+      {
+        "code": "T52",
+        "kind": "tag",
+        "name": "Лабораторное оборудование",
+        "slug": "laboratornoe-oborudovanie",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: лабораторное оборудование",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 51,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 106,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/laboratornoe-oborudovanie/"
+        }
+      },
+      {
+        "code": "T53",
+        "kind": "tag",
+        "name": "Пищевое оборудование",
+        "slug": "pishchevoe-oborudovanie",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: пищевое оборудование",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 52,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 107,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/pishchevoe-oborudovanie/"
+        }
+      },
+      {
+        "code": "T54",
+        "kind": "tag",
+        "name": "Уборочное оборудование",
+        "slug": "uborochnoe-oborudovanie",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: уборочное оборудование",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 53,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 108,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/uborochnoe-oborudovanie/"
+        }
+      },
+      {
+        "code": "T55",
+        "kind": "tag",
+        "name": "Лестницы и стремянки",
+        "slug": "lestnitsy-i-stremyanki",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: лестницы и стремянки",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 54,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 109,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/lestnitsy-i-stremyanki/"
+        }
+      },
+      {
+        "code": "T56",
+        "kind": "tag",
+        "name": "Автомобильная спецтехника",
+        "slug": "avtomobilnaya-spetstehnika",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: автомобильная спецтехника",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 55,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 110,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/avtomobilnaya-spetstehnika/"
+        }
+      },
+      {
+        "code": "T57",
+        "kind": "tag",
+        "name": "Холодильное оборудование",
+        "slug": "holodilnoe-oborudovanie",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: холодильное оборудование",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 56,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 111,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/holodilnoe-oborudovanie/"
+        }
+      },
+      {
+        "code": "T58",
+        "kind": "tag",
+        "name": "Работы на высоте",
+        "slug": "raboty-na-vysote",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: работы на высоте",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 57,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 112,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/raboty-na-vysote/"
+        }
+      },
+      {
+        "code": "T59",
+        "kind": "tag",
+        "name": "Электромонтажные работы",
+        "slug": "elektromontazhnye-raboty",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: электромонтажные работы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 58,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 113,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/elektromontazhnye-raboty/"
+        }
+      },
+      {
+        "code": "T60",
+        "kind": "tag",
+        "name": "Сварочные работы",
+        "slug": "svarochnye-raboty",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: сварочные работы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 59,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 114,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/svarochnye-raboty/"
+        }
+      },
+      {
+        "code": "T61",
+        "kind": "tag",
+        "name": "Огневые работы",
+        "slug": "ognevye-raboty",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: огневые работы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 60,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 115,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/ognevye-raboty/"
+        }
+      },
+      {
+        "code": "T62",
+        "kind": "tag",
+        "name": "Погрузочно-разгрузочные работы",
+        "slug": "pogruzochno-razgruzochnye-raboty",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: погрузочно-разгрузочные работы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 61,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 116,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/pogruzochno-razgruzochnye-raboty/"
+        }
+      },
+      {
+        "code": "T63",
+        "kind": "tag",
+        "name": "Ремонт оборудования",
+        "slug": "remont-oborudovaniya",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: ремонт оборудования",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 62,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 117,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/remont-oborudovaniya/"
+        }
+      },
+      {
+        "code": "T64",
+        "kind": "tag",
+        "name": "Техническое обслуживание",
+        "slug": "tehnicheskoe-obsluzhivanie",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: техническое обслуживание",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 63,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 118,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/tehnicheskoe-obsluzhivanie/"
+        }
+      },
+      {
+        "code": "T65",
+        "kind": "tag",
+        "name": "Уборка помещений",
+        "slug": "uborka-pomeshcheniy",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: уборка помещений",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 64,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 119,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/uborka-pomeshcheniy/"
+        }
+      },
+      {
+        "code": "T66",
+        "kind": "tag",
+        "name": "Дезинфекция и стерилизация",
+        "slug": "dezinfektsiya-i-sterilizatsiya",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: дезинфекция и стерилизация",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 65,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 120,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/dezinfektsiya-i-sterilizatsiya/"
+        }
+      },
+      {
+        "code": "T67",
+        "kind": "tag",
+        "name": "Работа с химическими веществами",
+        "slug": "himicheskie-veshchestva",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: работа с химическими веществами",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 66,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 121,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/himicheskie-veshchestva/"
+        }
+      },
+      {
+        "code": "T68",
+        "kind": "tag",
+        "name": "Газоопасные работы",
+        "slug": "gazoopasnye-raboty",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: газоопасные работы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 67,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 122,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/gazoopasnye-raboty/"
+        }
+      },
+      {
+        "code": "T69",
+        "kind": "tag",
+        "name": "Работы в электроустановках",
+        "slug": "raboty-v-elektroustanovkah",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: работы в электроустановках",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 68,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 123,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/raboty-v-elektroustanovkah/"
+        }
+      },
+      {
+        "code": "T70",
+        "kind": "tag",
+        "name": "Земляные работы",
+        "slug": "zemlyanye-raboty",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: земляные работы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 69,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 124,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/zemlyanye-raboty/"
+        }
+      },
+      {
+        "code": "T71",
+        "kind": "tag",
+        "name": "Стропальные работы",
+        "slug": "stropalnye-raboty",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: стропальные работы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 70,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 125,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/stropalnye-raboty/"
+        }
+      },
+      {
+        "code": "T72",
+        "kind": "tag",
+        "name": "Медицинские манипуляции",
+        "slug": "meditsinskie-manipulyatsii",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: медицинские манипуляции",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 71,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 126,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/meditsinskie-manipulyatsii/"
+        }
+      },
+      {
+        "code": "T73",
+        "kind": "tag",
+        "name": "Пищевое производство",
+        "slug": "pishchevoe-proizvodstvo",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: пищевое производство",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 72,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 127,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/pishchevoe-proizvodstvo/"
+        }
+      },
+      {
+        "code": "T74",
+        "kind": "tag",
+        "name": "Складирование и хранение",
+        "slug": "skladirovanie-i-hranenie",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: складирование и хранение",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 73,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 128,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/skladirovanie-i-hranenie/"
+        }
+      },
+      {
+        "code": "T75",
+        "kind": "tag",
+        "name": "Работа в лаборатории",
+        "slug": "rabota-v-laboratorii",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: работа в лаборатории",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 74,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 129,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/rabota-v-laboratorii/"
+        }
+      },
+      {
+        "code": "T76",
+        "kind": "tag",
+        "name": "Водолазные работы",
+        "slug": "vodolaznye-raboty",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: водолазные работы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 75,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 130,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/vodolaznye-raboty/"
+        }
+      },
+      {
+        "code": "T77",
+        "kind": "tag",
+        "name": "Опасные работы",
+        "slug": "opasnye-raboty",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: опасные работы",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 76,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 131,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/opasnye-raboty/"
+        }
+      },
+      {
+        "code": "T78",
+        "kind": "tag",
+        "name": "Школа",
+        "slug": "shkola",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: школа",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 77,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 132,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/shkola/"
+        }
+      },
+      {
+        "code": "T79",
+        "kind": "tag",
+        "name": "Детский сад",
+        "slug": "detskiy-sad",
+        "parentCode": "ROOT",
+        "h1": "Инструкции по охране труда: детский сад",
+        "seoTitle": "",
+        "seoDescription": "",
+        "introContent": {
+          "type": "doc",
+          "content": []
+        },
+        "seoContent": {
+          "type": "doc",
+          "content": []
+        },
+        "canonicalUrl": "",
+        "status": "draft",
+        "indexingEnabled": false,
+        "sortOrder": 78,
+        "source": {
+          "file": "BOYKOVDOCS_PEREKLASSIFIKACIYA_2169.xlsx",
+          "sheet": "SEO-реестр",
+          "row": 133,
+          "originalUrl": "https://boykovdocs.ru/instrukcii-po-ohrane-truda/temy/detskiy-sad/"
+        }
+      }
+    ],
+    "redirects": [],
+    "sourceIssues": [
+      {
+        "code": "profession-catalog-url-conflict",
+        "description": "The technical specification proposes /instrukcii-po-ohrane-truda/po-professiyam/; the source workbook uses /instrukcii-po-ohrane-truda/po-professiyam-i-dolzhnostyam/. No runtime route is selected by this reference file.",
+        "source": "КАТАЛОГ РАЗДЕЛЫ ТЭГИ(1).docx §4.1, §9 and workbook SEO-реестр!D9, D11:D34",
+        "affectedCodes": [
+          "H01",
+          "P01",
+          "P02",
+          "P03",
+          "P04",
+          "P05",
+          "P06",
+          "P07",
+          "P08",
+          "P09",
+          "P10",
+          "P11",
+          "P12",
+          "P13",
+          "P14",
+          "P15",
+          "P16",
+          "P17",
+          "P18",
+          "P19",
+          "P20",
+          "P21",
+          "P22",
+          "P23",
+          "P24"
+        ]
+      },
+      {
+        "code": "missing-referenced-txt",
+        "description": "BOYKOVDOCS_SEO_SECTIONS_TAGS.txt is named in specification §23 but is absent from the supplied ZIP. The workbook includes dictionary rows for all 2 catalogs, 52 sections and 79 tags."
+      },
+      {
+        "code": "new-work-sections-missing-h1",
+        "description": "W21–W28 have no value in source column J (SEO H1 / целевой кластер). Empty values are retained.",
+        "affectedCodes": ["W21", "W22", "W23", "W24", "W25", "W26", "W27", "W28"]
+      },
+      {
+        "code": "new-work-sections-indexing-source",
+        "description": "W21–W28 have blank source column N; initial noindex is explicitly required by the technical specification §5.2 and BOYKOVDOCS_RECLASSIFICATION_RULES.txt.",
+        "affectedCodes": ["W21", "W22", "W23", "W24", "W25", "W26", "W27", "W28"]
+      },
+      {
+        "code": "workbook-summary-review-label",
+        "description": "Workbook cell P5 says Без назначенного раздела, with S5=63. All 2169 CSV rows have a section. Exactly 63 rows require manual review; these counts must not be interpreted as missing section IDs."
+      }
+    ]
+  }
 }

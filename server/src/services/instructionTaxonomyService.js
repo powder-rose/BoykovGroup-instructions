@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import { getLegacyInstructionTaxonomyCatalog } from './instructionTaxonomySource.js';
 
 const MAX_AUTO_TAGS = 5;
 const WORD_BOUNDARY =
@@ -7,9 +7,7 @@ const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 const TAG_TYPES = new Set(['profession', 'work', 'equipment']);
 const PROFESSION_SCOPES = new Set(['core', 'phrase']);
 
-const catalog = JSON.parse(
-  fs.readFileSync(new URL('../data/instructionTaxonomyCatalog.json', import.meta.url), 'utf8'),
-);
+const catalog = getLegacyInstructionTaxonomyCatalog();
 
 function normalizeText(value) {
   return String(value ?? '')
