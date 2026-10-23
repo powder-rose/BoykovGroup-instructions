@@ -55,6 +55,17 @@ test('backup archive can be restored with production data intact', async () => {
       { mode: 0o600 },
     );
 
+    const uploadDirectory = path.join(sourceRoot, 'server/uploads');
+    const pendingDirectory = path.join(uploadDirectory, 'import-batches/pending');
+    fs.mkdirSync(pendingDirectory, { recursive: true });
+    const originalUpload = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x00, 0xff, 0x80, 0x0a]);
+    const queueRecord = { id: 'batch-fixture', sourcePath: 'original.docx', state: 'pending' };
+    fs.writeFileSync(path.join(uploadDirectory, 'original.docx'), originalUpload);
+    fs.writeFileSync(
+      path.join(pendingDirectory, 'batch-fixture.json'),
+      JSON.stringify(queueRecord),
+    );
+
     const result = await createBackup({
       sourceRoot,
 
@@ -83,6 +94,24 @@ test('backup archive can be restored with production data intact', async () => {
       ),
       companyProfiles,
     );
+    assert.deepEqual(
+      fs.readFileSync(path.join(restoreRoot, 'server/uploads/original.docx')),
+      originalUpload,
+    );
+    assert.deepEqual(
+      JSON.parse(
+        fs.readFileSync(
+          path.join(restoreRoot, 'server/uploads/import-batches/pending/batch-fixture.json'),
+          'utf8',
+        ),
+      ),
+      queueRecord,
+    );
+    assert.deepEqual(result.sourceInventory.includedPaths, [
+      'server/src/data',
+      'server/data',
+      'server/uploads',
+    ]);
     if (process.platform !== 'win32') {
       assert.equal(fs.statSync(result.archivePath).mode & 0o777, 0o600);
     }
@@ -95,7 +124,7 @@ test('backup archive can be restored with production data intact', async () => {
   }
 });
 
-test('backup allows a fresh installation without account storage but requires instruction data', async () => {
+test('backup allows absent account and import storage but still requires instruction data', async () => {
   const { createBackup } = await import('../src/backup/backupService.js');
   const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'boykovdocs-backup-fresh-'));
   const sourceRoot = path.join(sandbox, 'app');
@@ -106,6 +135,10 @@ test('backup allows a fresh installation without account storage but requires in
     fs.writeFileSync(path.join(dataDir, 'critical.json'), '{}');
     const result = await createBackup({ sourceRoot, outputDir });
     assert.ok(fs.existsSync(result.archivePath));
+    assert.deepEqual(result.sourceInventory.missingOptionalPaths, [
+      'server/data',
+      'server/uploads',
+    ]);
     fs.rmSync(dataDir, { recursive: true });
     await assert.rejects(createBackup({ sourceRoot, outputDir }), { code: 'ENOENT' });
   } finally {

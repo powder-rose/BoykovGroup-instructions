@@ -1,14 +1,14 @@
-﻿export const backupManifest = {
-  version: '1.1',
+export const backupManifest = {
+  version: '1.2',
 
   /*
    * Production business data required
    * for application recovery.
    */
-  includedPaths: ['server/src/data', 'server/data'],
+  includedPaths: ['server/src/data', 'server/data', 'server/uploads'],
 
-  // Account storage is created on the first registration/save.
-  optionalPaths: ['server/data'],
+  // Account and import storage are created on first use.
+  optionalPaths: ['server/data', 'server/uploads'],
 
   /*
    * Runtime/build artifacts are recreated
