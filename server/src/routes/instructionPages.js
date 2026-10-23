@@ -33,7 +33,7 @@ export function createInstructionPagesRouter({
       relatedInstructions: getRelatedInstructions(instruction, {
         repository,
         catalog: snapshot.assignmentCatalog,
-        records: repository.getAll(),
+        records: snapshot.references(),
       }),
     });
   });
@@ -51,7 +51,7 @@ export function createInstructionPagesRouter({
       items: getRelatedInstructions(instruction, {
         repository,
         catalog: snapshot.assignmentCatalog,
-        records: repository.getAll(),
+        records: snapshot.references(),
       }),
     });
   });

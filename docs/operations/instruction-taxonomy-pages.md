@@ -42,8 +42,12 @@ Out-of-range pages return 404. Existing tag-label projection remains unchanged.
 
 Public DTOs contain entity content, navigation and minimal card fields. They exclude provenance,
 redirect history, document bodies, drafts and editorial metadata. Each request reads the registry and
-published records once. Existing bulk-operation limits on observing cross-process multi-file writes
-remain; a public snapshot is not a database transaction.
+refreshes the repository's public references. The first indexed refresh reads the instruction JSON;
+warm refreshes scan file names and signatures and reuse unchanged references instead of parsing every
+document body again. The existing full-record cache and strong writer/backup readers remain. See
+[Public taxonomy read performance](./instruction-taxonomy-performance.md) for cold/warm behavior and
+filesystem limits. Existing bulk-operation limits on observing cross-process multi-file writes remain;
+a public snapshot is not a database transaction.
 
 ## URL, indexing and sitemap policy
 

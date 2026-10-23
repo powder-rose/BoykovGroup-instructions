@@ -1235,7 +1235,7 @@ export function createSeoRouter({
             },
             indexPath,
             relatedInstructions,
-            { catalog: snapshot.assignmentCatalog, records: repository.getAll() },
+            { catalog: snapshot.assignmentCatalog, records: snapshot.references() },
           ),
         );
     } catch (error) {

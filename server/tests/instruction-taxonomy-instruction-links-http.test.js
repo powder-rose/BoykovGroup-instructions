@@ -273,10 +273,12 @@ test('first instruction response observes offline file changes and unpublication
   const { api, html, base, repository, writeRecord } = await fixture(t, [current], {
     fileBacked: true,
   });
-  const readFresh = t.mock.method(repository, 'getAllFresh');
+  const readFresh = t.mock.method(repository, 'getPublicReferencesFresh');
+  const readAll = t.mock.method(repository, 'getAllFresh');
   const first = await api(current);
   assert.equal(first.response.status, 200);
   assert.equal(readFresh.mock.callCount(), 1);
+  assert.equal(readAll.mock.callCount(), 0);
   assert.equal(repository.getById(current.id).primaryCategoryId, 'W01');
   writeRecord({ ...current, primaryCategoryId: 'W02', tagIds: ['T02'] });
   let readsBefore = readFresh.mock.callCount();
@@ -315,4 +317,5 @@ test('first instruction response observes offline file changes and unpublication
     assert.equal((await request()).status, 404);
     assert.equal(readFresh.mock.callCount() - readsBefore, 1);
   }
+  assert.equal(readAll.mock.callCount(), 3);
 });
