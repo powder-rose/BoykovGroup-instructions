@@ -17,7 +17,8 @@ test('backup manifest defines production data protection contract', async () => 
 
   assert.ok(module.backupManifest, 'backupManifest export missing');
 
-  const { version, includedPaths, excludedPaths, retentionDays } = module.backupManifest;
+  const { version, includedPaths, optionalPaths, excludedPaths, retentionDays } =
+    module.backupManifest;
 
   assert.equal(typeof version, 'string');
 
@@ -26,6 +27,10 @@ test('backup manifest defines production data protection contract', async () => 
   assert.ok(includedPaths.includes('server/src/data'));
 
   assert.ok(includedPaths.includes('server/data'));
+
+  assert.ok(includedPaths.includes('server/uploads'));
+  assert.ok(optionalPaths.includes('server/uploads'));
+  assert.ok(!optionalPaths.includes('server/src/data'));
 
   assert.ok(Array.isArray(excludedPaths));
 
