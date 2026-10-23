@@ -5,6 +5,10 @@ import { fileURLToPath } from 'node:url';
 import { TextDecoder } from 'node:util';
 
 import { InstructionEditorError } from './instructionEditorError.js';
+import {
+  createInstructionPublicIndex,
+  instructionFileSignature,
+} from './instructionPublicIndex.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -74,13 +78,34 @@ export function assertInstructionVersionRecord(record, version) {
   }
 }
 
-export function readInstructionVersionFile(file, version, { allowMissing = false } = {}) {
+export function readInstructionVersionFile(
+  file,
+  version,
+  { allowMissing = false, verifyUnchanged = false } = {},
+) {
   let descriptor;
   try {
-    if (!fs.lstatSync(file).isFile()) throw new Error('Non-regular instruction file');
+    const pathStat = fs.lstatSync(file, { bigint: true });
+    if (!pathStat.isFile()) throw new Error('Non-regular instruction file');
     descriptor = fs.openSync(file, fs.constants.O_RDONLY | (fs.constants.O_NOFOLLOW || 0));
-    if (!fs.fstatSync(descriptor).isFile()) throw new Error('Non-regular instruction file');
+    const descriptorStat = fs.fstatSync(descriptor, { bigint: true });
+    if (!descriptorStat.isFile()) throw new Error('Non-regular instruction file');
+    if (
+      verifyUnchanged &&
+      instructionFileSignature(pathStat) !== instructionFileSignature(descriptorStat)
+    ) {
+      throw new Error('Instruction changed before reading');
+    }
     const bytes = fs.readFileSync(descriptor);
+    if (
+      verifyUnchanged &&
+      (instructionFileSignature(fs.fstatSync(descriptor, { bigint: true })) !==
+        instructionFileSignature(descriptorStat) ||
+        instructionFileSignature(fs.lstatSync(file, { bigint: true })) !==
+          instructionFileSignature(descriptorStat))
+    ) {
+      throw new Error('Instruction changed while reading');
+    }
     const record = JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
     assertInstructionVersionRecord(record, version);
     if (path.basename(file) !== instructionVersionFilename(record.id, version)) {
@@ -122,11 +147,16 @@ export class InstructionsRepository {
     this.dir = dir;
 
     this.cache = new Map();
+    this.publicIndex = createInstructionPublicIndex({
+      directory: this.dir,
+      readInstruction: (file, options) => readInstructionVersionFile(file, 'published', options),
+    });
 
     this._load();
   }
 
   _load() {
+    this.publicIndex.reset();
     if (!fs.existsSync(this.dir)) {
       fs.mkdirSync(this.dir, {
         recursive: true,
@@ -159,7 +189,19 @@ export class InstructionsRepository {
   getAllFreshSnapshots() {
     const snapshots = readInstructionVersionDirectory(this.dir, 'published');
     this.cache = new Map(snapshots.map(snapshot => [snapshot.id, snapshot.record]));
+    this.publicIndex.reset();
     return snapshots;
+  }
+
+  getPublicReferencesFresh() {
+    try {
+      const result = this.publicIndex.refresh(this.cache);
+      this.cache = result.cache;
+      return result.references;
+    } catch (cause) {
+      if (cause instanceof InstructionEditorError) throw cause;
+      throw versionStorageError('published', cause);
+    }
   }
 
   getAllFresh() {
@@ -289,6 +331,7 @@ export class InstructionsRepository {
      * atomic commit файла на диск.
      */
     this.cache.set(instruction.id, instruction);
+    this.publicIndex.invalidate(`${instruction.id}.json`);
 
     return instruction;
   }
@@ -302,6 +345,7 @@ export class InstructionsRepository {
     }
 
     this.cache.delete(id);
+    this.publicIndex.invalidate(`${id}.json`);
   }
 
   reload() {

@@ -103,7 +103,11 @@ export function getRelatedInstructions(
 ) {
   const published =
     records ??
-    (typeof repository.getAllFresh === 'function' ? repository.getAllFresh() : repository.getAll());
+    (typeof repository.getPublicReferencesFresh === 'function'
+      ? repository.getPublicReferencesFresh()
+      : typeof repository.getAllFresh === 'function'
+        ? repository.getAllFresh()
+        : repository.getAll());
 
   return rankRelatedInstructions(instruction, published, { limit, catalog }).map(
     instructionSummary,

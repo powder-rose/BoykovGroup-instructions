@@ -127,7 +127,11 @@ export function createInstructionTaxonomyPublicService({
       const registry = structuredClone(taxonomyRepository.read());
       validateInstructionTaxonomyRegistry(registry);
       const read =
-        typeof repository.getAllFresh === 'function' ? repository.getAllFresh : repository.getAll;
+        typeof repository.getPublicReferencesFresh === 'function'
+          ? repository.getPublicReferencesFresh
+          : typeof repository.getAllFresh === 'function'
+            ? repository.getAllFresh
+            : repository.getAll;
       if (typeof read !== 'function')
         throw new TypeError('A complete published instruction provider is required');
       const raw = read.call(repository);
@@ -149,15 +153,26 @@ export function createInstructionTaxonomyPublicService({
             id: record.id,
             title: record.title,
             slug: record.slug,
+            profession: typeof record.profession === 'string' ? record.profession : undefined,
+            revision: record.revision,
             source: typeof record.source === 'string' ? record.source : undefined,
             status: typeof record.status === 'string' ? record.status : '',
             seoStatus: typeof record.seoStatus === 'string' ? record.seoStatus : '',
             primaryCategoryId: record.primaryCategoryId,
             tagIds: [...(record.tagIds ?? [])],
             ...Object.fromEntries(
-              ['publishedAt', 'createdAt', 'generatedAt', 'uploadedAt'].map(field => [
+              [
+                'publishedAt',
+                'createdAt',
+                'generatedAt',
+                'uploadedAt',
+                'updatedAt',
+                'modifiedAt',
+              ].map(field => [
                 field,
-                ['string', 'number'].includes(typeof record[field]) ? record[field] : null,
+                record[field] === null || ['string', 'number'].includes(typeof record[field])
+                  ? record[field]
+                  : undefined,
               ]),
             ),
           };
@@ -471,6 +486,7 @@ export function createInstructionTaxonomyPublicService({
 
       return {
         assignmentCatalog: structuredClone(assignmentCatalog),
+        references: () => structuredClone(records),
         navigation,
         instructionNavigation,
         preview,
