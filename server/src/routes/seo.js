@@ -14,6 +14,10 @@ import {
 } from '../services/instructionTaxonomyPublicService.js';
 import { createInstructionTaxonomySeoSchema } from '../shared/instructionTaxonomySeo.js';
 import {
+  getInstructionBreadcrumbs,
+  getInstructionBreadcrumbSchema,
+} from '../shared/instructionBreadcrumbs.js';
+import {
   escapeSeoHtml as escapeHtml,
   jsonForSeoHtml as jsonForHtml,
   renderInstructionTaxonomyNavigation,
@@ -526,7 +530,7 @@ function renderTaxonomyTags(tags) {
   return tags
     .map(
       tag =>
-        `<a class="InstructionTaxonomy_tag" href="/instrukcii-po-ohrane-truda?tag=${escapeHtml(encodeURIComponent(tag.id))}">${escapeHtml(tag.label)}</a>`,
+        `<a class="InstructionTaxonomy_tag" href="${escapeHtml(tag.path || `/instrukcii-po-ohrane-truda?tag=${encodeURIComponent(tag.id)}`)}">${escapeHtml(tag.label)}</a>`,
     )
     .join('');
 }
@@ -572,14 +576,16 @@ function renderInstructionSeoBody(instruction, relatedInstructions, options) {
   const webIntro = String(instruction.webIntro || '').trim();
   const document = getInstructionDocument(instruction);
   const outline = getInstructionOutline(document);
-  const related = relatedInstructions(instruction);
-  const taxonomy = getInstructionTaxonomyDisplay(instruction, options);
-  const taxonomyHtml = taxonomy
-    ? `<div class="InstructionTaxonomy_root" aria-label="Раздел и теги инструкции">
-        ${taxonomy.category ? `<a class="InstructionTaxonomy_category" href="/instrukcii-po-ohrane-truda?category=${escapeHtml(encodeURIComponent(taxonomy.category.id))}">Раздел: ${escapeHtml(taxonomy.category.label)}</a>` : ''}
-        ${renderTaxonomyTags(taxonomy.tags)}
+  const related = relatedInstructions(instruction, options);
+  const taxonomy =
+    instruction.taxonomyNavigation || getInstructionTaxonomyDisplay(instruction, options);
+  const taxonomyHtml =
+    taxonomy && (taxonomy.category || taxonomy.tags.length)
+      ? `<div class="InstructionTaxonomy_root" aria-label="Раздел и теги инструкции">
+        ${taxonomy.category ? `<a class="InstructionTaxonomy_category" href="${escapeHtml(taxonomy.category.path || `/instrukcii-po-ohrane-truda?category=${encodeURIComponent(taxonomy.category.id)}`)}">Раздел: ${escapeHtml(taxonomy.category.label)}</a>` : ''}
+        ${taxonomy.tags.length ? `<div class="InstructionTaxonomy_tags" aria-label="Теги инструкции">${renderTaxonomyTags(taxonomy.tags)}</div>` : ''}
       </div>`
-    : '';
+      : '';
 
   const contents = outline.length
     ? `<nav class="instruction-outline" aria-label="Содержание инструкции">
@@ -612,11 +618,12 @@ function renderInstructionSeoBody(instruction, relatedInstructions, options) {
   return `
     <main class="SeoPrerender_instruction">
       <nav aria-label="Хлебные крошки">
-        <a href="/">Главная</a>
-        <span aria-hidden="true"> → </span>
-        <a href="/instrukcii-po-ohrane-truda">
-          Инструкции по охране труда
-        </a>
+        ${getInstructionBreadcrumbs(instruction)
+          .map(
+            (item, index) =>
+              `${index ? '<span aria-hidden="true"> → </span>' : ''}${item.path ? `<a href="${escapeHtml(item.path)}">${escapeHtml(item.name)}</a>` : `<span aria-current="page">${escapeHtml(item.name)}</span>`}`,
+          )
+          .join('')}
       </nav>
 
       <article>
@@ -827,7 +834,7 @@ function renderInstructionPage(
   instruction,
   indexPath,
   relatedInstructions,
-  { catalog = getInstructionTaxonomyAssignmentCatalog() } = {},
+  { catalog = getInstructionTaxonomyAssignmentCatalog(), records } = {},
 ) {
   const siteUrl = getSiteUrl(req);
   const canonical = getInstructionUrl(req, instruction);
@@ -887,29 +894,7 @@ function renderInstructionPage(
         },
       },
       articleSchema,
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Главная',
-            item: `${siteUrl}/`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: 'Инструкции по охране труда',
-            item: `${siteUrl}/instrukcii-po-ohrane-truda`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 3,
-            name: title,
-            item: canonical,
-          },
-        ],
-      },
+      getInstructionBreadcrumbSchema(instruction, { siteUrl, canonical }),
     ],
   };
 
@@ -1020,7 +1005,7 @@ function renderInstructionPage(
 
   productionHtml = injectProductionRoot(
     productionHtml,
-    renderInstructionSeoBody(instruction, relatedInstructions, { catalog }),
+    renderInstructionSeoBody(instruction, relatedInstructions, { catalog, records }),
   );
 
   return productionHtml;
@@ -1082,7 +1067,8 @@ const PUBLIC_ASSETS = new Map([
 export function createSeoRouter({
   repository = instructionsRepository,
   indexPath = new URL('../../../public_html/index.html', import.meta.url),
-  relatedInstructions = getRelatedInstructions,
+  relatedInstructions = (instruction, options) =>
+    getRelatedInstructions(instruction, { repository, ...options }),
   taxonomyService = createInstructionTaxonomyPublicService({ repository }),
   taxonomyOrigin,
 } = {}) {
@@ -1205,6 +1191,7 @@ export function createSeoRouter({
 
   router.get('/instrukciya-po-ohrane-truda/:id', (req, res, next) => {
     try {
+      const snapshot = taxonomyService.snapshot();
       const redirectId = INSTRUCTION_REDIRECTS.get(req.params.id);
       const instruction = repository.getBySlug(redirectId || req.params.id);
       const queryIndex = req.originalUrl.indexOf('?');
@@ -1239,7 +1226,18 @@ export function createSeoRouter({
         .status(200)
         .set('Cache-Control', 'no-store')
         .type('html')
-        .send(renderInstructionPage(req, instruction, indexPath, relatedInstructions));
+        .send(
+          renderInstructionPage(
+            req,
+            {
+              ...instruction,
+              taxonomyNavigation: snapshot.instructionNavigation(instruction),
+            },
+            indexPath,
+            relatedInstructions,
+            { catalog: snapshot.assignmentCatalog, records: repository.getAll() },
+          ),
+        );
     } catch (error) {
       next(error);
     }

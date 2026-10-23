@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 
 import { getInstructionPath } from '../../lib/instructionLinks.js';
 import { getInstructionSeo } from '../../../../server/src/shared/instructionDocument.js';
+import { getInstructionBreadcrumbSchema } from '../../../../server/src/shared/instructionBreadcrumbs.js';
 
 import { serializeJsonLd } from '../../lib/jsonLd.js';
 
@@ -101,24 +102,10 @@ export default function InstructionSeo({ instruction, noindex = false }) {
                   url: window.location.origin,
                 },
               },
-              {
-                '@type': 'BreadcrumbList',
-                itemListElement: [
-                  {
-                    '@type': 'ListItem',
-                    position: 1,
-                    name: 'Главная',
-                    item: window.location.origin + '/',
-                  },
-                  {
-                    '@type': 'ListItem',
-                    position: 2,
-                    name: 'Инструкции по охране труда',
-                    item: window.location.origin + '/instrukcii-po-ohrane-truda',
-                  },
-                  { '@type': 'ListItem', position: 3, name: instruction.title, item: canonical },
-                ],
-              },
+              getInstructionBreadcrumbSchema(instruction, {
+                siteUrl: window.location.origin,
+                canonical,
+              }),
             ],
           }
         : null;

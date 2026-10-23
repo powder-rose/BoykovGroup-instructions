@@ -1,6 +1,8 @@
 .breadcrumbs {
   display: flex;
 
+  flex-wrap: wrap;
+
   align-items: center;
 
   gap: 10px;
@@ -8,6 +10,10 @@
   margin-bottom: 30px;
 
   font-size: 14px;
+
+  line-height: 1.6;
+
+  overflow-wrap: anywhere;
 }
 
 .breadcrumbs a {
@@ -16,6 +22,6 @@
   text-decoration: none;
 }
 
-.breadcrumbs span:last-child {
+.breadcrumbs [aria-current='page'] {
   color: var(--color-text-muted);
 }

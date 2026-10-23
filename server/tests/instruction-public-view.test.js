@@ -113,6 +113,7 @@ test('public ID, page, search and related APIs never expose editorial metadata f
     [first.id, first],
     [related.id, related],
   ]);
+  t.mock.method(instructionsRepository, 'getAllFresh', () => instructionsRepository.getAll());
   const app = express();
   app.use((req, _res, next) => {
     const role = req.get('x-test-role');

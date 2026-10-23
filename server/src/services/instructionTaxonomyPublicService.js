@@ -180,6 +180,13 @@ export function createInstructionTaxonomyPublicService({
       );
       const tags = ordered(registry.tags.filter(entity => entity.status === 'published'));
       const publicEntities = [...catalogs, ...sections, ...tags];
+      const allEntities = [
+        registry.root,
+        ...registry.catalogs,
+        ...registry.sections,
+        ...registry.tags,
+      ];
+      const publicKeys = new Set(publicEntities.map(entity => `${entity.kind}:${entity.code}`));
       const entityPaths = new Map(
         publicEntities.map(entity => [
           getInstructionTaxonomyEntityPath(registry, entity.kind, entity.code),
@@ -189,39 +196,101 @@ export function createInstructionTaxonomyPublicService({
       const sectionCatalog = new Map(
         registry.sections.map(entity => [entity.code, entity.parentCode]),
       );
-      const membership = new Map(
-        publicEntities.map(entity => [
-          entity.code,
-          records.filter(record => {
-            if (entity.kind === 'catalog')
-              return sectionCatalog.get(record.primaryCategoryId) === entity.code;
-            if (entity.kind === 'section') return record.primaryCategoryId === entity.code;
-            return record.tagIds?.includes(entity.code);
-          }),
-        ]),
-      );
+      const membership = new Map();
+
+      function members(entity) {
+        if (!membership.has(entity.code))
+          membership.set(
+            entity.code,
+            records.filter(record => {
+              if (entity.kind === 'root') return true;
+              if (entity.kind === 'catalog')
+                return sectionCatalog.get(record.primaryCategoryId) === entity.code;
+              if (entity.kind === 'section') return record.primaryCategoryId === entity.code;
+              return record.tagIds?.includes(entity.code);
+            }),
+          );
+        return membership.get(entity.code);
+      }
       const assignmentCatalog = getInstructionTaxonomyAssignmentCatalog(registry);
+
+      function publicPath(entity) {
+        if (entity.kind === 'root') return ROOT_PATH;
+        return publicKeys.has(`${entity.kind}:${entity.code}`)
+          ? getInstructionTaxonomyEntityPath(registry, entity.kind, entity.code)
+          : null;
+      }
+
+      function approvedPath(entity) {
+        const parent =
+          entity.kind === 'section'
+            ? registry.catalogs.find(item => item.code === entity.parentCode)
+            : entity.kind === 'catalog'
+              ? entity
+              : null;
+        return parent?.routeApproved === false
+          ? null
+          : getInstructionTaxonomyEntityPath(registry, entity.kind, entity.code);
+      }
+
+      function rootBreadcrumbs() {
+        return [
+          { name: 'Главная', path: '/' },
+          {
+            name: registry.root.status === 'published' ? registry.root.name : ROOT_NAME,
+            path: ROOT_PATH,
+          },
+        ];
+      }
+
+      function instructionNavigation(instruction) {
+        const display = getInstructionTaxonomyDisplay(instruction, { catalog: assignmentCatalog });
+        const section = registry.sections.find(item => item.code === display?.category?.id);
+        const parent = registry.catalogs.find(item => item.code === section?.parentCode);
+        const breadcrumbs = rootBreadcrumbs();
+        for (const entity of [parent, section]) {
+          if (entity && publicPath(entity))
+            breadcrumbs.push({ name: entity.name, path: publicPath(entity) });
+        }
+        breadcrumbs.push({ name: instruction?.title || instruction?.profession || '', path: null });
+        return {
+          breadcrumbs,
+          category: display?.category
+            ? { ...display.category, path: section ? publicPath(section) : null }
+            : null,
+          tags: (display?.tags || []).map(tag => {
+            const entity = registry.tags.find(item => item.code === tag.id);
+            return { ...tag, path: entity ? publicPath(entity) : null };
+          }),
+        };
+      }
 
       function minimal(entity) {
         return {
           code: entity.code,
           name: entity.name,
           path: getInstructionTaxonomyEntityPath(registry, entity.kind, entity.code),
-          count: membership.get(entity.code)?.length ?? 0,
+          count: members(entity).length,
         };
       }
 
-      function seo(entity, origin, count, technical = false) {
-        const path = getInstructionTaxonomyEntityPath(registry, entity.kind, entity.code);
-        const own = `${origin}${path}`;
+      function seo(entity, origin, count, technical = false, isPreview = false) {
+        const path = isPreview
+          ? approvedPath(entity)
+          : getInstructionTaxonomyEntityPath(registry, entity.kind, entity.code);
+        const own = path ? `${origin}${path}` : null;
         const canonicalUrl = entity.canonicalUrl || own;
         const indexable =
-          entity.indexingEnabled && count > 0 && new URL(canonicalUrl).href === own && !technical;
+          !isPreview &&
+          entity.indexingEnabled &&
+          count > 0 &&
+          new URL(canonicalUrl).href === own &&
+          !technical;
         return {
           title: entity.seoTitle || entity.h1 || entity.name,
           description: entity.seoDescription,
           canonicalUrl,
-          robots: indexable ? 'index, follow' : 'noindex, follow',
+          robots: isPreview ? 'noindex, nofollow' : indexable ? 'index, follow' : 'noindex, follow',
           indexable,
         };
       }
@@ -272,10 +341,24 @@ export function createInstructionTaxonomyPublicService({
         const canonicalPath = getInstructionTaxonomyEntityPath(registry, entity.kind, entity.code);
         if (historical || path !== canonicalPath || state.changed)
           return { status: 301, location: queryPath(canonicalPath, state) };
+        return pageForEntity(entity, state, base);
+      }
+
+      function preview(kind, code, query = {}, origin) {
+        const base = normalizeInstructionTaxonomyPublicOrigin(origin);
+        const entity = allEntities.find(item => item.kind === kind && item.code === code);
+        if (!entity) return { status: 404 };
+        return pageForEntity(entity, queryState(query), base, true);
+      }
+
+      function pageForEntity(entity, state, base, isPreview = false) {
+        const canonicalPath = isPreview
+          ? approvedPath(entity)
+          : getInstructionTaxonomyEntityPath(registry, entity.kind, entity.code);
         const needle = state.q.toLocaleLowerCase('ru-RU');
-        const matched = membership
-          .get(entity.code)
-          .filter(record => !needle || record.title.toLocaleLowerCase('ru-RU').includes(needle));
+        const matched = members(entity).filter(
+          record => !needle || record.title.toLocaleLowerCase('ru-RU').includes(needle),
+        );
         matched.sort(
           (a, b) =>
             (state.sort === 'newest'
@@ -285,16 +368,13 @@ export function createInstructionTaxonomyPublicService({
         );
         const totalPages = Math.max(1, Math.ceil(matched.length / PAGE_SIZE));
         if (state.page > totalPages) return { status: 404 };
-        const rootName = registry.root.status === 'published' ? registry.root.name : ROOT_NAME;
-        const breadcrumbs = [
-          { name: 'Главная', path: '/' },
-          { name: rootName, path: ROOT_PATH },
-        ];
+        const breadcrumbs =
+          entity.kind === 'root' ? [{ name: 'Главная', path: '/' }] : rootBreadcrumbs();
         if (entity.kind === 'section') {
-          const parent = catalogs.find(item => item.code === entity.parentCode);
+          const parent = registry.catalogs.find(item => item.code === entity.parentCode);
           breadcrumbs.push({
             name: parent.name,
-            path: getInstructionTaxonomyEntityPath(registry, parent.kind, parent.code),
+            path: publicPath(parent),
           });
         }
         breadcrumbs.push({ name: entity.name, path: null });
@@ -325,19 +405,33 @@ export function createInstructionTaxonomyPublicService({
             code: entity.code,
             name: entity.name,
             path: canonicalPath,
+            ...(isPreview
+              ? {
+                  preview: true,
+                  entityStatus: entity.status,
+                  routeApproved: canonicalPath !== null,
+                  publicPath: publicPath(entity),
+                }
+              : {}),
             h1: entity.h1 || entity.name,
             introContent: structuredClone(entity.introContent),
             seoContent: structuredClone(entity.seoContent),
             seo: seo(
               entity,
               base,
-              membership.get(entity.code).length,
+              members(entity).length,
               Object.keys(state.normalized).length > 0,
+              isPreview,
             ),
             breadcrumbs,
             sections:
               entity.kind === 'catalog'
-                ? sections.filter(section => section.parentCode === entity.code).map(minimal)
+                ? (isPreview ? ordered(registry.sections) : sections)
+                    .filter(section => section.parentCode === entity.code)
+                    .map(section => ({
+                      ...minimal(section),
+                      ...(isPreview ? { path: publicPath(section) } : {}),
+                    }))
                 : [],
             items,
             total: matched.length,
@@ -348,11 +442,14 @@ export function createInstructionTaxonomyPublicService({
             sort: state.sort,
             pagination: pages.map(page => ({
               page,
-              path: queryPath(canonicalPath, state, page),
+              path: isPreview ? null : queryPath(canonicalPath, state, page),
             })),
-            previousPath: state.page > 1 ? queryPath(canonicalPath, state, state.page - 1) : null,
+            previousPath:
+              !isPreview && state.page > 1 ? queryPath(canonicalPath, state, state.page - 1) : null,
             nextPath:
-              state.page < totalPages ? queryPath(canonicalPath, state, state.page + 1) : null,
+              !isPreview && state.page < totalPages
+                ? queryPath(canonicalPath, state, state.page + 1)
+                : null,
           },
         };
       }
@@ -363,7 +460,7 @@ export function createInstructionTaxonomyPublicService({
         const entries =
           !root || root.seo.indexable ? [{ path: ROOT_PATH, loc: `${base}${ROOT_PATH}` }] : [];
         for (const entity of publicEntities) {
-          const metadata = seo(entity, base, membership.get(entity.code).length);
+          const metadata = seo(entity, base, members(entity).length);
           if (metadata.indexable) {
             const path = getInstructionTaxonomyEntityPath(registry, entity.kind, entity.code);
             entries.push({ path, loc: `${base}${path}` });
@@ -375,6 +472,8 @@ export function createInstructionTaxonomyPublicService({
       return {
         assignmentCatalog: structuredClone(assignmentCatalog),
         navigation,
+        instructionNavigation,
+        preview,
         resolve,
         sitemap,
       };

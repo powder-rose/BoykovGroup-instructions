@@ -25,7 +25,7 @@ import { instructionTaxonomyRegistryRepository } from './instructionTaxonomyRegi
 import { saveInstructionSnapshot } from './instructionHistoryService.js';
 import { normalizeProfessionKey } from './professionNormalizer.js';
 import { createInstructionHash } from './instructionHashService.js';
-import { rankInstructionsByQuery } from './searchService.js';
+import { rankRelatedInstructions } from './instructionRelatedService.js';
 import { normalizeRichTextContent } from './richTextContent.js';
 import { InstructionEditorError } from './instructionEditorError.js';
 import {
@@ -94,16 +94,20 @@ export function instructionSummary(instruction) {
 
 export function getRelatedInstructions(
   instruction,
-  { limit = 4, repository = instructionsRepository } = {},
+  {
+    limit = 8,
+    repository = instructionsRepository,
+    catalog = getInstructionTaxonomyAssignmentCatalog(),
+    records,
+  } = {},
 ) {
-  const others = repository.getAll().filter(item => item.id !== instruction.id);
-  const query = instruction.profession || instruction.title;
+  const published =
+    records ??
+    (typeof repository.getAllFresh === 'function' ? repository.getAllFresh() : repository.getAll());
 
-  if (!String(query || '').trim()) return [];
-
-  return rankInstructionsByQuery(others, query, { sort: 'relevance', allowPartialMatch: true })
-    .slice(0, Math.max(0, Math.min(limit, 12)))
-    .map(instructionSummary);
+  return rankRelatedInstructions(instruction, published, { limit, catalog }).map(
+    instructionSummary,
+  );
 }
 
 export function createInstructionEditorService({

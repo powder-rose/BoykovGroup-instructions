@@ -82,7 +82,7 @@ async function fixture(t, instruction) {
   return `http://127.0.0.1:${server.address().port}`;
 }
 
-test('public API and SEO HTML show the same labels after H1; tags are not links', async t => {
+test('public API and SEO HTML show the same labels and legacy query links after H1', async t => {
   const instruction = sampleInstruction();
   const base = await fixture(t, instruction);
   const apiResponse = await fetch(`${base}/api/instructions/page/${instruction.slug}`);
@@ -147,7 +147,8 @@ test('React instruction page uses the same API taxonomy display projection', () 
     new URL('../../client/src/components/InstructionPage/InstructionTaxonomy.jsx', import.meta.url),
     'utf8',
   );
-  assert.match(component, /<InstructionTaxonomy taxonomy=\{instruction\.taxonomyDisplay\}/u);
+  assert.match(component, /taxonomy=\{instruction\.taxonomyDisplay\}/u);
+  assert.match(component, /navigation=\{instruction\.taxonomyNavigation\}/u);
   assert.match(view, /className=\{styles\.category\}/u);
   assert.match(view, /className=\{styles\.tag\}/u);
   assert.match(view, /<Link/u);

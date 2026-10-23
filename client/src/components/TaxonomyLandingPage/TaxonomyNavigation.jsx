@@ -5,6 +5,16 @@ function Count({ value }) {
   return <span className={styles.count}>{Number(value || 0).toLocaleString('ru-RU')}</span>;
 }
 
+function NavigationLink({ path, className, children }) {
+  return path ? (
+    <Link className={className} to={path}>
+      {children}
+    </Link>
+  ) : (
+    <span className={className}>{children}</span>
+  );
+}
+
 export default function TaxonomyNavigation({ catalogs = [], sections = [], tags = [] }) {
   if (!catalogs.length && !sections.length && !tags.length) return null;
 
@@ -15,19 +25,19 @@ export default function TaxonomyNavigation({ catalogs = [], sections = [], tags 
           {catalogs.map(catalog => (
             <section key={catalog.code} className={styles.catalog}>
               <h2>
-                <Link className={styles.catalogLink} to={catalog.path}>
+                <NavigationLink className={styles.catalogLink} path={catalog.path}>
                   {catalog.name}
                   <Count value={catalog.count} />
-                </Link>
+                </NavigationLink>
               </h2>
               {catalog.sections.length > 0 && (
                 <ul className={styles.sectionList}>
                   {catalog.sections.map(section => (
                     <li key={section.code}>
-                      <Link className={styles.sectionLink} to={section.path}>
+                      <NavigationLink className={styles.sectionLink} path={section.path}>
                         {section.name}
                         <Count value={section.count} />
-                      </Link>
+                      </NavigationLink>
                     </li>
                   ))}
                 </ul>
@@ -42,10 +52,10 @@ export default function TaxonomyNavigation({ catalogs = [], sections = [], tags 
           <ul className={styles.sectionList}>
             {sections.map(section => (
               <li key={section.code}>
-                <Link className={styles.sectionLink} to={section.path}>
+                <NavigationLink className={styles.sectionLink} path={section.path}>
                   {section.name}
                   <Count value={section.count} />
-                </Link>
+                </NavigationLink>
               </li>
             ))}
           </ul>
@@ -57,10 +67,10 @@ export default function TaxonomyNavigation({ catalogs = [], sections = [], tags 
           <ul className={styles.tags}>
             {tags.map(tag => (
               <li key={tag.code}>
-                <Link className={styles.tag} to={tag.path}>
+                <NavigationLink className={styles.tag} path={tag.path}>
                   {tag.name}
                   <Count value={tag.count} />
-                </Link>
+                </NavigationLink>
               </li>
             ))}
           </ul>

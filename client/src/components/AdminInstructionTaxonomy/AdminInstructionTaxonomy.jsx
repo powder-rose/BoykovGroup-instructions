@@ -426,6 +426,8 @@ export default function AdminInstructionTaxonomy({ token, hidden = false }) {
                 <TaxonomyEntityForm
                   key={`${editor.kind}/${editor.code || 'new'}/${editor.revision}`}
                   editor={editor}
+                  token={token}
+                  active={!hidden && workspaceMode === 'metadata'}
                   registry={registry}
                   busy={busy || loading}
                   dirty={dirty}
