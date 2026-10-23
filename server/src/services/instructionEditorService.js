@@ -350,6 +350,18 @@ export function createInstructionEditorService({
   }
 
   const service = {
+    getTaxonomyReferences() {
+      return [...repository.getAll(), ...allDrafts()].map(instruction =>
+        structuredClone({
+          id: instruction.id,
+          status: instruction.status,
+          seoStatus: instruction.seoStatus,
+          primaryCategoryId: instruction.primaryCategoryId,
+          tagIds: instruction.tagIds,
+        }),
+      );
+    },
+
     list() {
       const ids = new Set([...repository.getAll(), ...allDrafts()].map(item => item.id));
 

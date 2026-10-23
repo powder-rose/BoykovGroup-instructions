@@ -6,6 +6,7 @@ import morgan from 'morgan';
 
 import { attachUser } from './middleware/auth.js';
 import { adminInstructionsRouter } from './routes/adminInstructions.js';
+import { adminInstructionTaxonomyRouter } from './routes/adminInstructionTaxonomy.js';
 import { instructionPagesRouter } from './routes/instructionPages.js';
 
 import { createRateLimiters } from './middleware/rateLimits.js';
@@ -71,6 +72,7 @@ export function createApp({
   app.use('/api/public-generation/cloudpayments', walletWebhookRouter, cloudPaymentsWebhookRouter);
 
   app.use('/api/admin/instructions', express.json({ limit: '2mb' }));
+  app.use('/api/admin/instruction-taxonomy', express.json({ limit: '2mb' }));
   app.use(express.json());
 
   app.use(morgan('dev'));
@@ -124,6 +126,7 @@ export function createApp({
   app.use('/api/account/company-profile', companyProfileRouter);
   app.use('/api/account/wallet', walletRouter);
   app.use('/api/admin/instructions', adminInstructionsRouter);
+  app.use('/api/admin/instruction-taxonomy', adminInstructionTaxonomyRouter);
 
   app.use('/api/promo-codes', promoCodesRouter);
 

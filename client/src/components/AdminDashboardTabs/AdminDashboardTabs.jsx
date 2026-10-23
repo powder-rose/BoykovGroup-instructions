@@ -2,6 +2,7 @@ import './AdminDashboardTabs.css';
 
 const TABS = [
   { id: 'instructions', label: 'Инструкции' },
+  { id: 'taxonomy', label: 'Структура каталога' },
   {
     id: 'publications',
 

@@ -100,6 +100,48 @@ test('configured frontend origin is allowed by CORS', async () => {
   assert.equal(response.headers.get('access-control-allow-origin'), 'http://localhost:5173');
 });
 
+test('taxonomy administration is mounted with bearer auth and the rich-text JSON size limit', async () => {
+  const endpoint = `${baseUrl}/api/admin/instruction-taxonomy`;
+  const unauthorized = await fetch(endpoint);
+  assert.equal(unauthorized.status, 401);
+  await unauthorized.arrayBuffer();
+
+  const headers = {
+    Authorization: `Bearer ${issueAdminToken()}`,
+    'Content-Type': 'application/json',
+  };
+  const response = await fetch(endpoint, { headers });
+  assert.equal(response.status, 200);
+  const { registry } = await response.json();
+  assert.equal(Array.isArray(registry.sections), true);
+  assert.equal(Number.isSafeInteger(registry.revision), true);
+  assert.equal(Object.hasOwn(registry, 'legacyCatalog'), false);
+
+  const large = await fetch(`${endpoint}/root`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ expectedRevision: 0, entity: { name: 'x'.repeat(150_000) } }),
+  });
+  assert.equal(large.status, 400);
+  assert.equal((await large.json()).code, 'INVALID_INSTRUCTION_TAXONOMY_REGISTRY');
+
+  const malformed = await fetch(`${endpoint}/root`, {
+    method: 'POST',
+    headers,
+    body: '{',
+  });
+  assert.equal(malformed.status, 400);
+  assert.equal((await malformed.json()).error, 'Некорректный JSON в запросе');
+
+  const oversized = await fetch(`${endpoint}/root`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ expectedRevision: 0, entity: { name: 'x'.repeat(2_100_000) } }),
+  });
+  assert.equal(oversized.status, 413);
+  assert.equal((await oversized.json()).error, 'Текст превышает допустимый размер запроса');
+});
+
 test('POST /api/imports/:id/retry does not register duplicate retry routes', async () => {
   const importTask = createImport([
     {
