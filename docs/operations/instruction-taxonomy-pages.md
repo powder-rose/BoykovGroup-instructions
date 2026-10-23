@@ -98,6 +98,6 @@ config through the existing deployment process. No dependencies, environment var
 migrations are added. Review content, publication and indexing in a test environment before enabling
 pages. Runtime registry, assignments and source dictionaries are not replaced by this code.
 
-The next internal-linking stage covers instruction-level hierarchy breadcrumbs and landing links,
-taxonomy-aware related instructions and authorized draft-page preview. Existing instruction query
-links and recommendation behavior are retained in this stage.
+Instruction-level hierarchy links, taxonomy-aware related instructions and authorized saved-page
+preview are documented in [Instruction taxonomy links and authorized preview](./instruction-taxonomy-links.md).
+Legacy assignments and unavailable landing destinations retain their catalog-filter fallback.

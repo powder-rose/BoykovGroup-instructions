@@ -3,7 +3,14 @@ import styles from './RelatedInstructions.module.css';
 import { getInstructionPath } from '../../lib/instructionLinks.js';
 
 export default function RelatedInstructions({ currentId, instructions = [] }) {
-  const related = instructions.filter(item => item.id !== currentId).slice(0, 4);
+  const seen = new Set([currentId]);
+  const related = instructions
+    .filter(item => {
+      if (!item?.id || seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    })
+    .slice(0, 8);
 
   if (!related.length) {
     return null;

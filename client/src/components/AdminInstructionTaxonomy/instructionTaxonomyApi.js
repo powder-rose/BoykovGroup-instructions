@@ -36,6 +36,22 @@ export function fetchInstructionTaxonomyUsage(token, kind, code) {
   return request(token, `${entityPath(kind, code)}/usage`);
 }
 
+export function fetchInstructionTaxonomyPreview(
+  token,
+  kind,
+  code,
+  { q = '', sort = 'title', page = 1, signal } = {},
+) {
+  const params = new URLSearchParams();
+  if (q) params.set('q', q);
+  if (sort !== 'title') params.set('sort', sort);
+  if (page > 1) params.set('page', String(page));
+  const query = params.toString();
+  return request(token, `${entityPath(kind, code)}/preview${query ? `?${query}` : ''}`, {
+    signal,
+  });
+}
+
 export function createInstructionTaxonomyEntity(token, kind, entity, expectedRevision) {
   return request(token, `/${encodeURIComponent(kind)}`, {
     method: 'POST',

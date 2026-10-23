@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import RichTextEditor from '../RichTextEditor/RichTextEditor.jsx';
+import TaxonomyPagePreview from './TaxonomyPagePreview.jsx';
 import { entityPath } from './taxonomyForm.js';
 import styles from './AdminInstructionTaxonomy.module.css';
 
 export default function TaxonomyEntityForm({
   editor,
+  token,
+  active = true,
   registry,
   busy,
   dirty,
@@ -206,6 +209,14 @@ export default function TaxonomyEntityForm({
           </div>
         </details>
       </fieldset>
+      <TaxonomyPagePreview
+        token={token}
+        kind={kind}
+        code={code}
+        dirty={dirty}
+        busy={busy}
+        active={active}
+      />
       {source && (
         <details className={styles.details}>
           <summary>Источник справочника</summary>

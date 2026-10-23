@@ -37,6 +37,7 @@ export default function useInstructionPage() {
           `${API_BASE_URL}/api/instructions/page/${encodeURIComponent(id)}`,
           {
             signal: controller.signal,
+            cache: 'no-store',
           },
         );
 
@@ -141,14 +142,17 @@ export default function useInstructionPage() {
 
     if (!saved || saved.id !== instructionId) return;
 
-    setResult(current => ({
-      ...current,
-      instruction: {
-        ...saved,
-        relatedInstructions: current.instruction?.relatedInstructions || [],
-      },
-    }));
     setEditOpen(false);
+    setResult({ routeKey: id, instruction: null, status: 'loading' });
+    const canonicalPath = getInstructionPath(saved);
+    if (location.pathname !== canonicalPath) {
+      navigate(
+        { pathname: canonicalPath, search: location.search, hash: location.hash },
+        { replace: true },
+      );
+    } else {
+      setRetry(value => value + 1);
+    }
   }
 
   return {

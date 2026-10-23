@@ -80,7 +80,10 @@ export default function InstructionPage() {
             <Breadcrumbs instruction={instruction} />
             <InstructionCopyGuard allowCopy={isAdmin}>
               <h1 className={styles.title}>{instruction.title}</h1>
-              <InstructionTaxonomy taxonomy={instruction.taxonomyDisplay} />
+              <InstructionTaxonomy
+                taxonomy={instruction.taxonomyDisplay}
+                navigation={instruction.taxonomyNavigation}
+              />
               {instruction.webIntro && <p className={styles.intro}>{instruction.webIntro}</p>}
             </InstructionCopyGuard>
 
