@@ -13,6 +13,7 @@
 
 .boykovAdminDashboardTabs__inner {
   display: flex;
+  flex-wrap: wrap;
   align-items: stretch;
 
   min-height: 52px;
@@ -33,9 +34,11 @@
   align-items: center;
   justify-content: center;
 
-  min-width: 150px;
+  flex: 1 1 125px;
+  min-width: 125px;
+  min-height: 52px;
 
-  padding: 0 26px;
+  padding: 8px 14px;
 
   border: 0;
   border-right: 1px solid rgba(24, 36, 58, 0.09);
@@ -45,7 +48,7 @@
   font: inherit;
 
   font-size: 13px;
-  line-height: 1;
+  line-height: 1.35;
   font-weight: 500;
 
   color: #78859a;
@@ -111,11 +114,14 @@
   }
 
   .boykovAdminDashboardTabs__inner {
+    flex-wrap: nowrap;
     min-height: 48px;
   }
 
   .boykovAdminDashboardTabs__button {
+    flex: 0 0 auto;
     min-width: 125px;
+    min-height: 48px;
 
     padding: 0 18px;
 
