@@ -9,6 +9,19 @@ import { getRelatedInstructions } from '../services/instructionEditorService.js'
 import { getInstructionTaxonomyDisplay } from '../services/instructionTaxonomyDisplayService.js';
 import { getInstructionTaxonomyAssignmentCatalog } from '../services/instructionTaxonomyAssignmentCatalog.js';
 import {
+  createInstructionTaxonomyPublicService,
+  normalizeInstructionTaxonomyPublicOrigin,
+} from '../services/instructionTaxonomyPublicService.js';
+import { createInstructionTaxonomySeoSchema } from '../shared/instructionTaxonomySeo.js';
+import {
+  escapeSeoHtml as escapeHtml,
+  jsonForSeoHtml as jsonForHtml,
+  renderInstructionTaxonomyNavigation,
+  renderInstructionTaxonomyPageBody,
+  renderInstructionTaxonomyRichContent,
+  replaceTaxonomySeoHead,
+} from '../services/instructionTaxonomySeoRenderer.js';
+import {
   filterInstructionsByTaxonomy,
   validateInstructionTaxonomyFilters,
 } from '../services/instructionTaxonomyFilterService.js';
@@ -133,6 +146,36 @@ const CSS_MODULES = [
     'InstructionTaxonomy',
     path.join(CLIENT_SRC_DIR, 'components', 'InstructionPage', 'InstructionTaxonomy.module.css'),
   ],
+  [
+    'InstructionsCatalog',
+    path.join(CLIENT_SRC_DIR, 'components', 'InstructionCatalog', 'InstructionsCatalog.module.css'),
+  ],
+  [
+    'InstructionSort',
+    path.join(CLIENT_SRC_DIR, 'components', 'InstructionSort', 'InstructionSort.module.css'),
+  ],
+  [
+    'InstructionListPagination',
+    path.join(
+      CLIENT_SRC_DIR,
+      'components',
+      'InstructionList',
+      'InstructionListPagination.module.css',
+    ),
+  ],
+  [
+    'RichTextContent',
+    path.join(CLIENT_SRC_DIR, 'components', 'RichTextContent', 'RichTextContent.module.css'),
+  ],
+  [
+    'TaxonomyLandingPage',
+    path.join(
+      CLIENT_SRC_DIR,
+      'components',
+      'TaxonomyLandingPage',
+      'TaxonomyLandingPage.module.css',
+    ),
+  ],
 ];
 
 function loadClientModuleCss() {
@@ -243,24 +286,8 @@ const COPY_PROTECTION_CSS = `
   }
 `;
 
-function escapeHtml(value = '') {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
 function escapeXml(value = '') {
   return escapeHtml(value);
-}
-
-function jsonForHtml(value) {
-  return JSON.stringify(value)
-    .replaceAll('<', '\\u003c')
-    .replaceAll('>', '\\u003e')
-    .replaceAll('&', '\\u0026');
 }
 
 function getSiteUrl(req) {
@@ -350,11 +377,11 @@ function renderSiteLinkButton() {
     </a>`;
 }
 
-function renderSearchBar(query = '') {
+function renderSearchBar(query = '', { action = '/instrukcii-po-ohrane-truda', sort } = {}) {
   return `
     <form
       class="SearchBar_wrapper seo-search-form"
-      action="/instrukcii-po-ohrane-truda"
+      action="${escapeHtml(action)}"
       method="get"
       role="search"
     >
@@ -386,13 +413,14 @@ function renderSearchBar(query = '') {
         value="${escapeHtml(query)}"
         aria-label="Поиск инструкций по охране труда"
       />
+      ${sort === 'newest' ? '<input type="hidden" name="sort" value="newest">' : ''}
     </form>`;
 }
 
-function renderHeader(query = '') {
+function renderHeader(query = '', options) {
   return `
     <header class="Header_header">
-      ${renderSearchBar(query)}
+      ${renderSearchBar(query, options)}
 
       <div class="Header_actions">
         <a class="AuthControl_loginBtn seo-login-link" href="/">
@@ -460,7 +488,11 @@ function renderHeroPortrait() {
     </figure>`;
 }
 
-function renderMainHero({ headingTag = 'h1' } = {}) {
+function renderMainHero({
+  headingTag = 'h1',
+  heading = 'Инструкции по охране труда',
+  subtitle = 'Найдите готовую инструкцию для нужной профессии. База пополняется автоматически каждый день.',
+} = {}) {
   const openTag = headingTag === 'h1' ? '<h1' : '<div';
   const closeTag = headingTag === 'h1' ? '</h1>' : '</div>';
 
@@ -468,11 +500,9 @@ function renderMainHero({ headingTag = 'h1' } = {}) {
     <section class="App_hero">
  <div class="App_heroText">
        <a class="seo-title-link" href="/">
-  ${openTag} class="App_title">Инструкции по охране труда${closeTag}
+  ${openTag} class="App_title">${escapeHtml(heading)}${closeTag}
 </a>
-        <p class="App_subtitle">
-          Найдите готовую инструкцию для нужной профессии. База пополняется автоматически каждый день.
-        </p>
+        ${subtitle ? `<p class="App_subtitle">${escapeHtml(subtitle)}</p>` : ''}
       </div>
       ${renderHeroPortrait()}
     </section>`;
@@ -513,14 +543,16 @@ function renderCatalogInstruction(instruction, options) {
     </li>`;
 }
 
-function renderCatalogSeoBody(instructions, query = '', options) {
+function renderCatalogSeoBody(instructions, query = '', options = {}) {
   const hasQuery = Boolean(String(query || '').trim());
 
   const heading = hasQuery ? `Результаты поиска: ${query}` : 'Каталог инструкций по охране труда';
 
   return `
     <main class="SeoPrerender_catalog">
-      ${renderMainHero({ headingTag: 'h1' })}
+      ${renderMainHero(options.navigation?.root ? { heading: options.navigation.root.h1, subtitle: '' } : {})}
+      ${options.navigation?.root ? renderInstructionTaxonomyRichContent(options.navigation.root.introContent, 'TaxonomyLandingPage_intro') : ''}
+      ${options.navigation ? renderInstructionTaxonomyNavigation(options.navigation) : ''}
 
       <section aria-labelledby="seo-catalog-heading">
         <h2 id="seo-catalog-heading">
@@ -531,6 +563,7 @@ function renderCatalogSeoBody(instructions, query = '', options) {
           ${instructions.map(instruction => renderCatalogInstruction(instruction, options)).join('\n')}
         </ul>
       </section>
+      ${options.navigation?.root ? renderInstructionTaxonomyRichContent(options.navigation.root.seoContent, 'TaxonomyLandingPage_seoText') : ''}
     </main>`;
 }
 
@@ -613,47 +646,26 @@ function renderInstructionSeoBody(instruction, relatedInstructions, options) {
     </main>`;
 }
 
-/*
- * Express по умолчанию считает URL со слешем и без него
- * одним маршрутом. Для SEO оставляем единственный вариант
- * без завершающего слеша.
- */
-function redirectTrailingSlash(req, res) {
-  if (req.path === '/' || !req.path.endsWith('/')) {
-    return false;
-  }
-
-  const originalUrl = String(req.originalUrl || req.url || '');
-  const queryIndex = originalUrl.indexOf('?');
-
-  const pathname = queryIndex === -1 ? originalUrl : originalUrl.slice(0, queryIndex);
-
-  const search = queryIndex === -1 ? '' : originalUrl.slice(queryIndex);
-
-  const target = `${getSiteUrl(req)}${pathname.replace(/\/+$/u, '')}${search}`;
-
-  res.redirect(301, target);
-
-  return true;
-}
-
 function renderInstructionsCatalogPage(
   req,
   instructions,
   query,
   indexPath,
   hasParameters = false,
-  { catalog = getInstructionTaxonomyAssignmentCatalog() } = {},
+  { catalog = getInstructionTaxonomyAssignmentCatalog(), navigation, taxonomySiteUrl } = {},
 ) {
-  const siteUrl = getSiteUrl(req);
-  const canonical = `${siteUrl}/instrukcii-po-ohrane-truda`;
+  const siteUrl = navigation?.root ? navigation.root.siteUrl || taxonomySiteUrl : getSiteUrl(req);
+  const canonical = navigation?.root?.seo.canonicalUrl || `${siteUrl}/instrukcii-po-ohrane-truda`;
   const hasQuery = Boolean(String(query || '').trim());
 
-  const pageTitle = hasQuery
-    ? `Поиск инструкций: ${query} | ${BRAND_NAME}`
-    : `Инструкции по охране труда | ${BRAND_NAME}`;
+  const pageTitle =
+    navigation?.root?.seo.title ||
+    (hasQuery
+      ? `Поиск инструкций: ${query} | ${BRAND_NAME}`
+      : `Инструкции по охране труда | ${BRAND_NAME}`);
 
   const description =
+    navigation?.root?.seo.description ??
     'Каталог инструкций по охране труда для работников различных профессий и видов работ.';
 
   const schema = {
@@ -670,7 +682,7 @@ function renderInstructionsCatalogPage(
         '@type': 'CollectionPage',
         '@id': canonical,
         url: canonical,
-        name: 'Инструкции по охране труда',
+        name: navigation?.root?.h1 || 'Инструкции по охране труда',
         description,
         inLanguage: 'ru-RU',
         isPartOf: {
@@ -721,10 +733,14 @@ function renderInstructionsCatalogPage(
     .replace(/<meta\b[^>]*name=["']twitter:[^"']+["'][^>]*>/giu, '')
     .replace(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/giu, '');
 
-  const robotsValue = hasParameters ? 'noindex, follow' : 'index, follow, max-image-preview:large';
+  const robotsValue = hasParameters
+    ? 'noindex, follow'
+    : navigation?.root?.seo.robots || 'index, follow, max-image-preview:large';
 
   const seoHead = `
   <!-- SEO_CATALOG_PRODUCTION_SHELL_V1 -->
+
+  ${navigation && (navigation.root || navigation.catalogs.length || navigation.tags.length) ? `<style data-taxonomy-page>${EXACT_SITE_CSS}</style>` : ''}
 
   ${instructions.some(instruction => getInstructionTaxonomyDisplay(instruction, { catalog })?.tags.length) ? `<style data-instruction-taxonomy>${INSTRUCTION_TAXONOMY_SEO_CSS}</style>` : ''}
 
@@ -773,7 +789,7 @@ function renderInstructionsCatalogPage(
     content="${escapeHtml(BRAND_NAME)}"
   >
 
-  <script type="application/ld+json">${jsonForHtml(schema)}</script>
+  <script type="application/ld+json" data-taxonomy-seo data-taxonomy-path="/instrukcii-po-ohrane-truda">${jsonForHtml(schema)}</script>
 `;
 
   if (!/<\/head>/iu.test(productionHtml)) {
@@ -784,10 +800,26 @@ function renderInstructionsCatalogPage(
 
   productionHtml = injectProductionRoot(
     productionHtml,
-    renderCatalogSeoBody(instructions, query, { catalog }),
+    renderCatalogSeoBody(instructions, query, { catalog, navigation }),
   );
 
   return productionHtml;
+}
+
+function renderInstructionTaxonomyPage(page, indexPath, origin) {
+  const productionHtml = fs.readFileSync(indexPath, 'utf8');
+  const schema = createInstructionTaxonomySeoSchema(page, { origin });
+  return injectProductionRoot(
+    replaceTaxonomySeoHead(productionHtml, page.seo, schema, {
+      styles: EXACT_SITE_CSS,
+      pagePath: page.path,
+    }),
+    renderInstructionTaxonomyPageBody(page, {
+      renderHeader,
+      renderCategoryNav,
+      renderHero: renderMainHero,
+    }),
+  );
 }
 
 function renderInstructionPage(
@@ -994,14 +1026,17 @@ function renderInstructionPage(
   return productionHtml;
 }
 
-function renderNotFoundPage() {
+function renderNotFoundPage({
+  title = 'Инструкция не найдена',
+  description = 'Такой инструкции нет в базе или её адрес был изменён.',
+} = {}) {
   return `<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, follow">
-  <title>Инструкция не найдена | ${BRAND_NAME}</title>
+  <title>${escapeHtml(title)} | ${BRAND_NAME}</title>
   <style>${EXACT_SITE_CSS}</style>
   <link rel="stylesheet" href="/assets/instruction-copy-protection.css">
   <script defer src="/assets/instruction-copy-protection.js"></script>
@@ -1021,9 +1056,9 @@ function renderNotFoundPage() {
             aria-label="Вернуться к списку инструкций"
           >×</a>
 
-          <h1 class="InstructionModal_title">Инструкция не найдена</h1>
+          <h1 class="InstructionModal_title">${escapeHtml(title)}</h1>
           <p class="InstructionModal_intro">
-            Такой инструкции нет в базе или её адрес был изменён.
+            ${escapeHtml(description)}
           </p>
         </article>
       </div>
@@ -1048,8 +1083,14 @@ export function createSeoRouter({
   repository = instructionsRepository,
   indexPath = new URL('../../../public_html/index.html', import.meta.url),
   relatedInstructions = getRelatedInstructions,
+  taxonomyService = createInstructionTaxonomyPublicService({ repository }),
+  taxonomyOrigin,
 } = {}) {
   const router = Router();
+  const getTaxonomyOrigin = () =>
+    normalizeInstructionTaxonomyPublicOrigin(
+      typeof taxonomyOrigin === 'function' ? taxonomyOrigin() : taxonomyOrigin,
+    );
 
   for (const [urlPath, filePath] of PUBLIC_ASSETS) {
     router.get(urlPath, (req, res, next) => {
@@ -1075,11 +1116,20 @@ export function createSeoRouter({
   });
 
   router.get('/instrukcii-po-ohrane-truda', (req, res, next) => {
-    if (redirectTrailingSlash(req, res)) return;
+    res.set('Cache-Control', 'no-store');
+    const canonicalPath = '/instrukcii-po-ohrane-truda';
+    if (req.path !== canonicalPath) {
+      const queryIndex = req.originalUrl.indexOf('?');
+      const search = queryIndex < 0 ? '' : req.originalUrl.slice(queryIndex);
+      return res.redirect(301, `${getSiteUrl(req)}${canonicalPath}${search}`);
+    }
 
     try {
       const query = typeof req.query.q === 'string' ? req.query.q.trim() : '';
-      const catalog = getInstructionTaxonomyAssignmentCatalog();
+      const snapshot = taxonomyService.snapshot();
+      const taxonomySiteUrl = getTaxonomyOrigin();
+      const navigation = snapshot.navigation(taxonomySiteUrl);
+      const catalog = snapshot.assignmentCatalog || getInstructionTaxonomyAssignmentCatalog();
       let filters;
       try {
         filters = validateInstructionTaxonomyFilters(
@@ -1098,14 +1148,57 @@ export function createSeoRouter({
 
       return res
         .status(200)
-        .set('Cache-Control', 'public, max-age=300')
+        .set('Cache-Control', 'no-store')
+        .set(
+          'X-Robots-Tag',
+          hasParameters
+            ? 'noindex, follow'
+            : navigation.root?.seo.robots || 'index, follow, max-image-preview:large',
+        )
         .type('html')
         .send(
           renderInstructionsCatalogPage(req, instructions, query, indexPath, hasParameters, {
             catalog,
+            navigation,
+            taxonomySiteUrl,
           }),
         );
     } catch (error) {
+      next(error);
+    }
+  });
+
+  router.get(/^\/instrukcii-po-ohrane-truda\/.+/iu, (req, res, next) => {
+    res.set('Cache-Control', 'no-store');
+    try {
+      const origin = getTaxonomyOrigin();
+      const result = taxonomyService.snapshot().resolve(req.path, req.query, origin);
+      if (result.status === 301) return res.redirect(301, result.location);
+      if (result.status === 404) {
+        return res
+          .status(404)
+          .set('X-Robots-Tag', 'noindex, nofollow')
+          .type('html')
+          .send(
+            renderNotFoundPage({
+              title: 'Страница не найдена',
+              description: 'Страница недоступна или её адрес был изменён.',
+            }),
+          );
+      }
+      return res
+        .status(200)
+        .set('X-Robots-Tag', result.page.seo.robots)
+        .type('html')
+        .send(renderInstructionTaxonomyPage(result.page, indexPath, origin));
+    } catch (error) {
+      if (error.status === 400) {
+        return res
+          .status(400)
+          .set('X-Robots-Tag', 'noindex, nofollow')
+          .type('text/plain')
+          .send(error.message);
+      }
       next(error);
     }
   });
@@ -1154,6 +1247,16 @@ export function createSeoRouter({
 
   router.get('/sitemap.xml', (req, res, next) => {
     try {
+      const snapshot = taxonomyService.snapshot();
+      const origin = getTaxonomyOrigin();
+      const navigation = snapshot.navigation(origin);
+      const taxonomyEntries = snapshot
+        .sitemap(origin)
+        .map(entry =>
+          entry.path === '/instrukcii-po-ohrane-truda' && !navigation.root
+            ? { ...entry, loc: `${getSiteUrl(req)}${entry.path}` }
+            : entry,
+        );
       const instructions = getIndexableInstructions('', repository);
       const urls = instructions
         .map(instruction => {
@@ -1176,13 +1279,11 @@ export function createSeoRouter({
   <url>
     <loc>${escapeXml(`${getSiteUrl(req)}/`)}</loc>
   </url>
-  <url>
-    <loc>${escapeXml(`${getSiteUrl(req)}/instrukcii-po-ohrane-truda`)}</loc>
-  </url>
+${taxonomyEntries.map(entry => `  <url>\n    <loc>${escapeXml(entry.loc)}</loc>\n  </url>`).join('\n')}
 ${urls}
 </urlset>`;
 
-      res.status(200).set('Cache-Control', 'public, max-age=300').type('application/xml').send(xml);
+      res.status(200).set('Cache-Control', 'no-store').type('application/xml').send(xml);
     } catch (error) {
       next(error);
     }
