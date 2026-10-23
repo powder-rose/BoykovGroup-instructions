@@ -74,14 +74,15 @@ export function createApp({
 
   app.use('/api/admin/instructions', express.json({ limit: '2mb' }));
   app.use('/api/admin/instruction-taxonomy', express.json({ limit: '2mb' }));
-  app.use(
-    '/api/admin/instruction-taxonomy-operations',
-    (req, res, next) => {
-      res.set('Cache-Control', 'private, no-store');
-      next();
-    },
-    express.json({ limit: '2mb' }),
+  app.use('/api/admin/instruction-taxonomy-operations', (req, res, next) => {
+    res.set('Cache-Control', 'private, no-store');
+    next();
+  });
+  app.post(
+    '/api/admin/instruction-taxonomy-operations/import-preview',
+    express.json({ limit: '8mb' }),
   );
+  app.use('/api/admin/instruction-taxonomy-operations', express.json({ limit: '2mb' }));
   app.use(express.json());
 
   app.use(morgan('dev'));

@@ -133,6 +133,8 @@ Apply the complete source-file set and run the Quality Gate before the normal re
 There are no new dependencies, environment variables or migration commands. Deployment itself
 does not reclassify instructions. Runtime records and operation backups are not part of the delivery.
 
-Source CSV application, the 2,169-row migration and its 63 manual-review cases remain a later stage.
-H01 route approval remains unresolved. Existing instruction URLs, source dictionaries, public landing
-routes, sitemap and redirect handling are unchanged by this batch.
+Confirmed CSV application is documented in
+[instruction-taxonomy-import.md](instruction-taxonomy-import.md). Deploying the importer does not
+apply the source distribution. Its 63 manual-review cases remain excluded from CSV application.
+H01 route approval remains unresolved. Existing instruction URLs, public landing routes, sitemap and
+redirect handling are unchanged by this batch.

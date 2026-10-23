@@ -1,5 +1,6 @@
 import base from './AdminInstructionTaxonomy.module.css';
 import styles from './TaxonomyBulkWorkspace.module.css';
+import { CSV_IMPORT_COUNT_LABELS } from './taxonomyImportReport.js';
 
 export function taxonomyLabels(dictionary) {
   return {
@@ -44,6 +45,9 @@ export function versionLabel(version, index = 0, draftCount = 1) {
 export function operationLabel(action, labels) {
   if (!action) return 'Откат операции';
   if (action.type === 'rollback') return `Откат операции: ${action.operationId}`;
+  if (action.type === 'import-csv') {
+    return `Импорт CSV: ${action.fileName} · ${action.tagMode === 'replace' ? 'полная замена тегов' : 'добавление тегов'}`;
+  }
   if (action.type === 'set-section')
     return `Назначить раздел: ${assignmentLabel(action.sectionId, labels.sections)}`;
   const prefix = action.type === 'add-tags' ? 'Добавить теги' : 'Снять теги';
@@ -78,6 +82,19 @@ export function OperationCounts({ counts }) {
         <dt>Без изменений</dt>
         <dd>{counts.unchangedDocuments}</dd>
       </div>
+    </dl>
+  );
+}
+
+export function CsvImportCounts({ counts }) {
+  return (
+    <dl className={styles.counts}>
+      {CSV_IMPORT_COUNT_LABELS.map(([key, label]) => (
+        <div key={key}>
+          <dt>{label}</dt>
+          <dd>{counts[key]}</dd>
+        </div>
+      ))}
     </dl>
   );
 }

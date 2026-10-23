@@ -9,6 +9,10 @@ import {
 } from './instructionTaxonomyAssignmentCatalog.js';
 import { createInstructionTaxonomyBindingStore } from './instructionTaxonomyBindingStore.js';
 import { createInstructionTaxonomyBulkJournal } from './instructionTaxonomyBulkJournal.js';
+import {
+  buildInstructionTaxonomyCsvImport,
+  fingerprintInstructionTaxonomyImportAddresses,
+} from './instructionTaxonomyCsvImport.js';
 import { instructionTaxonomyRegistryRepository } from './instructionTaxonomyRegistryRepository.js';
 import { getInstructionTaxonomyCatalog } from './instructionTaxonomyService.js';
 
@@ -16,6 +20,7 @@ const MANAGED_FIELDS = ['primaryCategoryId', 'tagIds', 'taxonomyMeta'];
 const MAX_IDS = 5000;
 const PREVIEW_LIFETIME_MS = 30 * 60 * 1000;
 const TAXONOMY_SCHEMA_VERSION = getInstructionTaxonomyCatalog().version;
+const MAX_CSV_BYTES = 4 * 1024 * 1024;
 
 function failure(message, code = 'INVALID_TAXONOMY_BULK_OPERATION', status = 400, details) {
   const error = new InstructionEditorError(message, { code, status });
@@ -54,6 +59,27 @@ function uniqueIds(ids, maximum = MAX_IDS) {
 
 function hash(bytes) {
   return createHash('sha256').update(bytes).digest('hex');
+}
+
+function importBytes(value) {
+  if (typeof value !== 'string' || value.length > Math.ceil(MAX_CSV_BYTES / 3) * 4) {
+    throw failure('Передайте CSV в допустимом размере', 'INVALID_TAXONOMY_CSV_INPUT');
+  }
+  const bytes = Buffer.from(value, 'base64');
+  if (!bytes.length || bytes.length > MAX_CSV_BYTES || bytes.toString('base64') !== value) {
+    throw failure('Некорректная передача файла CSV', 'INVALID_TAXONOMY_CSV_INPUT');
+  }
+  return bytes;
+}
+
+function emptyCounts() {
+  return {
+    selectedDocuments: 0,
+    changedDocuments: 0,
+    changedVersions: 0,
+    updatedVersions: 0,
+    unchangedDocuments: 0,
+  };
 }
 
 function key(snapshot) {
@@ -127,6 +153,7 @@ function previewDto(plan) {
     action: plan.action,
     counts: plan.counts,
     rows: plan.rows,
+    ...(plan.importReport ? { importReport: plan.importReport } : {}),
     ...(plan.rollbackOf ? { rollbackOf: plan.rollbackOf } : {}),
   });
 }
@@ -141,6 +168,15 @@ function summary(plan) {
     expiresAt: plan.expiresAt,
     action: plan.action,
     counts: plan.counts,
+    ...(plan.importReport
+      ? {
+          importSummary: {
+            file: plan.importReport.file,
+            tagMode: plan.importReport.tagMode,
+            counts: plan.importReport.counts,
+          },
+        }
+      : {}),
     ...(plan.result?.completedAt ? { completedAt: plan.result.completedAt } : {}),
     ...(plan.rollbackOf ? { rollbackOf: plan.rollbackOf } : {}),
   });
@@ -149,6 +185,7 @@ function summary(plan) {
 export function createInstructionTaxonomyBulkService({
   taxonomyRepository = instructionTaxonomyRegistryRepository,
   store = createInstructionTaxonomyBindingStore(),
+  origin = process.env.SITE_URL || 'https://boykovdocs.ru',
   now = () => Date.now(),
   journal = createInstructionTaxonomyBulkJournal({
     directory: taxonomyRepository.operationsDirectory,
@@ -215,20 +252,16 @@ export function createInstructionTaxonomyBulkService({
     return { type: action.type, tagIds };
   }
 
-  function changedRecord(record, action, registry) {
-    const next = structuredClone(record);
+  function changedSelection(record, selected, registry, { categoryManual = false } = {}) {
+    const next = { ...structuredClone(record), ...selected };
     const before = selection(record);
-    if (action.type === 'set-section') next.primaryCategoryId = action.sectionId;
-    else if (action.type === 'add-tags')
-      next.tagIds = [...new Set([...before.tagIds, ...action.tagIds])];
-    else next.tagIds = before.tagIds.filter(id => !action.tagIds.includes(id));
     if (isDeepStrictEqual(before, selection(next))) return { record, changed: false };
     const canonicalSection = registry.sections.some(
       section => section.code === next.primaryCategoryId,
     );
     next.taxonomyMeta = {
       ...record.taxonomyMeta,
-      ...(action.type === 'set-section' ? { categorySource: 'manual' } : {}),
+      ...(categoryManual ? { categorySource: 'manual' } : {}),
       tagsSource: 'manual',
       needsReview: !next.primaryCategoryId || (!canonicalSection && !next.tagIds?.length),
       schemaVersion: record.taxonomyMeta?.schemaVersion ?? TAXONOMY_SCHEMA_VERSION,
@@ -237,16 +270,26 @@ export function createInstructionTaxonomyBulkService({
     return { record: next, changed: true };
   }
 
+  function changedRecord(record, action, registry) {
+    const before = selection(record);
+    const next =
+      action.type === 'set-section'
+        ? { primaryCategoryId: action.sectionId }
+        : {
+            tagIds:
+              action.type === 'add-tags'
+                ? [...new Set([...before.tagIds, ...action.tagIds])]
+                : before.tagIds.filter(id => !action.tagIds.includes(id)),
+          };
+    return changedSelection(record, next, registry, {
+      categoryManual: action.type === 'set-section',
+    });
+  }
+
   function buildPlan({ kind, actor, registry, action, ids, snapshots, transform, rollbackOf }) {
     const rows = [];
     const slots = [];
-    const counts = {
-      selectedDocuments: ids.length,
-      changedDocuments: 0,
-      changedVersions: 0,
-      updatedVersions: 0,
-      unchangedDocuments: 0,
-    };
+    const counts = { ...emptyCounts(), selectedDocuments: ids.length };
     const byId = grouped(snapshots);
     for (const id of ids) {
       const versions = byId.get(id);
@@ -510,6 +553,108 @@ export function createInstructionTaxonomyBulkService({
       );
     },
 
+    previewImport(input, actor) {
+      fields(input, [
+        'fileName',
+        'csvBase64',
+        'registryRevision',
+        'includeDrafts',
+        'tagMode',
+        'replaceConfirmed',
+      ]);
+      actorId(actor);
+      if (input.includeDrafts !== true) {
+        throw failure('Импорт должен учитывать опубликованные версии и все черновики');
+      }
+      if (
+        !['add', 'replace'].includes(input.tagMode) ||
+        typeof input.replaceConfirmed !== 'boolean'
+      ) {
+        throw failure('Выберите режим тегов и подтвердите параметры импорта');
+      }
+      if (input.tagMode === 'replace' && !input.replaceConfirmed) {
+        throw failure(
+          'Отдельно подтвердите полную замену тегов перед предпросмотром',
+          'TAXONOMY_CSV_REPLACE_CONFIRMATION_REQUIRED',
+        );
+      }
+      const bytes = importBytes(input.csvBase64);
+      return taxonomyRepository.withLock(
+        (registry, assertHeld) => {
+          journal.assertNoPending();
+          if (!Number.isSafeInteger(input.registryRevision) || input.registryRevision < 0) {
+            throw failure('Передайте версию справочника', 'INVALID_TAXONOMY_REVISION');
+          }
+          if (registry.revision !== input.registryRevision) {
+            throw failure(
+              'Справочник изменился. Обновите его и повторите предпросмотр импорта.',
+              'TAXONOMY_REVISION_CONFLICT',
+              409,
+            );
+          }
+          const allSnapshots = store.read();
+          const { report, assignments } = buildInstructionTaxonomyCsvImport({
+            bytes,
+            fileName: input.fileName,
+            registry,
+            snapshots: allSnapshots,
+            tagMode: input.tagMode,
+            origin,
+          });
+          const action = {
+            type: 'import-csv',
+            tagMode: input.tagMode,
+            fileName: report.file.name,
+            fileSha256: report.file.sha256,
+          };
+          if (!assignments.length) {
+            assertHeld();
+            return structuredClone({
+              previewId: null,
+              kind: 'apply',
+              registryRevision: registry.revision,
+              action,
+              counts: emptyCounts(),
+              rows: [],
+              importReport: report,
+            });
+          }
+          const ids = uniqueIds(assignments.map(assignment => assignment.id));
+          const snapshots = selectedSnapshots(allSnapshots, ids);
+          validateRecords(snapshots, registry);
+          const byId = new Map(assignments.map(assignment => [assignment.id, assignment]));
+          const plan = buildPlan({
+            kind: 'apply',
+            actor,
+            registry,
+            action,
+            ids,
+            snapshots,
+            transform: snapshot => {
+              const assignment = byId.get(snapshot.id);
+              const tagIds =
+                input.tagMode === 'replace'
+                  ? [...assignment.tagIds]
+                  : [...new Set([...(snapshot.record.tagIds ?? []), ...assignment.tagIds])];
+              return changedSelection(
+                snapshot.record,
+                { primaryCategoryId: assignment.sectionId, tagIds },
+                registry,
+                { categoryManual: true },
+              );
+            },
+          });
+          plan.importReport = report;
+          plan.importUrlFingerprint = fingerprintInstructionTaxonomyImportAddresses(allSnapshots, {
+            origin,
+          });
+          assertHeld();
+          return previewDto(journal.savePreview(plan));
+        },
+        { waitMs: 5000 },
+      );
+    },
+
     apply(input, actor) {
       fields(input, ['previewId', 'confirmed']);
       if (input.confirmed !== true) throw failure('Подтвердите применение просмотренных изменений');
@@ -537,7 +682,19 @@ export function createInstructionTaxonomyBulkService({
               409,
             );
           if (plan.rollbackOf) assertNotRolledBack(plan.rollbackOf);
-          const snapshots = selectedSnapshots(store.read(), plan.ids);
+          const allSnapshots = store.read();
+          if (
+            plan.importUrlFingerprint &&
+            plan.importUrlFingerprint !==
+              fingerprintInstructionTaxonomyImportAddresses(allSnapshots, { origin })
+          ) {
+            throw failure(
+              'Адреса опубликованных инструкций изменились. Создайте новый предпросмотр импорта.',
+              'TAXONOMY_BULK_PREVIEW_CONFLICT',
+              409,
+            );
+          }
+          const snapshots = selectedSnapshots(allSnapshots, plan.ids);
           assertInventory(plan, snapshots);
           validateRecords(snapshots, registry);
           const byKey = new Map(snapshots.map(snapshot => [key(snapshot), snapshot]));

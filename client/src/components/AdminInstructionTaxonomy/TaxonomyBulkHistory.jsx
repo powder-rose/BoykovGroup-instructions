@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { fetchTaxonomyOperationHistory } from './taxonomyOperationsApi.js';
 import {
   BulkPagination,
+  CsvImportCounts,
   OperationCounts,
   dateLabel,
   operationLabel,
@@ -112,6 +113,16 @@ export default function TaxonomyBulkHistory({
           <details>
             <summary>Подробности операции</summary>
             <OperationCounts counts={item.counts} />
+            {item.importSummary && (
+              <>
+                <p>
+                  Файл: {item.importSummary.file.name} ·{' '}
+                  {item.importSummary.file.bytes.toLocaleString('ru-RU')} байт
+                </p>
+                <p className={base.muted}>SHA-256: {item.importSummary.file.sha256}</p>
+                <CsvImportCounts counts={item.importSummary.counts} />
+              </>
+            )}
           </details>
         </article>
       ))}

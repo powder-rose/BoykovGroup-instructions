@@ -1,3 +1,5 @@
+import { MAX_TAXONOMY_CSV_BYTES } from './taxonomyImportReport.js';
+
 const API_ROOT = `${import.meta.env.VITE_API_BASE_URL || ''}/api/admin/instruction-taxonomy-operations`;
 
 async function request(token, path, options = {}, blob = false) {
@@ -47,6 +49,31 @@ export function fetchTaxonomyOperationStatus(token) {
 
 export function previewTaxonomyOperation(token, input) {
   return request(token, '/preview', { method: 'POST', body: JSON.stringify(input) });
+}
+
+export async function previewTaxonomyCsvImport(token, file, input) {
+  if (!file || !file.size || file.size > MAX_TAXONOMY_CSV_BYTES) {
+    throw new Error('Выберите непустой CSV-файл размером не больше 4 МиБ.');
+  }
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  if (!bytes.length || bytes.length > MAX_TAXONOMY_CSV_BYTES) {
+    throw new Error('Выберите непустой CSV-файл размером не больше 4 МиБ.');
+  }
+  let binary = '';
+  for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+  }
+  return request(token, '/import-preview', {
+    method: 'POST',
+    body: JSON.stringify({
+      fileName: file.name,
+      csvBase64: btoa(binary),
+      registryRevision: input.registryRevision,
+      includeDrafts: input.includeDrafts,
+      tagMode: input.tagMode,
+      replaceConfirmed: input.replaceConfirmed,
+    }),
+  });
 }
 
 export function applyTaxonomyOperation(token, previewId) {

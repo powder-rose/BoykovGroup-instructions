@@ -68,6 +68,17 @@ export function createAdminInstructionTaxonomyOperationsRouter({
     const input = body(req.body, ['ids', 'registryRevision', 'includeDrafts', 'action']);
     res.json(service.preview(input, actor(req)));
   });
+  router.post('/import-preview', (req, res) => {
+    const input = body(req.body, [
+      'fileName',
+      'csvBase64',
+      'registryRevision',
+      'includeDrafts',
+      'tagMode',
+      'replaceConfirmed',
+    ]);
+    res.json(service.previewImport(input, actor(req)));
+  });
   router.post('/apply', (req, res) => {
     res.json(service.apply(body(req.body, ['previewId', 'confirmed']), actor(req)));
   });

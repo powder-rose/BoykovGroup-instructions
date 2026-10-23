@@ -1,6 +1,6 @@
 import { getInstructionPublicPath } from '../shared/instructionDocument.js';
 
-export function parseReclassificationCsv(text, { requiredColumns = [] } = {}) {
+export function parseReclassificationCsv(text, { requiredColumns = [], allowedColumns } = {}) {
   if (typeof text !== 'string') throw new TypeError('CSV input must be a string');
   const input = text.replace(/^\uFEFF/u, '');
   const rows = [];
@@ -50,6 +50,9 @@ export function parseReclassificationCsv(text, { requiredColumns = [] } = {}) {
   }
   for (const column of requiredColumns) {
     if (!headers.includes(column)) throw new Error(`CSV column is missing: ${column}`);
+  }
+  if (allowedColumns && headers.some(column => !allowedColumns.includes(column))) {
+    throw new Error('CSV contains unsupported columns');
   }
   return rows.map((values, index) => {
     if (values.length !== headers.length) {
@@ -168,6 +171,8 @@ function liveIndex(instructions, origin, errors) {
   }
   return { addresses, invalidRecords };
 }
+
+export { urlKey as getReclassificationUrlKey, liveIndex as buildReclassificationLiveIndex };
 
 export function buildInstructionReclassificationReport({
   importRows,
