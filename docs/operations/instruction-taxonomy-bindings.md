@@ -48,14 +48,14 @@ for canonical assignments; the existing automatic legacy suggestion limit remain
 `GET /api/admin/instructions/assignment-taxonomy` uses the existing administrator authorization and
 `private, no-store` response policy. It returns only the assignment data needed by the form:
 
-| Property | Entry shape |
-| --- | --- |
-| `revision` | Current registry revision |
-| `catalogs` | `{ id, label }` |
-| `sections` | `{ id, label, catalogId }` |
-| `tags` | `{ id, label, type: "topic" }` |
-| `legacyCategories` | `{ id, label }` |
-| `legacyTags` | `{ id, label, type }` |
+| Property           | Entry shape                    |
+| ------------------ | ------------------------------ |
+| `revision`         | Current registry revision      |
+| `catalogs`         | `{ id, label }`                |
+| `sections`         | `{ id, label, catalogId }`     |
+| `tags`             | `{ id, label, type: "topic" }` |
+| `legacyCategories` | `{ id, label }`                |
+| `legacyTags`       | `{ id, label, type }`          |
 
 Coded entries respect the registry's sort order. SEO text, canonical settings, provenance and other
 editorial fields are excluded. The previous `/taxonomy` endpoint keeps its legacy response unchanged.
@@ -84,8 +84,9 @@ History rollback validates the exact saved assignment before restoring it. If a 
 deleted after it became unused, rollback is rejected and the history snapshot remains available. It
 does not silently drop that assignment or rerun automatic classification.
 
-The legacy backfill's documented offline/stop-writers requirement remains in force. This delivery does
-not add an online bulk operation, CSV apply or a multi-document rollback transaction.
+The legacy backfill's documented offline/stop-writers requirement remains in force. Confirmed online
+bulk actions, their assignment-only rollback and CSV export are documented in
+[instruction-taxonomy-bulk.md](instruction-taxonomy-bulk.md). CSV apply remains a separate stage.
 
 ## Public labels and filters
 

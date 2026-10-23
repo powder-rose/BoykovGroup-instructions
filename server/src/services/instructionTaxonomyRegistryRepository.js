@@ -13,6 +13,7 @@ import {
 import { InstructionEditorError } from './instructionEditorError.js';
 import { validateInstructionTaxonomyRegistry } from './instructionTaxonomyRegistryModel.js';
 import { getInstructionTaxonomyRegistrySeed } from './instructionTaxonomySource.js';
+import { assertNoPendingTaxonomyBulkOperation } from './instructionTaxonomyBulkJournal.js';
 
 const DEFAULT_FILE = fileURLToPath(
   new URL('../../data/instruction-taxonomy.json', import.meta.url),
@@ -55,6 +56,7 @@ export function createInstructionTaxonomyRegistryRepository({
   validateInstructionTaxonomyRegistry(seed);
   const initialState = structuredClone(seed);
   const file = path.resolve(filePath);
+  const operationsDirectory = path.join(path.dirname(file), 'instruction-taxonomy-operations');
 
   function read() {
     let bytes;
@@ -96,12 +98,15 @@ export function createInstructionTaxonomyRegistryRepository({
     }
   }
 
-  function withLock(callback, { waitMs = 0 } = {}) {
+  function withLock(callback, { waitMs = 0, allowPendingOperation = false } = {}) {
     if (typeof callback !== 'function' || callback.constructor?.name === 'AsyncFunction') {
       throw new TypeError('Taxonomy transaction requires a synchronous callback');
     }
     if (!Number.isSafeInteger(waitMs) || waitMs < 0 || waitMs > 5000) {
       throw new TypeError('Taxonomy lock wait must be an integer between 0 and 5000 milliseconds');
+    }
+    if (typeof allowPendingOperation !== 'boolean') {
+      throw new TypeError('Taxonomy recovery override must be a boolean');
     }
     let lock;
     let callbackStarted = false;
@@ -125,6 +130,7 @@ export function createInstructionTaxonomyRegistryRepository({
       } while (!lock.acquired);
       const assertHeld = () => retainLock(lock);
       const state = read();
+      if (!allowPendingOperation) assertNoPendingTaxonomyBulkOperation(operationsDirectory);
       callbackStarted = true;
       const result = callback(state, assertHeld);
       if (result && typeof result.then === 'function') {
@@ -143,6 +149,7 @@ export function createInstructionTaxonomyRegistryRepository({
   }
 
   return {
+    operationsDirectory,
     read,
     withLock,
 

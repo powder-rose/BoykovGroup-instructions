@@ -1,8 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { TextDecoder } from 'node:util';
 
 import { slugify } from '../utils/slug.js';
 import {
@@ -11,7 +9,12 @@ import {
   instructionDocumentToLegacy,
   richTextToPlainText,
 } from '../shared/instructionDocument.js';
-import { instructionsRepository } from './instructionsRepository.js';
+import {
+  DEFAULT_INSTRUCTION_DRAFTS_DIRECTORY,
+  instructionsRepository,
+  readInstructionVersionDirectory,
+  readInstructionVersionFile,
+} from './instructionsRepository.js';
 import { getInstructionTaxonomyDisplay } from './instructionTaxonomyDisplayService.js';
 import { applyInstructionTaxonomyEditorPatch } from './instructionTaxonomyEditor.js';
 import {
@@ -30,7 +33,6 @@ import {
   updateInstructionEditorialMeta,
 } from './instructionEditorialMeta.js';
 
-const DEFAULT_DRAFTS = fileURLToPath(new URL('../data/instruction-drafts/', import.meta.url));
 const EMPTY_DOCUMENT = { type: 'doc', content: [{ type: 'paragraph', content: [] }] };
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 
@@ -106,7 +108,7 @@ export function getRelatedInstructions(
 
 export function createInstructionEditorService({
   repository = instructionsRepository,
-  draftsDirectory = DEFAULT_DRAFTS,
+  draftsDirectory = DEFAULT_INSTRUCTION_DRAFTS_DIRECTORY,
   saveSnapshot = saveInstructionSnapshot,
   taxonomyRepository = instructionTaxonomyRegistryRepository,
 } = {}) {
@@ -132,40 +134,7 @@ export function createInstructionEditorService({
   }
 
   function readDraftFile(filePath) {
-    try {
-      if (!fs.lstatSync(filePath).isFile()) throw new Error('Non-regular instruction draft');
-      const value = JSON.parse(
-        new TextDecoder('utf-8', { fatal: true }).decode(fs.readFileSync(filePath)),
-      );
-
-      if (
-        !value ||
-        typeof value.id !== 'string' ||
-        !value.id.trim() ||
-        !Number.isSafeInteger(value.revision) ||
-        value.revision < 1 ||
-        value.status !== 'draft' ||
-        draftPath(value.id) !== filePath ||
-        (value.primaryCategoryId !== undefined &&
-          value.primaryCategoryId !== null &&
-          typeof value.primaryCategoryId !== 'string') ||
-        (value.tagIds !== undefined &&
-          value.tagIds !== null &&
-          (!Array.isArray(value.tagIds) || value.tagIds.some(id => typeof id !== 'string')))
-      ) {
-        throw new Error('Invalid instruction draft');
-      }
-
-      return value;
-    } catch (cause) {
-      if (cause.code === 'ENOENT') return null;
-
-      throw new InstructionEditorError('Не удалось прочитать черновик инструкции', {
-        status: 500,
-        code: 'INSTRUCTION_DRAFT_STORAGE_ERROR',
-        cause,
-      });
-    }
+    return readInstructionVersionFile(filePath, 'draft', { allowMissing: true })?.record ?? null;
   }
 
   function readDraft(id) {
@@ -173,21 +142,9 @@ export function createInstructionEditorService({
   }
 
   function allDrafts() {
-    let files;
-
-    try {
-      files = fs.readdirSync(draftsDirectory).filter(file => file.endsWith('.json'));
-    } catch (cause) {
-      if (cause.code === 'ENOENT') return [];
-
-      throw new InstructionEditorError('Не удалось прочитать черновики', {
-        status: 500,
-        code: 'INSTRUCTION_DRAFT_STORAGE_ERROR',
-        cause,
-      });
-    }
-
-    return files.map(file => readDraftFile(path.join(draftsDirectory, file))).filter(Boolean);
+    return readInstructionVersionDirectory(draftsDirectory, 'draft').map(
+      snapshot => snapshot.record,
+    );
   }
 
   function writeDraft(instruction, assertHeld) {
