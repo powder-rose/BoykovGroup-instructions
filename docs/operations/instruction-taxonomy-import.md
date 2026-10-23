@@ -114,5 +114,6 @@ No new dependencies, environment variables, offline apply commands or automatic 
 Use a test environment for the first source-file import and review its downloadable report.
 
 Deployment itself does not change the 2,169 assignments. Production matching cannot be confirmed
-without the real instruction records. H01 route approval, public taxonomy landing pages, sitemap,
-redirects and the remaining publication work stay outside this batch.
+without the real instruction records. H01 route approval and the remaining publication work stay
+outside CSV application. Public pages, navigation, sitemap and redirects are documented in
+[instruction-taxonomy-pages.md](instruction-taxonomy-pages.md).

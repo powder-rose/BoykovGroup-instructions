@@ -9,6 +9,10 @@ import { adminInstructionsRouter } from './routes/adminInstructions.js';
 import { adminInstructionTaxonomyRouter } from './routes/adminInstructionTaxonomy.js';
 import { adminInstructionTaxonomyOperationsRouter } from './routes/adminInstructionTaxonomyOperations.js';
 import { instructionPagesRouter } from './routes/instructionPages.js';
+import {
+  createInstructionTaxonomyRouter,
+  instructionTaxonomyApiHeaders,
+} from './routes/instructionTaxonomy.js';
 
 import { createRateLimiters } from './middleware/rateLimits.js';
 
@@ -48,6 +52,7 @@ import { isYandexGptConfigured } from './services/yandexGptService.js';
 
 export function createApp({
   clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+  taxonomyPublicService,
 } = {}) {
   const app = express();
 
@@ -83,6 +88,7 @@ export function createApp({
     express.json({ limit: '8mb' }),
   );
   app.use('/api/admin/instruction-taxonomy-operations', express.json({ limit: '2mb' }));
+  app.use('/api/instruction-taxonomy', instructionTaxonomyApiHeaders);
   app.use(express.json());
 
   app.use(morgan('dev'));
@@ -155,6 +161,11 @@ export function createApp({
   app.use('/api/instructions', instructionViewsRouter);
 
   app.use('/api/instructions', instructionPagesRouter);
+
+  app.use(
+    '/api/instruction-taxonomy',
+    createInstructionTaxonomyRouter({ service: taxonomyPublicService }),
+  );
 
   app.use('/api/instructions', instructionsRouter);
 

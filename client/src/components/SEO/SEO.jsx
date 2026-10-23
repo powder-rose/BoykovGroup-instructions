@@ -1,35 +1,34 @@
 import { useEffect } from 'react';
+import { serializeJsonLd } from '../../lib/jsonLd.js';
+import { applyPageMetadata } from '../../lib/pageMetadata.js';
 
-export default function SEO({ title, description, noindex = false }) {
-  useEffect(() => {
-    document.title = title;
+export default function SEO({
+  title,
+  description,
+  noindex = false,
+  canonical,
+  robots,
+  jsonLd,
+  pagePath,
+}) {
+  const canonicalUrl = new URL(canonical || '/', window.location.origin).href;
+  const enhancedMetadata = Boolean(canonical || robots || jsonLd);
+  const robotsValue = robots || (noindex ? 'noindex, nofollow' : 'index, follow');
+  const serializedSchema = jsonLd ? serializeJsonLd(jsonLd) : null;
 
-    let meta = document.querySelector('meta[name="description"]');
-
-    if (!meta) {
-      meta = document.createElement('meta');
-      meta.name = 'description';
-      document.head.appendChild(meta);
-    }
-
-    meta.content = description;
-  }, [title, description]);
-
-  useEffect(() => {
-    if (!noindex) return undefined;
-    let robots = document.querySelector('meta[name="robots"]');
-    const previous = robots?.content;
-    if (!robots) {
-      robots = document.createElement('meta');
-      robots.name = 'robots';
-      document.head.append(robots);
-    }
-    robots.content = 'noindex, nofollow';
-    return () => {
-      if (previous === undefined || previous === 'noindex, nofollow') robots.remove();
-      else robots.content = previous;
-    };
-  }, [noindex]);
+  useEffect(
+    () =>
+      applyPageMetadata({
+        title,
+        description,
+        canonicalUrl,
+        robotsValue,
+        serializedSchema,
+        enhancedMetadata,
+        pagePath,
+      }),
+    [title, description, canonicalUrl, robotsValue, serializedSchema, enhancedMetadata, pagePath],
+  );
 
   return null;
 }

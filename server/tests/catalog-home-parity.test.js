@@ -11,7 +11,8 @@ test('catalog uses the same header, portrait and compact scroll layout as home',
   assert.match(catalog, /<HomeIntro[\s\S]*?containerRef=\{stickyIntroRef\}/u);
   assert.match(catalog, /useHomeCompactHeader\(\)/u);
   assert.match(catalog, /className=\{homeStyles\.page\}/u);
-  assert.match(catalog, /<SEO[\s\S]*?Инструкции по охране труда/u);
+  assert.match(catalog, /<TaxonomyPageSeo[\s\S]*?Инструкции по охране труда/u);
+  assert.match(catalog, /title: 'Инструкции по охране труда \| БОЙКОВГРУПП'/u);
   const hero = read('../../client/src/pages/HomePage/components/HomeHero/HomeHero.jsx');
   assert.match(hero, /<HeroPortrait/u);
   assert.doesNotMatch(catalog, /<h1>/u);

@@ -9,6 +9,8 @@ import HomePage from './pages/HomePage/HomePage.jsx';
 import WalletPaymentPage from './pages/WalletPaymentPage/WalletPaymentPage.jsx';
 
 import InstructionsCatalog from './components/InstructionCatalog/InstructionsCatalog.jsx';
+import TaxonomyLandingPage from './components/TaxonomyLandingPage/TaxonomyLandingPage.jsx';
+import SEO from './components/SEO/SEO.jsx';
 
 import UrgentGenerationPage from './components/UrgentGenerationPage/UrgentGenerationPage.jsx';
 
@@ -49,10 +51,23 @@ export default function App() {
       <VisitorTracker />
 
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route
+          path="/"
+          element={
+            <>
+              <SEO
+                title="Инструкции по охране труда | БОЙКОВГРУПП"
+                description="Инструкции по охране труда для работников различных профессий и видов работ. Требования безопасности и порядок выполнения работ."
+                canonical="/"
+              />
+              <HomePage />
+            </>
+          }
+        />
         <Route path="/oplata-instrukcii" element={<WalletPaymentPage />} />
 
         <Route path="/instrukcii-po-ohrane-truda" element={<InstructionsCatalog />} />
+        <Route path="/instrukcii-po-ohrane-truda/*" element={<TaxonomyLandingPage />} />
 
         <Route path="/srochnaya-generaciya-instrukcii" element={<UrgentGenerationPage />} />
 

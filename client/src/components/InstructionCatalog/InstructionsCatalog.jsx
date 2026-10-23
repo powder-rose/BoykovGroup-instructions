@@ -4,7 +4,10 @@ import { useSelector } from 'react-redux';
 import Header from '../Header/Header.jsx';
 import InstructionSort from '../InstructionSort/InstructionSort.jsx';
 import InstructionListPagination from '../InstructionList/InstructionListPagination.jsx';
-import SEO from '../SEO/SEO.jsx';
+import RichTextContent from '../RichTextContent/RichTextContent.jsx';
+import TaxonomyNavigation from '../TaxonomyLandingPage/TaxonomyNavigation.jsx';
+import TaxonomyPageSeo, { TaxonomyPendingSeo } from '../TaxonomyLandingPage/TaxonomyPageSeo.jsx';
+import useTaxonomyNavigation from '../TaxonomyLandingPage/useTaxonomyNavigation.js';
 
 import { selectIsAdmin } from '../../store/authSlice.js';
 import HomeCompactHeader from '../../pages/HomePage/components/HomeCompactHeader/HomeCompactHeader.jsx';
@@ -20,6 +23,8 @@ import styles from './InstructionsCatalog.module.css';
 
 export default function InstructionsCatalog() {
   const isAdmin = useSelector(selectIsAdmin);
+  const { navigation, error: navigationError } = useTaxonomyNavigation();
+  const root = navigation?.root;
   const { isCompactHeader, stickyIntroRef, stickyTriggerRef } = useHomeCompactHeader();
   const {
     queryInput,
@@ -45,11 +50,26 @@ export default function InstructionsCatalog() {
 
   return (
     <div className={homeStyles.page}>
-      <SEO
-        title="Инструкции по охране труда | БОЙКОВГРУПП"
-        description="Готовые инструкции по охране труда для различных профессий. База документов по охране труда для организаций."
-        noindex={hasParameters}
-      />
+      {navigation ? (
+        <TaxonomyPageSeo
+          page={
+            root || {
+              path: '/instrukcii-po-ohrane-truda',
+              h1: 'Инструкции по охране труда',
+              seo: {
+                title: 'Инструкции по охране труда | БОЙКОВГРУПП',
+                description:
+                  'Готовые инструкции по охране труда для различных профессий. База документов по охране труда для организаций.',
+                canonicalUrl: new URL('/instrukcii-po-ohrane-truda', window.location.origin).href,
+                robots: 'index, follow',
+              },
+            }
+          }
+          robots={hasParameters ? 'noindex, follow' : undefined}
+        />
+      ) : (
+        <TaxonomyPendingSeo failed={Boolean(navigationError)} />
+      )}
 
       <Header query={queryInput} onQueryChange={setQueryInput} />
 
@@ -61,9 +81,22 @@ export default function InstructionsCatalog() {
 
       <div ref={stickyTriggerRef} className={homeStyles.stickyTrigger} aria-hidden="true" />
 
-      <HomeIntro query={queryInput} onQueryChange={setQueryInput} containerRef={stickyIntroRef} />
+      <HomeIntro
+        query={queryInput}
+        onQueryChange={setQueryInput}
+        containerRef={stickyIntroRef}
+        heading={root?.h1}
+        description={root ? '' : undefined}
+      />
 
       <main className={styles.content}>
+        {root && <RichTextContent content={root.introContent} />}
+        {navigation && <TaxonomyNavigation catalogs={navigation.catalogs} tags={navigation.tags} />}
+        {navigationError && (
+          <p className={styles.status} role="status">
+            {navigationError}
+          </p>
+        )}
         <div className={styles.toolbar}>
           <a id="boykovCatalogHomeButton" className={styles.homeButton} href="/">
             <span aria-hidden="true">←</span> На главную
@@ -142,6 +175,7 @@ export default function InstructionsCatalog() {
               </Link>
             </section>
           ))}
+        {root && <RichTextContent content={root.seoContent} />}
       </main>
     </div>
   );
