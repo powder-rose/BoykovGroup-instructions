@@ -1,47 +1,76 @@
 import { useEffect, useState } from 'react';
-import { fetchInstructionTaxonomy } from './instructionEditorApi.js';
+import { fetchInstructionAssignmentTaxonomy } from './instructionEditorApi.js';
 
-const TAG_TYPE_LABELS = {
-  profession: 'Профессия',
-  work: 'Вид работ',
-  equipment: 'Оборудование',
-};
-
-export default function InstructionTaxonomyEditor({ token, record, form, onCategory, onTags }) {
+export default function InstructionTaxonomyEditor({
+  token,
+  record,
+  form,
+  onCategory,
+  onTags,
+  onDictionary,
+  onConfirmRevision,
+  revisionConflict = false,
+}) {
   const [catalog, setCatalog] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
   const [retry, setRetry] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    fetchInstructionTaxonomy(token)
+    setLoading(true);
+    setError('');
+    fetchInstructionAssignmentTaxonomy(token)
       .then(value => {
         if (cancelled) return;
         setCatalog(value);
-        setError('');
+        onDictionary(value);
       })
       .catch(reason => {
         if (!cancelled) setError(reason.message || 'Не удалось загрузить справочник');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
     };
-  }, [token, retry]);
+  }, [token, retry, onDictionary]);
 
+  const patch = form.taxonomyPatch || {};
   const categoryMode =
-    form.taxonomyPatch?.category?.mode ||
-    (record?.taxonomyMeta?.categorySource === 'manual' ? 'manual' : 'auto');
+    patch.category?.mode || (record?.taxonomyMeta?.categorySource === 'manual' ? 'manual' : 'auto');
   const tagsMode =
-    form.taxonomyPatch?.tags?.mode ||
-    (record?.taxonomyMeta?.tagsSource === 'manual' ? 'manual' : 'auto');
+    patch.tags?.mode || (record?.taxonomyMeta?.tagsSource === 'manual' ? 'manual' : 'auto');
+  const hasTaxonomyChanges = Boolean(patch.category || patch.tags);
   const selectedIds = Array.isArray(form.tagIds) ? form.tagIds : [];
+  const sections = catalog?.sections || [];
+  const selectedSection = sections.find(section => section.id === form.primaryCategoryId);
+  const legacyCategory = catalog?.legacyCategories.find(
+    category => category.id === form.primaryCategoryId,
+  );
+  const derivedCatalog = catalog?.catalogs.find(item => item.id === selectedSection?.catalogId);
   const tags = catalog?.tags || [];
   const byId = new Map(tags.map(tag => [tag.id, tag]));
-  const matched = query.trim()
+  const legacyById = new Map((catalog?.legacyTags || []).map(tag => [tag.id, tag]));
+  const unknownIds = selectedIds.filter(id => !byId.has(id) && !legacyById.has(id));
+  const unknownSection = Boolean(form.primaryCategoryId && !selectedSection && !legacyCategory);
+  const staleRevision = Boolean(
+    catalog && hasTaxonomyChanges && patch.registryRevision !== catalog.revision,
+  );
+  const canConfirmRevision = Boolean(
+    catalog &&
+    !unknownIds.length &&
+    !unknownSection &&
+    (!patch.category || selectedSection) &&
+    (record?.id || selectedSection),
+  );
+  const normalizedQuery = query.trim().toLocaleLowerCase('ru-RU');
+  const matched = normalizedQuery
     ? tags
         .filter(tag =>
-          tag.label.toLocaleLowerCase('ru-RU').includes(query.trim().toLocaleLowerCase('ru-RU')),
+          `${tag.id} ${tag.label}`.toLocaleLowerCase('ru-RU').includes(normalizedQuery),
         )
         .slice(0, 24)
     : [];
@@ -50,100 +79,180 @@ export default function InstructionTaxonomyEditor({ token, record, form, onCateg
     const next = selectedIds.includes(id)
       ? selectedIds.filter(item => item !== id)
       : [...selectedIds, id];
-    if (next.length <= 5) onTags(next, 'manual');
+    onTags(next, catalog.revision);
   }
 
   return (
     <section className="admin-instruction-taxonomy" aria-labelledby="instruction-taxonomy-heading">
       <div className="admin-instruction-taxonomy__header">
         <div>
-          <h3 id="instruction-taxonomy-heading">Категория и теги</h3>
+          <h3 id="instruction-taxonomy-heading">Раздел и теги</h3>
           <p>
-            По умолчанию определяются автоматически. Ручной выбор сохраняется при обновлении
+            Выберите один основной тематический раздел. Каталог определяется по разделу. Тегов может
+            быть несколько; их можно не добавлять. Ручной выбор сохраняется при обновлении
             инструкции.
           </p>
         </div>
+        <button type="button" disabled={loading} onClick={() => setRetry(value => value + 1)}>
+          {loading ? 'Загрузка справочника…' : 'Обновить справочник'}
+        </button>
       </div>
-      {error ? (
+      {error && (
         <p className="admin-instructions__error" role="alert">
-          Не удалось загрузить справочник: {error}{' '}
-          <button type="button" onClick={() => setRetry(value => value + 1)}>
-            Повторить
-          </button>
+          Не удалось загрузить справочник: {error} Значения в форме сохранены.
         </p>
-      ) : !catalog ? (
+      )}
+      {!catalog ? (
         <p className="admin-instruction-taxonomy__hint" role="status">
-          Загружаем категории и теги…
+          {loading ? 'Загружаем разделы и теги…' : 'Повторите загрузку справочника кнопкой выше.'}
         </p>
       ) : (
         <>
+          {(staleRevision || revisionConflict) && (
+            <div className="admin-instructions__notice" role="alert">
+              <p>
+                Справочник изменился после вашего выбора. Обновите его, проверьте раздел и теги,
+                затем подтвердите выбор. Обновление справочника само по себе не изменяет форму.
+              </p>
+              {staleRevision && (
+                <button
+                  type="button"
+                  disabled={loading || !canConfirmRevision}
+                  onClick={() => onConfirmRevision(catalog.revision)}
+                >
+                  Подтвердить выбор по обновлённому справочнику
+                </button>
+              )}
+            </div>
+          )}
           <div className="admin-instruction-taxonomy__group">
             <div className="admin-instruction-taxonomy__row">
-              <span className="admin-instruction-taxonomy__label">Основная категория</span>
+              <span className="admin-instruction-taxonomy__label">
+                Основной тематический раздел
+              </span>
               <span className="admin-instruction-taxonomy__status">
-                {categoryMode === 'manual' ? 'Выбрана вручную' : 'Автоматический подбор'}
+                {selectedSection || categoryMode === 'manual'
+                  ? 'Выбран вручную'
+                  : record?.id
+                    ? 'Сохранённый автоматический выбор'
+                    : 'Выберите раздел'}
               </span>
             </div>
             <select
-              aria-label="Основная категория инструкции"
+              aria-label="Основной тематический раздел инструкции"
               value={form.primaryCategoryId || ''}
-              onChange={event => onCategory(event.target.value || null, 'manual')}
+              disabled={loading}
+              onChange={event => onCategory(event.target.value, catalog.revision)}
             >
-              <option value="">Не выбрана</option>
-              {catalog.categories.map(category => (
-                <option key={category.id} value={category.id}>
-                  {category.label}
+              <option value="" disabled>
+                Выберите раздел
+              </option>
+              {legacyCategory && (
+                <option value={legacyCategory.id} disabled>
+                  {legacyCategory.label} — прежняя категория
                 </option>
+              )}
+              {unknownSection && (
+                <option value={form.primaryCategoryId} disabled>
+                  {form.primaryCategoryId} — недоступный раздел
+                </option>
+              )}
+              {catalog.catalogs.map(item => (
+                <optgroup key={item.id} label={`${item.id} · ${item.label}`}>
+                  {sections
+                    .filter(section => section.catalogId === item.id)
+                    .map(section => (
+                      <option key={section.id} value={section.id}>
+                        {section.id} · {section.label}
+                      </option>
+                    ))}
+                </optgroup>
               ))}
             </select>
+            <label>
+              Каталог (определяется по разделу)
+              <input
+                readOnly
+                value={derivedCatalog ? `${derivedCatalog.id} · ${derivedCatalog.label}` : ''}
+                placeholder="Выберите тематический раздел"
+              />
+            </label>
+            {legacyCategory && (
+              <p className="admin-instruction-taxonomy__hint">
+                Прежняя категория сохранена. Выберите новый раздел для переноса этой инструкции;
+                соответствие автоматически не определяется.
+              </p>
+            )}
+            {unknownSection && (
+              <p className="admin-instructions__error" role="alert">
+                Раздел {form.primaryCategoryId} отсутствует в загруженном справочнике. Значение
+                сохранено в форме. Выберите доступный раздел вручную.
+              </p>
+            )}
             <div className="admin-instruction-taxonomy__foot">
               <small>
-                {categoryMode === 'auto'
-                  ? 'При сохранении система определит категорию по названию и профессии.'
-                  : 'Ручная категория не будет изменена автоматической обработкой.'}
+                {!record?.id
+                  ? 'Для новой инструкции основной раздел обязателен, в том числе при сохранении черновика.'
+                  : 'Если раздел и теги не менять, сохранение текста не переносит инструкцию в новую структуру.'}
               </small>
-              {categoryMode === 'manual' && (
-                <button type="button" onClick={() => onCategory(null, 'auto')}>
-                  Вернуть автоподбор
-                </button>
-              )}
             </div>
           </div>
           <div className="admin-instruction-taxonomy__group">
             <div className="admin-instruction-taxonomy__row">
-              <span className="admin-instruction-taxonomy__label">Теги</span>
+              <span className="admin-instruction-taxonomy__label">Теги ({selectedIds.length})</span>
               <span className="admin-instruction-taxonomy__status">
-                {tagsMode === 'manual' ? 'Выбраны вручную' : 'Автоматический подбор'}
+                {patch.tags || tagsMode === 'manual' || selectedIds.some(id => byId.has(id))
+                  ? 'Выбраны вручную'
+                  : record?.id
+                    ? 'Сохранённый автоматический выбор'
+                    : 'Необязательные теги'}
               </span>
             </div>
             <div className="admin-instruction-taxonomy__selected" aria-live="polite">
               {selectedIds.length ? (
-                selectedIds.map(id => (
-                  <button
-                    type="button"
-                    className="admin-instruction-taxonomy__chip"
-                    key={id}
-                    onClick={() => toggleTag(id)}
-                    title="Убрать тег"
-                    aria-label={`Убрать тег ${byId.get(id)?.label || id}`}
-                  >
-                    {byId.get(id)?.label || id} <span aria-hidden="true">×</span>
-                  </button>
-                ))
+                selectedIds.map(id => {
+                  const tag = byId.get(id);
+                  const legacyTag = legacyById.get(id);
+                  const label = tag
+                    ? `${id} · ${tag.label}`
+                    : legacyTag
+                      ? `${legacyTag.label} — прежний тег (${id})`
+                      : `${id} — недоступный тег`;
+                  return (
+                    <button
+                      type="button"
+                      className="admin-instruction-taxonomy__chip"
+                      key={id}
+                      disabled={loading}
+                      onClick={() => toggleTag(id)}
+                      title="Убрать тег"
+                      aria-label={`Убрать тег ${label}`}
+                    >
+                      {label} <span aria-hidden="true">×</span>
+                    </button>
+                  );
+                })
               ) : (
-                <span className="admin-instruction-taxonomy__hint">Теги пока не выбраны</span>
+                <span className="admin-instruction-taxonomy__hint">Теги не выбраны</span>
               )}
             </div>
+            {unknownIds.length > 0 && (
+              <p className="admin-instructions__error" role="alert">
+                Некоторые выбранные теги отсутствуют в справочнике: {unknownIds.join(', ')}.
+                Значения сохранены в форме. Удалите или замените их вручную.
+              </p>
+            )}
             <label className="admin-instruction-taxonomy__search">
-              Найти тег ({selectedIds.length}/5)
+              Найти тег по коду или названию
               <input
                 type="search"
                 value={query}
-                placeholder="Например, слесарь, сварка, погрузчик"
+                placeholder="Например, T47 или газовые баллоны"
+                disabled={loading}
                 onChange={event => setQuery(event.target.value)}
               />
             </label>
-            {query.trim() && (
+            {normalizedQuery && (
               <div className="admin-instruction-taxonomy__results" aria-label="Найденные теги">
                 {matched.length ? (
                   matched.map(tag => (
@@ -152,11 +261,11 @@ export default function InstructionTaxonomyEditor({ token, record, form, onCateg
                       className="admin-instruction-taxonomy__option"
                       key={tag.id}
                       aria-pressed={selectedIds.includes(tag.id)}
-                      disabled={!selectedIds.includes(tag.id) && selectedIds.length >= 5}
+                      disabled={loading}
                       onClick={() => toggleTag(tag.id)}
                     >
                       <span>{tag.label}</span>
-                      <small>{TAG_TYPE_LABELS[tag.type]}</small>
+                      <small>{tag.id}</small>
                       <span aria-hidden="true">{selectedIds.includes(tag.id) ? '✓' : '+'}</span>
                     </button>
                   ))
@@ -167,13 +276,16 @@ export default function InstructionTaxonomyEditor({ token, record, form, onCateg
             )}
             <div className="admin-instruction-taxonomy__foot">
               <small>
-                {tagsMode === 'auto'
-                  ? 'При сохранении будут подобраны до пяти тегов.'
-                  : 'Выбранные вручную теги сохранятся при последующих обновлениях.'}
+                Прежние теги сохраняются до вашего решения и не заменяются новыми по сходству
+                названий. Снять все теги можно вручную.
               </small>
-              {tagsMode === 'manual' && (
-                <button type="button" onClick={() => onTags([], 'auto')}>
-                  Вернуть автоподбор
+              {selectedIds.length > 0 && (
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={() => onTags([], catalog.revision)}
+                >
+                  Снять все теги
                 </button>
               )}
             </div>

@@ -11,6 +11,7 @@ import { createAdminInstructionsRouter } from '../src/routes/adminInstructions.j
 import { createInstructionPagesRouter } from '../src/routes/instructionPages.js';
 import { createInstructionEditorService } from '../src/services/instructionEditorService.js';
 import { InstructionsRepository } from '../src/services/instructionsRepository.js';
+import { createInstructionTaxonomyRegistryRepository } from '../src/services/instructionTaxonomyRegistryRepository.js';
 
 function editorInput(overrides = {}) {
   return {
@@ -36,12 +37,26 @@ function editorInput(overrides = {}) {
   };
 }
 
+function createInput(overrides = {}) {
+  return editorInput({
+    taxonomyPatch: {
+      category: { mode: 'manual', id: 'W01' },
+      tags: { mode: 'manual', ids: [] },
+      registryRevision: 0,
+    },
+    ...overrides,
+  });
+}
+
 async function fixture(t) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'boykovdocs-instruction-editor-http-'));
   const repository = new InstructionsRepository(path.join(directory, 'published'));
   const service = createInstructionEditorService({
     repository,
     draftsDirectory: path.join(directory, 'drafts'),
+    taxonomyRepository: createInstructionTaxonomyRegistryRepository({
+      filePath: path.join(directory, 'taxonomy.json'),
+    }),
     saveSnapshot: () => {},
   });
   const app = express();
@@ -95,13 +110,13 @@ async function fixture(t) {
 
 test('instruction editor routes enforce admin access before every read or write', async t => {
   const { repository, service, request } = await fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
 
   for (const role of [null, 'user', 'guest']) {
     for (const [suffix, method, body] of [
       ['', 'GET', undefined],
       [`/${published.id}`, 'GET', undefined],
-      ['', 'POST', editorInput({ slug: 'unauthorized-create' })],
+      ['', 'POST', createInput({ slug: 'unauthorized-create' })],
       [`/${published.id}`, 'PUT', { ...editorInput(), revision: published.revision }],
       [`/${published.id}`, 'DELETE', { revision: published.revision }],
       [`/${published.id}/draft`, 'DELETE', { revision: published.revision }],
@@ -120,7 +135,7 @@ test('instruction editor routes enforce admin access before every read or write'
 
 test('admin HTTP flow creates, publishes and edits a separate draft with revision conflicts', async t => {
   const { repository, request } = await fixture(t);
-  const createdResponse = await request('', { method: 'POST', body: editorInput() });
+  const createdResponse = await request('', { method: 'POST', body: createInput() });
 
   assert.equal(createdResponse.status, 201);
 
@@ -181,7 +196,7 @@ test('admin HTTP flow creates, publishes and edits a separate draft with revisio
 
 test('admin HTTP routes discard a draft, unpublish to draft and delete the document', async t => {
   const { repository, service, request } = await fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const draft = service.save(
     published.id,
     editorInput({ revision: published.revision }),
@@ -229,10 +244,10 @@ test('admin HTTP routes discard a draft, unpublish to draft and delete the docum
 
 test('malformed editor content and duplicate slugs return client errors with no partial writes', async t => {
   const { repository, service, request } = await fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const duplicateResponse = await request('', {
     method: 'POST',
-    body: editorInput({ slug: published.slug }),
+    body: createInput({ slug: published.slug }),
   });
 
   assert.equal(duplicateResponse.status, 409);
@@ -255,7 +270,7 @@ test('malformed editor content and duplicate slugs return client errors with no 
 
 test('public instruction pages resolve live slugs and ID aliases without leaking draft changes', async t => {
   const { service, publicRequest } = await fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const renamed = service.save(published.id, {
     ...editorInput({ status: 'published', slug: 'novyy-public-slug' }),
     revision: published.revision,
@@ -295,10 +310,10 @@ test('public instruction pages resolve live slugs and ID aliases without leaking
 
 test('public related instructions exclude drafts and unpublished documents', async t => {
   const { service, publicRequest } = await fixture(t);
-  const first = service.save(null, editorInput({ status: 'published' })).instruction;
+  const first = service.save(null, createInput({ status: 'published' })).instruction;
   const related = service.save(
     null,
-    editorInput({
+    createInput({
       status: 'published',
       title: 'Инструкция по охране труда при работе на высоте с лестницей',
       slug: 'rabota-na-vysote-lestnica',
@@ -306,7 +321,7 @@ test('public related instructions exclude drafts and unpublished documents', asy
   ).instruction;
   const draft = service.save(
     null,
-    editorInput({
+    createInput({
       title: 'Инструкция по охране труда при работе на высоте с площадкой',
       slug: 'draft-rabota-na-vysote',
     }),
@@ -337,7 +352,7 @@ test('public related instructions exclude drafts and unpublished documents', asy
 
 test('editorial metadata remains available to admin but is absent from public page responses', async t => {
   const { repository, service, request, publicRequest } = await fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const editorialMeta = {
     seoReady: true,
     seoUpdatedAt: '2026-04-01T12:00:00.000Z',

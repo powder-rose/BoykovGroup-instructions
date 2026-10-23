@@ -9,13 +9,13 @@ export default function InstructionTaxonomy({ taxonomy }) {
   if (!category && tags.length === 0) return null;
 
   return (
-    <div className={styles.root} aria-label="Категория и теги инструкции">
+    <div className={styles.root} aria-label="Основной раздел и теги инструкции">
       {category && (
         <Link
           to={`/instrukcii-po-ohrane-truda?category=${encodeURIComponent(category.id)}`}
           className={styles.category}
         >
-          Категория: {category.label}
+          Раздел: {category.label}
         </Link>
       )}
       {tags.map(tag => (

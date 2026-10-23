@@ -4,7 +4,7 @@ import {
   listInstructionTaxonomyEntities,
   normalizeInstructionTaxonomyEntity,
 } from './instructionTaxonomyRegistryModel.js';
-import { createInstructionTaxonomyRegistryRepository } from './instructionTaxonomyRegistryRepository.js';
+import { instructionTaxonomyRegistryRepository } from './instructionTaxonomyRegistryRepository.js';
 import { getLegacyInstructionTaxonomyCatalog } from './instructionTaxonomySource.js';
 
 const COLLECTIONS = { catalog: 'catalogs', section: 'sections', tag: 'tags' };
@@ -92,7 +92,7 @@ function updateRedirects(before, next) {
 }
 
 export function createInstructionTaxonomyRegistryService({
-  repository = createInstructionTaxonomyRegistryRepository(),
+  repository = instructionTaxonomyRegistryRepository,
   getInstructions,
 } = {}) {
   if (typeof getInstructions !== 'function') {

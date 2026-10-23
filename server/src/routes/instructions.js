@@ -49,6 +49,7 @@ import { saveInstructionWithTaxonomy } from '../services/instructionTaxonomyPers
 import { toPublicInstruction } from '../services/instructionPublicView.js';
 
 import { searchInstructions } from '../services/searchService.js';
+import { getInstructionTaxonomyAssignmentCatalog } from '../services/instructionTaxonomyAssignmentCatalog.js';
 import {
   getInstructionTaxonomyFilterOptions,
   validateInstructionTaxonomyFilters,
@@ -91,7 +92,7 @@ const upload = multer({
 // =========================
 
 instructionsRouter.get('/taxonomy-filters', (req, res) => {
-  res.set('Cache-Control', 'public, max-age=60');
+  res.set('Cache-Control', 'no-store');
   res.json(getInstructionTaxonomyFilterOptions(instructionsRepository.getAll()));
 });
 
@@ -106,13 +107,14 @@ instructionsRouter.get('/', (req, res) => {
    * INSTRUCTION_SORTING_V3
    */
   const sort = req.query.sort === 'popular' ? 'popular' : 'newest';
+  const catalog = getInstructionTaxonomyAssignmentCatalog();
 
   let filters;
   try {
-    filters = validateInstructionTaxonomyFilters({
-      category: req.query.category ?? '',
-      tag: req.query.tag ?? '',
-    });
+    filters = validateInstructionTaxonomyFilters(
+      { category: req.query.category ?? '', tag: req.query.tag ?? '' },
+      { catalog },
+    );
   } catch {
     return res.status(400).json({ error: 'Некорректные фильтры категории или тега' });
   }
@@ -123,6 +125,7 @@ instructionsRouter.get('/', (req, res) => {
       pageSize,
       sort,
       ...filters,
+      catalog,
     }),
   );
 });

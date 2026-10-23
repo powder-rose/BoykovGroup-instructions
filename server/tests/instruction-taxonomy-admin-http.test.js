@@ -10,6 +10,8 @@ import express from 'express';
 import { createAdminInstructionsRouter } from '../src/routes/adminInstructions.js';
 import { createInstructionEditorService } from '../src/services/instructionEditorService.js';
 import { InstructionsRepository } from '../src/services/instructionsRepository.js';
+import { createInstructionTaxonomyRegistryRepository } from '../src/services/instructionTaxonomyRegistryRepository.js';
+import { getInstructionTaxonomyAssignmentCatalog } from '../src/services/instructionTaxonomyAssignmentCatalog.js';
 
 const content = {
   type: 'doc',
@@ -31,9 +33,13 @@ function editorInput(overrides = {}) {
 async function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'boykovdocs-taxonomy-admin-'));
   const repository = new InstructionsRepository(path.join(root, 'published'));
+  const taxonomyRepository = createInstructionTaxonomyRegistryRepository({
+    filePath: path.join(root, 'taxonomy.json'),
+  });
   const service = createInstructionEditorService({
     repository,
     draftsDirectory: path.join(root, 'drafts'),
+    taxonomyRepository,
     saveSnapshot: () => {},
   });
   const app = express();
@@ -43,7 +49,14 @@ async function fixture(t) {
     if (role) req.user = { role, sub: 'test-user' };
     next();
   });
-  app.use('/api/admin/instructions', createAdminInstructionsRouter({ service }));
+  app.use(
+    '/api/admin/instructions',
+    createAdminInstructionsRouter({
+      service,
+      getAssignmentCatalog: () =>
+        getInstructionTaxonomyAssignmentCatalog(taxonomyRepository.read()),
+    }),
+  );
   const server = app.listen(0, '127.0.0.1');
   await once(server, 'listening');
   t.after(async () => {
@@ -63,15 +76,17 @@ async function fixture(t) {
       },
       ...(body ? { body: JSON.stringify(body) } : {}),
     });
-  return { repository, service, request };
+  return { repository, service, taxonomyRepository, request };
 }
 
 test('taxonomy catalog is restricted to admin and exposes only safe label fields', async t => {
-  const { request } = await fixture(t);
+  const { request, taxonomyRepository } = await fixture(t);
   for (const role of [null, 'user']) {
-    const result = await request('/taxonomy', { role });
-    assert.equal(result.status, 401);
-    await result.arrayBuffer();
+    for (const endpoint of ['/taxonomy', '/assignment-taxonomy']) {
+      const result = await request(endpoint, { role });
+      assert.equal(result.status, 401);
+      await result.arrayBuffer();
+    }
   }
   const response = await request('/taxonomy');
   assert.equal(response.status, 200);
@@ -81,20 +96,83 @@ test('taxonomy catalog is restricted to admin and exposes only safe label fields
   assert.equal(catalog.tags.length, 371);
   assert.equal(catalog.tags[0].suggestionRule, undefined);
   assert.equal(catalog.tags[0].indexPolicy, undefined);
+  const assignments = await request('/assignment-taxonomy');
+  assert.equal(assignments.status, 200);
+  assert.equal(assignments.headers.get('cache-control'), 'private, no-store');
+  const choices = await assignments.json();
+  assert.equal(choices.revision, 0);
+  assert.equal(choices.sections.length, 52);
+  assert.equal(choices.tags.length, 79);
+  assert.equal(choices.legacyTags.length, 371);
+  assert.deepEqual(Object.keys(choices.sections[0]), ['id', 'label', 'catalogId']);
+  assert.deepEqual(Object.keys(choices.tags[0]), ['id', 'label', 'type']);
+
+  const label = 'Проверка изолированного справочника';
+  taxonomyRepository.update(
+    state => {
+      state.tags.find(tag => tag.code === 'T01').name = label;
+      return state;
+    },
+    { expectedRevision: 0 },
+  );
+  const updated = await request('/assignment-taxonomy');
+  assert.equal(updated.status, 200);
+  const updatedChoices = await updated.json();
+  assert.equal(updatedChoices.revision, 1);
+  assert.equal(updatedChoices.tags.find(tag => tag.id === 'T01').label, label);
 });
 
-test('manual taxonomy persists across draft and publication; invalid updates are atomic', async t => {
-  const { repository, request } = await fixture(t);
-  const create = await request('', {
-    method: 'POST',
+test('new admin drafts and publications require a canonical section and retain optional empty tags', async t => {
+  const { repository, service, request } = await fixture(t);
+  for (const status of ['draft', 'published']) {
+    for (const taxonomyPatch of [
+      undefined,
+      { category: { mode: 'manual', id: null } },
+      { category: { mode: 'manual', id: 'office' } },
+    ]) {
+      const response = await request('', {
+        method: 'POST',
+        body: editorInput({ status, taxonomyPatch }),
+      });
+      assert.equal(response.status, 400);
+      assert.equal((await response.json()).code, 'INVALID_INSTRUCTION_TAXONOMY');
+      assert.equal(service.list().length, 0);
+      assert.equal(repository.getAll().length, 0);
+    }
+  }
+  for (const status of ['draft', 'published']) {
+    const response = await request('', {
+      method: 'POST',
+      body: editorInput({
+        status,
+        slug: `canonical-${status}`,
+        taxonomyPatch: { category: { mode: 'manual', id: 'W01' }, registryRevision: 0 },
+      }),
+    });
+    assert.equal(response.status, 201);
+    const saved = (await response.json()).instruction;
+    assert.equal(saved.primaryCategoryId, 'W01');
+    assert.deepEqual(saved.tagIds, []);
+    assert.equal(saved.taxonomyMeta.tagsSource, 'manual');
+    assert.equal(saved.taxonomyMeta.needsReview, false);
+  }
+});
+
+test('legacy manual taxonomy persists across draft and publication; invalid updates are atomic', async t => {
+  const { repository, service, request } = await fixture(t);
+  repository.save({ id: 'legacy-taxonomy', ...editorInput({ status: 'published' }) });
+  const draft = service.unpublish('legacy-taxonomy', { revision: 0 }).instruction;
+  const create = await request('/legacy-taxonomy', {
+    method: 'PUT',
     body: editorInput({
+      revision: draft.revision,
       taxonomyPatch: {
         category: { mode: 'manual', id: 'office' },
         tags: { mode: 'manual', ids: ['slesar'] },
       },
     }),
   });
-  assert.equal(create.status, 201);
+  assert.equal(create.status, 200);
   const saved = (await create.json()).instruction;
   assert.equal(saved.primaryCategoryId, 'office');
   assert.deepEqual(saved.tagIds, ['slesar']);

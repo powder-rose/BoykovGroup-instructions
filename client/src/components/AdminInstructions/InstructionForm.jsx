@@ -28,6 +28,8 @@ export default function InstructionForm({
   const [form, setForm] = useState(() => instructionToForm(record || undefined));
   const [preview, setPreview] = useState(false);
   const [error, setError] = useState('');
+  const [assignmentTaxonomy, setAssignmentTaxonomy] = useState(null);
+  const [taxonomyConflict, setTaxonomyConflict] = useState(false);
   const dirty = JSON.stringify(form) !== JSON.stringify(instructionToForm(record || undefined));
   const draftKey = getDraftKey(identity, record?.id);
   const { savedDraft, storageError, restoreDraft, discardDraft, persistDraft } =
@@ -49,6 +51,12 @@ export default function InstructionForm({
             typeof localForm.contentAuthor === 'string'
               ? localForm.contentAuthor
               : currentForm.contentAuthor,
+          taxonomyPatch:
+            localForm.taxonomyPatch &&
+            typeof localForm.taxonomyPatch === 'object' &&
+            !Array.isArray(localForm.taxonomyPatch)
+              ? localForm.taxonomyPatch
+              : {},
         });
       },
     });
@@ -57,25 +65,38 @@ export default function InstructionForm({
   function change(field, value) {
     setForm(current => ({ ...current, [field]: value }));
   }
-  function changeCategory(id, mode) {
+  function changeCategory(id, registryRevision) {
     setForm(current => ({
       ...current,
-      primaryCategoryId: mode === 'auto' ? null : id,
+      primaryCategoryId: id,
       taxonomyPatch: {
         ...current.taxonomyPatch,
-        category: mode === 'auto' ? { mode: 'auto' } : { mode: 'manual', id },
+        category: { mode: 'manual', id },
+        ...(!record?.id && !current.taxonomyPatch.tags
+          ? { tags: { mode: 'manual', ids: [...current.tagIds] } }
+          : {}),
+        registryRevision: current.taxonomyPatch.registryRevision ?? registryRevision,
       },
     }));
   }
-  function changeTags(ids, mode) {
+  function changeTags(ids, registryRevision) {
     setForm(current => ({
       ...current,
-      tagIds: mode === 'auto' ? [] : ids,
+      tagIds: ids,
       taxonomyPatch: {
         ...current.taxonomyPatch,
-        tags: mode === 'auto' ? { mode: 'auto' } : { mode: 'manual', ids },
+        tags: { mode: 'manual', ids },
+        registryRevision: current.taxonomyPatch.registryRevision ?? registryRevision,
       },
     }));
+  }
+  function confirmTaxonomyRevision(registryRevision) {
+    setForm(current => ({
+      ...current,
+      taxonomyPatch: { ...current.taxonomyPatch, registryRevision },
+    }));
+    setTaxonomyConflict(false);
+    setError('');
   }
   function close() {
     if (saving) return;
@@ -89,7 +110,10 @@ export default function InstructionForm({
   }
   async function save(status) {
     if (savingRef.current) return;
-    const validation = validateInstructionForm(form, status, record?.slug || record?.id || '');
+    const validation = validateInstructionForm(form, status, record?.slug || record?.id || '', {
+      requireSection: !record?.id,
+      taxonomy: assignmentTaxonomy,
+    });
     if (validation) {
       setError(validation);
       return;
@@ -101,6 +125,7 @@ export default function InstructionForm({
       removeInstructionDraft(draftKey);
     } catch (saveError) {
       setError(saveError.message);
+      setTaxonomyConflict(saveError.code === 'TAXONOMY_REVISION_CONFLICT');
     } finally {
       savingRef.current = false;
     }
@@ -208,6 +233,9 @@ export default function InstructionForm({
           form={form}
           onCategory={changeCategory}
           onTags={changeTags}
+          onDictionary={setAssignmentTaxonomy}
+          onConfirmRevision={confirmTaxonomyRevision}
+          revisionConflict={taxonomyConflict}
         />
         <section
           className="admin-instruction-form__body"

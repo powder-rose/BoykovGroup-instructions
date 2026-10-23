@@ -4,8 +4,12 @@ import { requireAdmin } from '../middleware/auth.js';
 import { instructionEditorService } from '../services/instructionEditorService.js';
 import { getInstructionTaxonomyCatalog } from '../services/instructionTaxonomyService.js';
 import { InstructionEditorError } from '../services/instructionEditorError.js';
+import { getInstructionTaxonomyAssignmentCatalog } from '../services/instructionTaxonomyAssignmentCatalog.js';
 
-export function createAdminInstructionsRouter({ service = instructionEditorService } = {}) {
+export function createAdminInstructionsRouter({
+  service = instructionEditorService,
+  getAssignmentCatalog = getInstructionTaxonomyAssignmentCatalog,
+} = {}) {
   const router = Router();
 
   router.use((req, res, next) => {
@@ -21,6 +25,7 @@ export function createAdminInstructionsRouter({ service = instructionEditorServi
       tags: catalog.tags.map(({ id, label, type }) => ({ id, label, type })),
     });
   });
+  router.get('/assignment-taxonomy', (req, res) => res.json(getAssignmentCatalog()));
   router.get('/', (req, res) => res.json({ items: service.list() }));
   router.get('/:id', (req, res) => res.json(service.get(req.params.id)));
   router.post('/', (req, res) => res.status(201).json(service.save(null, req.body)));

@@ -5,6 +5,7 @@ import { getInstructionPopularity } from './instructionPopularityService.js';
 import { normalizeProfessionKey } from './professionNormalizer.js';
 import { filterInstructionsByTaxonomy } from './instructionTaxonomyFilterService.js';
 import { getInstructionTaxonomyDisplay } from './instructionTaxonomyDisplayService.js';
+import { getInstructionTaxonomyAssignmentCatalog } from './instructionTaxonomyAssignmentCatalog.js';
 
 /*
  * SEARCH V4
@@ -592,8 +593,8 @@ export function rankInstructionsByQuery(
   return ranked.map(item => item.instruction);
 }
 
-function toSummary(instruction) {
-  const taxonomyDisplay = getInstructionTaxonomyDisplay(instruction);
+function toSummary(instruction, catalog) {
+  const taxonomyDisplay = getInstructionTaxonomyDisplay(instruction, { catalog });
 
   return {
     id: instruction.id,
@@ -614,9 +615,20 @@ function toSummary(instruction) {
 
 export function searchInstructions(
   query,
-  { page = 1, pageSize = 6, sort = 'newest', category = '', tag = '' } = {},
+  {
+    page = 1,
+    pageSize = 6,
+    sort = 'newest',
+    category = '',
+    tag = '',
+    catalog = getInstructionTaxonomyAssignmentCatalog(),
+  } = {},
 ) {
-  const all = filterInstructionsByTaxonomy(instructionsRepository.getAll(), { category, tag });
+  const all = filterInstructionsByTaxonomy(
+    instructionsRepository.getAll(),
+    { category, tag },
+    { catalog },
+  );
 
   const trimmed = String(query ?? '').trim();
 
@@ -654,7 +666,9 @@ export function searchInstructions(
 
   const start = (safePage - 1) * normalizedPageSize;
 
-  const items = matched.slice(start, start + normalizedPageSize).map(toSummary);
+  const items = matched
+    .slice(start, start + normalizedPageSize)
+    .map(instruction => toSummary(instruction, catalog));
 
   return {
     items,

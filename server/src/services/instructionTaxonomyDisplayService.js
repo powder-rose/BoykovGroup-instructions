@@ -1,16 +1,19 @@
-import { getInstructionTaxonomyCatalog } from './instructionTaxonomyService.js';
+import { getInstructionTaxonomyAssignmentCatalog } from './instructionTaxonomyAssignmentCatalog.js';
 
-// Use the same versioned dictionary as auto assignment and the admin editor.
-// Only public labels and stable IDs reach instruction pages; no editorial metadata.
-const catalog = getInstructionTaxonomyCatalog();
-const categoriesById = new Map(catalog.categories.map(({ id, label }) => [id, label]));
-const tagsById = new Map(catalog.tags.map(({ id, label }) => [id, label]));
-
-export function getInstructionTaxonomyDisplay(instruction) {
+export function getInstructionTaxonomyDisplay(
+  instruction,
+  { catalog = getInstructionTaxonomyAssignmentCatalog() } = {},
+) {
   if (!instruction || typeof instruction !== 'object' || Array.isArray(instruction)) {
     return null;
   }
 
+  const categoriesById = new Map(
+    [...catalog.legacyCategories, ...catalog.sections].map(({ id, label }) => [id, label]),
+  );
+  const tagsById = new Map(
+    [...catalog.legacyTags, ...catalog.tags].map(({ id, label }) => [id, label]),
+  );
   const categoryLabel = categoriesById.get(instruction.primaryCategoryId);
   const category = categoryLabel
     ? { id: instruction.primaryCategoryId, label: categoryLabel }
@@ -25,7 +28,6 @@ export function getInstructionTaxonomyDisplay(instruction) {
       if (!label || seen.has(id)) continue;
       tags.push({ id, label });
       seen.add(id);
-      if (tags.length === 5) break;
     }
   }
 

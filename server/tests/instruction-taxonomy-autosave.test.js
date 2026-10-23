@@ -1,7 +1,21 @@
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import test, { after } from 'node:test';
 
 import { saveInstructionWithTaxonomy } from '../src/services/instructionTaxonomyPersistence.js';
+import { createInstructionTaxonomyRegistryRepository } from '../src/services/instructionTaxonomyRegistryRepository.js';
+
+const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'boykovdocs-taxonomy-autosave-'));
+const taxonomyRepository = createInstructionTaxonomyRegistryRepository({
+  filePath: path.join(directory, 'taxonomy.json'),
+});
+after(() => fs.rmSync(directory, { recursive: true, force: true }));
+
+function persist(repo, instruction) {
+  return saveInstructionWithTaxonomy(repo, instruction, { taxonomyRepository });
+}
 
 function repository() {
   const stored = new Map();
@@ -25,7 +39,7 @@ test('new published instruction is classified without changing its document or U
     sections: [{ heading: 'Общие требования', paragraphs: ['1.1. Проверить инструмент.'] }],
   };
 
-  const saved = saveInstructionWithTaxonomy(repo, input);
+  const saved = persist(repo, input);
 
   assert.equal(saved.primaryCategoryId, 'electrical');
   assert.ok(saved.tagIds.includes('slesar'));
@@ -40,7 +54,7 @@ test('new published instruction is classified without changing its document or U
 
 test('new unknown profession remains publishable and is flagged for editorial review', () => {
   const repo = repository();
-  const saved = saveInstructionWithTaxonomy(repo, {
+  const saved = persist(repo, {
     id: 'unknown',
     title: 'Инструкция по охране труда для неизвестной профессии',
   });
@@ -60,7 +74,7 @@ test('reimport of legacy unclassified record does not silently migrate it', () =
 
   repo.save(legacy);
   const incoming = { ...legacy, version: '1.1' };
-  const saved = saveInstructionWithTaxonomy(repo, incoming);
+  const saved = persist(repo, incoming);
 
   assert.deepEqual(saved, incoming);
   assert.deepEqual(repo.getById(legacy.id), incoming);
@@ -68,7 +82,7 @@ test('reimport of legacy unclassified record does not silently migrate it', () =
 
 test('manual classification survives later updates; automatic metadata can refresh', () => {
   const repo = repository();
-  const original = saveInstructionWithTaxonomy(repo, {
+  const original = persist(repo, {
     id: 'manual',
     title: 'Инструкция по охране труда для слесаря-электрика',
     profession: 'слесаря-электрика',
@@ -86,7 +100,7 @@ test('manual classification survives later updates; automatic metadata can refre
   };
   repo.save(manuallyEdited);
 
-  const saved = saveInstructionWithTaxonomy(repo, {
+  const saved = persist(repo, {
     ...manuallyEdited,
     title: 'Инструкция по охране труда для слесаря-сантехника',
     profession: 'слесаря-сантехника',
@@ -97,17 +111,19 @@ test('manual classification survives later updates; automatic metadata can refre
   assert.equal(saved.taxonomyMeta.categorySource, 'manual');
   assert.equal(saved.taxonomyMeta.tagsSource, 'manual');
 
-  const automatic = saveInstructionWithTaxonomy(repo, {
+  const retained = persist(repo, {
     ...saved,
     taxonomyMeta: { categorySource: 'auto', tagsSource: 'auto' },
   });
-  assert.equal(automatic.primaryCategoryId, 'property');
-  assert.ok(automatic.tagIds.includes('slesar'));
+  assert.equal(retained.primaryCategoryId, 'office');
+  assert.deepEqual(retained.tagIds, ['slesar']);
+  assert.equal(retained.taxonomyMeta.categorySource, 'manual');
+  assert.equal(retained.taxonomyMeta.tagsSource, 'manual');
 });
 
 test('invalid manual taxonomy fails before writing any record', () => {
   const repo = repository();
-  const prior = saveInstructionWithTaxonomy(repo, {
+  const prior = persist(repo, {
     id: 'safe',
     title: 'Инструкция по охране труда для электромонтёра',
     profession: 'электромонтёра',
@@ -115,7 +131,7 @@ test('invalid manual taxonomy fails before writing any record', () => {
 
   assert.throws(
     () =>
-      saveInstructionWithTaxonomy(repo, {
+      persist(repo, {
         ...prior,
         primaryCategoryId: 'not-a-category',
         taxonomyMeta: { categorySource: 'manual', tagsSource: 'manual' },

@@ -1,5 +1,9 @@
 # Instruction taxonomy administration
 
+Manual instruction assignments are now connected by the follow-up stage described in
+`instruction-taxonomy-bindings.md`. The metadata-only boundaries below describe the initial admin
+delivery; public landing pages, CSV application and bulk transfer are still separate stages.
+
 The existing admin dashboard now has a **Структура каталога** tab for the general catalog,
 catalogs, sections and tags. It edits the persistent taxonomy registry introduced by
 `instruction-taxonomy-registry.md`. The current instruction editor, public pages, instruction

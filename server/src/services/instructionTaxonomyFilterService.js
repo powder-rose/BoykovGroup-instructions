@@ -1,11 +1,20 @@
-import { getInstructionTaxonomyCatalog } from './instructionTaxonomyService.js';
+import { getInstructionTaxonomyAssignmentCatalog } from './instructionTaxonomyAssignmentCatalog.js';
 
-const catalog = getInstructionTaxonomyCatalog();
-const categoriesById = new Map(catalog.categories.map(category => [category.id, category]));
-const tagsById = new Map(catalog.tags.map(tag => [tag.id, tag]));
+function definitions(catalog) {
+  return {
+    categories: [...catalog.legacyCategories, ...catalog.sections],
+    tags: [...catalog.legacyTags, ...catalog.tags],
+  };
+}
 
 /** User-facing filters accept exact canonical IDs, never free-text or aliases. */
-export function validateInstructionTaxonomyFilters({ category = '', tag = '' } = {}) {
+export function validateInstructionTaxonomyFilters(
+  { category = '', tag = '' } = {},
+  { catalog = getInstructionTaxonomyAssignmentCatalog() } = {},
+) {
+  const { categories, tags } = definitions(catalog);
+  const categoriesById = new Set(categories.map(item => item.id));
+  const tagsById = new Set(tags.map(item => item.id));
   if (typeof category !== 'string' || (category && !categoriesById.has(category))) {
     throw new TypeError('Unknown instruction category filter');
   }
@@ -16,8 +25,8 @@ export function validateInstructionTaxonomyFilters({ category = '', tag = '' } =
 }
 
 /** Filter stored assignments only: do not auto-classify existing records during search. */
-export function filterInstructionsByTaxonomy(instructions, filters = {}) {
-  const { category, tag } = validateInstructionTaxonomyFilters(filters);
+export function filterInstructionsByTaxonomy(instructions, filters = {}, options = {}) {
+  const { category, tag } = validateInstructionTaxonomyFilters(filters, options);
   const records = Array.isArray(instructions) ? instructions : [];
 
   if (!category && !tag) return [...records];
@@ -33,12 +42,23 @@ export function filterInstructionsByTaxonomy(instructions, filters = {}) {
 }
 
 /** Only published assignments that actually exist are offered to public visitors. */
-export function getInstructionTaxonomyFilterOptions(instructions) {
+export function getInstructionTaxonomyFilterOptions(
+  instructions,
+  { catalog = getInstructionTaxonomyAssignmentCatalog() } = {},
+) {
+  const { categories, tags } = definitions(catalog);
+  const categoriesById = new Set(categories.map(item => item.id));
+  const tagsById = new Set(tags.map(item => item.id));
   const categoryCounts = new Map();
   const tagCounts = new Map();
 
   for (const instruction of Array.isArray(instructions) ? instructions : []) {
     if (!instruction || typeof instruction !== 'object') continue;
+    if (
+      String(instruction.status || '').toLowerCase() === 'draft' ||
+      String(instruction.seoStatus || '').toLowerCase() === 'draft'
+    )
+      continue;
     if (categoriesById.has(instruction.primaryCategoryId)) {
       categoryCounts.set(
         instruction.primaryCategoryId,
@@ -54,10 +74,10 @@ export function getInstructionTaxonomyFilterOptions(instructions) {
   }
 
   return {
-    categories: catalog.categories
+    categories: categories
       .filter(item => categoryCounts.has(item.id))
       .map(({ id, label }) => ({ id, label, count: categoryCounts.get(id) })),
-    tags: catalog.tags
+    tags: tags
       .filter(item => tagCounts.has(item.id))
       .map(({ id, label, type }) => ({ id, label, type, count: tagCounts.get(id) })),
   };

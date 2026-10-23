@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { TextDecoder } from 'node:util';
 
 import { slugify } from '../utils/slug.js';
 import {
@@ -13,6 +14,11 @@ import {
 import { instructionsRepository } from './instructionsRepository.js';
 import { getInstructionTaxonomyDisplay } from './instructionTaxonomyDisplayService.js';
 import { applyInstructionTaxonomyEditorPatch } from './instructionTaxonomyEditor.js';
+import {
+  getInstructionTaxonomyAssignmentCatalog,
+  validateInstructionTaxonomyAssignment,
+} from './instructionTaxonomyAssignmentCatalog.js';
+import { instructionTaxonomyRegistryRepository } from './instructionTaxonomyRegistryRepository.js';
 import { saveInstructionSnapshot } from './instructionHistoryService.js';
 import { normalizeProfessionKey } from './professionNormalizer.js';
 import { createInstructionHash } from './instructionHashService.js';
@@ -102,7 +108,22 @@ export function createInstructionEditorService({
   repository = instructionsRepository,
   draftsDirectory = DEFAULT_DRAFTS,
   saveSnapshot = saveInstructionSnapshot,
+  taxonomyRepository = instructionTaxonomyRegistryRepository,
 } = {}) {
+  function refreshPublished() {
+    if (typeof repository.getAllFresh === 'function') repository.getAllFresh();
+  }
+
+  function mutate(operation) {
+    return taxonomyRepository.withLock(
+      (registry, assertHeld) => {
+        refreshPublished();
+        return operation(registry, assertHeld);
+      },
+      { waitMs: 5000 },
+    );
+  }
+
   function draftPath(id) {
     return path.join(
       draftsDirectory,
@@ -112,13 +133,25 @@ export function createInstructionEditorService({
 
   function readDraftFile(filePath) {
     try {
-      const value = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      if (!fs.lstatSync(filePath).isFile()) throw new Error('Non-regular instruction draft');
+      const value = JSON.parse(
+        new TextDecoder('utf-8', { fatal: true }).decode(fs.readFileSync(filePath)),
+      );
 
       if (
-        !value?.id ||
-        !Number.isInteger(value.revision) ||
+        !value ||
+        typeof value.id !== 'string' ||
+        !value.id.trim() ||
+        !Number.isSafeInteger(value.revision) ||
         value.revision < 1 ||
-        value.status !== 'draft'
+        value.status !== 'draft' ||
+        draftPath(value.id) !== filePath ||
+        (value.primaryCategoryId !== undefined &&
+          value.primaryCategoryId !== null &&
+          typeof value.primaryCategoryId !== 'string') ||
+        (value.tagIds !== undefined &&
+          value.tagIds !== null &&
+          (!Array.isArray(value.tagIds) || value.tagIds.some(id => typeof id !== 'string')))
       ) {
         throw new Error('Invalid instruction draft');
       }
@@ -157,7 +190,7 @@ export function createInstructionEditorService({
     return files.map(file => readDraftFile(path.join(draftsDirectory, file))).filter(Boolean);
   }
 
-  function writeDraft(instruction) {
+  function writeDraft(instruction, assertHeld) {
     const target = draftPath(instruction.id);
     const temporary = path.join(draftsDirectory, `.${path.basename(target)}.${randomUUID()}.tmp`);
 
@@ -168,6 +201,7 @@ export function createInstructionEditorService({
         mode: 0o600,
         flush: true,
       });
+      assertHeld();
       fs.renameSync(temporary, target);
     } catch (cause) {
       try {
@@ -176,6 +210,7 @@ export function createInstructionEditorService({
         console.error('[Instructions] Failed to clean unfinished draft:', cleanupError);
       }
 
+      if (cause instanceof InstructionEditorError) throw cause;
       throw new InstructionEditorError('Не удалось сохранить черновик инструкции', {
         status: 500,
         code: 'INSTRUCTION_DRAFT_STORAGE_ERROR',
@@ -207,7 +242,7 @@ export function createInstructionEditorService({
     };
   }
 
-  function editorView({ published, draft, editable, revision }) {
+  function editorView({ published, draft, editable, revision }, registry) {
     const seo = getInstructionSeo(editable);
 
     return {
@@ -222,7 +257,14 @@ export function createInstructionEditorService({
         status: draft ? 'draft' : 'published',
         revision,
         editorialMeta: getInstructionEditorialMeta(editable),
-        taxonomyDisplay: getInstructionTaxonomyDisplay(editable),
+        taxonomyDisplay: getInstructionTaxonomyDisplay(
+          editable,
+          registry
+            ? {
+                catalog: getInstructionTaxonomyAssignmentCatalog(registry),
+              }
+            : undefined,
+        ),
       },
       hasDraft: Boolean(draft),
       hasPublishedVersion: Boolean(published),
@@ -351,7 +393,11 @@ export function createInstructionEditorService({
 
   const service = {
     getTaxonomyReferences() {
-      return [...repository.getAll(), ...allDrafts()].map(instruction =>
+      const published =
+        typeof repository.getTaxonomyReferences === 'function'
+          ? repository.getTaxonomyReferences()
+          : repository.getAll();
+      return [...published, ...allDrafts()].map(instruction =>
         structuredClone({
           id: instruction.id,
           status: instruction.status,
@@ -363,11 +409,13 @@ export function createInstructionEditorService({
     },
 
     list() {
+      refreshPublished();
       const ids = new Set([...repository.getAll(), ...allDrafts()].map(item => item.id));
+      const registry = taxonomyRepository.read();
 
       return [...ids]
         .map(id => {
-          const view = service.get(id);
+          const view = editorView(state(id), registry);
 
           return {
             ...instructionSummary(view.instruction),
@@ -386,134 +434,180 @@ export function createInstructionEditorService({
     },
 
     get(id) {
-      return editorView(state(id));
+      refreshPublished();
+      return editorView(state(id), taxonomyRepository.read());
     },
 
     save(id, input) {
-      const previous = id ? state(id) : null;
+      return mutate((registry, assertHeld) => {
+        const previous = id ? state(id) : null;
 
-      if (previous) assertRevision(previous.revision, input?.revision);
+        if (previous) assertRevision(previous.revision, input?.revision);
 
-      const values = normalize(input, previous?.editable);
-      const stableId = id || `instruction-${randomUUID()}`;
-      const published = previous?.published;
-      const aliases = uniqueAliases(
-        [
-          stableId,
-          ...(previous?.editable.slugAliases || []),
-          ...(published?.slugAliases || []),
-          published?.slug || published?.id,
-        ],
-        values.slug,
-      );
+        const values = normalize(input, previous?.editable);
+        const stableId = id || `instruction-${randomUUID()}`;
+        const published = previous?.published;
+        const aliases = uniqueAliases(
+          [
+            stableId,
+            ...(previous?.editable.slugAliases || []),
+            ...(published?.slugAliases || []),
+            published?.slug || published?.id,
+          ],
+          values.slug,
+        );
 
-      checkSlug(stableId, values.slug, aliases);
+        checkSlug(stableId, values.slug, aliases);
 
-      const now = new Date().toISOString();
-      const profession = previous?.editable.profession || titleProfession(values.title);
-      const legacy = instructionDocumentToLegacy(values.instructionContent);
-      const instruction = applyInstructionTaxonomyEditorPatch(
-        {
-          ...previous?.editable,
-          ...values,
-          ...legacy,
-          id: stableId,
-          slugAliases: aliases,
-          profession,
-          professionKey: previous?.editable.professionKey || normalizeProfessionKey(profession),
-          source: previous?.editable.source || 'manual',
-          createdAt: previous?.editable.createdAt || now,
-          updatedAt: now,
-          revision: (previous?.revision || 0) + 1,
-          version: published?.version || previous?.editable.version || '1.0',
-        },
-        input.taxonomyPatch,
-      );
+        const now = new Date().toISOString();
+        const profession = previous?.editable.profession || titleProfession(values.title);
+        const legacy = instructionDocumentToLegacy(values.instructionContent);
+        const instruction = applyInstructionTaxonomyEditorPatch(
+          {
+            ...previous?.editable,
+            ...values,
+            ...legacy,
+            id: stableId,
+            slugAliases: aliases,
+            profession,
+            professionKey: previous?.editable.professionKey || normalizeProfessionKey(profession),
+            source: previous?.editable.source || 'manual',
+            createdAt: previous?.editable.createdAt || now,
+            updatedAt: now,
+            revision: (previous?.revision || 0) + 1,
+            version: published?.version || previous?.editable.version || '1.0',
+          },
+          input.taxonomyPatch,
+          { registry },
+        );
 
-      instruction.contentHash = createInstructionHash(instruction);
-      instruction.editorialMeta = updateInstructionEditorialMeta(previous?.editable, instruction, {
-        seoReady: input.seoReady,
-        seoAuthor: input.seoAuthor,
-        contentAuthor: input.contentAuthor,
-        now,
-      });
+        validateInstructionTaxonomyAssignment(
+          {
+            primaryCategoryId: instruction.primaryCategoryId,
+            tagIds: instruction.tagIds,
+          },
+          { registry, requireSection: !previous },
+        );
 
-      if (values.status === 'draft') {
-        writeDraft(instruction);
-      } else {
-        const lastPublication =
-          published || (previous?.editable.publishedAt ? previous.editable : null);
+        instruction.contentHash = createInstructionHash(instruction);
+        instruction.editorialMeta = updateInstructionEditorialMeta(
+          previous?.editable,
+          instruction,
+          {
+            seoReady: input.seoReady,
+            seoAuthor: input.seoAuthor,
+            contentAuthor: input.contentAuthor,
+            now,
+          },
+        );
 
-        instruction.version = lastPublication
-          ? (Number(lastPublication.version || '1.0') + 0.1).toFixed(1)
-          : '1.0';
-        instruction.publishedAt = lastPublication?.publishedAt || lastPublication?.createdAt || now;
+        if (values.status === 'draft') {
+          writeDraft(instruction, assertHeld);
+        } else {
+          const lastPublication =
+            published || (previous?.editable.publishedAt ? previous.editable : null);
 
-        if (published) saveSnapshot(published);
+          instruction.version = lastPublication
+            ? (Number(lastPublication.version || '1.0') + 0.1).toFixed(1)
+            : '1.0';
+          instruction.publishedAt =
+            lastPublication?.publishedAt || lastPublication?.createdAt || now;
 
-        repository.save(instruction);
+          assertHeld();
+          if (published) saveSnapshot(published);
 
-        // A leftover older draft is ignored by state() if cleanup itself fails.
-        try {
-          removeDraft(stableId);
-        } catch (error) {
-          console.error(
-            '[Instructions] Published successfully; failed to remove old draft:',
-            error,
-          );
+          assertHeld();
+          repository.save(instruction, { assertHeld });
+
+          // A leftover older draft is ignored by state() if cleanup itself fails.
+          try {
+            assertHeld();
+            removeDraft(stableId);
+          } catch (error) {
+            console.error(
+              '[Instructions] Published successfully; failed to remove old draft:',
+              error,
+            );
+          }
         }
-      }
 
-      return service.get(stableId);
+        return editorView(state(stableId), registry);
+      });
     },
 
     remove(id, { revision } = {}) {
-      const current = state(id);
+      return mutate((_registry, assertHeld) => {
+        const current = state(id);
 
-      assertRevision(current.revision, revision);
-      if (current.published) repository.remove(id);
+        assertRevision(current.revision, revision);
+        assertHeld();
+        if (current.published) repository.remove(id, { assertHeld });
 
-      try {
-        removeDraft(id);
-      } catch (error) {
-        if (current.published) repository.save(current.published);
-        throw error;
-      }
+        try {
+          assertHeld();
+          removeDraft(id);
+        } catch (error) {
+          assertHeld();
+          if (current.published) repository.save(current.published, { assertHeld });
+          throw error;
+        }
+      });
     },
 
     discardDraft(id, { revision } = {}) {
-      const current = state(id);
+      return mutate((registry, assertHeld) => {
+        const current = state(id);
 
-      assertRevision(current.revision, revision);
+        assertRevision(current.revision, revision);
 
-      if (current.published && current.draft) {
-        repository.save({ ...current.published, revision: current.revision + 1 });
-      }
+        if (current.published && current.draft) {
+          validateInstructionTaxonomyAssignment(
+            {
+              primaryCategoryId: current.published.primaryCategoryId,
+              tagIds: current.published.tagIds,
+            },
+            { registry },
+          );
+          assertHeld();
+          repository.save({ ...current.published, revision: current.revision + 1 }, { assertHeld });
+        }
 
-      removeDraft(id);
+        assertHeld();
+        removeDraft(id);
 
-      return current.published ? service.get(id) : null;
+        return current.published ? editorView(state(id), registry) : null;
+      });
     },
 
     unpublish(id, { revision } = {}) {
-      const current = state(id);
+      return mutate((registry, assertHeld) => {
+        const current = state(id);
 
-      assertRevision(current.revision, revision);
+        assertRevision(current.revision, revision);
 
-      if (!current.published) return service.get(id);
+        if (!current.published) return editorView(current, registry);
 
-      const draft = {
-        ...current.editable,
-        status: 'draft',
-        publishedAt: current.published.publishedAt || current.published.createdAt,
-        revision: current.revision + 1,
-        updatedAt: new Date().toISOString(),
-      };
+        const draft = {
+          ...current.editable,
+          status: 'draft',
+          publishedAt: current.published.publishedAt || current.published.createdAt,
+          revision: current.revision + 1,
+          updatedAt: new Date().toISOString(),
+        };
 
-      writeDraft(draft);
-      repository.remove(id);
+        validateInstructionTaxonomyAssignment(
+          {
+            primaryCategoryId: draft.primaryCategoryId,
+            tagIds: draft.tagIds,
+          },
+          { registry },
+        );
+        writeDraft(draft, assertHeld);
+        assertHeld();
+        repository.remove(id, { assertHeld });
 
-      return service.get(id);
+        return editorView(state(id), registry);
+      });
     },
   };
 

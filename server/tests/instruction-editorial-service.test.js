@@ -6,6 +6,7 @@ import test from 'node:test';
 
 import { createInstructionEditorService } from '../src/services/instructionEditorService.js';
 import { InstructionsRepository } from '../src/services/instructionsRepository.js';
+import { createInstructionTaxonomyRegistryRepository } from '../src/services/instructionTaxonomyRegistryRepository.js';
 
 const SEO_DATE = '2025-01-03T10:00:00.000Z';
 const CONTENT_DATE = '2025-02-04T11:00:00.000Z';
@@ -58,6 +59,9 @@ function fixture(t, record) {
   const repository = new InstructionsRepository(path.join(directory, 'published'));
   const service = createInstructionEditorService({
     repository,
+    taxonomyRepository: createInstructionTaxonomyRegistryRepository({
+      filePath: path.join(directory, 'taxonomy.json'),
+    }),
     draftsDirectory: path.join(directory, 'drafts'),
     saveSnapshot: () => {},
   });
@@ -90,6 +94,11 @@ test('new instructions are not automatically marked SEO-ready and reject forged 
   const result = service.save(
     null,
     input({
+      taxonomyPatch: {
+        category: { mode: 'manual', id: 'P10' },
+        tags: { mode: 'manual', ids: [] },
+        registryRevision: 0,
+      },
       editorialMeta: {
         seoReady: true,
         seoUpdatedAt: FORGED_DATE,

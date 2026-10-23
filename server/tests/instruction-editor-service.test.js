@@ -9,6 +9,7 @@ import {
   getRelatedInstructions,
 } from '../src/services/instructionEditorService.js';
 import { InstructionsRepository } from '../src/services/instructionsRepository.js';
+import { createInstructionTaxonomyRegistryRepository } from '../src/services/instructionTaxonomyRegistryRepository.js';
 import { rankInstructionsByQuery } from '../src/services/searchService.js';
 
 function richText(text) {
@@ -32,6 +33,17 @@ function editorInput(overrides = {}) {
   };
 }
 
+function createInput(overrides = {}) {
+  return editorInput({
+    taxonomyPatch: {
+      category: { mode: 'manual', id: 'W01' },
+      tags: { mode: 'manual', ids: [] },
+      registryRevision: 0,
+    },
+    ...overrides,
+  });
+}
+
 function fixture(t, options = {}) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'boykovdocs-instruction-editor-'));
   const repository = new InstructionsRepository(path.join(directory, 'published'));
@@ -40,6 +52,9 @@ function fixture(t, options = {}) {
   const serviceOptions = {
     repository,
     draftsDirectory,
+    taxonomyRepository: createInstructionTaxonomyRegistryRepository({
+      filePath: path.join(directory, 'taxonomy.json'),
+    }),
     saveSnapshot: instruction => snapshots.push(structuredClone(instruction)),
     ...options,
   };
@@ -52,7 +67,7 @@ function fixture(t, options = {}) {
 
 test('new instruction draft persists separately and cannot satisfy public or paid lookups', t => {
   const { repository, service, serviceOptions } = fixture(t);
-  const saved = service.save(null, editorInput());
+  const saved = service.save(null, createInput());
   const { instruction } = saved;
 
   assert.ok(instruction.id);
@@ -77,7 +92,7 @@ test('blank new slug is generated from the title and blank edits retain the exis
   const { service } = fixture(t);
   const created = service.save(
     null,
-    editorInput({ title: 'Инструкция электрика', slug: '   ' }),
+    createInput({ title: 'Инструкция электрика', slug: '   ' }),
   ).instruction;
 
   assert.equal(created.slug, 'instruktsiya-elektrika');
@@ -121,7 +136,7 @@ test('blank slug preserves an old instruction ID as the published URL', t => {
 
 test('publication keeps the stable ID and complete manual document without import conversion', t => {
   const { repository, service } = fixture(t);
-  const draft = service.save(null, editorInput()).instruction;
+  const draft = service.save(null, createInput()).instruction;
   const table = {
     type: 'table',
     content: [
@@ -170,7 +185,7 @@ test('publication keeps the stable ID and complete manual document without impor
 
 test('saving draft edits leaves the live JSON, public slug and paid lookup unchanged', t => {
   const { repository, service, snapshots } = fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const before = structuredClone(repository.getById(published.id));
   const filePath = path.join(repository.dir, `${published.id}.json`);
   const diskBefore = fs.readFileSync(filePath, 'utf8');
@@ -200,7 +215,7 @@ test('saving draft edits leaves the live JSON, public slug and paid lookup uncha
 
 test('stale or missing revisions cannot overwrite, delete, discard or unpublish newer edits', t => {
   const { repository, service } = fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const draft = service.save(
     published.id,
     editorInput({ revision: published.revision, title: 'Свежая редакция' }),
@@ -223,7 +238,7 @@ test('stale or missing revisions cannot overwrite, delete, discard or unpublish 
 
 test('discarding draft restores the published editor view without reverting live content', t => {
   const { repository, service, serviceOptions } = fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const draft = service.save(
     published.id,
     editorInput({ revision: published.revision, title: 'Удаляемый черновик' }),
@@ -246,7 +261,7 @@ test('discarding draft restores the published editor view without reverting live
 
 test('unpublishing retains the latest draft while removing all public lookup results', t => {
   const { repository, service } = fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const draft = service.save(
     published.id,
     editorInput({ revision: published.revision, title: 'Сохранённая рабочая редакция' }),
@@ -290,7 +305,7 @@ test('republishing a withdrawn instruction retains its first publication date an
 
 test('published slugs, historical slugs, stable IDs and other drafts cannot be hijacked', t => {
   const { repository, service } = fixture(t);
-  const first = service.save(null, editorInput({ status: 'published' })).instruction;
+  const first = service.save(null, createInput({ status: 'published' })).instruction;
   const renamed = service.save(
     first.id,
     editorInput({ status: 'published', revision: first.revision, slug: 'renamed-manual' }),
@@ -302,11 +317,11 @@ test('published slugs, historical slugs, stable IDs and other drafts cannot be h
 
   const separateDraft = service.save(
     null,
-    editorInput({ slug: 'reserved-draft-slug' }),
+    createInput({ slug: 'reserved-draft-slug' }),
   ).instruction;
 
   for (const slug of [first.slug, first.id, renamed.slug, separateDraft.slug]) {
-    assert.throws(() => service.save(null, editorInput({ slug })), { status: 409 });
+    assert.throws(() => service.save(null, createInput({ slug })), { status: 409 });
   }
 });
 
@@ -440,7 +455,7 @@ test('legacy records without editorial fields remain published and editable with
 
 test('invalid slug or malformed rich text is rejected before any persisted draft or publication changes', t => {
   const { repository, service } = fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const invalidDocuments = [
     { type: 'doc', content: [{ type: 'script', content: [] }] },
     {
@@ -483,7 +498,7 @@ test('invalid slug or malformed rich text is rejected before any persisted draft
 
 test('failed draft rename preserves both the previous draft and published file', t => {
   const { repository, service, draftsDirectory } = fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const draft = service.save(
     published.id,
     editorInput({ revision: published.revision, title: 'Сохранённый черновик' }),
@@ -510,7 +525,7 @@ test('failed draft rename preserves both the previous draft and published file',
 
 test('failed publish retains the last public file and the editable draft for retry', t => {
   const { repository, service } = fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const draft = service.save(
     published.id,
     editorInput({ revision: published.revision, title: 'Ожидает публикации' }),
@@ -537,7 +552,7 @@ test('failed publish retains the last public file and the editable draft for ret
 
 test('failed unpublish draft write leaves the published document available', t => {
   const { repository, service, draftsDirectory } = fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const originalRename = fs.renameSync;
   const rename = t.mock.method(fs, 'renameSync', (from, to) => {
     if (String(to).startsWith(`${draftsDirectory}${path.sep}`)) {
@@ -559,10 +574,10 @@ test('failed unpublish draft write leaves the published document available', t =
 
 test('deleting an instruction removes published and draft copies without touching another instruction', t => {
   const { repository, service } = fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const other = service.save(
     null,
-    editorInput({ status: 'published', slug: 'other-instruction' }),
+    createInput({ status: 'published', slug: 'other-instruction' }),
   ).instruction;
   const draft = service.save(
     published.id,
@@ -580,7 +595,7 @@ test('deleting an instruction removes published and draft copies without touchin
 
 test('failed published-file removal preserves the latest draft and live document', t => {
   const { repository, service, serviceOptions } = fixture(t);
-  const published = service.save(null, editorInput({ status: 'published' })).instruction;
+  const published = service.save(null, createInput({ status: 'published' })).instruction;
   const draft = service.save(
     published.id,
     editorInput({

@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 import { instructionsRepository } from './instructionsRepository.js';
 import { assertNoPendingInstructionDraft } from './instructionDraftGuard.js';
+import { instructionTaxonomyRegistryRepository } from './instructionTaxonomyRegistryRepository.js';
+import { validateInstructionTaxonomyAssignment } from './instructionTaxonomyAssignmentCatalog.js';
 import {
   getInstructionEditorialMeta,
   updateInstructionEditorialMeta,
@@ -113,96 +115,119 @@ export function saveInstructionSnapshot(instruction, { historyRoot = HISTORY_ROO
  */
 export function rollbackInstruction(
   instructionId,
-  { repository = instructionsRepository, historyRoot = HISTORY_ROOT } = {},
+  {
+    repository = instructionsRepository,
+    historyRoot = HISTORY_ROOT,
+    taxonomyRepository = instructionTaxonomyRegistryRepository,
+    draftsDirectory,
+  } = {},
 ) {
-  const current = repository.getById(instructionId);
+  return taxonomyRepository.withLock(
+    (registry, assertHeld) => {
+      const current =
+        typeof repository.getByIdFresh === 'function'
+          ? repository.getByIdFresh(instructionId)
+          : repository.getById(instructionId);
 
-  if (!current) {
-    const error = new Error('Инструкция не найдена');
+      if (!current) {
+        const error = new Error('Инструкция не найдена');
 
-    error.code = 'INSTRUCTION_NOT_FOUND';
+        error.code = 'INSTRUCTION_NOT_FOUND';
 
-    throw error;
-  }
+        throw error;
+      }
 
-  assertNoPendingInstructionDraft(current);
+      assertNoPendingInstructionDraft(current, { directory: draftsDirectory });
 
-  const snapshots = listSnapshots(instructionId, historyRoot);
+      const snapshots = listSnapshots(instructionId, historyRoot);
 
-  if (snapshots.length === 0) {
-    const error = new Error('Для этой инструкции пока нет предыдущей версии');
+      if (snapshots.length === 0) {
+        const error = new Error('Для этой инструкции пока нет предыдущей версии');
 
-    error.code = 'NO_HISTORY';
+        error.code = 'NO_HISTORY';
 
-    throw error;
-  }
+        throw error;
+      }
 
-  const latestFile = snapshots[0];
+      const latestFile = snapshots[0];
 
-  let data;
+      let data;
 
-  try {
-    data = JSON.parse(fs.readFileSync(latestFile, 'utf8'));
-  } catch (error) {
-    error.code = 'INVALID_HISTORY';
+      try {
+        data = JSON.parse(fs.readFileSync(latestFile, 'utf8'));
+      } catch (error) {
+        error.code = 'INVALID_HISTORY';
 
-    throw error;
-  }
+        throw error;
+      }
 
-  const snapshot = data?.instruction ?? data;
+      const snapshot = data?.instruction ?? data;
 
-  if (!snapshot || typeof snapshot !== 'object') {
-    const error = new Error('Файл предыдущей версии повреждён');
+      if (!snapshot || typeof snapshot !== 'object') {
+        const error = new Error('Файл предыдущей версии повреждён');
 
-    error.code = 'INVALID_HISTORY';
+        error.code = 'INVALID_HISTORY';
 
-    throw error;
-  }
+        throw error;
+      }
 
-  const restored = {
-    ...snapshot,
+      const restored = {
+        ...snapshot,
 
-    /*
-     * ID менять запрещено.
-     */
-    id: current.id,
+        /*
+         * ID менять запрещено.
+         */
+        id: current.id,
 
-    revision: Number(current.revision || 0) + 1,
+        revision: Number(current.revision || 0) + 1,
 
-    slugAliases: [
-      ...new Set([
-        current.id,
-        current.slug || current.id,
-        ...(current.slugAliases || []),
-        ...(snapshot.slugAliases || []),
-      ]),
-    ].filter(value => value !== (snapshot.slug || current.id)),
+        slugAliases: [
+          ...new Set([
+            current.id,
+            current.slug || current.id,
+            ...(current.slugAliases || []),
+            ...(snapshot.slugAliases || []),
+          ]),
+        ].filter(value => value !== (snapshot.slug || current.id)),
 
-    /*
-     * Показываем реальное время отката.
-     */
-    updatedAt: new Date().toISOString(),
-  };
+        /*
+         * Показываем реальное время отката.
+         */
+        updatedAt: new Date().toISOString(),
+      };
 
-  const snapshotMetadata = getInstructionEditorialMeta(snapshot);
+      validateInstructionTaxonomyAssignment(
+        {
+          primaryCategoryId: restored.primaryCategoryId,
+          tagIds: restored.tagIds,
+        },
+        { registry },
+      );
 
-  restored.editorialMeta = updateInstructionEditorialMeta(current, restored, {
-    seoReady: snapshotMetadata.seoReady,
-    seoAuthor: snapshotMetadata.seoAuthor,
-    contentAuthor: snapshotMetadata.contentAuthor,
-    now: restored.updatedAt,
-  });
+      const snapshotMetadata = getInstructionEditorialMeta(snapshot);
 
-  /*
-   * Сначала восстанавливаем.
-   * Только после успешной записи
-   * удаляем использованный snapshot.
-   */
-  repository.save(restored);
+      restored.editorialMeta = updateInstructionEditorialMeta(current, restored, {
+        seoReady: snapshotMetadata.seoReady,
+        seoAuthor: snapshotMetadata.seoAuthor,
+        contentAuthor: snapshotMetadata.contentAuthor,
+        now: restored.updatedAt,
+      });
 
-  fs.unlinkSync(latestFile);
+      /*
+       * Сначала восстанавливаем.
+       * Только после успешной записи
+       * удаляем использованный snapshot.
+       */
+      assertHeld();
+      repository.save(restored, { assertHeld });
 
-  return restored;
+      assertHeld();
+      fs.unlinkSync(latestFile);
+
+      return restored;
+    },
+    { waitMs: 5000 },
+  );
 }
 
 export function getInstructionHistoryInfo(instructionId) {
