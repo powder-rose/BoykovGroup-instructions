@@ -531,6 +531,18 @@
   color: #1f3556;
 }
 
+.admin-instruction-taxonomy__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.admin-instruction-taxonomy__header > div {
+  flex: 1 1 320px;
+}
+
 .admin-instruction-taxonomy__header p {
   margin: 0;
   color: #65738a;
@@ -599,6 +611,8 @@
   border-color: #bfd3eb;
   color: #244f7d;
   padding: 7px 11px;
+  overflow-wrap: anywhere;
+  text-align: left;
 }
 
 .admin-instruction-taxonomy__search {

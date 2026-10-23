@@ -16,7 +16,11 @@ async function request(token, path = '', options = {}) {
       response.status === 401 || response.status === 403
         ? 'Административная сессия завершилась. Войдите снова; локальный черновик сохранён.'
         : data.message || data.error || `Ошибка запроса (${response.status})`;
-    throw new Error(message);
+    const error = new Error(message);
+    error.status = response.status;
+    error.code = data.code;
+    error.details = data.details;
+    throw error;
   }
   return data;
 }
@@ -26,6 +30,9 @@ export function fetchEditorInstructions(token) {
 }
 export function fetchInstructionTaxonomy(token) {
   return request(token, '/taxonomy');
+}
+export function fetchInstructionAssignmentTaxonomy(token) {
+  return request(token, '/assignment-taxonomy');
 }
 export function fetchEditorInstruction(token, id) {
   return request(token, `/${encodeURIComponent(id)}`);

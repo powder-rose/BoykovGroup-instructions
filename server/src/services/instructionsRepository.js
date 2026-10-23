@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { TextDecoder } from 'node:util';
 
 import { InstructionEditorError } from './instructionEditorError.js';
 
@@ -48,6 +49,64 @@ export class InstructionsRepository {
     return Array.from(this.cache.values());
   }
 
+  getAllFresh() {
+    try {
+      if (!fs.lstatSync(this.dir).isDirectory()) {
+        throw new Error('Instructions must be stored in a regular directory');
+      }
+      const records = new Map();
+      for (const entry of fs.readdirSync(this.dir, { withFileTypes: true })) {
+        if (!entry.name.endsWith('.json')) continue;
+        if (!entry.isFile()) throw new Error(`Non-regular instruction file: ${entry.name}`);
+        const file = path.join(this.dir, entry.name);
+        const raw = new TextDecoder('utf-8', { fatal: true }).decode(fs.readFileSync(file));
+        const record = JSON.parse(raw);
+        if (
+          !record ||
+          typeof record !== 'object' ||
+          Array.isArray(record) ||
+          typeof record.id !== 'string' ||
+          !record.id.trim() ||
+          records.has(record.id) ||
+          (record.primaryCategoryId !== undefined &&
+            record.primaryCategoryId !== null &&
+            typeof record.primaryCategoryId !== 'string') ||
+          (record.tagIds !== undefined &&
+            record.tagIds !== null &&
+            (!Array.isArray(record.tagIds) || record.tagIds.some(id => typeof id !== 'string')))
+        ) {
+          throw new Error(`Invalid or duplicate instruction record: ${entry.name}`);
+        }
+        records.set(record.id, record);
+      }
+      this.cache = records;
+      return Array.from(records.values());
+    } catch (cause) {
+      throw new InstructionEditorError('Не удалось прочитать полный список инструкций', {
+        status: 500,
+        code: 'INSTRUCTION_STORAGE_ERROR',
+        cause,
+      });
+    }
+  }
+
+  getByIdFresh(id) {
+    this.getAllFresh();
+    return this.getById(id);
+  }
+
+  getTaxonomyReferences() {
+    return this.getAllFresh().map(instruction =>
+      structuredClone({
+        id: instruction.id,
+        status: instruction.status,
+        seoStatus: instruction.seoStatus,
+        primaryCategoryId: instruction.primaryCategoryId,
+        tagIds: instruction.tagIds,
+      }),
+    );
+  }
+
   getById(id) {
     return this.cache.get(id) || null;
   }
@@ -79,7 +138,7 @@ export class InstructionsRepository {
     return Array.from(this.cache.values()).find(item => item.professionKey === key) || null;
   }
 
-  save(instruction) {
+  save(instruction, { assertHeld } = {}) {
     if (!instruction?.id) {
       throw new Error('Инструкция должна иметь id');
     }
@@ -125,6 +184,7 @@ export class InstructionsRepository {
         flush: true,
       });
 
+      assertHeld?.();
       fs.renameSync(temporaryPath, filePath);
     } catch (error) {
       /*
@@ -157,10 +217,11 @@ export class InstructionsRepository {
     return instruction;
   }
 
-  remove(id) {
+  remove(id, { assertHeld } = {}) {
     const filePath = path.join(this.dir, `${id}.json`);
 
     if (fs.existsSync(filePath)) {
+      assertHeld?.();
       fs.unlinkSync(filePath);
     }
 

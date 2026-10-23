@@ -6,13 +6,13 @@ function read(path) {
   return fs.readFileSync(new URL(path, import.meta.url), 'utf8');
 }
 
-test('editor classifies drafts and publications without changing repository core', () => {
+test('editor classifies drafts and publications at the service boundary', () => {
   const editor = read('../src/services/instructionEditorService.js');
   const repository = read('../src/services/instructionsRepository.js');
   assert.match(editor, /const instruction\s*=\s*applyInstructionTaxonomyEditorPatch\s*\(/u);
   assert.match(editor, /input\.taxonomyPatch/u);
-  assert.match(editor, /writeDraft\(instruction\)/u);
-  assert.match(editor, /repository\.save\(instruction\)/u);
+  assert.match(editor, /writeDraft\(\s*instruction\s*[,)]/u);
+  assert.match(editor, /repository\.save\(\s*instruction\s*[,)]/u);
   assert.doesNotMatch(repository, /prepareInstructionTaxonomy|saveInstructionWithTaxonomy/u);
 });
 

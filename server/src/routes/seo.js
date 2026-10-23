@@ -7,6 +7,7 @@ import { instructionsRepository } from '../services/instructionsRepository.js';
 import { renderRichTextContentToHtml } from '../services/richTextContent.js';
 import { getRelatedInstructions } from '../services/instructionEditorService.js';
 import { getInstructionTaxonomyDisplay } from '../services/instructionTaxonomyDisplayService.js';
+import { getInstructionTaxonomyAssignmentCatalog } from '../services/instructionTaxonomyAssignmentCatalog.js';
 import {
   filterInstructionsByTaxonomy,
   validateInstructionTaxonomyFilters,
@@ -285,7 +286,7 @@ function getDateModified(instruction) {
   );
 }
 
-function getIndexableInstructions(query, repository, filters = {}) {
+function getIndexableInstructions(query, repository, filters = {}, options = {}) {
   const result = repository.getAll();
 
   const instructions = Array.isArray(result)
@@ -304,7 +305,10 @@ function getIndexableInstructions(query, repository, filters = {}) {
         !['draft', 'noindex'].includes(String(instruction.seoStatus || '').toLowerCase()),
     );
 
-  const filtered = filterInstructionsByTaxonomy(visible, filters);
+  const filtered =
+    filters.category || filters.tag
+      ? filterInstructionsByTaxonomy(visible, filters, options)
+      : visible;
 
   /*
    * SEO-поиск использует ту же
@@ -497,8 +501,8 @@ function renderTaxonomyTags(tags) {
     .join('');
 }
 
-function renderCatalogInstruction(instruction) {
-  const tags = getInstructionTaxonomyDisplay(instruction)?.tags || [];
+function renderCatalogInstruction(instruction, options) {
+  const tags = getInstructionTaxonomyDisplay(instruction, options)?.tags || [];
 
   return `
     <li>
@@ -509,7 +513,7 @@ function renderCatalogInstruction(instruction) {
     </li>`;
 }
 
-function renderCatalogSeoBody(instructions, query = '') {
+function renderCatalogSeoBody(instructions, query = '', options) {
   const hasQuery = Boolean(String(query || '').trim());
 
   const heading = hasQuery ? `Результаты поиска: ${query}` : 'Каталог инструкций по охране труда';
@@ -524,22 +528,22 @@ function renderCatalogSeoBody(instructions, query = '') {
         </h2>
 
         <ul class="SeoPrerender_instructionList">
-          ${instructions.map(renderCatalogInstruction).join('\n')}
+          ${instructions.map(instruction => renderCatalogInstruction(instruction, options)).join('\n')}
         </ul>
       </section>
     </main>`;
 }
 
-function renderInstructionSeoBody(instruction, relatedInstructions) {
+function renderInstructionSeoBody(instruction, relatedInstructions, options) {
   const title = String(instruction.title || 'Инструкция по охране труда').trim();
   const webIntro = String(instruction.webIntro || '').trim();
   const document = getInstructionDocument(instruction);
   const outline = getInstructionOutline(document);
   const related = relatedInstructions(instruction);
-  const taxonomy = getInstructionTaxonomyDisplay(instruction);
+  const taxonomy = getInstructionTaxonomyDisplay(instruction, options);
   const taxonomyHtml = taxonomy
-    ? `<div class="InstructionTaxonomy_root" aria-label="Категория и теги инструкции">
-        ${taxonomy.category ? `<a class="InstructionTaxonomy_category" href="/instrukcii-po-ohrane-truda?category=${escapeHtml(encodeURIComponent(taxonomy.category.id))}">Категория: ${escapeHtml(taxonomy.category.label)}</a>` : ''}
+    ? `<div class="InstructionTaxonomy_root" aria-label="Раздел и теги инструкции">
+        ${taxonomy.category ? `<a class="InstructionTaxonomy_category" href="/instrukcii-po-ohrane-truda?category=${escapeHtml(encodeURIComponent(taxonomy.category.id))}">Раздел: ${escapeHtml(taxonomy.category.label)}</a>` : ''}
         ${renderTaxonomyTags(taxonomy.tags)}
       </div>`
     : '';
@@ -633,7 +637,14 @@ function redirectTrailingSlash(req, res) {
   return true;
 }
 
-function renderInstructionsCatalogPage(req, instructions, query, indexPath, hasParameters = false) {
+function renderInstructionsCatalogPage(
+  req,
+  instructions,
+  query,
+  indexPath,
+  hasParameters = false,
+  { catalog = getInstructionTaxonomyAssignmentCatalog() } = {},
+) {
   const siteUrl = getSiteUrl(req);
   const canonical = `${siteUrl}/instrukcii-po-ohrane-truda`;
   const hasQuery = Boolean(String(query || '').trim());
@@ -715,7 +726,7 @@ function renderInstructionsCatalogPage(req, instructions, query, indexPath, hasP
   const seoHead = `
   <!-- SEO_CATALOG_PRODUCTION_SHELL_V1 -->
 
-  ${instructions.some(instruction => getInstructionTaxonomyDisplay(instruction)?.tags.length) ? `<style data-instruction-taxonomy>${INSTRUCTION_TAXONOMY_SEO_CSS}</style>` : ''}
+  ${instructions.some(instruction => getInstructionTaxonomyDisplay(instruction, { catalog })?.tags.length) ? `<style data-instruction-taxonomy>${INSTRUCTION_TAXONOMY_SEO_CSS}</style>` : ''}
 
   <meta
     name="description"
@@ -771,12 +782,21 @@ function renderInstructionsCatalogPage(req, instructions, query, indexPath, hasP
 
   productionHtml = productionHtml.replace(/<\/head>/iu, () => `${seoHead}\n</head>`);
 
-  productionHtml = injectProductionRoot(productionHtml, renderCatalogSeoBody(instructions, query));
+  productionHtml = injectProductionRoot(
+    productionHtml,
+    renderCatalogSeoBody(instructions, query, { catalog }),
+  );
 
   return productionHtml;
 }
 
-function renderInstructionPage(req, instruction, indexPath, relatedInstructions) {
+function renderInstructionPage(
+  req,
+  instruction,
+  indexPath,
+  relatedInstructions,
+  { catalog = getInstructionTaxonomyAssignmentCatalog() } = {},
+) {
   const siteUrl = getSiteUrl(req);
   const canonical = getInstructionUrl(req, instruction);
   const title = String(instruction.title || 'Инструкция по охране труда').trim();
@@ -910,7 +930,7 @@ function renderInstructionPage(req, instruction, indexPath, relatedInstructions)
   <!-- SEO_INSTRUCTION_PRODUCTION_SHELL_V1 -->
 
   <style data-copy-protection>${COPY_PROTECTION_CSS}</style>
-  ${getInstructionTaxonomyDisplay(instruction) ? `<style data-instruction-taxonomy>${INSTRUCTION_TAXONOMY_SEO_CSS}</style>` : ''}
+  ${getInstructionTaxonomyDisplay(instruction, { catalog }) ? `<style data-instruction-taxonomy>${INSTRUCTION_TAXONOMY_SEO_CSS}</style>` : ''}
 
   <meta
     name="description"
@@ -968,7 +988,7 @@ function renderInstructionPage(req, instruction, indexPath, relatedInstructions)
 
   productionHtml = injectProductionRoot(
     productionHtml,
-    renderInstructionSeoBody(instruction, relatedInstructions),
+    renderInstructionSeoBody(instruction, relatedInstructions, { catalog }),
   );
 
   return productionHtml;
@@ -1059,12 +1079,13 @@ export function createSeoRouter({
 
     try {
       const query = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+      const catalog = getInstructionTaxonomyAssignmentCatalog();
       let filters;
       try {
-        filters = validateInstructionTaxonomyFilters({
-          category: req.query.category ?? '',
-          tag: req.query.tag ?? '',
-        });
+        filters = validateInstructionTaxonomyFilters(
+          { category: req.query.category ?? '', tag: req.query.tag ?? '' },
+          { catalog },
+        );
       } catch {
         return res
           .status(400)
@@ -1072,14 +1093,18 @@ export function createSeoRouter({
           .type('text/plain')
           .send('Некорректные фильтры категории или тега');
       }
-      const instructions = getIndexableInstructions(query, repository, filters);
+      const instructions = getIndexableInstructions(query, repository, filters, { catalog });
       const hasParameters = Object.keys(req.query).length > 0;
 
       return res
         .status(200)
         .set('Cache-Control', 'public, max-age=300')
         .type('html')
-        .send(renderInstructionsCatalogPage(req, instructions, query, indexPath, hasParameters));
+        .send(
+          renderInstructionsCatalogPage(req, instructions, query, indexPath, hasParameters, {
+            catalog,
+          }),
+        );
     } catch (error) {
       next(error);
     }

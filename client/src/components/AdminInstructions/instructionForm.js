@@ -44,11 +44,37 @@ export function removeInstructionDraft(key) {
     // Server saving remains available when browser storage is unavailable.
   }
 }
-export function validateInstructionForm(form, status, originalSlug = '') {
+export function validateInstructionForm(
+  form,
+  status,
+  originalSlug = '',
+  { requireSection = false, taxonomy = null } = {},
+) {
   if (!form.title.trim()) return 'Укажите заголовок инструкции.';
   if (form.slug && form.slug !== originalSlug && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(form.slug))
     return 'В URL используйте строчные латинские буквы, цифры и дефисы.';
   if (status === 'published' && (!form.seoTitle.trim() || !form.seoDescription.trim()))
     return 'Для публикации заполните SEO Title и SEO Description.';
+  const patch = form.taxonomyPatch || {};
+  const hasTaxonomyChanges = Boolean(patch.category || patch.tags);
+  if ((requireSection || hasTaxonomyChanges) && !taxonomy)
+    return 'Загрузите справочник разделов и тегов перед сохранением.';
+  if (patch.category?.mode === 'manual' && patch.category.id !== form.primaryCategoryId)
+    return 'Повторно выберите основной тематический раздел: данные локального черновика расходятся.';
+  if (
+    (requireSection || patch.category?.mode === 'manual') &&
+    (!taxonomy.sections.some(section => section.id === form.primaryCategoryId) ||
+      (requireSection && patch.category?.mode !== 'manual'))
+  )
+    return 'Выберите один основной тематический раздел из нового справочника.';
+  if (patch.tags?.mode === 'manual') {
+    if (JSON.stringify(patch.tags.ids) !== JSON.stringify(form.tagIds))
+      return 'Повторно выберите теги: данные локального черновика расходятся.';
+    const knownTags = new Set([...taxonomy.tags, ...taxonomy.legacyTags].map(tag => tag.id));
+    if (form.tagIds.some(id => !knownTags.has(id)))
+      return 'В выбранных тегах есть недоступные значения. Удалите или замените их вручную.';
+  }
+  if (hasTaxonomyChanges && patch.registryRevision !== taxonomy.revision)
+    return 'Справочник обновился. Проверьте раздел и теги, затем подтвердите выбор по обновлённому справочнику.';
   return '';
 }

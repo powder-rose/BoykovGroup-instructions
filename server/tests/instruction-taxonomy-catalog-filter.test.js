@@ -137,7 +137,7 @@ test('API filters before pagination and keeps existing search and sort behavior'
   const base = await fixture(t);
   const filtersResponse = await fetch(`${base}/api/instructions/taxonomy-filters`);
   assert.equal(filtersResponse.status, 200);
-  assert.equal(filtersResponse.headers.get('cache-control'), 'public, max-age=60');
+  assert.equal(filtersResponse.headers.get('cache-control'), 'no-store');
   const options = await filtersResponse.json();
   assert.equal(options.tags.find(item => item.id === 'slesar')?.count, 2);
 

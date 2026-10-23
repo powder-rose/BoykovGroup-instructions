@@ -6,6 +6,7 @@ import test from 'node:test';
 
 import { createInstructionEditorService } from '../src/services/instructionEditorService.js';
 import { InstructionsRepository } from '../src/services/instructionsRepository.js';
+import { createInstructionTaxonomyRegistryRepository } from '../src/services/instructionTaxonomyRegistryRepository.js';
 
 const document = {
   type: 'doc',
@@ -24,21 +25,25 @@ function editorInput(overrides = {}) {
   };
 }
 
-test('editor writes automatic tags to a new draft and preserves them on publication', t => {
+test('editor preserves legacy automatic taxonomy on draft and publication', t => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'boykovdocs-taxonomy-editor-'));
   const repository = new InstructionsRepository(path.join(directory, 'published'));
   const service = createInstructionEditorService({
     repository,
     draftsDirectory: path.join(directory, 'drafts'),
+    taxonomyRepository: createInstructionTaxonomyRegistryRepository({
+      filePath: path.join(directory, 'taxonomy.json'),
+    }),
     saveSnapshot: () => {},
   });
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
 
-  const draft = service.save(null, editorInput()).instruction;
+  repository.save({ id: 'legacy-slesar', ...editorInput({ status: 'published' }) });
+  const draft = service.save('legacy-slesar', editorInput({ revision: 0 })).instruction;
   assert.equal(draft.primaryCategoryId, 'electrical');
   assert.ok(draft.tagIds.includes('slesar'));
   assert.equal(draft.taxonomyMeta.categorySource, 'auto');
-  assert.equal(repository.getById(draft.id), null);
+  assert.equal(repository.getById(draft.id).taxonomyMeta, undefined);
 
   const published = service.save(
     draft.id,

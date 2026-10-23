@@ -100,7 +100,7 @@ test('public API and SEO HTML show the same labels after H1; tags are not links'
   assert.match(header, /class="InstructionTaxonomy_root"/u);
   assert.match(
     header,
-    /class="InstructionTaxonomy_category" href="\/instrukcii-po-ohrane-truda\?category=electrical">Категория: Электротехника и энергетика<\/a>/u,
+    /class="InstructionTaxonomy_category" href="\/instrukcii-po-ohrane-truda\?category=electrical">Раздел: Электротехника и энергетика<\/a>/u,
   );
   assert.match(
     header,

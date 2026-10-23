@@ -18,8 +18,8 @@ export default function CatalogTaxonomyFilters({
     <section className={styles.root} aria-label="Фильтры инструкций">
       <div className={styles.heading}>
         <div>
-          <h2>Категории и теги</h2>
-          <p>Выбирайте категорию и тег вместе или по отдельности.</p>
+          <h2>Разделы и теги</h2>
+          <p>Выбирайте раздел и тег вместе или по отдельности.</p>
         </div>
         {active && (
           <button type="button" className={styles.reset} onClick={onReset}>
@@ -29,9 +29,9 @@ export default function CatalogTaxonomyFilters({
       </div>
       <div className={styles.controls}>
         <label className={styles.field}>
-          <span>Категория</span>
+          <span>Раздел</span>
           <select value={category} onChange={event => onCategoryChange(event.target.value)}>
-            <option value="">Все категории</option>
+            <option value="">Все разделы</option>
             {categories.map(item => (
               <option key={item.id} value={item.id}>
                 {item.label} ({item.count})

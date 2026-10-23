@@ -1,4 +1,6 @@
 import { getLegacyInstructionTaxonomyCatalog } from './instructionTaxonomySource.js';
+import { validateInstructionTaxonomyAssignment } from './instructionTaxonomyAssignmentCatalog.js';
+import { instructionTaxonomyRegistryRepository } from './instructionTaxonomyRegistryRepository.js';
 
 const MAX_AUTO_TAGS = 5;
 const WORD_BOUNDARY =
@@ -273,21 +275,39 @@ export function suggestInstructionTaxonomy(instruction) {
   };
 }
 
-export function prepareInstructionTaxonomy(instruction) {
+export function prepareInstructionTaxonomy(
+  instruction,
+  { registry = instructionTaxonomyRegistryRepository.read() } = {},
+) {
   if (!instruction || typeof instruction !== 'object' || Array.isArray(instruction)) {
     throw new Error('An instruction object is required');
   }
 
+  validateInstructionTaxonomyAssignment(
+    {
+      primaryCategoryId: instruction.primaryCategoryId ?? null,
+      tagIds: instruction.tagIds ?? [],
+    },
+    { registry },
+  );
+
+  const codedSection = registry.sections.some(item => item.code === instruction.primaryCategoryId);
+  const codedTags = new Set(registry.tags.map(item => item.code));
+  const hasCodedTags = instruction.tagIds?.some(id => codedTags.has(id)) || false;
   const suggested = suggestInstructionTaxonomy(instruction);
   const oldMeta = instruction.taxonomyMeta ?? {};
-  const categoryManual = oldMeta.categorySource === 'manual';
-  const tagsManual = oldMeta.tagsSource === 'manual';
+  const categoryManual = codedSection || oldMeta.categorySource === 'manual';
+  const tagsManual = codedSection || hasCodedTags || oldMeta.tagsSource === 'manual';
   const primaryCategoryId = categoryManual
     ? (instruction.primaryCategoryId ?? null)
     : suggested.primaryCategoryId;
   const tagIds = tagsManual ? (instruction.tagIds ?? []) : suggested.tagIds;
 
-  validateInstructionTaxonomySelection({ primaryCategoryId, tagIds });
+  if (codedSection || hasCodedTags) {
+    validateInstructionTaxonomyAssignment({ primaryCategoryId, tagIds }, { registry });
+  } else {
+    validateInstructionTaxonomySelection({ primaryCategoryId, tagIds });
+  }
 
   return {
     ...instruction,
@@ -297,7 +317,7 @@ export function prepareInstructionTaxonomy(instruction) {
       ...oldMeta,
       categorySource: categoryManual ? 'manual' : primaryCategoryId ? 'auto' : 'unassigned',
       tagsSource: tagsManual ? 'manual' : tagIds.length ? 'auto' : 'unassigned',
-      needsReview: !primaryCategoryId || tagIds.length === 0,
+      needsReview: !primaryCategoryId || (!codedSection && tagIds.length === 0),
       schemaVersion: catalog.version,
     },
   };
