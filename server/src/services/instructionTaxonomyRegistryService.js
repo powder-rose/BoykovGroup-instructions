@@ -198,9 +198,13 @@ export function createInstructionTaxonomyRegistryService({
       assertPatch(patch);
       return change(expectedRevision, state => {
         const current = requireEntity(state, kind, code);
+        const previousParentCode = current.parentCode;
         const next = normalizeInstructionTaxonomyEntity(kind, { ...current, ...patch });
         Object.assign(current, next);
         assertIndexing(state, current);
+        if (kind === 'section' && previousParentCode !== current.parentCode) {
+          assertIndexing(state, requireEntity(state, 'catalog', previousParentCode));
+        }
       });
     },
 

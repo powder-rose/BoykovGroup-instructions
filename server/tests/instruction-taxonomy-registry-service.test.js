@@ -141,6 +141,70 @@ test('empty indexable publication is rejected and published noindex remains avai
   });
 });
 
+test('moving the last populated section preserves an indexed catalog until indexing is disabled', t => {
+  const records = [
+    { id: 'same-document', status: 'published', primaryCategoryId: 'W01' },
+    { id: 'same-document', status: 'draft', primaryCategoryId: 'W02' },
+  ];
+  const f = fixture(t, records);
+  f.update('catalog', 'H02', { status: 'published', indexingEnabled: true });
+  assert.deepEqual(f.service.getUsage('catalog', 'H02'), {
+    references: 1,
+    publishedInstructions: 1,
+  });
+  const before = f.repository.read();
+  const bytes = fs.readFileSync(f.filePath);
+  const instructionSnapshot = structuredClone(records);
+
+  assert.throws(() => f.update('section', 'W01', { parentCode: 'H01' }), {
+    code: 'TAXONOMY_EMPTY_PAGE',
+  });
+  assert.deepEqual(f.repository.read(), before);
+  assert.deepEqual(fs.readFileSync(f.filePath), bytes);
+  assert.deepEqual(records, instructionSnapshot);
+
+  f.update('catalog', 'H02', { indexingEnabled: false });
+  const revision = f.repository.read().revision;
+  f.update('section', 'W01', { parentCode: 'H01' });
+  assert.equal(f.repository.read().revision, revision + 1);
+  assert.equal(f.service.get('section', 'W01').parentCode, 'H01');
+  assert.equal(f.service.get('catalog', 'H02').status, 'published');
+  assert.equal(f.service.get('catalog', 'H02').indexingEnabled, false);
+  assert.deepEqual(f.service.getUsage('catalog', 'H02'), {
+    references: 1,
+    publishedInstructions: 0,
+  });
+  assert.deepEqual(f.service.getUsage('catalog', 'H01'), {
+    references: 1,
+    publishedInstructions: 1,
+  });
+  assert.deepEqual(records, instructionSnapshot);
+});
+
+test('moving a populated section keeps indexing when another published assignment remains', t => {
+  const records = [
+    { id: 'moving-document', status: 'published', primaryCategoryId: 'W01' },
+    { id: 'remaining-document', status: 'published', primaryCategoryId: 'W02' },
+    { id: 'remaining-document', status: 'draft', primaryCategoryId: 'W02' },
+  ];
+  const f = fixture(t, records);
+  f.update('catalog', 'H02', { status: 'published', indexingEnabled: true });
+  const revision = f.repository.read().revision;
+  const instructionSnapshot = structuredClone(records);
+
+  f.update('section', 'W01', { parentCode: 'H01' });
+
+  assert.equal(f.repository.read().revision, revision + 1);
+  assert.equal(f.service.get('section', 'W01').parentCode, 'H01');
+  assert.equal(f.service.get('catalog', 'H02').status, 'published');
+  assert.equal(f.service.get('catalog', 'H02').indexingEnabled, true);
+  assert.deepEqual(f.service.getUsage('catalog', 'H02'), {
+    references: 1,
+    publishedInstructions: 1,
+  });
+  assert.deepEqual(records, instructionSnapshot);
+});
+
 test('removing a section or tag with published or draft references preserves the documents and registry', t => {
   const records = [
     {

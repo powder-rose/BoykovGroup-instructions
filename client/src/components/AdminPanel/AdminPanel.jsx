@@ -18,6 +18,9 @@ import useAdminDashboardTab from './hooks/useAdminDashboardTab.js';
 import styles from './AdminPanel.module.css';
 
 const AdminInstructions = lazy(() => import('../AdminInstructions/AdminInstructions.jsx'));
+const AdminInstructionTaxonomy = lazy(
+  () => import('../AdminInstructionTaxonomy/AdminInstructionTaxonomy.jsx'),
+);
 
 export default function AdminPanel({ importId, onImportCreated, onRefresh }) {
   const isAdmin = useSelector(selectIsAdmin);
@@ -56,6 +59,20 @@ export default function AdminPanel({ importId, onImportCreated, onRefresh }) {
 
       {isAdmin && (
         <AdminDashboardTabs activeTab={adminDashboardTab} onChange={changeAdminDashboardTab} />
+      )}
+
+      {isAdmin && token && (
+        <Suspense
+          fallback={
+            adminDashboardTab === 'taxonomy' ? <p role="status">Загрузка структуры…</p> : null
+          }
+        >
+          <AdminInstructionTaxonomy
+            key={token}
+            token={token}
+            hidden={adminDashboardTab !== 'taxonomy'}
+          />
+        </Suspense>
       )}
 
       {isAdmin && token && (
