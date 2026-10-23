@@ -9,6 +9,7 @@ import {
   versionLabel,
 } from './TaxonomyBulkDetails.jsx';
 import { downloadTaxonomyFile } from './taxonomyOperationsApi.js';
+import { safeCsvImportReport } from './taxonomyImportReport.js';
 import base from './AdminInstructionTaxonomy.module.css';
 import styles from './TaxonomyBulkWorkspace.module.css';
 
@@ -25,6 +26,13 @@ function safePreviewReport(preview) {
           ...(preview.action.sectionId ? { sectionId: preview.action.sectionId } : {}),
           ...(preview.action.tagIds ? { tagIds: [...preview.action.tagIds] } : {}),
           ...(preview.action.operationId ? { operationId: preview.action.operationId } : {}),
+          ...(preview.action.type === 'import-csv'
+            ? {
+                fileName: preview.action.fileName,
+                fileSha256: preview.action.fileSha256,
+                tagMode: preview.action.tagMode,
+              }
+            : {}),
         }
       : null,
     counts: {
@@ -35,6 +43,7 @@ function safePreviewReport(preview) {
       unchangedDocuments: preview.counts.unchangedDocuments,
     },
     ...(preview.rollbackOf ? { rollbackOf: preview.rollbackOf } : {}),
+    ...(preview.importReport ? { importReport: safeCsvImportReport(preview.importReport) } : {}),
     rows: preview.rows.map(row => ({
       id: row.id,
       title: row.title,
@@ -92,6 +101,13 @@ export default function TaxonomyBulkPreview({
         Предпросмотр действителен до {dateLabel(preview.expiresAt)}. Изменения ещё не применены.
       </p>
       <OperationCounts counts={preview.counts} />
+      {preview.importReport && (
+        <p className={base.notice}>
+          Из CSV допущено строк: {preview.importReport.counts.eligibleRows}. Исключено строк:{' '}
+          {preview.importReport.counts.skippedRows}. Применение охватывает только инструкции из
+          таблицы ниже; причины исключения остальных строк указаны в отчёте CSV.
+        </p>
+      )}
       <p className={base.muted}>
         Если назначения меняются хотя бы в одной версии инструкции, новая ревизия сохраняется у всех
         её версий. В таблице отдельно показаны изменения самих назначений.
@@ -152,6 +168,9 @@ export default function TaxonomyBulkPreview({
           onChange={event => setConfirmed(event.target.checked)}
         />
         Подтверждаю проверенные изменения опубликованных версий и всех сохранённых черновиков.
+        {preview.action?.type === 'import-csv' && preview.action.tagMode === 'replace'
+          ? ' Проверена полная замена тегов значениями CSV, включая пустые списки.'
+          : ''}{' '}
         Черновики остаются черновиками.
       </label>
       <div className={styles.inline}>

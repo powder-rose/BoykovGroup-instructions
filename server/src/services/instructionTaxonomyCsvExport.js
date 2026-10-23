@@ -6,19 +6,12 @@ import { validateInstructionTaxonomyFilters } from './instructionTaxonomyFilterS
 import { validateInstructionTaxonomyRegistry } from './instructionTaxonomyRegistryModel.js';
 import { instructionTaxonomyRegistryRepository } from './instructionTaxonomyRegistryRepository.js';
 
-export const INSTRUCTION_TAXONOMY_CSV_HEADERS = [
-  'document_id',
-  'url',
-  'title_from_url_verify',
-  'catalog',
-  'section_id',
-  'section_name',
-  'tags_ids',
-  'tags_names',
-  'review_status',
-  'lastmod',
-  'notes',
-];
+import {
+  INSTRUCTION_TAXONOMY_CSV_HEADERS,
+  instructionTaxonomyCsvOrigin,
+} from './instructionTaxonomyCsvFormat.js';
+
+export { INSTRUCTION_TAXONOMY_CSV_HEADERS };
 
 const HUMAN_FIELDS = new Set([
   'title_from_url_verify',
@@ -36,32 +29,6 @@ function conflict(message, instructionId) {
   });
   if (instructionId) error.details = { instructionId };
   return error;
-}
-
-function siteOrigin(value) {
-  const input = String(value || '').trim();
-  let parsed;
-  try {
-    parsed = new URL(input);
-  } catch {
-    // The same error below covers malformed URLs and unsupported origins.
-  }
-  if (
-    !parsed ||
-    !['http:', 'https:'].includes(parsed.protocol) ||
-    parsed.username ||
-    parsed.password ||
-    parsed.search ||
-    parsed.hash ||
-    parsed.pathname !== '/' ||
-    /[\s\\?#]/u.test(input)
-  ) {
-    throw new InstructionEditorError('Для экспорта нужен корректный адрес сайта HTTP или HTTPS', {
-      status: 500,
-      code: 'TAXONOMY_EXPORT_ORIGIN_ERROR',
-    });
-  }
-  return parsed.origin;
 }
 
 function storedText(value, field, id) {
@@ -118,7 +85,7 @@ export function exportInstructionTaxonomyCsv({
       cause,
     });
   }
-  const base = siteOrigin(origin);
+  const base = instructionTaxonomyCsvOrigin(origin, { code: 'TAXONOMY_EXPORT_ORIGIN_ERROR' });
   const sections = new Map(catalog.sections.map(item => [item.id, item]));
   const legacyCategories = new Map(catalog.legacyCategories.map(item => [item.id, item]));
   const catalogs = new Map(catalog.catalogs.map(item => [item.id, item]));

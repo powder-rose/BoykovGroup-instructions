@@ -32,6 +32,8 @@ const PLAN_FIELDS = new Set([
   'result',
   'error',
   'recoveredAt',
+  'importReport',
+  'importUrlFingerprint',
 ]);
 
 function fail(message, { code = 'INVALID_TAXONOMY_BULK_OPERATION', status = 400, cause } = {}) {
@@ -107,6 +109,17 @@ function validateAction(action, kind) {
     if (!text(action.sectionId, 160)) fail('Не указан основной раздел');
     return;
   }
+  if (action?.type === 'import-csv') {
+    fields(action, new Set(['type', 'tagMode', 'fileName', 'fileSha256']));
+    if (
+      !['add', 'replace'].includes(action.tagMode) ||
+      !text(action.fileName, 200) ||
+      /[\\/]/u.test(action.fileName) ||
+      !HASH.test(action.fileSha256 || '')
+    )
+      fail('Некорректные параметры импорта CSV');
+    return;
+  }
   fields(action, new Set(['type', 'tagIds']));
   if (
     !['add-tags', 'remove-tags'].includes(action.type) ||
@@ -114,6 +127,115 @@ function validateAction(action, kind) {
     !action.tagIds.length
   ) {
     fail('Некорректное изменение тегов');
+  }
+}
+
+function validateImportReport(plan) {
+  if (plan.action.type !== 'import-csv') {
+    if (plan.importReport !== undefined || plan.importUrlFingerprint !== undefined) {
+      fail('Отчёт импорта указан для другого действия');
+    }
+    return;
+  }
+  if (!HASH.test(plan.importUrlFingerprint || '')) fail('Не сохранён снимок адресов импорта');
+  const report = plan.importReport;
+  fields(
+    report,
+    new Set([
+      'file',
+      'tagMode',
+      'registryRevision',
+      'counts',
+      'records',
+      'unknownSectionIds',
+      'unknownTagIds',
+    ]),
+  );
+  fields(report.file, new Set(['name', 'sha256', 'bytes']));
+  if (
+    report.file.name !== plan.action.fileName ||
+    report.file.sha256 !== plan.action.fileSha256 ||
+    !Number.isSafeInteger(report.file.bytes) ||
+    report.file.bytes < 1 ||
+    report.file.bytes > 4 * 1024 * 1024 ||
+    report.tagMode !== plan.action.tagMode ||
+    report.registryRevision !== plan.registryRevision ||
+    !Array.isArray(report.records) ||
+    report.records.length > MAX_IDS ||
+    !Array.isArray(report.unknownSectionIds) ||
+    !report.unknownSectionIds.every(value => typeof value === 'string') ||
+    !Array.isArray(report.unknownTagIds) ||
+    !report.unknownTagIds.every(value => typeof value === 'string')
+  )
+    fail('Отчёт импорта не соответствует операции');
+  fields(
+    report.counts,
+    new Set([
+      'rows',
+      'matched',
+      'notFound',
+      'ambiguous',
+      'invalidUrl',
+      'manualReview',
+      'sourceInvalid',
+      'unknownSections',
+      'unknownTags',
+      'eligibleRows',
+      'selectedDocuments',
+      'skippedRows',
+    ]),
+  );
+  if (
+    Object.values(report.counts).some(value => !Number.isSafeInteger(value) || value < 0) ||
+    report.counts.rows !== report.records.length ||
+    report.counts.selectedDocuments !== plan.ids.length
+  )
+    fail('Некорректные счётчики импорта');
+  const string = value => typeof value === 'string';
+  for (const record of report.records) {
+    fields(
+      record,
+      new Set([
+        'row',
+        'documentId',
+        'url',
+        'titleFromUrlVerify',
+        'existingId',
+        'currentUrl',
+        'match',
+        'status',
+        'manualReview',
+        'reviewReasons',
+        'proposed',
+        'errors',
+      ]),
+    );
+    fields(record.proposed, new Set(['sectionId', 'tagIds']));
+    if (
+      !Number.isSafeInteger(record.row) ||
+      record.row < 2 ||
+      ![
+        record.documentId,
+        record.url,
+        record.titleFromUrlVerify,
+        record.match,
+        record.status,
+      ].every(string) ||
+      (record.existingId !== null && !string(record.existingId)) ||
+      (record.currentUrl !== null && !string(record.currentUrl)) ||
+      typeof record.manualReview !== 'boolean' ||
+      !Array.isArray(record.reviewReasons) ||
+      !record.reviewReasons.every(string) ||
+      !string(record.proposed.sectionId) ||
+      !Array.isArray(record.proposed.tagIds) ||
+      !record.proposed.tagIds.every(string) ||
+      !Array.isArray(record.errors)
+    )
+      fail('Некорректная строка отчёта импорта');
+    for (const error of record.errors) {
+      fields(error, new Set(['code', 'message']));
+      if (!text(error.code, 200) || !string(error.message)) fail('Некорректная ошибка импорта');
+    }
   }
 }
 
@@ -181,6 +303,7 @@ function validatePlan(plan, expectedId) {
   ) {
     fail('Некорректная сводка массового изменения');
   }
+  validateImportReport(plan);
   if (
     !Array.isArray(plan.inventory) ||
     plan.inventory.length > MAX_IDS * 2 ||

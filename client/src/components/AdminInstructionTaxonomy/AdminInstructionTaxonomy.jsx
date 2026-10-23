@@ -306,6 +306,7 @@ export default function AdminInstructionTaxonomy({ token, hidden = false }) {
         {[
           { id: 'metadata', label: 'Справочники' },
           { id: 'bindings', label: 'Привязки инструкций' },
+          { id: 'import', label: 'Импорт CSV' },
           { id: 'history', label: 'Журнал операций' },
         ].map(mode => (
           <button

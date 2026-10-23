@@ -3,6 +3,7 @@ import { fetchInstructionAssignmentTaxonomy } from '../AdminInstructions/instruc
 import TaxonomyBindingTable from './TaxonomyBindingTable.jsx';
 import TaxonomyBulkHistory from './TaxonomyBulkHistory.jsx';
 import TaxonomyBulkPreview from './TaxonomyBulkPreview.jsx';
+import TaxonomyCsvImport from './TaxonomyCsvImport.jsx';
 import {
   applyTaxonomyOperation,
   downloadTaxonomyFile,
@@ -10,6 +11,7 @@ import {
   fetchTaxonomyBindings,
   fetchTaxonomyOperationStatus,
   previewTaxonomyOperation,
+  previewTaxonomyCsvImport,
   previewTaxonomyRollback,
   recoverTaxonomyOperation,
 } from './taxonomyOperationsApi.js';
@@ -45,19 +47,24 @@ export default function TaxonomyBulkWorkspace({
   const [scopeConfirmed, setScopeConfirmed] = useState(false);
   const [preview, setPreview] = useState(null);
   const [previewView, setPreviewView] = useState('bindings');
+  const [importResult, setImportResult] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [refresh, setRefresh] = useState(0);
   const startedRef = useRef(false);
   const busyRef = useRef(false);
+  const previewAttemptRef = useRef(0);
+  const mountedRef = useRef(false);
   const filtersDirty = JSON.stringify(filters) !== JSON.stringify(filterDraft);
   const blocked = !status || status.blocked;
 
   const loadDictionary = useCallback(async () => {
+    previewAttemptRef.current += 1;
     setDictionaryLoading(true);
     setDictionaryError('');
     setPreview(null);
+    setImportResult(null);
     try {
       setDictionary(await fetchInstructionAssignmentTaxonomy(token));
     } catch (reason) {
@@ -66,6 +73,19 @@ export default function TaxonomyBulkWorkspace({
       setDictionaryLoading(false);
     }
   }, [token]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      previewAttemptRef.current += 1;
+    };
+  }, []);
+
+  useEffect(() => {
+    previewAttemptRef.current += 1;
+    setPreview(null);
+  }, [hidden, view]);
 
   const loadStatus = useCallback(async () => {
     setStatusError('');
@@ -117,6 +137,7 @@ export default function TaxonomyBulkWorkspace({
     setFilterDraft(next);
     setPage(1);
     setSelectedIds([]);
+    previewAttemptRef.current += 1;
     setPreview(null);
     setScopeConfirmed(false);
     setError('');
@@ -147,8 +168,18 @@ export default function TaxonomyBulkWorkspace({
   }, [selectedIds.length, preview]);
 
   function invalidate() {
+    previewAttemptRef.current += 1;
     setPreview(null);
+    setImportResult(null);
     setScopeConfirmed(false);
+    setError('');
+    setMessage('');
+  }
+
+  function invalidateImport() {
+    previewAttemptRef.current += 1;
+    setPreview(null);
+    setImportResult(null);
     setError('');
     setMessage('');
   }
@@ -226,6 +257,7 @@ export default function TaxonomyBulkWorkspace({
       return;
     }
     if (!startBusy()) return;
+    const attempt = ++previewAttemptRef.current;
     setPreview(null);
     try {
       const value = await previewTaxonomyOperation(token, {
@@ -234,8 +266,10 @@ export default function TaxonomyBulkWorkspace({
         includeDrafts: true,
         action,
       });
-      setPreview(value);
-      setPreviewView('bindings');
+      if (mountedRef.current && previewAttemptRef.current === attempt) {
+        setPreview(value);
+        setPreviewView('bindings');
+      }
     } catch (reason) {
       setError(
         `${reason.message}${reason.status === 409 ? ' Выбор сохранён. Обновите справочник при необходимости и создайте новый предпросмотр.' : ''}`,
@@ -246,11 +280,50 @@ export default function TaxonomyBulkWorkspace({
     }
   }
 
+  async function prepareImport(input) {
+    if (
+      busyRef.current ||
+      !dictionary ||
+      dictionaryLoading ||
+      blocked ||
+      input.scopeConfirmed !== true ||
+      (input.tagMode === 'replace' && input.replaceConfirmed !== true) ||
+      !startBusy()
+    )
+      return;
+    const attempt = ++previewAttemptRef.current;
+    setPreview(null);
+    setImportResult(null);
+    try {
+      const value = await previewTaxonomyCsvImport(token, input.file, {
+        registryRevision: dictionary.revision,
+        includeDrafts: true,
+        tagMode: input.tagMode,
+        replaceConfirmed: input.replaceConfirmed,
+      });
+      if (mountedRef.current && previewAttemptRef.current === attempt) {
+        setImportResult(value);
+        setPreview(value.previewId ? value : null);
+        setPreviewView('import');
+      }
+    } catch (reason) {
+      if (mountedRef.current && previewAttemptRef.current === attempt) {
+        setError(
+          `${reason.message} Файл и параметры сохранены. Проверьте их и подготовьте новый предпросмотр.`,
+        );
+        loadStatus();
+      }
+    } finally {
+      stopBusy();
+    }
+  }
+
   async function apply(previewId) {
     if (blocked || !startBusy()) return;
     try {
       const result = await applyTaxonomyOperation(token, previewId);
       setPreview(null);
+      setImportResult(null);
       setSelectedIds([]);
       setScopeConfirmed(false);
       setMessage(
@@ -273,10 +346,13 @@ export default function TaxonomyBulkWorkspace({
   async function rollbackPreview(operationId) {
     if (!dictionary || blocked || !startBusy()) return;
     setPreview(null);
+    const attempt = ++previewAttemptRef.current;
     try {
       const value = await previewTaxonomyRollback(token, operationId);
-      setPreview(value);
-      setPreviewView('history');
+      if (mountedRef.current && previewAttemptRef.current === attempt) {
+        setPreview(value);
+        setPreviewView('history');
+      }
     } catch (reason) {
       setError(reason.message);
       loadStatus();
@@ -295,6 +371,7 @@ export default function TaxonomyBulkWorkspace({
       return;
     if (!startBusy()) return;
     setPreview(null);
+    setImportResult(null);
     try {
       await recoverTaxonomyOperation(token, status.pendingOperation.operationId);
       setMessage(
@@ -335,8 +412,9 @@ export default function TaxonomyBulkWorkspace({
     <div hidden={hidden} className={styles.workspace}>
       <div className={styles.inlineHead}>
         <p className={base.muted}>
-          Фильтры учитывают назначения в любой сохранённой версии. Экспорт содержит только
-          опубликованные назначения всех инструкций.
+          {view === 'import'
+            ? 'Импорт обновляет назначения только после сверки URL, проверки отчёта и подтверждения предпросмотра.'
+            : 'Фильтры учитывают назначения в любой сохранённой версии. Экспорт содержит только опубликованные назначения всех инструкций.'}
         </p>
         <button
           className={base.button}
@@ -617,6 +695,7 @@ export default function TaxonomyBulkWorkspace({
               disabled={busy || !selectedIds.length}
               onChange={event => {
                 setScopeConfirmed(event.target.checked);
+                previewAttemptRef.current += 1;
                 setPreview(null);
               }}
             />
@@ -644,6 +723,16 @@ export default function TaxonomyBulkWorkspace({
           </div>
         </section>
       </section>
+      <TaxonomyCsvImport
+        hidden={hidden || view !== 'import'}
+        dictionary={dictionary}
+        dictionaryLoading={dictionaryLoading}
+        busy={busy}
+        blocked={blocked}
+        result={importResult}
+        onPrepare={prepareImport}
+        onInvalidate={invalidateImport}
+      />
       <TaxonomyBulkHistory
         token={token}
         hidden={hidden || view !== 'history'}

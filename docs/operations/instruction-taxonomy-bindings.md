@@ -86,7 +86,8 @@ does not silently drop that assignment or rerun automatic classification.
 
 The legacy backfill's documented offline/stop-writers requirement remains in force. Confirmed online
 bulk actions, their assignment-only rollback and CSV export are documented in
-[instruction-taxonomy-bulk.md](instruction-taxonomy-bulk.md). CSV apply remains a separate stage.
+[instruction-taxonomy-bulk.md](instruction-taxonomy-bulk.md). Confirmed CSV import is documented in
+[instruction-taxonomy-import.md](instruction-taxonomy-import.md).
 
 ## Public labels and filters
 
