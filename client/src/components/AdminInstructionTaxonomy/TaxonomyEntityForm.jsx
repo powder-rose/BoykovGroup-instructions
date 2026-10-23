@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import RichTextEditor from '../RichTextEditor/RichTextEditor.jsx';
 import { entityPath } from './taxonomyForm.js';
 import styles from './AdminInstructionTaxonomy.module.css';
@@ -13,7 +14,9 @@ export default function TaxonomyEntityForm({
   onChange,
   onSave,
   onDelete,
+  onShowRelated,
 }) {
+  const [transferTarget, setTransferTarget] = useState('');
   const { kind, code, form, source } = editor;
   const creating = !code;
   const catalog =
@@ -241,11 +244,77 @@ export default function TaxonomyEntityForm({
             <p role="status">Проверка связанных инструкций…</p>
           )}
           {children.length > 0 && <p>Разделов в каталоге: {children.length}.</p>}
+          {usage?.references > 0 && ['root', 'section', 'tag'].includes(kind) && (
+            <button
+              className={styles.button}
+              type="button"
+              disabled={busy}
+              onClick={() => onShowRelated(kind, code)}
+            >
+              Показать связанные инструкции
+            </button>
+          )}
+          {children.length > 0 && (
+            <details>
+              <summary>Связанные разделы</summary>
+              <ul>
+                {children.map(section => (
+                  <li key={section.code}>
+                    <button
+                      className={styles.button}
+                      type="button"
+                      disabled={busy}
+                      onClick={() => onShowRelated('section', section.code)}
+                    >
+                      {section.code} · {section.name}: показать инструкции
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
           {inUse && kind !== 'root' && (
             <p>
-              Для удаления сначала перенесите связанные инструкции или разделы. Перенос будет
-              доступен на следующем этапе.
+              {kind === 'tag'
+                ? 'Для удаления снимите этот тег со всех связанных опубликованных версий и черновиков.'
+                : kind === 'section'
+                  ? 'Для удаления перенесите все связанные опубликованные версии и черновики в другой раздел.'
+                  : 'Для удаления каталога перенесите его разделы в другие каталоги. Пустые разделы можно удалить отдельно.'}
             </p>
+          )}
+          {kind === 'section' && usage?.references > 0 && (
+            <div className={styles.detailBody}>
+              <label className={styles.label}>
+                Раздел назначения для переноса
+                <select
+                  className={styles.input}
+                  value={transferTarget}
+                  disabled={busy}
+                  onChange={event => setTransferTarget(event.target.value)}
+                >
+                  <option value="">Выберите другой раздел</option>
+                  {registry.sections
+                    .filter(section => section.code !== code)
+                    .map(section => (
+                      <option key={section.code} value={section.code}>
+                        {section.code} · {section.name}
+                      </option>
+                    ))}
+                </select>
+              </label>
+              <button
+                className={styles.button}
+                type="button"
+                disabled={busy || !transferTarget}
+                onClick={() => onShowRelated(kind, code, transferTarget)}
+              >
+                Открыть перенос связанных инструкций
+              </button>
+              <p>
+                В списке выберите конкретные инструкции и проверьте все их версии в предпросмотре.
+                Этот элемент не будет удалён автоматически.
+              </p>
+            </div>
           )}
         </div>
       )}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import TaxonomyEntityForm from './TaxonomyEntityForm.jsx';
+import TaxonomyBulkWorkspace from './TaxonomyBulkWorkspace.jsx';
 import {
   createInstructionTaxonomyEntity,
   deleteInstructionTaxonomyEntity,
@@ -16,6 +17,7 @@ import {
   validateTaxonomyForm,
 } from './taxonomyForm.js';
 import styles from './AdminInstructionTaxonomy.module.css';
+import bulkStyles from './TaxonomyBulkWorkspace.module.css';
 
 function editEntity(entity, revision) {
   const form = entityToForm(entity);
@@ -31,6 +33,9 @@ function editEntity(entity, revision) {
 
 export default function AdminInstructionTaxonomy({ token, hidden = false }) {
   const [registry, setRegistry] = useState(null);
+  const [workspaceMode, setWorkspaceMode] = useState('metadata');
+  const [bulkRequest, setBulkRequest] = useState(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
   const [editor, setEditor] = useState(null);
   const [kind, setKind] = useState('root');
   const [search, setSearch] = useState('');
@@ -98,6 +103,26 @@ export default function AdminInstructionTaxonomy({ token, hidden = false }) {
 
   function confirmDiscard() {
     return !dirty || window.confirm('Отменить несохранённые изменения в форме?');
+  }
+
+  function changeWorkspaceMode(nextMode) {
+    if (busyRef.current || bulkBusy) return;
+    setWorkspaceMode(nextMode);
+    if (nextMode === 'metadata' && selectedCode) {
+      setUsage(null);
+      setUsageError('');
+      setUsageAttempt(value => value + 1);
+    }
+  }
+
+  function showRelated(entityKind, code, targetSectionId) {
+    setBulkRequest(current => ({
+      kind: entityKind,
+      code,
+      targetSectionId,
+      sequence: (current?.sequence || 0) + 1,
+    }));
+    setWorkspaceMode('bindings');
   }
 
   function clearFeedback() {
@@ -262,11 +287,11 @@ export default function AdminInstructionTaxonomy({ token, hidden = false }) {
           <div className={styles.eyebrow}>Справочники</div>
           <h2>Структура каталога</h2>
           <p>
-            Управление каталогами, разделами, тегами и их SEO-полями. Привязка инструкций и
-            публикация страниц на сайте будут подключены на следующих этапах.
+            Управление каталогами, разделами, тегами и назначениями инструкций. Массовые изменения
+            применяются после предпросмотра; история и откат доступны в журнале операций.
           </p>
         </div>
-        {registry && (
+        {registry && workspaceMode === 'metadata' && (
           <button
             className={styles.button}
             type="button"
@@ -277,129 +302,162 @@ export default function AdminInstructionTaxonomy({ token, hidden = false }) {
           </button>
         )}
       </div>
-      {error && (
-        <div className={styles.error} role="alert">
-          <p>{error}</p>
-          {conflict && (
-            <p>
-              Данные изменились в другой сессии или сейчас заняты. Ваша форма сохранена на экране.
-              Загрузка сохранённых данных заменит её после подтверждения.
-            </p>
-          )}
-          {!registry && (
-            <button
-              className={styles.button}
-              type="button"
-              disabled={loading}
-              onClick={loadInitial}
-            >
-              Повторить загрузку
-            </button>
-          )}
-        </div>
-      )}
-      {message && (
-        <p className={styles.success} role="status">
-          {message}
-        </p>
-      )}
-      {loading && <p role="status">Загрузка структуры…</p>}
-      {registry && (
-        <div className={styles.layout}>
-          <aside className={styles.sidebar} aria-label="Элементы структуры">
-            <label className={styles.label}>
-              Тип элемента
-              <select
-                className={styles.input}
-                value={kind}
-                disabled={busy || loading}
-                onChange={event => changeGroup(event.target.value)}
-              >
-                {TAXONOMY_GROUPS.map(group => (
-                  <option key={group.kind} value={group.kind}>
-                    {group.label} ({entitiesFor(registry, group.kind).length})
-                  </option>
-                ))}
-              </select>
-            </label>
-            {kind !== 'root' && (
+      <nav className={bulkStyles.modes} aria-label="Управление структурой каталога">
+        {[
+          { id: 'metadata', label: 'Справочники' },
+          { id: 'bindings', label: 'Привязки инструкций' },
+          { id: 'history', label: 'Журнал операций' },
+        ].map(mode => (
+          <button
+            className={`${styles.button} ${workspaceMode === mode.id ? styles.primary : ''}`}
+            key={mode.id}
+            type="button"
+            aria-pressed={workspaceMode === mode.id}
+            disabled={busy || bulkBusy || loading}
+            onClick={() => changeWorkspaceMode(mode.id)}
+          >
+            {mode.label}
+          </button>
+        ))}
+      </nav>
+      <div hidden={workspaceMode !== 'metadata'}>
+        {error && (
+          <div className={styles.error} role="alert">
+            <p>{error}</p>
+            {conflict && (
+              <p>
+                Данные изменились в другой сессии или сейчас заняты. Ваша форма сохранена на экране.
+                Загрузка сохранённых данных заменит её после подтверждения.
+              </p>
+            )}
+            {!registry && (
               <button
                 className={styles.button}
                 type="button"
-                disabled={busy || loading || (kind === 'section' && !registry.catalogs.length)}
-                onClick={create}
+                disabled={loading}
+                onClick={loadInitial}
               >
-                Добавить
+                Повторить загрузку
               </button>
             )}
-            <label className={styles.label}>
-              Найти по коду или названию
-              <input
-                className={styles.input}
-                type="search"
-                value={search}
-                onChange={event => setSearch(event.target.value)}
-              />
-            </label>
-            <label className={styles.label}>
-              Сортировка
-              <select
-                className={styles.input}
-                value={sort}
-                onChange={event => setSort(event.target.value)}
-              >
-                <option value="order">По порядку</option>
-                <option value="code">По коду</option>
-                <option value="name">По названию</option>
-                <option value="status">По статусу</option>
-              </select>
-            </label>
-            <ul className={styles.list}>
-              {items.map(item => (
-                <li key={item.code}>
-                  <button
-                    className={styles.item}
-                    type="button"
-                    disabled={busy || loading}
-                    aria-current={editor?.code === item.code ? 'true' : undefined}
-                    onClick={() => openEntity(item)}
-                  >
-                    <span className={styles.itemCode}>{item.code}</span>
-                    <span>{item.name}</span>
-                    <span className={styles.itemMeta}>
-                      {item.status === 'published' ? 'Опубликован' : 'Черновик'} ·{' '}
-                      {item.indexingEnabled ? 'Индексация включена' : 'Без индексации'}
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-            {!items.length && <p className={styles.muted}>Элементы не найдены.</p>}
-          </aside>
-          <div className={styles.editor}>
-            {editor ? (
-              <TaxonomyEntityForm
-                key={`${editor.kind}/${editor.code || 'new'}/${editor.revision}`}
-                editor={editor}
-                registry={registry}
-                busy={busy || loading}
-                dirty={dirty}
-                usage={usage}
-                usageError={usageError}
-                onUsageRetry={() => {
-                  setUsageError('');
-                  setUsageAttempt(current => current + 1);
-                }}
-                onChange={form => setEditor(current => ({ ...current, form }))}
-                onSave={save}
-                onDelete={remove}
-              />
-            ) : (
-              <p className={styles.empty}>Выберите элемент из списка или добавьте новый.</p>
-            )}
           </div>
-        </div>
-      )}
+        )}
+        {message && (
+          <p className={styles.success} role="status">
+            {message}
+          </p>
+        )}
+        {loading && <p role="status">Загрузка структуры…</p>}
+        {registry && (
+          <div className={styles.layout}>
+            <aside className={styles.sidebar} aria-label="Элементы структуры">
+              <label className={styles.label}>
+                Тип элемента
+                <select
+                  className={styles.input}
+                  value={kind}
+                  disabled={busy || loading}
+                  onChange={event => changeGroup(event.target.value)}
+                >
+                  {TAXONOMY_GROUPS.map(group => (
+                    <option key={group.kind} value={group.kind}>
+                      {group.label} ({entitiesFor(registry, group.kind).length})
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {kind !== 'root' && (
+                <button
+                  className={styles.button}
+                  type="button"
+                  disabled={busy || loading || (kind === 'section' && !registry.catalogs.length)}
+                  onClick={create}
+                >
+                  Добавить
+                </button>
+              )}
+              <label className={styles.label}>
+                Найти по коду или названию
+                <input
+                  className={styles.input}
+                  type="search"
+                  value={search}
+                  onChange={event => setSearch(event.target.value)}
+                />
+              </label>
+              <label className={styles.label}>
+                Сортировка
+                <select
+                  className={styles.input}
+                  value={sort}
+                  onChange={event => setSort(event.target.value)}
+                >
+                  <option value="order">По порядку</option>
+                  <option value="code">По коду</option>
+                  <option value="name">По названию</option>
+                  <option value="status">По статусу</option>
+                </select>
+              </label>
+              <ul className={styles.list}>
+                {items.map(item => (
+                  <li key={item.code}>
+                    <button
+                      className={styles.item}
+                      type="button"
+                      disabled={busy || loading}
+                      aria-current={editor?.code === item.code ? 'true' : undefined}
+                      onClick={() => openEntity(item)}
+                    >
+                      <span className={styles.itemCode}>{item.code}</span>
+                      <span>{item.name}</span>
+                      <span className={styles.itemMeta}>
+                        {item.status === 'published' ? 'Опубликован' : 'Черновик'} ·{' '}
+                        {item.indexingEnabled ? 'Индексация включена' : 'Без индексации'}
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              {!items.length && <p className={styles.muted}>Элементы не найдены.</p>}
+            </aside>
+            <div className={styles.editor}>
+              {editor ? (
+                <TaxonomyEntityForm
+                  key={`${editor.kind}/${editor.code || 'new'}/${editor.revision}`}
+                  editor={editor}
+                  registry={registry}
+                  busy={busy || loading}
+                  dirty={dirty}
+                  usage={usage}
+                  usageError={usageError}
+                  onUsageRetry={() => {
+                    setUsageError('');
+                    setUsageAttempt(current => current + 1);
+                  }}
+                  onChange={form => setEditor(current => ({ ...current, form }))}
+                  onSave={save}
+                  onDelete={remove}
+                  onShowRelated={showRelated}
+                />
+              ) : (
+                <p className={styles.empty}>Выберите элемент из списка или добавьте новый.</p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+      <TaxonomyBulkWorkspace
+        token={token}
+        hidden={hidden || workspaceMode === 'metadata'}
+        view={workspaceMode}
+        request={bulkRequest}
+        onBusyChange={setBulkBusy}
+        onChanged={() => {
+          setUsage(null);
+          setUsageError('');
+          setUsageAttempt(value => value + 1);
+        }}
+      />
     </section>
   );
 }
