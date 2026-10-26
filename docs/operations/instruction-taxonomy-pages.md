@@ -13,7 +13,8 @@ Deploying it does not publish seed entities, apply the CSV distribution or gener
 A catalog is public when published and its route is approved. A section also requires a public parent
 catalog. A tag requires its own published status. Published noindex pages remain accessible and linked.
 Draft pages, sections under draft parents and unapproved routes return 404 and receive no public
-navigation, redirects or sitemap entry. H01 remains blocked until its route is explicitly agreed.
+navigation, redirects or sitemap entry. The initial seed keeps H01 blocked; the explicit
+[specification activation](./instruction-taxonomy-publication.md) selects `/po-professiyam/` and approves it.
 
 The general catalog stays at `/instrukcii-po-ohrane-truda`. ROOT's initial draft state does not remove
 that live page. While ROOT is a draft, its editorial fields do not replace the existing defaults.

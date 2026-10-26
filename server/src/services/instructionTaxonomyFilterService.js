@@ -94,21 +94,29 @@ export function getInstructionTaxonomyFilterOptions(
   }
 
   return {
-    catalogs: catalog.catalogs.map(({ id, label }) => ({
+    catalogs: catalog.catalogs.map(({ id, label, path }) => ({
       id,
       label,
       count: catalogCounts.get(id) || 0,
+      ...(path ? { path } : {}),
     })),
     categories: categories
       .filter(item => categoryCounts.has(item.id))
-      .map(({ id, label }) => ({
+      .map(({ id, label, path }) => ({
         id,
         label,
         count: categoryCounts.get(id),
         ...(sectionCatalogs.has(id) ? { catalogId: sectionCatalogs.get(id) } : {}),
+        ...(path ? { path } : {}),
       })),
     tags: tags
       .filter(item => tagCounts.has(item.id))
-      .map(({ id, label, type }) => ({ id, label, type, count: tagCounts.get(id) })),
+      .map(({ id, label, type, path }) => ({
+        id,
+        label,
+        type,
+        count: tagCounts.get(id),
+        ...(path ? { path } : {}),
+      })),
   };
 }

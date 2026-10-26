@@ -15,9 +15,10 @@ await clientRequire('esbuild').build({
   stdin: {
     contents: `
       import { renderToStaticMarkup } from 'react-dom/server';
+      import { StaticRouter } from 'react-router-dom';
       import Filters from './src/components/InstructionCatalog/CatalogTaxonomyFilters.jsx';
       export { getInstructionTaxonomyFilters } from './src/api/instructionsApi.js';
-      export function render(props) { return renderToStaticMarkup(<Filters {...props} />); }
+      export function render(props) { return renderToStaticMarkup(<StaticRouter location="/"><Filters {...props} /></StaticRouter>); }
     `,
     resolveDir: fileURLToPath(new URL('../../client/', import.meta.url)),
     loader: 'jsx',
@@ -66,6 +67,23 @@ test('legacy filter links still disclose the menu and loading cannot select stal
   assert.match(loading, /aria-busy="true"/u);
   assert.match(loading, /<input(?=[^>]*role="combobox")(?=[^>]*disabled="")[^>]*>/u);
   assert.match(loading, /Загрузка разделов и тегов/u);
+});
+
+test('published catalog, category and tag pages are exposed as ordinary links beside the filters', () => {
+  const published = {
+    catalogs: options.catalogs.map(item => ({
+      ...item,
+      label: item.id,
+      path: `/catalog/${item.id}/`,
+    })),
+    categories: options.categories.map(item => ({ ...item, path: `/section/${item.id}/` })),
+    tags: options.tags.map(item => ({ ...item, path: `/topic/${item.id}/` })),
+  };
+  const markup = render({ options: published, catalogId: 'H01', category: 'P06', tag: 'T35' });
+  for (const path of ['/catalog/H01/', '/catalog/H02/', '/section/P06/', '/topic/T35/']) {
+    assert.ok(markup.includes(`href="${path}"`), path);
+  }
+  assert.ok(!markup.includes('href="/section/W02/"'));
 });
 
 test('catalog and category transitions clear dependent filters while preserving search and sort', () => {

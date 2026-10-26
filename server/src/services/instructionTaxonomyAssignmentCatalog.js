@@ -1,6 +1,7 @@
 import { InstructionEditorError } from './instructionEditorError.js';
 import { instructionTaxonomyRegistryRepository } from './instructionTaxonomyRegistryRepository.js';
 import { getLegacyInstructionTaxonomyCatalog } from './instructionTaxonomySource.js';
+import { getInstructionTaxonomyEntityPath } from './instructionTaxonomyRegistryModel.js';
 
 const legacy = getLegacyInstructionTaxonomyCatalog();
 const legacyCategories = new Set(legacy.categories.map(item => item.id));
@@ -17,18 +18,35 @@ function ordered(items) {
 export function getInstructionTaxonomyAssignmentCatalog(
   registry = instructionTaxonomyRegistryRepository.read(),
 ) {
+  const publicCatalogs = new Set(
+    registry.catalogs
+      .filter(item => item.status === 'published' && item.routeApproved)
+      .map(item => item.code),
+  );
+  const publicPath = entity =>
+    entity.status === 'published' &&
+    (entity.kind === 'tag' ||
+      publicCatalogs.has(entity.kind === 'catalog' ? entity.code : entity.parentCode))
+      ? { path: getInstructionTaxonomyEntityPath(registry, entity.kind, entity.code) }
+      : {};
   return {
     revision: registry.revision,
-    catalogs: ordered(registry.catalogs).map(({ code, name }) => ({ id: code, label: name })),
-    sections: ordered(registry.sections).map(({ code, name, parentCode }) => ({
-      id: code,
-      label: name,
-      catalogId: parentCode,
+    catalogs: ordered(registry.catalogs).map(entity => ({
+      id: entity.code,
+      label: entity.name,
+      ...publicPath(entity),
     })),
-    tags: ordered(registry.tags).map(({ code, name }) => ({
-      id: code,
-      label: name,
+    sections: ordered(registry.sections).map(entity => ({
+      id: entity.code,
+      label: entity.name,
+      catalogId: entity.parentCode,
+      ...publicPath(entity),
+    })),
+    tags: ordered(registry.tags).map(entity => ({
+      id: entity.code,
+      label: entity.name,
       type: 'topic',
+      ...publicPath(entity),
     })),
     legacyCategories: legacy.categories.map(({ id, label }) => ({ id, label })),
     legacyTags: legacy.tags.map(({ id, label, type }) => ({ id, label, type })),

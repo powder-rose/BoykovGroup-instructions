@@ -62,7 +62,7 @@ function assertPatch(input, creating = false) {
   }
 }
 
-function updateRedirects(before, next) {
+export function updateInstructionTaxonomyRedirects(before, next) {
   const paths = new Map(
     listInstructionTaxonomyEntities(next).map(entity => [
       getInstructionTaxonomyEntityPath(next, entity.kind, entity.code),
@@ -161,7 +161,7 @@ export function createInstructionTaxonomyRegistryService({
       state => {
         const before = structuredClone(state);
         mutate(state);
-        updateRedirects(before, state);
+        updateInstructionTaxonomyRedirects(before, state);
         return state;
       },
       { expectedRevision },
