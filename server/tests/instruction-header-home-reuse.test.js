@@ -21,7 +21,7 @@ test('instruction header reuses the catalog home button', () => {
     /import catalogStyles from '\.\.\/InstructionCatalog\/InstructionsCatalog\.module\.css'/u,
   );
   assert.match(header, /<Link to="\/" className=\{catalogStyles\.homeButton\}>/u);
-  assert.match(catalog, /className=\{styles\.homeButton\}/u);
+  assert.match(catalog, /className=\{styles\.homeLink\}/u);
   assert.match(catalogCss, /\.homeButton\s*\{[^}]*background:\s*var\(--color-primary\)/su);
   assert.doesNotMatch(headerCss, /\.homeButton\s*\{/u);
 });

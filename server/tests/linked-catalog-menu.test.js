@@ -18,8 +18,11 @@ await clientRequire('esbuild').build({
       import { StaticRouter } from 'react-router-dom';
       import Filters from './src/components/InstructionCatalog/CatalogTaxonomyFilters.jsx';
       import Navigation from './src/components/TaxonomyLandingPage/TaxonomyNavigation.jsx';
+      import Toolbar from './src/components/InstructionCatalog/InstructionResultsToolbar.jsx';
+      export { default as Sort } from './src/components/InstructionSort/InstructionSort.jsx';
       export { getInstructionTaxonomyFilters } from './src/api/instructionsApi.js';
       export function render(props) { return renderToStaticMarkup(<StaticRouter location="/"><Filters {...props} /></StaticRouter>); }
+      export function renderToolbar(props) { return renderToStaticMarkup(<Toolbar {...props} />); }
       export function renderNavigation(props) { return renderToStaticMarkup(<StaticRouter location="/"><Navigation {...props} /></StaticRouter>); }
     `,
     resolveDir: fileURLToPath(new URL('../../client/', import.meta.url)),
@@ -32,7 +35,8 @@ await clientRequire('esbuild').build({
   jsx: 'automatic',
   define: { 'import.meta.env': '{}' },
 });
-const { render, renderNavigation, getInstructionTaxonomyFilters } = clientRequire(bundle);
+const { render, renderNavigation, renderToolbar, Sort, getInstructionTaxonomyFilters } =
+  clientRequire(bundle);
 
 const options = {
   catalogs: [
@@ -46,7 +50,7 @@ const options = {
   tags: [{ id: 'T35', label: 'Электробезопасность', count: 1 }],
 };
 
-test('catalog cards disclose the connected menu and hide it when all instructions are selected', () => {
+test('catalog mode buttons disclose the connected menu and hide it when all instructions are selected', () => {
   const collapsed = render({ options, catalogId: '', category: '', tag: '' });
   assert.match(collapsed, /role="region"[^>]*hidden=""/u);
   assert.doesNotMatch(collapsed, /<select|role="combobox"/u);
@@ -136,6 +140,84 @@ test('published catalog, category and tag pages are exposed as ordinary links be
     assert.ok(markup.includes(`href="${path}"`), path);
   }
   assert.ok(!markup.includes('href="/section/W02/"'));
+});
+
+test('one control panel groups all modes, scoped filters, and a single complete directory', () => {
+  const navigation = {
+    catalogs: [
+      {
+        code: 'H01',
+        name: 'Профессии',
+        path: '/catalog/H01/',
+        count: 3,
+        sections: [{ code: 'P06', name: 'Инженеры', path: '/section/P06/', count: 3 }],
+      },
+    ],
+    tags: [{ code: 'T35', name: 'Электробезопасность', path: '/topic/T35/', count: 1 }],
+  };
+  const markup = render({ options, navigation, catalogId: 'H01', category: '', tag: '' });
+  const modes = markup.match(
+    /role="group" aria-label="Направление поиска">([\s\S]*?)<\/div>/u,
+  )?.[1];
+  assert.ok(modes);
+  assert.equal((modes.match(/<button\b/gu) || []).length, 3);
+  for (const label of ['Все инструкции', 'По профессиям', 'По видам работ']) {
+    assert.ok(modes.includes(label), label);
+  }
+  assert.equal((modes.match(/aria-pressed="true"/gu) || []).length, 1);
+  assert.equal((markup.match(/<details\b/gu) || []).length, 1);
+  for (const path of ['/catalog/H01/', '/section/P06/', '/topic/T35/']) {
+    assert.ok(markup.includes(`href="${path}"`), path);
+  }
+  assert.doesNotMatch(markup, /Все профессии и должности|Все виды работ →/u);
+});
+
+test('shared result toolbar contains one localized count and one sort group', () => {
+  const previous = globalThis.window;
+  globalThis.window = { location: { search: '?sort=popular' } };
+  try {
+    const markup = renderToolbar({ total: 2201, filtered: true });
+    assert.match(markup, /Найдено инструкций: 2\s201/u);
+    assert.equal((markup.match(/aria-label="Сортировка инструкций"/gu) || []).length, 1);
+    assert.equal((markup.match(/<button\b/gu) || []).length, 2);
+    assert.match(markup, /aria-pressed="true"[^>]*>Популярные<\/button>/u);
+    assert.doesNotMatch(markup, /На главную/u);
+  } finally {
+    if (previous === undefined) delete globalThis.window;
+    else globalThis.window = previous;
+  }
+});
+
+test('inline sorting preserves query and taxonomy scope while resetting pagination', () => {
+  const previous = globalThis.window;
+  let destination;
+  globalThis.window = {
+    location: {
+      search: '?q=электрик&catalog=H01&category=P06&tag=T06&page=4',
+      href: 'https://boykovdocs.ru/instrukcii-po-ohrane-truda?q=электрик&catalog=H01&category=P06&tag=T06&page=4#results',
+      assign: value => {
+        destination = value;
+      },
+    },
+  };
+  try {
+    const buttons = Sort({ compact: true }).props.children.props.children;
+    buttons.find(button => button.props.children === 'Сначала новые').props.onClick();
+    assert.equal(destination, undefined);
+    buttons.find(button => button.props.children === 'Популярные').props.onClick();
+    const next = new URL(destination, 'https://boykovdocs.ru');
+    assert.equal(next.pathname, '/instrukcii-po-ohrane-truda');
+    assert.equal(next.searchParams.get('q'), 'электрик');
+    assert.equal(next.searchParams.get('catalog'), 'H01');
+    assert.equal(next.searchParams.get('category'), 'P06');
+    assert.equal(next.searchParams.get('tag'), 'T06');
+    assert.equal(next.searchParams.get('sort'), 'popular');
+    assert.equal(next.searchParams.has('page'), false);
+    assert.equal(next.hash, '#results');
+  } finally {
+    if (previous === undefined) delete globalThis.window;
+    else globalThis.window = previous;
+  }
 });
 
 test('catalog and category transitions clear dependent filters while preserving search and sort', () => {

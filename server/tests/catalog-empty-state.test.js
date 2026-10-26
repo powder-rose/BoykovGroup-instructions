@@ -8,7 +8,7 @@ test('catalog shows one centered generation CTA when no instructions are returne
   const catalog = read('../../client/src/components/InstructionCatalog/InstructionsCatalog.jsx');
 
   assert.match(catalog, /items\.length > 0\s*\?\s*\(/u);
-  assert.match(catalog, /<InstructionSort \/>[\s\S]*?<InstructionsCatalogGrid/u);
+  assert.match(catalog, /<InstructionResultsToolbar[\s\S]*?<InstructionsCatalogGrid/u);
   assert.match(catalog, /\)\s*:\s*\(\s*<section className=\{styles\.empty\}/u);
   assert.match(catalog, /Не нашли нужную инструкцию\?/u);
   assert.match(catalog, /Создадим индивидуальную инструкцию по охране труда за 2 минуты/u);
@@ -24,7 +24,10 @@ test('catalog shows one centered generation CTA when no instructions are returne
 test('empty results hide sorting and count but preserve regular catalog pagination', () => {
   const catalog = read('../../client/src/components/InstructionCatalog/InstructionsCatalog.jsx');
 
-  assert.match(catalog, /!loading && !error && items\.length > 0 && \(\s*<span/u);
+  assert.match(
+    catalog,
+    /!loading\s*&&\s*!error\s*&&\s*\(items\.length > 0\s*\?\s*\(\s*<>\s*<InstructionResultsToolbar/u,
+  );
   assert.match(catalog, /<InstructionListPagination/u);
   assert.match(catalog, /<InstructionsCatalogGrid items=\{items\} isAdmin=\{isAdmin\}/u);
   assert.match(catalog, /\{query && \(\s*<p className=\{styles\.emptyQuery\}/u);

@@ -2,10 +2,9 @@ import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import Header from '../Header/Header.jsx';
-import InstructionSort from '../InstructionSort/InstructionSort.jsx';
+import InstructionResultsToolbar from './InstructionResultsToolbar.jsx';
 import InstructionListPagination from '../InstructionList/InstructionListPagination.jsx';
 import RichTextContent from '../RichTextContent/RichTextContent.jsx';
-import TaxonomyNavigation from '../TaxonomyLandingPage/TaxonomyNavigation.jsx';
 import TaxonomyPageSeo, { TaxonomyPendingSeo } from '../TaxonomyLandingPage/TaxonomyPageSeo.jsx';
 import useTaxonomyNavigation from '../TaxonomyLandingPage/useTaxonomyNavigation.js';
 
@@ -93,8 +92,13 @@ export default function InstructionsCatalog() {
       />
 
       <main className={styles.content}>
+        <a id="boykovCatalogHomeButton" className={styles.homeLink} href="/">
+          <span aria-hidden="true">←</span> На главную
+        </a>
+        {root && <RichTextContent content={root.introContent} />}
         <CatalogTaxonomyFilters
           options={filterOptions}
+          navigation={navigation}
           category={category}
           tag={tag}
           catalogId={catalogId}
@@ -105,27 +109,11 @@ export default function InstructionsCatalog() {
           error={filterError}
           loading={filtersLoading}
         />
-        {root && <RichTextContent content={root.introContent} />}
-        {navigation && (
-          <TaxonomyNavigation compact catalogs={navigation.catalogs} tags={navigation.tags} />
-        )}
         {navigationError && (
           <p className={styles.status} role="status">
             {navigationError}
           </p>
         )}
-        <div className={styles.toolbar}>
-          <a id="boykovCatalogHomeButton" className={styles.homeButton} href="/">
-            <span aria-hidden="true">←</span> На главную
-          </a>
-
-          {!loading && !error && items.length > 0 && (
-            <span className={homeStyles.count}>
-              {query || category || tag || catalogId ? 'Найдено инструкций' : 'Всего инструкций'}:{' '}
-              {total.toLocaleString('ru-RU')}
-            </span>
-          )}
-        </div>
 
         {loading && (
           <p className={styles.status} role="status">
@@ -143,7 +131,10 @@ export default function InstructionsCatalog() {
           !error &&
           (items.length > 0 ? (
             <>
-              <InstructionSort />
+              <InstructionResultsToolbar
+                total={total}
+                filtered={Boolean(query || category || tag || catalogId)}
+              />
 
               <InstructionsCatalogGrid items={items} isAdmin={isAdmin} />
 

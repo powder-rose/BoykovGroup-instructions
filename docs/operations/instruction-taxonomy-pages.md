@@ -120,3 +120,16 @@ markup before it is opened. Opening the directory requires no additional API req
 catalog pages still show all their published sections. Compact navigation changes neither route
 addresses nor publication, indexing, canonical or sitemap settings. No data migration or repeated
 publication/import is required.
+
+## Unified catalog controls
+
+The homepage and general catalog use one shared panel with three direction buttons: all
+instructions, professions, and work types. Active scoped filters and the closed full directory
+live inside this panel. The duplicate catalog-link row is removed; published destinations remain
+available inside the directory, in server HTML and React markup. The homepage fetches the existing
+public navigation projection as well; filter metadata supplies catalog links if it is unavailable.
+
+Both lists use the same result toolbar, with the instruction count and sorting side by side on
+desktop and stacked on narrow screens. The general catalog links back home with a secondary text
+link above its controls. The existing primary home button on instruction pages remains separate.
+Sorting retains its existing URL navigation and preserves active query, catalog, category, and tag.

@@ -48,11 +48,12 @@ test('catalog search uses the existing API query, sort and page controls', () =>
   assert.match(filters, /useSearchParams\(\)/u);
 });
 
-test('catalog prominently links home without new CSS overrides', () => {
+test('catalog links home with a secondary text link without new CSS overrides', () => {
   const catalog = read('../../client/src/components/InstructionCatalog/InstructionsCatalog.jsx');
   const css = read('../../client/src/components/InstructionCatalog/InstructionsCatalog.module.css');
   assert.match(catalog, /id="boykovCatalogHomeButton"/u);
   assert.match(catalog, /href="\/"/u);
-  assert.match(css, /\.homeButton\s*\{[^}]*background:\s*var\(--color-primary\)/su);
+  assert.match(catalog, /className=\{styles\.homeLink\}/u);
+  assert.match(css, /\.homeLink\s*\{[^}]*color:\s*var\(--color-text-muted\)/su);
   assert.doesNotMatch(css, /!important/u);
 });

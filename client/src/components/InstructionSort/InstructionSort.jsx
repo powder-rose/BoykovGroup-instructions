@@ -6,7 +6,7 @@ function getCurrentMode() {
   return params.get('sort') === 'popular' ? 'popular' : 'newest';
 }
 
-export default function InstructionSort() {
+export default function InstructionSort({ compact = false }) {
   const currentMode = getCurrentMode();
 
   function chooseMode(mode) {
@@ -27,9 +27,11 @@ export default function InstructionSort() {
   }
 
   return (
-    <div className={styles.root}>
-      <span className={styles.label}>Сортировка:</span>
-
+    <div
+      className={compact ? styles.compact : styles.root}
+      role="group"
+      aria-label="Сортировка инструкций"
+    >
       <div className={styles.buttons}>
         <button
           type="button"

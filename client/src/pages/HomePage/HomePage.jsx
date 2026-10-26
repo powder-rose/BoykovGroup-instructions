@@ -10,6 +10,7 @@ import HomeIntro from './components/HomeIntro/HomeIntro.jsx';
 
 import InstructionResults from './components/InstructionResults/InstructionResults.jsx';
 import CatalogTaxonomyFilters from '../../components/InstructionCatalog/CatalogTaxonomyFilters.jsx';
+import useTaxonomyNavigation from '../../components/TaxonomyLandingPage/useTaxonomyNavigation.js';
 
 import useHomeCompactHeader from './hooks/useHomeCompactHeader.js';
 
@@ -27,6 +28,7 @@ const EditInstructionModal = lazy(
 
 export default function HomePage() {
   const [importId, setImportId] = useState(null);
+  const { navigation } = useTaxonomyNavigation();
 
   const { isCompactHeader, stickyIntroRef, stickyTriggerRef } = useHomeCompactHeader();
 
@@ -113,6 +115,7 @@ export default function HomePage() {
         items={items}
         total={total}
         query={debouncedQuery}
+        filtered={Boolean(debouncedQuery || catalogId || category || tag)}
         isAdmin={isAdmin}
         isSearching={isSearching}
         searchError={searchError}
@@ -131,6 +134,7 @@ export default function HomePage() {
       >
         <CatalogTaxonomyFilters
           options={filterOptions}
+          navigation={navigation}
           catalogId={catalogId}
           category={category}
           tag={tag}
