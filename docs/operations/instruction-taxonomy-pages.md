@@ -110,9 +110,11 @@ Legacy assignments and unavailable landing destinations retain their catalog-fil
 ## Compact catalog navigation
 
 The homepage and general catalog share two catalog choices and a single scoped filter panel.
-The panel shows up to eight sections by instruction count, retains an active section even outside
-that group, and offers searchable section and tag pickers. Choices update the existing URL filters;
-search, sort, pagination and request cancellation keep their existing behavior.
+The panel links to up to eight published section pages by instruction count, retaining a selected
+published section even outside that group. Section cards are ordinary links to the canonical page
+paths supplied by the API; sections without a public path stay available through the filter picker.
+The direction buttons and searchable section/tag pickers update the existing URL filters. Search,
+sort, pagination and request cancellation keep their existing behavior.
 
 The general catalog places the complete directory inside a closed native `details` element.
 All published catalog, section and tag links are present in both initial server HTML and React

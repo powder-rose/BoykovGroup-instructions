@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import CatalogPageLinks from './CatalogPageLinks.jsx';
 import CatalogOptionPicker from './CatalogOptionPicker.jsx';
 import CatalogTagPicker from './CatalogTagPicker.jsx';
@@ -25,8 +26,11 @@ export default function CatalogTaxonomyFilters({
   const active = Boolean(category || tag);
   const selectedCategory = categories.find(item => item.id === category);
   const selectedTag = tags.find(item => item.id === tag);
-  const quickCategories = [...categories].sort((a, b) => b.count - a.count).slice(0, 8);
-  if (selectedCategory && !quickCategories.some(item => item.id === category)) {
+  const quickCategories = categories
+    .filter(item => item.path)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+  if (selectedCategory?.path && !quickCategories.some(item => item.id === category)) {
     quickCategories.splice(7, 1, selectedCategory);
   }
 
@@ -65,20 +69,17 @@ export default function CatalogTaxonomyFilters({
           )}
         </div>
         {catalogId && quickCategories.length > 0 && (
-          <div className={styles.quickCategories} role="group" aria-label="Быстрый выбор раздела">
+          <nav className={styles.quickCategories} aria-label="Страницы разделов">
             {quickCategories.map(item => (
-              <button
-                key={item.id}
-                type="button"
-                aria-pressed={item.id === category}
-                disabled={loading || Boolean(error)}
-                onClick={() => onCategoryChange(item.id === category ? '' : item.id)}
-              >
+              <Link key={item.id} to={item.path}>
                 <span>{item.label}</span>
-                <span className={styles.quickCount}>{item.count.toLocaleString('ru-RU')}</span>
-              </button>
+                <span className={styles.quickCount}>
+                  {item.count.toLocaleString('ru-RU')}
+                  <span aria-hidden="true">→</span>
+                </span>
+              </Link>
             ))}
-          </div>
+          </nav>
         )}
         <div className={styles.controls}>
           <CatalogOptionPicker
