@@ -16,7 +16,6 @@ import useHomeCompactHeader from '../../pages/HomePage/hooks/useHomeCompactHeade
 
 import InstructionsCatalogGrid from './InstructionsCatalogGrid.jsx';
 import CatalogTaxonomyFilters from './CatalogTaxonomyFilters.jsx';
-import InstructionCatalogChoice from './InstructionCatalogChoice.jsx';
 import useInstructionsCatalog from './hooks/useInstructionsCatalog.js';
 
 import homeStyles from '../../App.module.css';
@@ -37,6 +36,7 @@ export default function InstructionsCatalog() {
     hasParameters,
     filterOptions,
     filterError,
+    filtersLoading,
     changeCategory,
     changeTag,
     changeCatalog,
@@ -93,10 +93,17 @@ export default function InstructionsCatalog() {
       />
 
       <main className={styles.content}>
-        <InstructionCatalogChoice
-          value={catalogId}
-          catalogs={filterOptions.catalogs}
-          onChange={changeCatalog}
+        <CatalogTaxonomyFilters
+          options={filterOptions}
+          category={category}
+          tag={tag}
+          catalogId={catalogId}
+          onCatalogChange={changeCatalog}
+          onCategoryChange={changeCategory}
+          onTagChange={changeTag}
+          onReset={clearTaxonomy}
+          error={filterError}
+          loading={filtersLoading}
         />
         {root && <RichTextContent content={root.introContent} />}
         {navigation && <TaxonomyNavigation catalogs={navigation.catalogs} tags={navigation.tags} />}
@@ -117,17 +124,6 @@ export default function InstructionsCatalog() {
             </span>
           )}
         </div>
-
-        <CatalogTaxonomyFilters
-          options={filterOptions}
-          category={category}
-          tag={tag}
-          catalogId={catalogId}
-          onCategoryChange={changeCategory}
-          onTagChange={changeTag}
-          onReset={clearTaxonomy}
-          error={filterError}
-        />
 
         {loading && (
           <p className={styles.status} role="status">

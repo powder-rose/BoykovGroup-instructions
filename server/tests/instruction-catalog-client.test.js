@@ -121,3 +121,46 @@ test('load more retains catalog scope and cannot append results from the previou
   f.dispatch({ type: 'instructions/deleteSuccess', payload: 'old-work' });
   assert.equal(f.state().total, 8);
 });
+
+test('home searches and pagination keep category and tag scope and discard older facet requests', async t => {
+  const f = fixture(t);
+  const first = f.search({ query: 'электрик', catalogId: 'H01', category: 'P06', tag: 'T06' });
+  const current = f.search({ query: 'электрик', catalogId: 'H01', category: 'P10', tag: 'T35' });
+  assert.equal(f.pending[1].url.searchParams.get('category'), 'P10');
+  assert.equal(f.pending[1].url.searchParams.get('tag'), 'T35');
+  const stale = f.search({
+    query: 'электрик',
+    catalogId: 'H01',
+    category: 'P06',
+    tag: 'T06',
+    append: true,
+    page: 2,
+  });
+  f.resolve(2, ['wrong-category'], { page: 2 });
+  await stale;
+  f.resolve(1, ['electrician']);
+  await current;
+  f.resolve(0, [], { status: 500 });
+  await first;
+  assert.deepEqual(
+    f.state().items.map(x => x.id),
+    ['electrician'],
+  );
+  assert.equal(f.state().searchError, null);
+  const more = f.search({
+    query: 'электрик',
+    catalogId: 'H01',
+    category: 'P10',
+    tag: 'T35',
+    append: true,
+    page: 2,
+  });
+  assert.equal(f.pending[3].url.searchParams.get('category'), 'P10');
+  assert.equal(f.pending[3].url.searchParams.get('tag'), 'T35');
+  f.resolve(3, ['electrician', 'electrician-two'], { page: 2 });
+  await more;
+  assert.deepEqual(
+    f.state().items.map(x => x.id),
+    ['electrician', 'electrician-two'],
+  );
+});

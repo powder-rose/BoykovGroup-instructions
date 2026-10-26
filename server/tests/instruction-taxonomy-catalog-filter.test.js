@@ -256,8 +256,13 @@ test('catalog UI persists category and tag IDs in URL and maintains query/sortin
     new URL('../../client/src/components/InstructionPage/InstructionTaxonomy.jsx', import.meta.url),
     'utf8',
   );
-  assert.match(hook, /searchParams\.get\('category'\)/u);
-  assert.match(hook, /searchParams\.get\('tag'\)/u);
+  const sharedFilters = fs.readFileSync(
+    new URL('../../client/src/hooks/useInstructionCatalogFilters.js', import.meta.url),
+    'utf8',
+  );
+  assert.match(hook, /useInstructionCatalogFilters\(\)/u);
+  assert.match(sharedFilters, /searchParams\.get\('category'\)/u);
+  assert.match(sharedFilters, /searchParams\.get\('tag'\)/u);
   assert.match(hook, /params\.set\('category', category\)/u);
   assert.match(hook, /params\.set\('tag', tag\)/u);
   assert.match(hook, /next\.delete\('page'\)/u);

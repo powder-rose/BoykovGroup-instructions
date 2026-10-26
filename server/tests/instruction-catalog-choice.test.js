@@ -139,6 +139,50 @@ test('only exact catalog IDs are accepted', () => {
   }
 });
 
+test('filter menus contain only the selected catalog and category tags with scoped counts', () => {
+  const input = [
+    ...records(),
+    { id: 'draft', primaryCategoryId: 'P06', tagIds: ['T11'], status: 'draft' },
+  ];
+  const before = structuredClone(input);
+  const options = getInstructionTaxonomyFilterOptions(input, { catalogId: 'H01' });
+  assert.deepEqual(
+    options.categories.map(x => [x.id, x.count]),
+    [
+      ['P06', 2],
+      ['P10', 1],
+    ],
+  );
+  assert.deepEqual(
+    options.tags.map(x => [x.id, x.count]),
+    [
+      ['T06', 2],
+      ['T35', 1],
+    ],
+  );
+  const section = getInstructionTaxonomyFilterOptions(input, { catalogId: 'H01', category: 'P06' });
+  assert.deepEqual(section.categories, options.categories);
+  assert.deepEqual(section.catalogs, options.catalogs);
+  assert.deepEqual(
+    section.tags.map(x => [x.id, x.count]),
+    [['T06', 2]],
+  );
+  const work = getInstructionTaxonomyFilterOptions(input, { catalogId: 'H02' });
+  assert.deepEqual(
+    work.tags.map(x => [x.id, x.count]),
+    [
+      ['T11', 1],
+      ['T35', 1],
+    ],
+  );
+  assert.deepEqual(work.catalogs, options.catalogs);
+  assert.deepEqual(
+    getInstructionTaxonomyFilterOptions(input, { catalogId: 'H02', category: 'P06' }).tags,
+    [],
+  );
+  assert.deepEqual(input, before);
+});
+
 async function fixture(t) {
   const input = records();
   t.mock.method(instructionsRepository, 'getAll', () => input);
@@ -168,6 +212,46 @@ async function fixture(t) {
   });
   return `http://127.0.0.1:${server.address().port}`;
 }
+
+test('filter metadata API validates context and narrows menus without changing global catalog counts', async t => {
+  const base = await fixture(t);
+  const response = await fetch(
+    base + '/api/instructions/taxonomy-filters?catalog=H02&category=W02',
+  );
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  const options = await response.json();
+  assert.deepEqual(
+    options.categories.map(x => x.id),
+    ['W02', 'W03'],
+  );
+  assert.deepEqual(
+    options.tags.map(x => [x.id, x.count]),
+    [['T35', 1]],
+  );
+  assert.deepEqual(
+    options.catalogs.map(x => [x.id, x.count]),
+    [
+      ['H01', 3],
+      ['H02', 2],
+    ],
+  );
+  for (const query of [
+    'catalog=H99',
+    'catalog=H01&catalog=H02',
+    'category=missing',
+    'category=P06&category=P10',
+  ]) {
+    assert.equal((await fetch(base + '/api/instructions/taxonomy-filters?' + query)).status, 400);
+  }
+  const legacy = await (
+    await fetch(base + '/api/instructions/taxonomy-filters?category=electrical')
+  ).json();
+  assert.deepEqual(
+    legacy.tags.map(x => [x.id, x.count]),
+    [['T35', 1]],
+  );
+});
 
 test('API catalog choice combines with search, tags, sort and pagination before slicing', async t => {
   const base = await fixture(t);

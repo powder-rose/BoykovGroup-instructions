@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { nextTagOptionIndex, searchCatalogTags } from './catalogTagSearch.js';
 import styles from './CatalogTaxonomyFilters.module.css';
 
-export default function CatalogTagPicker({ tags, selectedId, onChange }) {
+export default function CatalogTagPicker({ tags, selectedId, onChange, disabled = false }) {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState(-1);
@@ -103,6 +103,7 @@ export default function CatalogTagPicker({ tags, selectedId, onChange }) {
               selectedId ? `${styles.tagInput} ${styles.tagInputSelected}` : styles.tagInput
             }
             type="text"
+            disabled={disabled}
             role="combobox"
             autoComplete="off"
             aria-autocomplete="list"
@@ -143,6 +144,7 @@ export default function CatalogTagPicker({ tags, selectedId, onChange }) {
               type="button"
               className={styles.tagAction}
               aria-label={open ? 'Скрыть список тегов' : 'Показать список тегов'}
+              disabled={disabled}
               aria-expanded={open}
               aria-controls={listId}
               onClick={toggleOptions}

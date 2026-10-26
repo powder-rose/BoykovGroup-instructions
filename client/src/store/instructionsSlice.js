@@ -37,6 +37,8 @@ const initialState = {
   totalPages: 1,
   query: '',
   catalogId: '',
+  category: '',
+  tag: '',
   searchRequestId: null,
   isSearching: true,
   isLoadingMore: false,
@@ -57,6 +59,12 @@ const initialState = {
   deleteError: null,
 };
 
+function matchesSearch(state, meta) {
+  return ['query', 'catalogId', 'category', 'tag'].every(
+    key => (meta?.[key] ?? '') === (state[key] ?? ''),
+  );
+}
+
 export function instructionsReducer(state = initialState, action) {
   switch (action.type) {
     /*
@@ -70,11 +78,7 @@ export function instructionsReducer(state = initialState, action) {
      */
     case SEARCH_START: {
       const append = action.meta?.append === true;
-      if (
-        append &&
-        (action.meta?.query !== state.query || action.meta?.catalogId !== state.catalogId)
-      )
-        return state;
+      if (append && !matchesSearch(state, action.meta)) return state;
 
       return {
         ...state,
@@ -89,6 +93,8 @@ export function instructionsReducer(state = initialState, action) {
 
         query: append ? state.query : (action.meta?.query ?? ''),
         catalogId: append ? state.catalogId : (action.meta?.catalogId ?? ''),
+        category: append ? state.category : (action.meta?.category ?? ''),
+        tag: append ? state.tag : (action.meta?.tag ?? ''),
         searchRequestId: action.meta?.requestId,
       };
     }
@@ -98,11 +104,7 @@ export function instructionsReducer(state = initialState, action) {
        * Старый HTTP-ответ не должен
        * попасть в уже новый поисковый запрос.
        */
-      if (
-        action.meta?.query !== state.query ||
-        action.meta?.catalogId !== state.catalogId ||
-        action.meta?.requestId !== state.searchRequestId
-      ) {
+      if (!matchesSearch(state, action.meta) || action.meta?.requestId !== state.searchRequestId) {
         return state;
       }
 
@@ -150,11 +152,7 @@ export function instructionsReducer(state = initialState, action) {
     }
 
     case SEARCH_FAIL: {
-      if (
-        action.meta?.query !== state.query ||
-        action.meta?.catalogId !== state.catalogId ||
-        action.meta?.requestId !== state.searchRequestId
-      ) {
+      if (!matchesSearch(state, action.meta) || action.meta?.requestId !== state.searchRequestId) {
         return state;
       }
 
@@ -240,12 +238,14 @@ export function instructionsReducer(state = initialState, action) {
 export function searchInstructions({
   query = '',
   catalogId = '',
+  category = '',
+  tag = '',
   page = 1,
   pageSize = PAGE_SIZE,
   append = false,
 } = {}) {
   return async dispatch => {
-    const meta = { query, catalogId, append, requestId: ++nextSearchRequestId };
+    const meta = { query, catalogId, category, tag, append, requestId: ++nextSearchRequestId };
     dispatch({
       type: SEARCH_START,
       meta,
@@ -255,6 +255,8 @@ export function searchInstructions({
       const data = await searchRequest({
         query,
         catalogId,
+        category,
+        tag,
         page,
         pageSize,
       });
@@ -305,8 +307,10 @@ export function generateInstruction(profession) {
       const token = selectAuthToken(getState());
       const data = await generateRequest(profession, token);
       dispatch({ type: GENERATE_SUCCESS, payload: data });
-      const { query } = getState().instructions;
-      dispatch(searchInstructions({ query, page: 1, pageSize: PAGE_SIZE }));
+      const { query, catalogId, category, tag } = getState().instructions;
+      dispatch(
+        searchInstructions({ query, catalogId, category, tag, page: 1, pageSize: PAGE_SIZE }),
+      );
       return data;
     } catch (err) {
       dispatch({ type: GENERATE_FAIL, payload: err.message });
@@ -322,8 +326,10 @@ export function uploadInstruction(formData) {
       const token = selectAuthToken(getState());
       const data = await uploadRequest(formData, token);
       dispatch({ type: UPLOAD_SUCCESS, payload: data });
-      const { query } = getState().instructions;
-      dispatch(searchInstructions({ query, page: 1, pageSize: PAGE_SIZE }));
+      const { query, catalogId, category, tag } = getState().instructions;
+      dispatch(
+        searchInstructions({ query, catalogId, category, tag, page: 1, pageSize: PAGE_SIZE }),
+      );
       return data;
     } catch (err) {
       dispatch({ type: UPLOAD_FAIL, payload: err.message });

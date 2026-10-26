@@ -39,6 +39,8 @@ export function searchInstructions({
   pageSize = 11,
   sort,
   catalogId = '',
+  category = '',
+  tag = '',
 } = {}) {
   const currentSort =
     sort ||
@@ -57,12 +59,18 @@ export function searchInstructions({
     sort: currentSort,
   });
   if (catalogId) params.set('catalog', catalogId);
+  if (category) params.set('category', category);
+  if (tag) params.set('tag', tag);
 
   return request(`/api/instructions?${params.toString()}`);
 }
 
-export function getInstructionTaxonomyFilters({ signal } = {}) {
-  return request('/api/instructions/taxonomy-filters', { cache: 'no-store', signal });
+export function getInstructionTaxonomyFilters({ catalogId = '', category = '', signal } = {}) {
+  const params = new URLSearchParams();
+  if (catalogId) params.set('catalog', catalogId);
+  if (category) params.set('category', category);
+  const query = params.size ? `?${params}` : '';
+  return request(`/api/instructions/taxonomy-filters${query}`, { cache: 'no-store', signal });
 }
 
 export function getInstruction(id) {

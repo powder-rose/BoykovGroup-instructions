@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 
 import { useDispatch, useSelector } from 'react-redux';
 
 import { useDebouncedValue } from '../../../hooks/useDebouncedValue.js';
 import useInstructionTaxonomyFilters from '../../../hooks/useInstructionTaxonomyFilters.js';
+import useInstructionCatalogFilters from '../../../hooks/useInstructionCatalogFilters.js';
 
 import {
   deleteInstruction,
@@ -21,31 +21,22 @@ export default function useHomeInstructions() {
 
   const isAdmin = useSelector(selectIsAdmin);
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const queryInput = searchParams.get('q') ?? '';
-  const catalogId = searchParams.get('catalog') ?? '';
-  const { options: filterOptions } = useInstructionTaxonomyFilters();
-
-  function updateSearch(key, value, replace) {
-    setSearchParams(
-      current => {
-        const next = new URLSearchParams(current);
-        if (value) next.set(key, value);
-        else next.delete(key);
-        next.delete('page');
-        return next;
-      },
-      { replace },
-    );
-  }
-
-  function setQueryInput(value) {
-    updateSearch('q', value, true);
-  }
-
-  function changeCatalog(value) {
-    updateSearch('catalog', value, false);
-  }
+  const {
+    queryInput,
+    setQueryInput,
+    catalogId,
+    category,
+    tag,
+    changeCatalog,
+    changeCategory,
+    changeTag,
+    clearTaxonomy,
+  } = useInstructionCatalogFilters();
+  const {
+    options: filterOptions,
+    error: filterError,
+    loading: filtersLoading,
+  } = useInstructionTaxonomyFilters({ catalogId, category });
 
   const debouncedQuery = useDebouncedValue(queryInput, 350);
 
@@ -72,6 +63,8 @@ export default function useHomeInstructions() {
       searchInstructions({
         query: debouncedQuery,
         catalogId,
+        category,
+        tag,
 
         page: 1,
 
@@ -80,7 +73,7 @@ export default function useHomeInstructions() {
         append: false,
       }),
     );
-  }, [dispatch, debouncedQuery, catalogId]);
+  }, [dispatch, debouncedQuery, catalogId, category, tag]);
 
   async function generate() {
     if (!isAdmin) {
@@ -103,6 +96,8 @@ export default function useHomeInstructions() {
       searchInstructions({
         query: debouncedQuery,
         catalogId,
+        category,
+        tag,
 
         page: 1,
 
@@ -114,7 +109,7 @@ export default function useHomeInstructions() {
   const showEmptyState =
     !isSearching &&
     !searchError &&
-    Boolean(debouncedQuery.trim() || catalogId) &&
+    Boolean(debouncedQuery.trim() || catalogId || category || tag) &&
     items.length === 0;
 
   return {
@@ -122,8 +117,15 @@ export default function useHomeInstructions() {
     setQueryInput,
     debouncedQuery,
     catalogId,
+    category,
+    tag,
     changeCatalog,
+    changeCategory,
+    changeTag,
+    clearTaxonomy,
     filterOptions,
+    filterError,
+    filtersLoading,
 
     isAdmin,
 
