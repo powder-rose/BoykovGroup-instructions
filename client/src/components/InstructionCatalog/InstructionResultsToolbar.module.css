@@ -1,0 +1,22 @@
+.root {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin: 0 0 16px;
+}
+
+.count {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 600px) {
+  .root {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+}

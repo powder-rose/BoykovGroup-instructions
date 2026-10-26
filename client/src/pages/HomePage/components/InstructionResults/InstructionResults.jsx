@@ -2,7 +2,7 @@ import Loader from '../../../../components/Loader/Loader.jsx';
 
 import EmptyState from '../../../../components/EmptyState/EmptyState.jsx';
 
-import InstructionSort from '../../../../components/InstructionSort/InstructionSort.jsx';
+import InstructionResultsToolbar from '../../../../components/InstructionCatalog/InstructionResultsToolbar.jsx';
 
 import InstructionList from '../../../../components/InstructionList/InstructionList.jsx';
 
@@ -13,6 +13,7 @@ export default function InstructionResults({
   items,
   total,
   query,
+  filtered = false,
 
   isAdmin,
 
@@ -46,11 +47,7 @@ export default function InstructionResults({
 
       {!isSearching && !searchError && items.length > 0 && (
         <>
-          <div className={styles.resultsHead}>
-            <span className={styles.count}>Всего инструкций: {total}</span>
-          </div>
-
-          <InstructionSort />
+          <InstructionResultsToolbar total={total} filtered={filtered} />
 
           <InstructionList
             instructions={items}

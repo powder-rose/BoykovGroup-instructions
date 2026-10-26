@@ -3,7 +3,7 @@
 
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
 
   gap: 20px;
 
@@ -11,41 +11,13 @@
 
   padding: 13px 0 12px;
 
-  border-top: 1px solid rgba(20, 30, 50, 0.1);
-
-  border-bottom: 1px solid rgba(20, 30, 50, 0.1);
-
   font-family: Comfortaa, sans-serif;
 }
 
-.label {
-  position: relative;
-
-  display: inline-flex;
+.compact {
+  display: flex;
   align-items: center;
-
-  color: #7b8493;
-
-  font-family: Comfortaa, sans-serif;
-
-  font-size: 12px;
-  line-height: 1.3;
-  font-weight: 500;
-
-  letter-spacing: 0.02em;
-}
-
-.label::before {
-  content: '';
-
-  width: 5px;
-  height: 5px;
-
-  margin-right: 8px;
-
-  border-radius: 50%;
-
-  background: #4278d3;
+  flex-shrink: 0;
 }
 
 .buttons {
@@ -133,19 +105,6 @@
     padding: 11px 0;
   }
 
-  .label {
-    padding-top: 10px;
-
-    font-size: 11px;
-  }
-
-  .label::before {
-    width: 4px;
-    height: 4px;
-
-    margin-right: 6px;
-  }
-
   .buttons {
     gap: 3px;
   }
@@ -166,12 +125,6 @@
     display: block;
   }
 
-  .label {
-    padding-top: 0;
-
-    margin-bottom: 8px;
-  }
-
   .buttons {
     width: 100%;
 
@@ -182,30 +135,5 @@
 
   .button {
     width: 100%;
-  }
-}
-
-/*
- * ============================================================
- * FINAL PRODUCTION PARITY
- * catalog-ui-consolidated-20260930.css
- * ============================================================
- */
-
-.root {
-  justify-content: flex-end;
-
-  border-top: 0;
-
-  border-bottom: 0;
-}
-
-.label {
-  display: none;
-}
-
-@media (max-width: 700px) {
-  .root {
-    justify-content: flex-end;
   }
 }

@@ -2,10 +2,12 @@ import CatalogPageLinks from './CatalogPageLinks.jsx';
 import CatalogOptionPicker from './CatalogOptionPicker.jsx';
 import CatalogTagPicker from './CatalogTagPicker.jsx';
 import InstructionCatalogChoice from './InstructionCatalogChoice.jsx';
+import TaxonomyNavigation from '../TaxonomyLandingPage/TaxonomyNavigation.jsx';
 import styles from './CatalogTaxonomyFilters.module.css';
 
 export default function CatalogTaxonomyFilters({
   options,
+  navigation,
   category,
   tag,
   catalogId,
@@ -34,12 +36,28 @@ export default function CatalogTaxonomyFilters({
       catalogs={options?.catalogs}
       onChange={onCatalogChange}
       expanded={Boolean(catalogId || category || tag)}
+      directory={
+        <TaxonomyNavigation
+          compact
+          catalogs={
+            navigation?.catalogs ||
+            (options?.catalogs || [])
+              .filter(item => item.path)
+              .map(item => ({
+                code: item.id,
+                name: item.label,
+                count: item.count,
+                path: item.path,
+                sections: [],
+              }))
+          }
+          tags={navigation?.tags}
+        />
+      }
     >
       <section className={styles.root} aria-label="Фильтры инструкций" aria-busy={loading}>
         <div className={styles.heading}>
-          <div>
-            <h3>Уточните, что вам нужно</h3>
-          </div>
+          <span className={styles.hint}>Выберите раздел или найдите нужную тему</span>
           {active && (
             <button type="button" className={styles.reset} onClick={onReset}>
               Сбросить фильтры
