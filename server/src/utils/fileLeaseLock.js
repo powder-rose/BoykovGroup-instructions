@@ -52,6 +52,12 @@ export function acquireFileLeaseLock({ filePath, staleMs, metadata = {} }) {
   });
 
   const owner = createOwner();
+  const unavailable = existing => ({
+    acquired: false,
+    owner: null,
+    path: filePath,
+    existing,
+  });
 
   /*
    * Attempt #1:
@@ -65,45 +71,13 @@ export function acquireFileLeaseLock({ filePath, staleMs, metadata = {} }) {
    * between stale removal and our retry.
    */
   for (let attempt = 1; attempt <= 3; attempt += 1) {
+    let fd;
     try {
-      const fd = fs.openSync(filePath, 'wx', 0o600);
-
-      try {
-        const createdAt = new Date().toISOString();
-
-        fs.writeFileSync(
-          fd,
-          `${JSON.stringify(
-            {
-              ...metadata,
-
-              owner,
-
-              pid: process.pid,
-
-              createdAt,
-            },
-            null,
-            2,
-          )}\n`,
-          'utf8',
-        );
-
-        fs.fsyncSync(fd);
-      } finally {
-        fs.closeSync(fd);
-      }
-
-      return {
-        acquired: true,
-
-        owner,
-
-        path: filePath,
-
-        staleMs: normalizedStaleMs,
-      };
+      fd = fs.openSync(filePath, 'wx', 0o600);
     } catch (error) {
+      if (process.platform === 'win32' && ['EPERM', 'EBUSY'].includes(error?.code)) {
+        return unavailable(readFileLeaseLock(filePath));
+      }
       if (error?.code !== 'EEXIST') {
         throw error;
       }
@@ -113,15 +87,7 @@ export function acquireFileLeaseLock({ filePath, staleMs, metadata = {} }) {
       const ageMs = readLockAgeMs(filePath);
 
       if (ageMs === null || ageMs <= normalizedStaleMs) {
-        return {
-          acquired: false,
-
-          owner: null,
-
-          path: filePath,
-
-          existing,
-        };
+        return unavailable(existing);
       }
 
       /*
@@ -135,27 +101,11 @@ export function acquireFileLeaseLock({ filePath, staleMs, metadata = {} }) {
       const current = readFileLeaseLock(filePath);
 
       if (existing?.owner && current?.owner !== existing.owner) {
-        return {
-          acquired: false,
-
-          owner: null,
-
-          path: filePath,
-
-          existing: current,
-        };
+        return unavailable(current);
       }
 
       if (!existing?.owner && current?.owner) {
-        return {
-          acquired: false,
-
-          owner: null,
-
-          path: filePath,
-
-          existing: current,
-        };
+        return unavailable(current);
       }
 
       try {
@@ -165,18 +115,41 @@ export function acquireFileLeaseLock({ filePath, staleMs, metadata = {} }) {
           throw unlinkError;
         }
       }
+      continue;
     }
+
+    try {
+      const createdAt = new Date().toISOString();
+
+      fs.writeFileSync(
+        fd,
+        `${JSON.stringify(
+          {
+            ...metadata,
+            owner,
+            pid: process.pid,
+            createdAt,
+          },
+          null,
+          2,
+        )}\n`,
+        'utf8',
+      );
+
+      fs.fsyncSync(fd);
+    } finally {
+      fs.closeSync(fd);
+    }
+
+    return {
+      acquired: true,
+      owner,
+      path: filePath,
+      staleMs: normalizedStaleMs,
+    };
   }
 
-  return {
-    acquired: false,
-
-    owner: null,
-
-    path: filePath,
-
-    existing: readFileLeaseLock(filePath),
-  };
+  return unavailable(readFileLeaseLock(filePath));
 }
 
 export function refreshFileLeaseLock(lock) {

@@ -129,6 +129,105 @@ test('serialization follows existing formats and preserves all supplied document
   }
 });
 
+test('metadata reads retain no document bodies or byte buffers and leave the public cache unchanged', t => {
+  const f = fixture(t);
+  const published = record({ intro: 'Full document '.repeat(10_000) });
+  const bytes = Buffer.from(`\uFEFF${JSON.stringify(published)}`);
+  f.repository.save(published);
+  fs.writeFileSync(path.join(f.repository.dir, `${published.id}.json`), bytes);
+  f.writeDraft(record({ revision: 5, status: 'draft', intro: published.intro }));
+  t.mock.method(f.repository, 'getAllFreshSnapshots', () => {
+    throw new Error('Metadata reads must not materialize the full version inventory');
+  });
+  let leaseChecks = 0;
+  const snapshots = f.store.read({
+    metadataOnly: true,
+    assertHeld() {
+      leaseChecks += 1;
+    },
+  });
+  assert.equal(snapshots.length, 2);
+  assert.ok(leaseChecks >= 2);
+  for (const snapshot of snapshots) {
+    assert.equal(Object.hasOwn(snapshot, 'bytes'), false);
+    assert.equal(Object.hasOwn(snapshot.record, 'instructionContent'), false);
+    assert.equal(Object.hasOwn(snapshot.record, 'intro'), false);
+    assert.equal(Object.hasOwn(snapshot.record, 'taxonomyMeta'), false);
+    assert.equal(snapshot.fingerprint.length, 64);
+  }
+  const saved = snapshots.find(snapshot => snapshot.version === 'published');
+  assert.deepEqual(f.store.readBytes(saved), bytes);
+  saved.record.title = 'Changed projection';
+  assert.equal(f.repository.getById(saved.id).title, published.title);
+});
+
+test('metadata serialization preserves full content and deletes absent projected fields', t => {
+  const f = fixture(t);
+  const published = record({
+    taxonomyMeta: { note: 'Remove on rollback' },
+    custom: { keep: true },
+  });
+  f.repository.save(published);
+  const before = fs.readFileSync(path.join(f.repository.dir, `${published.id}.json`));
+  const snapshot = f.store.read({ metadataOnly: true })[0];
+  const next = { ...snapshot.record, primaryCategoryId: 'W02', tagIds: ['T02'], revision: 5 };
+  delete next.taxonomyMeta;
+  const serialized = JSON.parse(f.store.serialize(snapshot, next).toString('utf8'));
+  const expected = { ...published, primaryCategoryId: 'W02', tagIds: ['T02'], revision: 5 };
+  delete expected.taxonomyMeta;
+  assert.deepEqual(serialized, expected);
+  assert.deepEqual(fs.readFileSync(path.join(f.repository.dir, `${published.id}.json`)), before);
+});
+
+test('metadata snapshots reject concurrent edits and oversized bodies before allocating their contents', t => {
+  const f = fixture(t);
+  const published = record();
+  f.repository.save(published);
+  const file = path.join(f.repository.dir, `${published.id}.json`);
+  const snapshot = f.store.read({ metadataOnly: true })[0];
+  fs.writeFileSync(file, JSON.stringify({ ...published, title: 'Concurrent edit' }));
+  for (const read of [
+    () => f.store.readBytes(snapshot),
+    () => f.store.serialize(snapshot, { ...snapshot.record, revision: 5 }),
+  ]) {
+    assert.throws(read, { code: 'TAXONOMY_BULK_PREVIEW_CONFLICT', status: 409 });
+  }
+  fs.truncateSync(file, 8 * 1024 * 1024 + 1);
+  const reading = t.mock.method(fs, 'readSync', () => {
+    throw new Error('Oversized body must be rejected before reading');
+  });
+  assert.throws(
+    () => f.store.read({ metadataOnly: true }),
+    error => {
+      assert.equal(error.code, 'TAXONOMY_BINDING_STORAGE_ERROR');
+      assert.match(error.cause.message, /at most 8 MiB/u);
+      return true;
+    },
+  );
+  assert.equal(reading.mock.callCount(), 0);
+});
+
+test('metadata source re-reads reject nonregular paths before opening them', t => {
+  const f = fixture(t);
+  f.repository.save(record());
+  const snapshot = f.store.read({ metadataOnly: true })[0];
+  const file = path.join(f.repository.dir, `${snapshot.id}.json`);
+  fs.rmSync(file);
+  fs.mkdirSync(file);
+  const opening = t.mock.method(fs, 'openSync', () => {
+    throw new Error('Nonregular source must not be opened');
+  });
+  assert.throws(
+    () => f.store.readBytes(snapshot),
+    error => {
+      assert.equal(error.code, 'TAXONOMY_BINDING_STORAGE_ERROR');
+      assert.match(error.cause.message, /regular file/u);
+      return true;
+    },
+  );
+  assert.equal(opening.mock.callCount(), 0);
+});
+
 test('writes exact bytes atomically and refreshes the published cache only when requested', t => {
   const f = fixture(t);
   f.repository.save(record());

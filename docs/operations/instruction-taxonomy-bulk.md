@@ -129,6 +129,19 @@ from the session. API DTOs and downloadable preview reports exclude private back
 
 ## Deployment scope
 
+New previews use journal schema version 2. Files in `plans/` contain the operation metadata;
+the corresponding `payloads/<operation-id>.bin` contains the exact before/after instruction bytes.
+The payload is written one instruction version at a time and made durable before the preview
+is published. History and preview responses read metadata rather than loading every backup body.
+Apply and recovery verify the required payload bytes, hashes and instruction IDs before writing.
+Existing schema version 1 operations remain readable and recoverable.
+
+Keep the entire `instruction-taxonomy-operations/` directory in backups, including both `plans/`
+and `payloads/`. Copying only the JSON plans is insufficient for version 2 operations. A missing
+or corrupted payload stops the operation rather than bypassing verification. Earlier application
+versions cannot read version 2 journals; finish or recover an active operation with a compatible
+version before rolling back the application code, and retain the complete journal.
+
 Apply the complete source-file set and run the Quality Gate before the normal rebuild/restart.
 There are no new dependencies, environment variables or migration commands. Deployment itself
 does not reclassify instructions. Runtime records and operation backups are not part of the delivery.

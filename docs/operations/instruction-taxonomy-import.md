@@ -113,6 +113,12 @@ Copy this one source file through the normal tracked-file update, preserving run
 No new dependencies, environment variables, offline apply commands or automatic migration are added.
 Use a test environment for the first source-file import and review its downloadable report.
 
+Large previews use metadata snapshots and the version 2 bulk journal described in
+[mass operations](instruction-taxonomy-bulk.md). Full instruction bodies are staged in a private
+payload file, one version at a time, instead of retaining base64 copies of the entire catalog in
+the preview JSON. The payload and plan must be kept together for apply, rollback and recovery.
+CSV matching, the 63 manual-review holds, tag modes, confirmation and conflict checks are unchanged.
+
 Deployment itself does not change the 2,169 assignments. Production matching cannot be confirmed
 without the real instruction records. H01 route approval and the remaining publication work stay
 outside CSV application. Public pages, navigation, sitemap and redirects are documented in

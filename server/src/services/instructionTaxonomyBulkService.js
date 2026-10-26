@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { isDeepStrictEqual } from 'node:util';
+import { isDeepStrictEqual, TextDecoder } from 'node:util';
 
 import { getInstructionPublicPath } from '../shared/instructionDocument.js';
 import { InstructionEditorError } from './instructionEditorError.js';
@@ -198,6 +198,15 @@ export function createInstructionTaxonomyBulkService({
     return value;
   };
 
+  const readSnapshots = assertHeld => store.read({ metadataOnly: true, assertHeld });
+  const snapshotFingerprint = snapshot => snapshot.fingerprint ?? hash(snapshot.bytes);
+  const snapshotBytes = snapshot =>
+    typeof store.readBytes === 'function' ? store.readBytes(snapshot) : snapshot.bytes;
+
+  function validateSlotBytes(plan, assertHeld) {
+    journal.validateSlotBytes(plan, { assertHeld });
+  }
+
   function selectedSnapshots(snapshots, ids) {
     const byId = grouped(snapshots);
     const missing = ids.filter(id => !byId.has(id));
@@ -211,9 +220,10 @@ export function createInstructionTaxonomyBulkService({
     return ids.flatMap(id => byId.get(id));
   }
 
-  function validateRecords(snapshots, registry) {
+  function validateRecords(snapshots, registry, assertHeld) {
     const conflicts = [];
     for (const snapshot of snapshots) {
+      assertHeld?.();
       try {
         validateInstructionTaxonomyAssignment(selection(snapshot.record), { registry });
         revision(snapshot.record);
@@ -253,7 +263,7 @@ export function createInstructionTaxonomyBulkService({
   }
 
   function changedSelection(record, selected, registry, { categoryManual = false } = {}) {
-    const next = { ...structuredClone(record), ...selected };
+    const next = { ...record, ...selected };
     const before = selection(record);
     if (isDeepStrictEqual(before, selection(next))) return { record, changed: false };
     const canonicalSection = registry.sections.some(
@@ -286,12 +296,24 @@ export function createInstructionTaxonomyBulkService({
     });
   }
 
-  function buildPlan({ kind, actor, registry, action, ids, snapshots, transform, rollbackOf }) {
+  function buildPlan({
+    kind,
+    actor,
+    registry,
+    action,
+    ids,
+    snapshots,
+    transform,
+    rollbackOf,
+    createSlot,
+    assertHeld,
+  }) {
     const rows = [];
     const slots = [];
     const counts = { ...emptyCounts(), selectedDocuments: ids.length };
     const byId = grouped(snapshots);
     for (const id of ids) {
+      assertHeld?.();
       const versions = byId.get(id);
       const changes = versions.map(snapshot => ({ snapshot, ...transform(snapshot) }));
       const changed = changes.some(change => change.changed);
@@ -310,17 +332,18 @@ export function createInstructionTaxonomyBulkService({
       if (!changed) continue;
       counts.changedDocuments += 1;
       for (const change of changes) {
+        assertHeld?.();
         if (change.changed) counts.changedVersions += 1;
         const after = { ...change.record, revision: revision(change.snapshot.record) + 1 };
         const bytes = store.serialize(change.snapshot, after);
-        slots.push({
-          id,
-          version: change.snapshot.version,
-          beforeBase64: change.snapshot.bytes.toString('base64'),
-          afterBase64: bytes.toString('base64'),
-          beforeHash: hash(change.snapshot.bytes),
-          afterHash: hash(bytes),
-        });
+        slots.push(
+          createSlot({
+            id,
+            version: change.snapshot.version,
+            beforeBytes: snapshotBytes(change.snapshot),
+            afterBytes: bytes,
+          }),
+        );
         counts.updatedVersions += 1;
       }
     }
@@ -339,7 +362,7 @@ export function createInstructionTaxonomyBulkService({
       inventory: snapshots.map(snapshot => ({
         id: snapshot.id,
         version: snapshot.version,
-        fingerprint: hash(snapshot.bytes),
+        fingerprint: snapshotFingerprint(snapshot),
       })),
       slots,
       ...(rollbackOf ? { rollbackOf, sourceOperationId: rollbackOf } : {}),
@@ -377,11 +400,11 @@ export function createInstructionTaxonomyBulkService({
     }
   }
 
-  function assertInventory(plan, snapshots) {
+  function assertInventory(plan, snapshots, assertHeld) {
     const actual = snapshots.map(snapshot => ({
       id: snapshot.id,
       version: snapshot.version,
-      fingerprint: hash(snapshot.bytes),
+      fingerprint: snapshotFingerprint(snapshot),
     }));
     if (!isDeepStrictEqual(actual, plan.inventory)) {
       throw failure(
@@ -390,10 +413,11 @@ export function createInstructionTaxonomyBulkService({
         409,
       );
     }
+    assertHeld?.();
   }
 
-  function stateForRecovery(plan) {
-    const snapshots = selectedSnapshots(store.read(), plan.ids);
+  function stateForRecovery(plan, assertHeld) {
+    const snapshots = selectedSnapshots(readSnapshots(assertHeld), plan.ids);
     const actualKeys = snapshots.map(key).sort();
     const expectedKeys = plan.inventory.map(key).sort();
     if (!isDeepStrictEqual(actualKeys, expectedKeys)) {
@@ -405,8 +429,9 @@ export function createInstructionTaxonomyBulkService({
     }
     const byKey = new Map(snapshots.map(snapshot => [key(snapshot), snapshot]));
     const states = plan.slots.map(slot => {
+      assertHeld?.();
       const snapshot = byKey.get(key(slot));
-      const fingerprint = hash(snapshot.bytes);
+      const fingerprint = snapshotFingerprint(snapshot);
       if (fingerprint !== slot.beforeHash && fingerprint !== slot.afterHash) {
         throw failure(
           'Файлы содержат изменения вне незавершённой операции. Восстановление остановлено.',
@@ -425,14 +450,15 @@ export function createInstructionTaxonomyBulkService({
   }
 
   function restore(plan, assertHeld) {
-    const states = stateForRecovery(plan);
+    validateSlotBytes(plan, assertHeld);
+    const states = stateForRecovery(plan, assertHeld);
     for (const { slot, snapshot, after } of states) {
       if (!after) continue;
       assertHeld();
-      store.writeBytes(snapshot, Buffer.from(slot.beforeBase64, 'base64'), { assertHeld });
+      store.writeBytes(snapshot, journal.readSlotBytes(plan, slot, 'before'), { assertHeld });
     }
     store.refresh();
-    const restored = stateForRecovery(plan);
+    const restored = stateForRecovery(plan, assertHeld);
     if (restored.some(item => item.after))
       throw failure('Не удалось восстановить все версии', 'TAXONOMY_BULK_RECOVERY_CONFLICT', 409);
   }
@@ -474,7 +500,7 @@ export function createInstructionTaxonomyBulkService({
                 (input[filter] && !choices.some(item => item.id === input[filter])))
             )
               throw failure('Неизвестное значение фильтра');
-          const items = [...grouped(store.read()).entries()]
+          const items = [...grouped(readSnapshots(assertHeld)).entries()]
             .map(([id, versions]) => {
               const published = versions.find(snapshot => snapshot.version === 'published');
               const primary = (published ?? versions[0]).record;
@@ -535,19 +561,23 @@ export function createInstructionTaxonomyBulkService({
               409,
             );
           const action = validateAction(input.action, registry);
-          const snapshots = selectedSnapshots(store.read(), ids);
-          validateRecords(snapshots, registry);
-          const plan = buildPlan({
-            kind: 'apply',
-            actor,
-            registry,
-            action,
-            ids,
-            snapshots,
-            transform: snapshot => changedRecord(snapshot.record, action, registry),
-          });
+          const snapshots = selectedSnapshots(readSnapshots(assertHeld), ids);
+          validateRecords(snapshots, registry, assertHeld);
+          const plan = journal.savePreview(createSlot =>
+            buildPlan({
+              kind: 'apply',
+              actor,
+              registry,
+              action,
+              ids,
+              snapshots,
+              transform: snapshot => changedRecord(snapshot.record, action, registry),
+              createSlot,
+              assertHeld,
+            }),
+          );
           assertHeld();
-          return previewDto(journal.savePreview(plan));
+          return previewDto(plan);
         },
         { waitMs: 5000 },
       );
@@ -592,7 +622,7 @@ export function createInstructionTaxonomyBulkService({
               409,
             );
           }
-          const allSnapshots = store.read();
+          const allSnapshots = readSnapshots(assertHeld);
           const { report, assignments } = buildInstructionTaxonomyCsvImport({
             bytes,
             fileName: input.fileName,
@@ -621,35 +651,42 @@ export function createInstructionTaxonomyBulkService({
           }
           const ids = uniqueIds(assignments.map(assignment => assignment.id));
           const snapshots = selectedSnapshots(allSnapshots, ids);
-          validateRecords(snapshots, registry);
+          validateRecords(snapshots, registry, assertHeld);
           const byId = new Map(assignments.map(assignment => [assignment.id, assignment]));
-          const plan = buildPlan({
-            kind: 'apply',
-            actor,
-            registry,
-            action,
-            ids,
-            snapshots,
-            transform: snapshot => {
-              const assignment = byId.get(snapshot.id);
-              const tagIds =
-                input.tagMode === 'replace'
-                  ? [...assignment.tagIds]
-                  : [...new Set([...(snapshot.record.tagIds ?? []), ...assignment.tagIds])];
-              return changedSelection(
-                snapshot.record,
-                { primaryCategoryId: assignment.sectionId, tagIds },
-                registry,
-                { categoryManual: true },
-              );
-            },
-          });
-          plan.importReport = report;
-          plan.importUrlFingerprint = fingerprintInstructionTaxonomyImportAddresses(allSnapshots, {
-            origin,
+          const plan = journal.savePreview(createSlot => {
+            const built = buildPlan({
+              kind: 'apply',
+              actor,
+              registry,
+              action,
+              ids,
+              snapshots,
+              transform: snapshot => {
+                const assignment = byId.get(snapshot.id);
+                const tagIds =
+                  input.tagMode === 'replace'
+                    ? [...assignment.tagIds]
+                    : [...new Set([...(snapshot.record.tagIds ?? []), ...assignment.tagIds])];
+                return changedSelection(
+                  snapshot.record,
+                  { primaryCategoryId: assignment.sectionId, tagIds },
+                  registry,
+                  { categoryManual: true },
+                );
+              },
+              createSlot,
+              assertHeld,
+            });
+            built.importReport = report;
+            built.importUrlFingerprint = fingerprintInstructionTaxonomyImportAddresses(
+              allSnapshots,
+              { origin },
+            );
+            assertHeld();
+            return built;
           });
           assertHeld();
-          return previewDto(journal.savePreview(plan));
+          return previewDto(plan);
         },
         { waitMs: 5000 },
       );
@@ -682,7 +719,7 @@ export function createInstructionTaxonomyBulkService({
               409,
             );
           if (plan.rollbackOf) assertNotRolledBack(plan.rollbackOf);
-          const allSnapshots = store.read();
+          const allSnapshots = readSnapshots(assertHeld);
           if (
             plan.importUrlFingerprint &&
             plan.importUrlFingerprint !==
@@ -695,20 +732,20 @@ export function createInstructionTaxonomyBulkService({
             );
           }
           const snapshots = selectedSnapshots(allSnapshots, plan.ids);
-          assertInventory(plan, snapshots);
-          validateRecords(snapshots, registry);
+          assertInventory(plan, snapshots, assertHeld);
+          validateRecords(snapshots, registry, assertHeld);
           const byKey = new Map(snapshots.map(snapshot => [key(snapshot), snapshot]));
           assertHeld();
-          journal.begin(plan.id);
+          journal.begin(plan.id, { assertHeld });
           try {
             for (const slot of plan.slots) {
               assertHeld();
-              store.writeBytes(byKey.get(key(slot)), Buffer.from(slot.afterBase64, 'base64'), {
+              store.writeBytes(byKey.get(key(slot)), journal.readSlotBytes(plan, slot, 'after'), {
                 assertHeld,
               });
             }
             store.refresh();
-            const state = stateForRecovery(plan);
+            const state = stateForRecovery(plan, assertHeld);
             if (state.some(item => !item.after && item.slot.afterHash !== item.slot.beforeHash))
               throw new Error('Bulk write verification failed');
             const result = resultFor(plan, 'committed');
@@ -785,7 +822,7 @@ export function createInstructionTaxonomyBulkService({
           if (operation.status !== 'committed' || operation.kind !== 'apply')
             throw failure('Отменить можно завершённую массовую операцию');
           assertNotRolledBack(operation.id);
-          const snapshots = selectedSnapshots(store.read(), operation.ids);
+          const snapshots = selectedSnapshots(readSnapshots(assertHeld), operation.ids);
           const beforeKeys = operation.inventory.map(key).sort();
           if (!isDeepStrictEqual(snapshots.map(key).sort(), beforeKeys))
             throw failure(
@@ -793,15 +830,25 @@ export function createInstructionTaxonomyBulkService({
               'TAXONOMY_BULK_ROLLBACK_CONFLICT',
               409,
             );
-          validateRecords(snapshots, registry);
+          validateRecords(snapshots, registry, assertHeld);
+          validateSlotBytes(operation, assertHeld);
           const slots = new Map(operation.slots.map(slot => [key(slot), slot]));
           const conflicts = [];
           const replacements = new Map();
           for (const snapshot of snapshots) {
+            assertHeld();
             const slot = slots.get(key(snapshot));
             if (!slot) continue;
-            const before = JSON.parse(Buffer.from(slot.beforeBase64, 'base64').toString('utf8'));
-            const after = JSON.parse(Buffer.from(slot.afterBase64, 'base64').toString('utf8'));
+            const before = JSON.parse(
+              new TextDecoder('utf-8', { fatal: true }).decode(
+                journal.readSlotBytes(operation, slot, 'before'),
+              ),
+            );
+            const after = JSON.parse(
+              new TextDecoder('utf-8', { fatal: true }).decode(
+                journal.readSlotBytes(operation, slot, 'after'),
+              ),
+            );
             if (
               !isDeepStrictEqual(managed(snapshot.record), managed(after)) ||
               revision(snapshot.record) < revision(after)
@@ -825,24 +872,28 @@ export function createInstructionTaxonomyBulkService({
               { conflicts },
             );
           const action = { type: 'rollback', operationId: operation.id };
-          const plan = buildPlan({
-            kind: 'rollback',
-            actor,
-            registry,
-            action,
-            ids: operation.ids,
-            snapshots,
-            rollbackOf: operation.id,
-            transform: snapshot => {
-              const record = replacements.get(key(snapshot)) ?? snapshot.record;
-              return {
-                record,
-                changed: !isDeepStrictEqual(managed(record), managed(snapshot.record)),
-              };
-            },
-          });
+          const plan = journal.savePreview(createSlot =>
+            buildPlan({
+              kind: 'rollback',
+              actor,
+              registry,
+              action,
+              ids: operation.ids,
+              snapshots,
+              rollbackOf: operation.id,
+              transform: snapshot => {
+                const record = replacements.get(key(snapshot)) ?? snapshot.record;
+                return {
+                  record,
+                  changed: !isDeepStrictEqual(managed(record), managed(snapshot.record)),
+                };
+              },
+              createSlot,
+              assertHeld,
+            }),
+          );
           assertHeld();
-          return previewDto(journal.savePreview(plan));
+          return previewDto(plan);
         },
         { waitMs: 5000 },
       );

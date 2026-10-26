@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { TextDecoder } from 'node:util';
+import { isDeepStrictEqual, TextDecoder } from 'node:util';
 
 import { InstructionEditorError } from './instructionEditorError.js';
 
@@ -9,6 +9,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 const HASH = /^[0-9a-f]{64}$/u;
 const MAX_FILE_BYTES = 256 * 1024 * 1024;
 const MAX_SLOT_BYTES = 8 * 1024 * 1024;
+const MAX_PAYLOAD_BYTES = 1024 * 1024 * 1024;
 const MAX_IDS = 5000;
 const PREVIEW_LIFETIME_MS = 30 * 60 * 1000;
 const TERMINAL = new Set(['committed', 'failed', 'recovered']);
@@ -34,6 +35,24 @@ const PLAN_FIELDS = new Set([
   'recoveredAt',
   'importReport',
   'importUrlFingerprint',
+]);
+const INLINE_SLOT_FIELDS = new Set([
+  'id',
+  'version',
+  'beforeBase64',
+  'afterBase64',
+  'beforeHash',
+  'afterHash',
+]);
+const PACKED_SLOT_FIELDS = new Set([
+  'id',
+  'version',
+  'beforeHash',
+  'afterHash',
+  'beforeOffset',
+  'beforeLength',
+  'afterOffset',
+  'afterLength',
 ]);
 
 function fail(message, { code = 'INVALID_TAXONOMY_BULK_OPERATION', status = 400, cause } = {}) {
@@ -239,19 +258,12 @@ function validateImportReport(plan) {
   }
 }
 
-function decodedSlot(value, expectedHash, instructionId) {
+function validateSlotRecord(bytes, expectedHash, instructionId) {
   if (
-    typeof value !== 'string' ||
-    value.length > Math.ceil(MAX_SLOT_BYTES / 3) * 4 ||
-    !HASH.test(expectedHash || '')
-  ) {
-    fail('Некорректная резервная копия инструкции');
-  }
-  const bytes = Buffer.from(value, 'base64');
-  if (
+    !Buffer.isBuffer(bytes) ||
     !bytes.length ||
     bytes.length > MAX_SLOT_BYTES ||
-    bytes.toString('base64') !== value ||
+    !HASH.test(expectedHash || '') ||
     createHash('sha256').update(bytes).digest('hex') !== expectedHash
   ) {
     fail('Резервная копия инструкции не соответствует контрольной сумме');
@@ -264,6 +276,51 @@ function decodedSlot(value, expectedHash, instructionId) {
   }
   if (!object(record) || record.id !== instructionId)
     fail('Резервная копия относится к другой инструкции');
+  return bytes;
+}
+
+function decodedSlot(value, expectedHash, instructionId) {
+  if (
+    typeof value !== 'string' ||
+    value.length > Math.ceil(MAX_SLOT_BYTES / 3) * 4 ||
+    !HASH.test(expectedHash || '')
+  ) {
+    fail('Некорректная резервная копия инструкции');
+  }
+  const bytes = Buffer.from(value, 'base64');
+  if (!bytes.length || bytes.length > MAX_SLOT_BYTES || bytes.toString('base64') !== value) {
+    fail('Резервная копия инструкции не соответствует контрольной сумме');
+  }
+  return validateSlotRecord(bytes, expectedHash, instructionId);
+}
+
+function packedSlot(slot, payloadBytes) {
+  fields(slot, PACKED_SLOT_FIELDS);
+  if (
+    !text(slot.id) ||
+    !['published', 'draft'].includes(slot.version) ||
+    !HASH.test(slot.beforeHash || '') ||
+    !HASH.test(slot.afterHash || '') ||
+    !Number.isSafeInteger(payloadBytes) ||
+    payloadBytes < 0 ||
+    payloadBytes > MAX_PAYLOAD_BYTES
+  )
+    fail('Некорректная ссылка на резервную копию инструкции');
+  for (const direction of ['before', 'after']) {
+    const offset = slot[`${direction}Offset`];
+    const length = slot[`${direction}Length`];
+    if (
+      !Number.isSafeInteger(offset) ||
+      offset < 0 ||
+      !Number.isSafeInteger(length) ||
+      length < 1 ||
+      length > MAX_SLOT_BYTES ||
+      offset > payloadBytes - length
+    )
+      fail('Некорректные границы резервной копии инструкции');
+  }
+  if (slot.afterOffset !== slot.beforeOffset + slot.beforeLength)
+    fail('Резервные копии инструкции должны храниться последовательно');
 }
 
 function boundedJson(value) {
@@ -273,12 +330,12 @@ function boundedJson(value) {
   return `${serialized}\n`;
 }
 
-function validatePlan(plan, expectedId) {
-  fields(plan, PLAN_FIELDS);
+function validatePlan(plan, expectedId, { assertHeld } = {}) {
+  fields(plan, plan?.schemaVersion === 2 ? new Set([...PLAN_FIELDS, 'payloadBytes']) : PLAN_FIELDS);
   id(plan.id);
   if (
     plan.id !== expectedId ||
-    plan.schemaVersion !== 1 ||
+    ![1, 2].includes(plan.schemaVersion) ||
     !['apply', 'rollback'].includes(plan.kind) ||
     !text(plan.actor, 2000) ||
     !date(plan.createdAt) ||
@@ -326,18 +383,33 @@ function validatePlan(plan, expectedId) {
     inventory.set(key, entry.fingerprint);
   }
   const slots = new Set();
+  let payloadOffset = 0;
+  if (
+    plan.schemaVersion === 2 &&
+    (!Number.isSafeInteger(plan.payloadBytes) ||
+      plan.payloadBytes < 0 ||
+      plan.payloadBytes > MAX_PAYLOAD_BYTES)
+  )
+    fail('Некорректный размер файла резервных копий');
   for (const slot of plan.slots) {
-    fields(
-      slot,
-      new Set(['id', 'version', 'beforeBase64', 'afterBase64', 'beforeHash', 'afterHash']),
-    );
+    assertHeld?.();
+    fields(slot, plan.schemaVersion === 2 ? PACKED_SLOT_FIELDS : INLINE_SLOT_FIELDS);
     const key = JSON.stringify([slot.id, slot.version]);
     if (!inventory.has(key) || inventory.get(key) !== slot.beforeHash || slots.has(key))
       fail('Резервная копия не соответствует исходному состоянию');
-    decodedSlot(slot.beforeBase64, slot.beforeHash, slot.id);
-    decodedSlot(slot.afterBase64, slot.afterHash, slot.id);
+    if (plan.schemaVersion === 2) {
+      packedSlot(slot, plan.payloadBytes);
+      if (slot.beforeOffset !== payloadOffset)
+        fail('Файл резервных копий содержит пропуски или пересечения');
+      payloadOffset = slot.afterOffset + slot.afterLength;
+    } else {
+      decodedSlot(slot.beforeBase64, slot.beforeHash, slot.id);
+      decodedSlot(slot.afterBase64, slot.afterHash, slot.id);
+    }
     slots.add(key);
   }
+  if (plan.schemaVersion === 2 && payloadOffset !== plan.payloadBytes)
+    fail('Размер файла резервных копий не соответствует операции');
   for (const field of ['sourceOperationId', 'rollbackOf']) {
     if (plan[field] !== undefined) id(plan[field]);
   }
@@ -443,8 +515,206 @@ export function createInstructionTaxonomyBulkJournal({ directory, now = Date.now
     throw new TypeError('Journal directory and clock are required');
   const root = path.resolve(directory);
   const plans = path.join(root, 'plans');
+  const payloads = path.join(root, 'payloads');
   const activeFile = path.join(root, 'active.json');
   const planFile = operationId => path.join(plans, `${id(operationId)}.json`);
+  const payloadFile = operationId => path.join(payloads, `${id(operationId)}.bin`);
+
+  function openPayload(plan) {
+    let descriptor;
+    try {
+      if (
+        plan.schemaVersion !== 2 ||
+        !Number.isSafeInteger(plan.payloadBytes) ||
+        plan.payloadBytes < 0 ||
+        plan.payloadBytes > MAX_PAYLOAD_BYTES ||
+        !fs.lstatSync(root).isDirectory() ||
+        !fs.lstatSync(payloads).isDirectory()
+      )
+        throw new Error('Invalid payload directory or size');
+      const file = payloadFile(plan.id);
+      if (!fs.lstatSync(file).isFile()) throw new Error('Payload must be a regular file');
+      descriptor = fs.openSync(file, fs.constants.O_RDONLY | (fs.constants.O_NOFOLLOW || 0));
+      const stat = fs.fstatSync(descriptor);
+      if (!stat.isFile() || stat.nlink !== 1 || stat.size !== plan.payloadBytes)
+        throw new Error('Payload file does not match the operation');
+      return descriptor;
+    } catch (cause) {
+      if (descriptor !== undefined) fs.closeSync(descriptor);
+      throw storage(cause);
+    }
+  }
+
+  function readPackedSlot(descriptor, plan, slot, direction) {
+    packedSlot(slot, plan.payloadBytes);
+    const bytes = Buffer.allocUnsafe(slot[`${direction}Length`]);
+    let received = 0;
+    while (received < bytes.length) {
+      const count = fs.readSync(
+        descriptor,
+        bytes,
+        received,
+        bytes.length - received,
+        slot[`${direction}Offset`] + received,
+      );
+      if (!count) throw new Error('Payload ended before the instruction backup');
+      received += count;
+    }
+    return validateSlotRecord(bytes, slot[`${direction}Hash`], slot.id);
+  }
+
+  function readSlotBytes(plan, slot, direction) {
+    if (!['before', 'after'].includes(direction)) fail('Неизвестная версия резервной копии');
+    let descriptor;
+    try {
+      id(plan.id);
+      if (plan.schemaVersion === 1) {
+        fields(slot, INLINE_SLOT_FIELDS);
+        return decodedSlot(slot[`${direction}Base64`], slot[`${direction}Hash`], slot.id);
+      }
+      descriptor = openPayload(plan);
+      return readPackedSlot(descriptor, plan, slot, direction);
+    } catch (cause) {
+      throw storage(cause);
+    } finally {
+      if (descriptor !== undefined) fs.closeSync(descriptor);
+    }
+  }
+
+  function validateSlotBytes(plan, { assertHeld } = {}) {
+    if (assertHeld !== undefined && typeof assertHeld !== 'function')
+      throw new TypeError('A lease assertion must be a function');
+    let descriptor;
+    try {
+      validatePlan(plan, plan.id, { assertHeld });
+      if (plan.schemaVersion === 2) {
+        descriptor = openPayload(plan);
+        for (const slot of plan.slots) {
+          assertHeld?.();
+          readPackedSlot(descriptor, plan, slot, 'before');
+          readPackedSlot(descriptor, plan, slot, 'after');
+        }
+      }
+      assertHeld?.();
+      return true;
+    } catch (cause) {
+      if (
+        cause instanceof InstructionEditorError &&
+        cause.code !== 'INVALID_TAXONOMY_BULK_OPERATION'
+      )
+        throw cause;
+      throw storage(cause);
+    } finally {
+      if (descriptor !== undefined) fs.closeSync(descriptor);
+    }
+  }
+
+  function validatePreviewInput(input) {
+    if (
+      !object(input) ||
+      ['id', 'schemaVersion', 'payloadBytes', 'status', 'result', 'error', 'recoveredAt'].some(
+        key => Object.hasOwn(input, key),
+      )
+    )
+      fail('Идентификатор и статус операции назначаются сервером');
+  }
+
+  function savePackedPreview(build) {
+    if (build.constructor?.name === 'AsyncFunction')
+      fail('Подготовка предпросмотра должна выполняться синхронно');
+    assertNoPending();
+    const operationId = randomUUID();
+    const file = payloadFile(operationId);
+    const temporary = path.join(payloads, `.${operationId}.${randomUUID()}.tmp`);
+    const writtenSlots = [];
+    let descriptor;
+    let offset = 0;
+    let building = true;
+    let publishedPayload = false;
+    let publishedPlan = false;
+    try {
+      ensureDirectory(root);
+      ensureDirectory(payloads);
+      if (fs.existsSync(file)) throw new Error('Payload already exists');
+      descriptor = fs.openSync(temporary, 'wx', 0o600);
+      const append = bytes => {
+        let written = 0;
+        while (written < bytes.length) {
+          const count = fs.writeSync(
+            descriptor,
+            bytes,
+            written,
+            bytes.length - written,
+            offset + written,
+          );
+          if (count <= 0) throw new Error('Incomplete payload write');
+          written += count;
+        }
+        offset += bytes.length;
+      };
+      const createSlot = input => {
+        if (!building) fail('Подготовка резервных копий уже завершена');
+        fields(input, new Set(['id', 'version', 'beforeBytes', 'afterBytes']));
+        if (!text(input.id) || !['published', 'draft'].includes(input.version))
+          fail('Некорректная версия инструкции');
+        const beforeHash = createHash('sha256').update(input.beforeBytes).digest('hex');
+        const afterHash = createHash('sha256').update(input.afterBytes).digest('hex');
+        validateSlotRecord(input.beforeBytes, beforeHash, input.id);
+        validateSlotRecord(input.afterBytes, afterHash, input.id);
+        if (offset > MAX_PAYLOAD_BYTES - input.beforeBytes.length - input.afterBytes.length)
+          fail('Резервные копии операции превышают допустимый размер');
+        const slot = {
+          id: input.id,
+          version: input.version,
+          beforeHash,
+          afterHash,
+          beforeOffset: offset,
+          beforeLength: input.beforeBytes.length,
+          afterOffset: offset + input.beforeBytes.length,
+          afterLength: input.afterBytes.length,
+        };
+        append(input.beforeBytes);
+        append(input.afterBytes);
+        writtenSlots.push({ ...slot });
+        return slot;
+      };
+      const input = build(createSlot);
+      building = false;
+      validatePreviewInput(input);
+      const plan = {
+        ...structuredClone(input),
+        schemaVersion: 2,
+        id: operationId,
+        status: 'preview',
+        payloadBytes: offset,
+      };
+      if (!isDeepStrictEqual(plan.slots, writtenSlots))
+        fail('Состав резервных копий предпросмотра изменился');
+      validatePlan(plan, operationId);
+      assertNoPending();
+      fs.fsyncSync(descriptor);
+      fs.closeSync(descriptor);
+      descriptor = undefined;
+      if (fs.existsSync(file)) throw new Error('Payload already exists');
+      fs.renameSync(temporary, file);
+      publishedPayload = true;
+      syncDirectory(payloads);
+      writeJson(planFile(operationId), plan, { createOnly: true });
+      publishedPlan = true;
+      return structuredClone(plan);
+    } catch (cause) {
+      if (cause instanceof InstructionEditorError) throw cause;
+      throw storage(cause);
+    } finally {
+      building = false;
+      if (descriptor !== undefined) fs.closeSync(descriptor);
+      fs.rmSync(temporary, { force: true });
+      if (publishedPayload && !publishedPlan && !fs.existsSync(planFile(operationId))) {
+        fs.rmSync(file, { force: true });
+        syncDirectory(payloads);
+      }
+    }
+  }
 
   function read(operationId) {
     const raw = readJson(planFile(operationId));
@@ -481,17 +751,14 @@ export function createInstructionTaxonomyBulkJournal({ directory, now = Date.now
 
   return {
     read,
+    readSlotBytes,
+    validateSlotBytes,
     getActive,
     assertNoPending,
 
     savePreview(input) {
-      if (
-        !object(input) ||
-        ['id', 'schemaVersion', 'status', 'result', 'error', 'recoveredAt'].some(key =>
-          Object.hasOwn(input, key),
-        )
-      )
-        fail('Идентификатор и статус операции назначаются сервером');
+      if (typeof input === 'function') return savePackedPreview(input);
+      validatePreviewInput(input);
       const plan = {
         ...structuredClone(input),
         schemaVersion: 1,
@@ -542,13 +809,14 @@ export function createInstructionTaxonomyBulkJournal({ directory, now = Date.now
       };
     },
 
-    begin(operationId) {
+    begin(operationId, { assertHeld } = {}) {
       assertNoPending();
       const previous = read(operationId);
       if (previous.status !== 'preview')
         fail('Операция уже использована', { code: 'TAXONOMY_BULK_CONSUMED', status: 409 });
       if (now() >= Date.parse(previous.expiresAt))
         fail('Предварительный просмотр устарел', { code: 'TAXONOMY_BULK_EXPIRED', status: 409 });
+      validateSlotBytes(previous, { assertHeld });
       const plan = { ...previous, status: 'applying' };
       const marker = {
         schemaVersion: 1,

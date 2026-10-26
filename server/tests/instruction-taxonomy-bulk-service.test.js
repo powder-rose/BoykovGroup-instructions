@@ -115,6 +115,7 @@ function fixture(t) {
     taxonomy,
     taxonomyRepository,
     journal,
+    repository,
     bindingStore,
     faults,
     write,
@@ -126,6 +127,67 @@ function fixture(t) {
     },
   };
 }
+
+test('bulk preview and rollback use metadata snapshots and preserve absent managed fields', t => {
+  const f = fixture(t);
+  const original = f.write('first', 'published', {
+    taxonomyMeta: undefined,
+    instructionContent: { type: 'doc', content: [{ type: 'text', text: 'Body '.repeat(20_000) }] },
+    custom: { retained: ['all', 'fields'] },
+  });
+  delete original.taxonomyMeta;
+  const file = path.join(f.repository.dir, 'first.json');
+  fs.writeFileSync(file, Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), fs.readFileSync(file)]));
+  t.mock.method(f.repository, 'getAllFreshSnapshots', () => {
+    throw new Error('Bulk operations must not materialize all full-body snapshots');
+  });
+  const preview = f.preview();
+  const saved = f.journal.read(preview.previewId);
+  assert.equal(saved.schemaVersion, 2);
+  assert.equal(Object.hasOwn(saved.slots[0], 'beforeBase64'), false);
+  assert.equal(Object.hasOwn(saved.slots[0], 'afterBase64'), false);
+  assert.deepEqual(JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/u, '')), original);
+  f.apply(preview.previewId);
+  const rollback = f.service.previewRollback(preview.previewId, 'admin-one');
+  f.apply(rollback.previewId);
+  const restored = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const { revision: _revision, ...restoredFields } = restored;
+  const { revision: _originalRevision, ...originalFields } = original;
+  assert.deepEqual(restoredFields, originalFields);
+  assert.equal(Object.hasOwn(restored, 'taxonomyMeta'), false);
+});
+
+test('legacy inline previews still apply and create bounded rollback previews', t => {
+  const f = fixture(t);
+  f.write('first');
+  const generated = f.journal.read(f.preview().previewId);
+  const {
+    id: _id,
+    schemaVersion: _schemaVersion,
+    payloadBytes: _payloadBytes,
+    status: _status,
+    ...input
+  } = generated;
+  input.slots = generated.slots.map(slot => ({
+    id: slot.id,
+    version: slot.version,
+    beforeHash: slot.beforeHash,
+    afterHash: slot.afterHash,
+    beforeBase64: f.journal.readSlotBytes(generated, slot, 'before').toString('base64'),
+    afterBase64: f.journal.readSlotBytes(generated, slot, 'after').toString('base64'),
+  }));
+  const legacy = f.journal.savePreview(input);
+  assert.equal(legacy.schemaVersion, 1);
+  assert.equal(f.apply(legacy.id).status, 'committed');
+  const rollback = f.service.previewRollback(legacy.id, 'admin-one');
+  assert.equal(f.journal.read(rollback.previewId).schemaVersion, 2);
+  assert.equal(f.apply(rollback.previewId).status, 'committed');
+  assert.equal(
+    JSON.parse(fs.readFileSync(path.join(f.repository.dir, 'first.json'), 'utf8'))
+      .primaryCategoryId,
+    'P10',
+  );
+});
 
 test('bulk previews reject invalid selections, payload injection and noncanonical targets without changing files', t => {
   const f = fixture(t);
