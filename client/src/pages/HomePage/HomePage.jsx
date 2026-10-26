@@ -9,7 +9,7 @@ import HomeCompactHeader from './components/HomeCompactHeader/HomeCompactHeader.
 import HomeIntro from './components/HomeIntro/HomeIntro.jsx';
 
 import InstructionResults from './components/InstructionResults/InstructionResults.jsx';
-import InstructionCatalogChoice from '../../components/InstructionCatalog/InstructionCatalogChoice.jsx';
+import CatalogTaxonomyFilters from '../../components/InstructionCatalog/CatalogTaxonomyFilters.jsx';
 
 import useHomeCompactHeader from './hooks/useHomeCompactHeader.js';
 
@@ -35,8 +35,15 @@ export default function HomePage() {
     setQueryInput,
     debouncedQuery,
     catalogId,
+    category,
+    tag,
     changeCatalog,
+    changeCategory,
+    changeTag,
+    clearTaxonomy,
     filterOptions,
+    filterError,
+    filtersLoading,
 
     isAdmin,
 
@@ -64,6 +71,8 @@ export default function HomePage() {
   const { hasMore, loadMore, loadMoreRef } = useInfiniteInstructions({
     query: debouncedQuery,
     catalogId,
+    category,
+    tag,
 
     page: resultPage,
 
@@ -78,6 +87,8 @@ export default function HomePage() {
     useInstructionEditor({
       query: debouncedQuery,
       catalogId,
+      category,
+      tag,
 
       isAdmin,
     });
@@ -118,10 +129,17 @@ export default function HomePage() {
         generateError={generateError}
         onGenerate={generate}
       >
-        <InstructionCatalogChoice
-          value={catalogId}
-          catalogs={filterOptions.catalogs}
-          onChange={changeCatalog}
+        <CatalogTaxonomyFilters
+          options={filterOptions}
+          catalogId={catalogId}
+          category={category}
+          tag={tag}
+          onCatalogChange={changeCatalog}
+          onCategoryChange={changeCategory}
+          onTagChange={changeTag}
+          onReset={clearTaxonomy}
+          error={filterError}
+          loading={filtersLoading}
         />
       </InstructionResults>
 

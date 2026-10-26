@@ -57,7 +57,7 @@ test('empty state preserves its dashed card and appears for a completed empty se
 
   assert.match(
     hook,
-    /!isSearching\s*&&\s*!searchError\s*&&\s*Boolean\(debouncedQuery\.trim\(\) \|\| catalogId\)\s*&&\s*items\.length === 0/u,
+    /!isSearching\s*&&\s*!searchError\s*&&\s*Boolean\(debouncedQuery\.trim\(\) \|\| catalogId \|\| category \|\| tag\)\s*&&\s*items\.length === 0/u,
   );
   const component = read('../../client/src/components/EmptyState/EmptyState.jsx');
   assert.match(component, /В выбранном каталоге пока нет инструкций/u);

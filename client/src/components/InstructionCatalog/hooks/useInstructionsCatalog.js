@@ -1,63 +1,40 @@
 import { useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 
 import { PAGE_SIZE } from '../../../constants.js';
 import useInstructionTaxonomyFilters from '../../../hooks/useInstructionTaxonomyFilters.js';
+import useInstructionCatalogFilters from '../../../hooks/useInstructionCatalogFilters.js';
 
 export default function useInstructionsCatalog() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const queryInput = searchParams.get('q') ?? '';
+  const {
+    searchParams,
+    setSearchParams,
+    queryInput,
+    setQueryInput,
+    category,
+    tag,
+    catalogId,
+    changeCategory,
+    changeTag,
+    changeCatalog,
+    clearTaxonomy,
+  } = useInstructionCatalogFilters();
   const query = queryInput.trim();
-  const category = searchParams.get('category') ?? '';
-  const tag = searchParams.get('tag') ?? '';
-  const catalogId = searchParams.get('catalog') ?? '';
   const sort = searchParams.get('sort') === 'popular' ? 'popular' : 'newest';
   const requestedPage = Number(searchParams.get('page') || 1);
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
   const hasParameters = searchParams.size > 0;
   const previousFiltersRef = useRef({ queryInput, category, tag, catalogId, sort });
   const correctedPageRef = useRef(null);
-  const { options: filterOptions, error: filterError } = useInstructionTaxonomyFilters();
+  const {
+    options: filterOptions,
+    error: filterError,
+    loading: filtersLoading,
+  } = useInstructionTaxonomyFilters({ catalogId, category });
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState('');
-
-  function updateFilters(updates, { replace = false } = {}) {
-    setSearchParams(
-      current => {
-        const next = new URLSearchParams(current);
-        for (const [key, value] of Object.entries(updates)) {
-          if (value) next.set(key, value);
-          else next.delete(key);
-        }
-        next.delete('page');
-        return next;
-      },
-      { replace },
-    );
-  }
-
-  function setQueryInput(nextQuery) {
-    updateFilters({ q: nextQuery }, { replace: true });
-  }
-
-  function changeCategory(nextCategory) {
-    updateFilters({ category: nextCategory });
-  }
-
-  function changeTag(nextTag) {
-    updateFilters({ tag: nextTag });
-  }
-
-  function changeCatalog(nextCatalog) {
-    updateFilters({ catalog: nextCatalog, category: '' });
-  }
-
-  function clearTaxonomy() {
-    updateFilters({ category: '', tag: '', catalog: '' });
-  }
 
   useEffect(() => {
     const requestKey = JSON.stringify([query, category, tag, catalogId, sort, page]);
@@ -184,6 +161,7 @@ export default function useInstructionsCatalog() {
     hasParameters,
     filterOptions,
     filterError,
+    filtersLoading,
     changeCategory,
     changeTag,
     changeCatalog,

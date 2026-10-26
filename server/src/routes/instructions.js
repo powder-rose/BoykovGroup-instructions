@@ -93,7 +93,19 @@ const upload = multer({
 
 instructionsRouter.get('/taxonomy-filters', (req, res) => {
   res.set('Cache-Control', 'no-store');
-  res.json(getInstructionTaxonomyFilterOptions(instructionsRepository.getAll()));
+  const catalog = getInstructionTaxonomyAssignmentCatalog();
+  let filters;
+  try {
+    filters = validateInstructionTaxonomyFilters(
+      { catalogId: req.query.catalog ?? '', category: req.query.category ?? '' },
+      { catalog },
+    );
+  } catch {
+    return res.status(400).json({ error: 'Некорректные фильтры каталога или раздела' });
+  }
+  res.json(
+    getInstructionTaxonomyFilterOptions(instructionsRepository.getAll(), { catalog, ...filters }),
+  );
 });
 
 instructionsRouter.get('/', (req, res) => {

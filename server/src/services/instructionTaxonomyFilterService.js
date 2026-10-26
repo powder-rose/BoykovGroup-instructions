@@ -55,8 +55,9 @@ export function filterInstructionsByTaxonomy(instructions, filters = {}, options
 /** Only published assignments that actually exist are offered to public visitors. */
 export function getInstructionTaxonomyFilterOptions(
   instructions,
-  { catalog = getInstructionTaxonomyAssignmentCatalog() } = {},
+  { catalog = getInstructionTaxonomyAssignmentCatalog(), catalogId = '', category = '' } = {},
 ) {
+  validateInstructionTaxonomyFilters({ catalogId, category }, { catalog });
   const { categories, tags } = definitions(catalog);
   const categoriesById = new Set(categories.map(item => item.id));
   const tagsById = new Set(tags.map(item => item.id));
@@ -72,14 +73,18 @@ export function getInstructionTaxonomyFilterOptions(
       String(instruction.seoStatus || '').toLowerCase() === 'draft'
     )
       continue;
+    const parentCatalog = sectionCatalogs.get(instruction.primaryCategoryId);
+    if (parentCatalog) {
+      catalogCounts.set(parentCatalog, (catalogCounts.get(parentCatalog) || 0) + 1);
+    }
+    if (catalogId && parentCatalog !== catalogId) continue;
     if (categoriesById.has(instruction.primaryCategoryId)) {
       categoryCounts.set(
         instruction.primaryCategoryId,
         (categoryCounts.get(instruction.primaryCategoryId) || 0) + 1,
       );
-      const catalogId = sectionCatalogs.get(instruction.primaryCategoryId);
-      if (catalogId) catalogCounts.set(catalogId, (catalogCounts.get(catalogId) || 0) + 1);
     }
+    if (category && instruction.primaryCategoryId !== category) continue;
     if (Array.isArray(instruction.tagIds)) {
       for (const id of new Set(instruction.tagIds)) {
         if (!tagsById.has(id)) continue;

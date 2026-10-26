@@ -40,7 +40,7 @@ test('catalog presents one tag picker instead of separate search and select fiel
     new URL('../../client/src/components/InstructionCatalog/CatalogTagPicker.jsx', import.meta.url),
     'utf8',
   );
-  assert.match(filters, /<CatalogTagPicker /u);
+  assert.match(filters, /<CatalogTagPicker\s/u);
   assert.doesNotMatch(filters, /Найти тег/u);
   assert.match(picker, /role="combobox"/u);
   assert.match(picker, /role="listbox"/u);

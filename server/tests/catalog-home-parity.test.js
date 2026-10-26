@@ -43,7 +43,9 @@ test('catalog search uses the existing API query, sort and page controls', () =>
   assert.match(hook, /sort,/u);
   assert.match(hook, /new AbortController\(\)/u);
   assert.match(hook, /next\.delete\('page'\)/u);
-  assert.match(hook, /useSearchParams\(\)/u);
+  assert.match(hook, /useInstructionCatalogFilters\(\)/u);
+  const filters = read('../../client/src/hooks/useInstructionCatalogFilters.js');
+  assert.match(filters, /useSearchParams\(\)/u);
 });
 
 test('catalog prominently links home without new CSS overrides', () => {

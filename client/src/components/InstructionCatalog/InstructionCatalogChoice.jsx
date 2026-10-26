@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import styles from './InstructionCatalogChoice.module.css';
 
 const choices = [
@@ -13,7 +14,15 @@ const choices = [
   },
 ];
 
-export default function InstructionCatalogChoice({ value, catalogs = [], onChange }) {
+export default function InstructionCatalogChoice({
+  value,
+  catalogs = [],
+  onChange,
+  expanded = Boolean(value),
+  children,
+}) {
+  const panelId = useId();
+  const activeChoice = choices.find(choice => choice.id === value);
   const counts = new Map(catalogs.map(item => [item.id, item.count]));
   return (
     <section className={styles.root} aria-label="Выбор каталога инструкций">
@@ -35,6 +44,9 @@ export default function InstructionCatalogChoice({ value, catalogs = [], onChang
             type="button"
             className={styles.choice}
             aria-pressed={value === choice.id}
+            aria-expanded={value === choice.id && expanded}
+            aria-controls={panelId}
+            id={`${panelId}-${choice.id}`}
             onClick={() => onChange(choice.id)}
           >
             <span className={styles.body}>
@@ -46,11 +58,21 @@ export default function InstructionCatalogChoice({ value, catalogs = [], onChang
                 <span>{counts.get(choice.id).toLocaleString('ru-RU')}</span>
               )}
               <span className={styles.indicator} aria-hidden="true">
-                {value === choice.id ? '✓' : '→'}
+                {value === choice.id ? '↓' : '→'}
               </span>
             </span>
           </button>
         ))}
+      </div>
+      <div
+        id={panelId}
+        className={styles.panel}
+        role="region"
+        aria-labelledby={activeChoice ? `${panelId}-${activeChoice.id}` : undefined}
+        aria-label={activeChoice ? undefined : 'Разделы и теги'}
+        hidden={!expanded}
+      >
+        {expanded && children}
       </div>
     </section>
   );
