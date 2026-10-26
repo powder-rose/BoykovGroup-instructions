@@ -1,3 +1,4 @@
+import CatalogPageLinks from './CatalogPageLinks.jsx';
 import CatalogTagPicker from './CatalogTagPicker.jsx';
 import InstructionCatalogChoice from './InstructionCatalogChoice.jsx';
 import styles from './CatalogTaxonomyFilters.module.css';
@@ -19,6 +20,8 @@ export default function CatalogTaxonomyFilters({
   );
   const tags = options?.tags || [];
   const active = Boolean(category || tag);
+  const selectedCategory = categories.find(item => item.id === category);
+  const selectedTag = tags.find(item => item.id === tag);
 
   return (
     <InstructionCatalogChoice
@@ -63,6 +66,21 @@ export default function CatalogTaxonomyFilters({
             disabled={loading || Boolean(error)}
           />
         </div>
+        <CatalogPageLinks
+          label="Страницы выбранного раздела и тега"
+          items={[
+            selectedCategory && {
+              ...selectedCategory,
+              id: `category:${selectedCategory.id}`,
+              label: `Раздел: ${selectedCategory.label}`,
+            },
+            selectedTag && {
+              ...selectedTag,
+              id: `tag:${selectedTag.id}`,
+              label: `Тема: ${selectedTag.label}`,
+            },
+          ]}
+        />
         {loading && (
           <p className={styles.message} role="status">
             Загрузка разделов и тегов…

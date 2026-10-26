@@ -1,0 +1,19 @@
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
+  margin-top: 14px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.root a {
+  color: var(--color-primary);
+  text-underline-offset: 3px;
+}
+
+.root a:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 4px;
+}

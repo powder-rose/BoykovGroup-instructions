@@ -29,8 +29,8 @@ observe their own directory scans. No reset command or deployment data replaceme
 Public views use the refreshed references for membership, search, ordering and related materials.
 Their publication, indexing, canonical, redirect and count rules remain the same. New instructions,
 saved assignments, renames and removals are picked up when the next refresh observes the directory
-or signature change. H01 is not approved, pages are not published and source CSV assignments are
-not applied by this optimization.
+or signature change. This optimization itself does not approve routes, publish pages or apply CSV assignments.
+The separate [publication procedure](./instruction-taxonomy-publication.md) activates the specification structure.
 
 The legacy general catalog and sitemap continue using the refreshed full-record cache for their
 existing selection and date rules. They do not trigger another complete JSON read.
@@ -75,5 +75,4 @@ or runtime data files to deploy for this stage.
 The final acceptance work still includes a current URL inventory and SEO/link/redirect report,
 an administrator runbook, staging browser checks and measurements against the actual instruction
 snapshot. A real import report, verified backup and rollback evidence cannot be inferred from
-source tests. The 63 disputed records remain subject to individual review, and the H01 route still
-requires agreement. This optimization does not claim those operational steps have been completed.
+source tests. The 63 disputed records remain subject to individual review, and H01 must be activated through the explicit publication procedure. This optimization does not claim those operational steps have been completed.

@@ -45,6 +45,35 @@ jobs:
       - name: Run source quality checks
         run: npm run quality:check
 
+      - name: Verify homepage filter robots headers in Nginx
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'docker rm -f boykovdocs-nginx-test >/dev/null 2>&1 || true' EXIT
+
+          docker run -d --name boykovdocs-nginx-test \
+            --add-host api:127.0.0.1 \
+            -p 127.0.0.1:18081:80 \
+            --mount type=bind,source="$GITHUB_WORKSPACE/client/dist",target=/usr/share/nginx/html,readonly \
+            --mount type=bind,source="$GITHUB_WORKSPACE/deploy/nginx/default.conf",target=/etc/nginx/conf.d/default.conf,readonly \
+            nginx:1.28-alpine
+          docker exec boykovdocs-nginx-test nginx -t
+
+          curl -fsS --retry 5 --retry-connrefused --retry-delay 1 \
+            -D /tmp/boykovdocs-home-headers http://127.0.0.1:18081/ \
+            -o /tmp/boykovdocs-home.html
+          cmp client/dist/index.html /tmp/boykovdocs-home.html
+          if grep -qi '^X-Robots-Tag:' /tmp/boykovdocs-home-headers; then
+            echo 'The plain homepage must retain its indexing settings'
+            exit 1
+          fi
+          for query in 'catalog=H01' 'catalog=H02&category=W01' 'tag=T03' 'q=test'; do
+            curl -fsS -D /tmp/boykovdocs-filter-headers \
+              "http://127.0.0.1:18081/?$query" -o /tmp/boykovdocs-filter.html
+            grep -Eqi '^X-Robots-Tag: noindex, follow' /tmp/boykovdocs-filter-headers
+            cmp client/dist/index.html /tmp/boykovdocs-filter.html
+          done
+
       - name: Build lifecycle test image
         run: docker build -t boykovdocs-api:lifecycle-test ./server
 

@@ -1,4 +1,5 @@
 import { useId } from 'react';
+import CatalogPageLinks from './CatalogPageLinks.jsx';
 import styles from './InstructionCatalogChoice.module.css';
 
 const choices = [
@@ -74,6 +75,10 @@ export default function InstructionCatalogChoice({
       >
         {expanded && children}
       </div>
+      <CatalogPageLinks
+        items={catalogs.map(item => ({ ...item, label: `Открыть каталог: ${item.label}` }))}
+        label="Полные каталоги инструкций"
+      />
     </section>
   );
 }
