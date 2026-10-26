@@ -44,8 +44,8 @@ const options = {
     { id: 'H02', count: 2 },
   ],
   categories: [
-    { id: 'P06', label: 'Инженеры', count: 3, catalogId: 'H01' },
-    { id: 'W02', label: 'Электромонтаж', count: 2, catalogId: 'H02' },
+    { id: 'P06', label: 'Инженеры', count: 3, catalogId: 'H01', path: '/section/P06/' },
+    { id: 'W02', label: 'Электромонтаж', count: 2, catalogId: 'H02', path: '/section/W02/' },
   ],
   tags: [{ id: 'T35', label: 'Электробезопасность', count: 1 }],
 };
@@ -81,6 +81,7 @@ test('quick choices are bounded, scoped, and keep an active less common section 
   const categories = Array.from({ length: 24 }, (_, index) => ({
     id: `P${index}`,
     label: `Профессия ${index}`,
+    path: `/section/P${index}/`,
     count: 24 - index,
     catalogId: 'H01',
   }));
@@ -91,16 +92,41 @@ test('quick choices are bounded, scoped, and keep an active less common section 
     tag: '',
   });
   const quick = markup.match(
-    /<div[^>]*aria-label="Быстрый выбор раздела"[^>]*>([\s\S]*?)<\/div>/u,
+    /<nav[^>]*aria-label="Страницы разделов"[^>]*>([\s\S]*?)<\/nav>/u,
   )?.[1];
   assert.ok(quick);
-  assert.equal((quick.match(/<button\b/gu) || []).length, 8);
-  assert.match(quick, /aria-pressed="true"[^>]*><span>Профессия 23</u);
+  assert.equal((quick.match(/<a\b/gu) || []).length, 8);
+  assert.doesNotMatch(quick, /<button|aria-pressed|disabled/u);
+  assert.match(quick, /href="\/section\/P23\/"[^>]*><span>Профессия 23</u);
   assert.match(quick, /Профессия 0</u);
   assert.doesNotMatch(quick, /Электромонтаж/u);
   const work = render({ options, catalogId: 'H02', category: '', tag: '' });
   assert.match(work, /Электромонтаж/u);
   assert.doesNotMatch(work, /Инженеры/u);
+});
+
+test('section shortcuts require a published path and remain navigable during filter loading', () => {
+  const unpublished = {
+    id: 'P99',
+    label: 'Неопубликованный раздел',
+    count: 100,
+    catalogId: 'H01',
+  };
+  const markup = render({
+    options: { ...options, categories: [...options.categories, unpublished] },
+    catalogId: 'H01',
+    category: 'P99',
+    tag: '',
+    loading: true,
+  });
+  const quick = markup.match(
+    /<nav[^>]*aria-label="Страницы разделов"[^>]*>([\s\S]*?)<\/nav>/u,
+  )?.[1];
+  assert.ok(quick);
+  assert.match(quick, /href="\/section\/P06\/"/u);
+  assert.doesNotMatch(quick, /Неопубликованный раздел|P99|disabled|<button/u);
+  assert.match(markup, /value="Неопубликованный раздел"/u);
+  assert.match(markup, /role="combobox"/u);
 });
 
 test('compact directory keeps every ordinary link inside a closed native disclosure', () => {

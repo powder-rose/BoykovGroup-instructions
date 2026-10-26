@@ -39,7 +39,7 @@
   margin-bottom: 14px;
 }
 
-.quickCategories button {
+.quickCategories a {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -55,28 +55,26 @@
   font-size: 12px;
   line-height: 1.4;
   text-align: left;
+  text-decoration: none;
   overflow-wrap: anywhere;
   cursor: pointer;
 }
 
-.quickCategories button:hover,
-.quickCategories button[aria-pressed='true'] {
+.quickCategories a:hover {
   border-color: var(--color-primary);
   background: var(--color-primary-light);
   color: var(--color-primary);
 }
 
-.quickCategories button:focus-visible {
+.quickCategories a:focus-visible {
   outline: 3px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-.quickCategories button:disabled {
-  cursor: wait;
-  opacity: 0.55;
-}
-
 .quickCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   flex-shrink: 0;
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
