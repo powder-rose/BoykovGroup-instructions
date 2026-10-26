@@ -15,10 +15,15 @@ function NavigationLink({ path, className, children }) {
   );
 }
 
-export default function TaxonomyNavigation({ catalogs = [], sections = [], tags = [] }) {
+export default function TaxonomyNavigation({
+  catalogs = [],
+  sections = [],
+  tags = [],
+  compact = false,
+}) {
   if (!catalogs.length && !sections.length && !tags.length) return null;
 
-  return (
+  const navigation = (
     <nav className={styles.navigation} aria-label="Каталоги, разделы и темы инструкций">
       {catalogs.length > 0 && (
         <div className={styles.catalogs}>
@@ -77,5 +82,14 @@ export default function TaxonomyNavigation({ catalogs = [], sections = [], tags 
         </section>
       )}
     </nav>
+  );
+
+  return compact ? (
+    <details className={styles.directory}>
+      <summary>Все разделы и темы</summary>
+      {navigation}
+    </details>
+  ) : (
+    navigation
   );
 }

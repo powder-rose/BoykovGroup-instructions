@@ -37,7 +37,10 @@ test('catalog presents one tag picker instead of separate search and select fiel
     'utf8',
   );
   const picker = fs.readFileSync(
-    new URL('../../client/src/components/InstructionCatalog/CatalogTagPicker.jsx', import.meta.url),
+    new URL(
+      '../../client/src/components/InstructionCatalog/CatalogOptionPicker.jsx',
+      import.meta.url,
+    ),
     'utf8',
   );
   assert.match(filters, /<CatalogTagPicker\s/u);

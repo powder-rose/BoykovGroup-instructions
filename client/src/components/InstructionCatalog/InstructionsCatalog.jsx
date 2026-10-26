@@ -106,7 +106,9 @@ export default function InstructionsCatalog() {
           loading={filtersLoading}
         />
         {root && <RichTextContent content={root.introContent} />}
-        {navigation && <TaxonomyNavigation catalogs={navigation.catalogs} tags={navigation.tags} />}
+        {navigation && (
+          <TaxonomyNavigation compact catalogs={navigation.catalogs} tags={navigation.tags} />
+        )}
         {navigationError && (
           <p className={styles.status} role="status">
             {navigationError}
