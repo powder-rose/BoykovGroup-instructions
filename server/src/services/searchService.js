@@ -621,12 +621,13 @@ export function searchInstructions(
     sort = 'newest',
     category = '',
     tag = '',
+    catalogId = '',
     catalog = getInstructionTaxonomyAssignmentCatalog(),
   } = {},
 ) {
   const all = filterInstructionsByTaxonomy(
     instructionsRepository.getAll(),
-    { category, tag },
+    { category, tag, catalogId },
     { catalog },
   );
 

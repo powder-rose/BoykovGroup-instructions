@@ -112,11 +112,15 @@ instructionsRouter.get('/', (req, res) => {
   let filters;
   try {
     filters = validateInstructionTaxonomyFilters(
-      { category: req.query.category ?? '', tag: req.query.tag ?? '' },
+      {
+        category: req.query.category ?? '',
+        tag: req.query.tag ?? '',
+        catalogId: req.query.catalog ?? '',
+      },
       { catalog },
     );
   } catch {
-    return res.status(400).json({ error: 'Некорректные фильтры категории или тега' });
+    return res.status(400).json({ error: 'Некорректные фильтры каталога, раздела или тега' });
   }
 
   return res.json(

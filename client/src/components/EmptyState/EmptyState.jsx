@@ -24,18 +24,24 @@ export default function EmptyState({ query, isAdmin, isGenerating, error, onGene
 
       <h2 className={styles.title}>Ничего не найдено</h2>
 
-      <p className={styles.text}>По запросу «{query}» инструкций не найдено.</p>
+      {query ? (
+        <p className={styles.text}>По запросу «{query}» инструкций не найдено.</p>
+      ) : (
+        <p className={styles.text}>В выбранном каталоге пока нет инструкций.</p>
+      )}
 
       {isAdmin ? (
         <>
-          <button
-            type="button"
-            className={styles.button}
-            onClick={onGenerate}
-            disabled={isGenerating}
-          >
-            {isGenerating ? ' ...' : '  YandexGPT'}
-          </button>
+          {query.trim() && (
+            <button
+              type="button"
+              className={styles.button}
+              onClick={onGenerate}
+              disabled={isGenerating}
+            >
+              {isGenerating ? ' ...' : '  YandexGPT'}
+            </button>
+          )}
           {error && <p className={styles.error}>{error}</p>}
         </>
       ) : (

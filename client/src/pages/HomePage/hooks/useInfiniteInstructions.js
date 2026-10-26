@@ -8,6 +8,7 @@ import { PAGE_SIZE } from '../../../constants.js';
 
 export default function useInfiniteInstructions({
   query,
+  catalogId,
   page,
   totalPages,
 
@@ -29,7 +30,7 @@ export default function useInfiniteInstructions({
     loadMoreLockRef.current = false;
 
     loadMoreArmedRef.current = true;
-  }, [query]);
+  }, [query, catalogId]);
 
   const loadMore = useCallback(async () => {
     if (!loadMoreArmedRef.current) {
@@ -48,6 +49,7 @@ export default function useInfiniteInstructions({
       await dispatch(
         searchInstructions({
           query,
+          catalogId,
 
           page: page + 1,
 
@@ -59,7 +61,7 @@ export default function useInfiniteInstructions({
     } finally {
       loadMoreLockRef.current = false;
     }
-  }, [dispatch, query, page, hasMore, isSearching, isLoadingMore]);
+  }, [dispatch, query, catalogId, page, hasMore, isSearching, isLoadingMore]);
 
   useEffect(() => {
     const target = loadMoreRef.current;

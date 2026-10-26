@@ -9,6 +9,7 @@ import InstructionList from '../../../../components/InstructionList/InstructionL
 import styles from '../../../../App.module.css';
 
 export default function InstructionResults({
+  children,
   items,
   total,
   query,
@@ -38,6 +39,7 @@ export default function InstructionResults({
 }) {
   return (
     <main>
+      {children}
       {isSearching && <Loader label="Загрузка..." />}
 
       {!isSearching && searchError && <p className={styles.error}>Ошибка: {searchError}</p>}

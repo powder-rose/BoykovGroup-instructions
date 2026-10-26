@@ -33,7 +33,13 @@ function authHeaders(token) {
  * Поиск инструкций — вся логика поиска выполняется на сервере,
  * клиент лишь передаёт текст запроса и номер страницы.
  */
-export function searchInstructions({ query = '', page = 1, pageSize = 11, sort } = {}) {
+export function searchInstructions({
+  query = '',
+  page = 1,
+  pageSize = 11,
+  sort,
+  catalogId = '',
+} = {}) {
   const currentSort =
     sort ||
     (typeof window !== 'undefined' &&
@@ -50,8 +56,13 @@ export function searchInstructions({ query = '', page = 1, pageSize = 11, sort }
 
     sort: currentSort,
   });
+  if (catalogId) params.set('catalog', catalogId);
 
   return request(`/api/instructions?${params.toString()}`);
+}
+
+export function getInstructionTaxonomyFilters({ signal } = {}) {
+  return request('/api/instructions/taxonomy-filters', { cache: 'no-store', signal });
 }
 
 export function getInstruction(id) {

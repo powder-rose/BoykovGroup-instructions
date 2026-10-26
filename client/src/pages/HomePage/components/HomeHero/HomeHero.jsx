@@ -5,7 +5,7 @@ import styles from '../../../../App.module.css';
 export default function HomeHero({
   compact = false,
   heading = 'Инструкции по охране труда',
-  description = 'Найдите готовую инструкцию для нужной профессии. База пополняется автоматически каждый день.',
+  description = 'Найдите готовую инструкцию для вашей профессии или вида работ. База пополняется автоматически каждый день.',
 }) {
   return (
     <section className={styles.hero}>

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { PAGE_SIZE } from '../../../constants.js';
+import useInstructionTaxonomyFilters from '../../../hooks/useInstructionTaxonomyFilters.js';
 
 export default function useInstructionsCatalog() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -9,14 +10,14 @@ export default function useInstructionsCatalog() {
   const query = queryInput.trim();
   const category = searchParams.get('category') ?? '';
   const tag = searchParams.get('tag') ?? '';
+  const catalogId = searchParams.get('catalog') ?? '';
   const sort = searchParams.get('sort') === 'popular' ? 'popular' : 'newest';
   const requestedPage = Number(searchParams.get('page') || 1);
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
   const hasParameters = searchParams.size > 0;
-  const previousFiltersRef = useRef({ queryInput, category, tag, sort });
+  const previousFiltersRef = useRef({ queryInput, category, tag, catalogId, sort });
   const correctedPageRef = useRef(null);
-  const [filterOptions, setFilterOptions] = useState({ categories: [], tags: [] });
-  const [filterError, setFilterError] = useState('');
+  const { options: filterOptions, error: filterError } = useInstructionTaxonomyFilters();
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -50,35 +51,16 @@ export default function useInstructionsCatalog() {
     updateFilters({ tag: nextTag });
   }
 
+  function changeCatalog(nextCatalog) {
+    updateFilters({ catalog: nextCatalog, category: '' });
+  }
+
   function clearTaxonomy() {
-    updateFilters({ category: '', tag: '' });
+    updateFilters({ category: '', tag: '', catalog: '' });
   }
 
   useEffect(() => {
-    const controller = new AbortController();
-    async function loadFilterOptions() {
-      try {
-        const response = await fetch('/api/instructions/taxonomy-filters', {
-          cache: 'no-store',
-          signal: controller.signal,
-        });
-        if (!response.ok) throw new Error('Не удалось загрузить категории и теги.');
-        const data = await response.json();
-        if (controller.signal.aborted) return;
-        setFilterOptions({
-          categories: Array.isArray(data?.categories) ? data.categories : [],
-          tags: Array.isArray(data?.tags) ? data.tags : [],
-        });
-      } catch {
-        if (!controller.signal.aborted) setFilterError('Фильтры временно недоступны.');
-      }
-    }
-    void loadFilterOptions();
-    return () => controller.abort();
-  }, []);
-
-  useEffect(() => {
-    const requestKey = JSON.stringify([query, category, tag, sort, page]);
+    const requestKey = JSON.stringify([query, category, tag, catalogId, sort, page]);
     const alreadyLoaded = correctedPageRef.current === requestKey;
     correctedPageRef.current = null;
     if (alreadyLoaded) return;
@@ -89,8 +71,9 @@ export default function useInstructionsCatalog() {
       previous.queryInput !== queryInput &&
       previous.category === category &&
       previous.tag === tag &&
+      previous.catalogId === catalogId &&
       previous.sort === sort;
-    previousFiltersRef.current = { queryInput, category, tag, sort };
+    previousFiltersRef.current = { queryInput, category, tag, catalogId, sort };
     setLoading(true);
     setError('');
 
@@ -104,6 +87,7 @@ export default function useInstructionsCatalog() {
         });
         if (category) params.set('category', category);
         if (tag) params.set('tag', tag);
+        if (catalogId) params.set('catalog', catalogId);
 
         const response = await fetch(`/api/instructions?${params}`, {
           cache: 'no-store',
@@ -124,7 +108,14 @@ export default function useInstructionsCatalog() {
         const actualPage = Number(data?.page);
         if (Number.isSafeInteger(actualPage) && actualPage > 0 && actualPage !== requestedPage) {
           // The response already contains this page; correcting its URL needs no second request.
-          correctedPageRef.current = JSON.stringify([query, category, tag, sort, actualPage]);
+          correctedPageRef.current = JSON.stringify([
+            query,
+            category,
+            tag,
+            catalogId,
+            sort,
+            actualPage,
+          ]);
           setSearchParams(
             current => {
               const next = new URLSearchParams(current);
@@ -151,7 +142,7 @@ export default function useInstructionsCatalog() {
       window.clearTimeout(timeout);
       controller.abort();
     };
-  }, [page, requestedPage, query, queryInput, sort, category, tag, setSearchParams]);
+  }, [page, requestedPage, query, queryInput, sort, category, tag, catalogId, setSearchParams]);
 
   function changePage(nextPage) {
     if (nextPage < 1 || nextPage > totalPages || nextPage === page || loading) return;
@@ -189,11 +180,13 @@ export default function useInstructionsCatalog() {
     query,
     category,
     tag,
+    catalogId,
     hasParameters,
     filterOptions,
     filterError,
     changeCategory,
     changeTag,
+    changeCatalog,
     clearTaxonomy,
     items,
     total,

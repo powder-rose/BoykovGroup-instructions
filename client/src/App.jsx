@@ -59,6 +59,7 @@ export default function App() {
                 title="Инструкции по охране труда | БОЙКОВГРУПП"
                 description="Инструкции по охране труда для работников различных профессий и видов работ. Требования безопасности и порядок выполнения работ."
                 canonical="/"
+                robots={location.search ? 'noindex, follow' : undefined}
               />
               <HomePage />
             </>

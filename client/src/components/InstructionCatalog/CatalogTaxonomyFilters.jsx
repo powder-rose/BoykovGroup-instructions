@@ -5,14 +5,17 @@ export default function CatalogTaxonomyFilters({
   options,
   category,
   tag,
+  catalogId,
   onCategoryChange,
   onTagChange,
   onReset,
   error,
 }) {
-  const categories = options?.categories || [];
+  const categories = (options?.categories || []).filter(
+    item => !catalogId || item.catalogId === catalogId,
+  );
   const tags = options?.tags || [];
-  const active = Boolean(category || tag);
+  const active = Boolean(category || tag || catalogId);
 
   return (
     <section className={styles.root} aria-label="Фильтры инструкций">

@@ -9,6 +9,7 @@ import HomeCompactHeader from './components/HomeCompactHeader/HomeCompactHeader.
 import HomeIntro from './components/HomeIntro/HomeIntro.jsx';
 
 import InstructionResults from './components/InstructionResults/InstructionResults.jsx';
+import InstructionCatalogChoice from '../../components/InstructionCatalog/InstructionCatalogChoice.jsx';
 
 import useHomeCompactHeader from './hooks/useHomeCompactHeader.js';
 
@@ -33,6 +34,9 @@ export default function HomePage() {
     queryInput,
     setQueryInput,
     debouncedQuery,
+    catalogId,
+    changeCatalog,
+    filterOptions,
 
     isAdmin,
 
@@ -59,6 +63,7 @@ export default function HomePage() {
 
   const { hasMore, loadMore, loadMoreRef } = useInfiniteInstructions({
     query: debouncedQuery,
+    catalogId,
 
     page: resultPage,
 
@@ -72,6 +77,7 @@ export default function HomePage() {
   const { editingInstruction, openInstructionEditor, closeInstructionEditor, instructionSaved } =
     useInstructionEditor({
       query: debouncedQuery,
+      catalogId,
 
       isAdmin,
     });
@@ -111,7 +117,13 @@ export default function HomePage() {
         isGenerating={isGenerating}
         generateError={generateError}
         onGenerate={generate}
-      />
+      >
+        <InstructionCatalogChoice
+          value={catalogId}
+          catalogs={filterOptions.catalogs}
+          onChange={changeCatalog}
+        />
+      </InstructionResults>
 
       {editingInstruction && (
         <Suspense fallback={<p role="status">Загрузка редактора…</p>}>

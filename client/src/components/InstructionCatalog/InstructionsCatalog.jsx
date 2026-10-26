@@ -16,6 +16,7 @@ import useHomeCompactHeader from '../../pages/HomePage/hooks/useHomeCompactHeade
 
 import InstructionsCatalogGrid from './InstructionsCatalogGrid.jsx';
 import CatalogTaxonomyFilters from './CatalogTaxonomyFilters.jsx';
+import InstructionCatalogChoice from './InstructionCatalogChoice.jsx';
 import useInstructionsCatalog from './hooks/useInstructionsCatalog.js';
 
 import homeStyles from '../../App.module.css';
@@ -32,11 +33,13 @@ export default function InstructionsCatalog() {
     query,
     category,
     tag,
+    catalogId,
     hasParameters,
     filterOptions,
     filterError,
     changeCategory,
     changeTag,
+    changeCatalog,
     clearTaxonomy,
     items,
     total,
@@ -90,6 +93,11 @@ export default function InstructionsCatalog() {
       />
 
       <main className={styles.content}>
+        <InstructionCatalogChoice
+          value={catalogId}
+          catalogs={filterOptions.catalogs}
+          onChange={changeCatalog}
+        />
         {root && <RichTextContent content={root.introContent} />}
         {navigation && <TaxonomyNavigation catalogs={navigation.catalogs} tags={navigation.tags} />}
         {navigationError && (
@@ -104,7 +112,7 @@ export default function InstructionsCatalog() {
 
           {!loading && !error && items.length > 0 && (
             <span className={homeStyles.count}>
-              {query || category || tag ? 'Найдено инструкций' : 'Всего инструкций'}:{' '}
+              {query || category || tag || catalogId ? 'Найдено инструкций' : 'Всего инструкций'}:{' '}
               {total.toLocaleString('ru-RU')}
             </span>
           )}
@@ -114,6 +122,7 @@ export default function InstructionsCatalog() {
           options={filterOptions}
           category={category}
           tag={tag}
+          catalogId={catalogId}
           onCategoryChange={changeCategory}
           onTagChange={changeTag}
           onReset={clearTaxonomy}
@@ -163,7 +172,7 @@ export default function InstructionsCatalog() {
               {query && (
                 <p className={styles.emptyQuery}>По запросу «{query}» ничего не найдено.</p>
               )}
-              {(category || tag) && (
+              {(category || tag || catalogId) && (
                 <p className={styles.emptyQuery}>
                   С такими фильтрами пока нет инструкций. Попробуйте другую категорию или тег.
                 </p>

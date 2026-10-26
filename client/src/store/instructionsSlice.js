@@ -11,6 +11,7 @@ import { PAGE_SIZE } from '../constants.js';
 const SEARCH_START = 'instructions/searchStart';
 const SEARCH_SUCCESS = 'instructions/searchSuccess';
 const SEARCH_FAIL = 'instructions/searchFail';
+let nextSearchRequestId = 0;
 
 const SELECT_START = 'instructions/selectStart';
 const SELECT_SUCCESS = 'instructions/selectSuccess';
@@ -35,6 +36,8 @@ const initialState = {
   page: 1,
   totalPages: 1,
   query: '',
+  catalogId: '',
+  searchRequestId: null,
   isSearching: true,
   isLoadingMore: false,
   searchError: null,
@@ -67,6 +70,11 @@ export function instructionsReducer(state = initialState, action) {
      */
     case SEARCH_START: {
       const append = action.meta?.append === true;
+      if (
+        append &&
+        (action.meta?.query !== state.query || action.meta?.catalogId !== state.catalogId)
+      )
+        return state;
 
       return {
         ...state,
@@ -80,6 +88,8 @@ export function instructionsReducer(state = initialState, action) {
         loadMoreError: null,
 
         query: append ? state.query : (action.meta?.query ?? ''),
+        catalogId: append ? state.catalogId : (action.meta?.catalogId ?? ''),
+        searchRequestId: action.meta?.requestId,
       };
     }
 
@@ -88,7 +98,11 @@ export function instructionsReducer(state = initialState, action) {
        * Старый HTTP-ответ не должен
        * попасть в уже новый поисковый запрос.
        */
-      if (action.meta?.query !== state.query) {
+      if (
+        action.meta?.query !== state.query ||
+        action.meta?.catalogId !== state.catalogId ||
+        action.meta?.requestId !== state.searchRequestId
+      ) {
         return state;
       }
 
@@ -136,7 +150,11 @@ export function instructionsReducer(state = initialState, action) {
     }
 
     case SEARCH_FAIL: {
-      if (action.meta?.query !== state.query) {
+      if (
+        action.meta?.query !== state.query ||
+        action.meta?.catalogId !== state.catalogId ||
+        action.meta?.requestId !== state.searchRequestId
+      ) {
         return state;
       }
 
@@ -204,7 +222,7 @@ export function instructionsReducer(state = initialState, action) {
         ...state,
         deletingId: null,
         items: remaining,
-        total: Math.max(0, state.total - 1),
+        total: Math.max(0, state.total - (remaining.length < state.items.length ? 1 : 0)),
         selected: state.selected?.id === action.payload ? null : state.selected,
       };
     }
@@ -221,23 +239,22 @@ export function instructionsReducer(state = initialState, action) {
 
 export function searchInstructions({
   query = '',
+  catalogId = '',
   page = 1,
   pageSize = PAGE_SIZE,
   append = false,
 } = {}) {
   return async dispatch => {
+    const meta = { query, catalogId, append, requestId: ++nextSearchRequestId };
     dispatch({
       type: SEARCH_START,
-
-      meta: {
-        query,
-        append,
-      },
+      meta,
     });
 
     try {
       const data = await searchRequest({
         query,
+        catalogId,
         page,
         pageSize,
       });
@@ -247,10 +264,7 @@ export function searchInstructions({
 
         payload: data,
 
-        meta: {
-          query,
-          append,
-        },
+        meta,
       });
 
       return data;
@@ -260,10 +274,7 @@ export function searchInstructions({
 
         payload: err.message,
 
-        meta: {
-          query,
-          append,
-        },
+        meta,
       });
 
       return null;
