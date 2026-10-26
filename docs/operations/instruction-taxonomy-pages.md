@@ -106,3 +106,17 @@ pages. Runtime registry, assignments and source dictionaries are not replaced by
 Instruction-level hierarchy links, taxonomy-aware related instructions and authorized saved-page
 preview are documented in [Instruction taxonomy links and authorized preview](./instruction-taxonomy-links.md).
 Legacy assignments and unavailable landing destinations retain their catalog-filter fallback.
+
+## Compact catalog navigation
+
+The homepage and general catalog share two catalog choices and a single scoped filter panel.
+The panel shows up to eight sections by instruction count, retains an active section even outside
+that group, and offers searchable section and tag pickers. Choices update the existing URL filters;
+search, sort, pagination and request cancellation keep their existing behavior.
+
+The general catalog places the complete directory inside a closed native `details` element.
+All published catalog, section and tag links are present in both initial server HTML and React
+markup before it is opened. Opening the directory requires no additional API request. Separate
+catalog pages still show all their published sections. Compact navigation changes neither route
+addresses nor publication, indexing, canonical or sitemap settings. No data migration or repeated
+publication/import is required.

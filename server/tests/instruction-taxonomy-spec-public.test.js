@@ -80,8 +80,12 @@ test('all 134 specification pages serve canonical HTML, with new sections and ta
     assert.match(html, /<a [^>]*href="\/instrukciya-po-ohrane-truda\//u);
   }
   const rootHtml = await (await fetch(base + '/instrukcii-po-ohrane-truda')).text();
+  const directoryHtml = rootHtml.match(/<details\b[^>]*>[\s\S]*?<\/details>/u)?.[0];
+  assert.ok(directoryHtml);
+  assert.match(directoryHtml, /<summary>Все разделы и темы<\/summary>/u);
+  assert.doesNotMatch(directoryHtml, /<details[^>]*\bopen\b/u);
   for (const pathname of paths.slice(1))
-    assert.ok(rootHtml.includes(`href="${pathname}"`), pathname);
+    assert.ok(directoryHtml.includes(`href="${pathname}"`), pathname);
   const sitemap = await (await fetch(base + '/sitemap.xml')).text();
   for (const pathname of paths.slice(1))
     assert.ok(!sitemap.includes('<loc>https://boykovdocs.ru' + pathname + '</loc>'), pathname);

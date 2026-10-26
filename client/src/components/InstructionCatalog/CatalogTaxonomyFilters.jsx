@@ -1,4 +1,5 @@
 import CatalogPageLinks from './CatalogPageLinks.jsx';
+import CatalogOptionPicker from './CatalogOptionPicker.jsx';
 import CatalogTagPicker from './CatalogTagPicker.jsx';
 import InstructionCatalogChoice from './InstructionCatalogChoice.jsx';
 import styles from './CatalogTaxonomyFilters.module.css';
@@ -22,6 +23,10 @@ export default function CatalogTaxonomyFilters({
   const active = Boolean(category || tag);
   const selectedCategory = categories.find(item => item.id === category);
   const selectedTag = tags.find(item => item.id === tag);
+  const quickCategories = [...categories].sort((a, b) => b.count - a.count).slice(0, 8);
+  if (selectedCategory && !quickCategories.some(item => item.id === category)) {
+    quickCategories.splice(7, 1, selectedCategory);
+  }
 
   return (
     <InstructionCatalogChoice
@@ -33,8 +38,7 @@ export default function CatalogTaxonomyFilters({
       <section className={styles.root} aria-label="Фильтры инструкций" aria-busy={loading}>
         <div className={styles.heading}>
           <div>
-            <h3>Разделы и теги</h3>
-            <p>Уточните раздел или выберите тег — список инструкций обновится ниже.</p>
+            <h3>Уточните, что вам нужно</h3>
           </div>
           {active && (
             <button type="button" className={styles.reset} onClick={onReset}>
@@ -42,22 +46,35 @@ export default function CatalogTaxonomyFilters({
             </button>
           )}
         </div>
+        {catalogId && quickCategories.length > 0 && (
+          <div className={styles.quickCategories} role="group" aria-label="Быстрый выбор раздела">
+            {quickCategories.map(item => (
+              <button
+                key={item.id}
+                type="button"
+                aria-pressed={item.id === category}
+                disabled={loading || Boolean(error)}
+                onClick={() => onCategoryChange(item.id === category ? '' : item.id)}
+              >
+                <span>{item.label}</span>
+                <span className={styles.quickCount}>{item.count.toLocaleString('ru-RU')}</span>
+              </button>
+            ))}
+          </div>
+        )}
         <div className={styles.controls}>
-          <label className={styles.field}>
-            <span>Раздел</span>
-            <select
-              value={category}
-              disabled={loading && !categories.length}
-              onChange={event => onCategoryChange(event.target.value)}
-            >
-              <option value="">Все разделы</option>
-              {categories.map(item => (
-                <option key={item.id} value={item.id}>
-                  {item.label} ({item.count})
-                </option>
-              ))}
-            </select>
-          </label>
+          <CatalogOptionPicker
+            key={catalogId}
+            options={categories}
+            selectedId={category}
+            onChange={onCategoryChange}
+            disabled={loading || Boolean(error)}
+            label="Раздел"
+            placeholder="Найдите нужный раздел"
+            clearLabel="Сбросить выбранный раздел"
+            showLabel="Показать список разделов"
+            hideLabel="Скрыть список разделов"
+          />
           <CatalogTagPicker
             key={`${catalogId}:${category}`}
             tags={tags}

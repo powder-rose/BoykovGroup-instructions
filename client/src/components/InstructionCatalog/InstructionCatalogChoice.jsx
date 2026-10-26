@@ -76,7 +76,10 @@ export default function InstructionCatalogChoice({
         {expanded && children}
       </div>
       <CatalogPageLinks
-        items={catalogs.map(item => ({ ...item, label: `Открыть каталог: ${item.label}` }))}
+        items={catalogs.map(item => ({
+          ...item,
+          label: item.id === 'H01' ? 'Все профессии и должности' : 'Все виды работ',
+        }))}
         label="Полные каталоги инструкций"
       />
     </section>

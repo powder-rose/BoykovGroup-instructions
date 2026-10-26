@@ -1,12 +1,12 @@
 .root {
-  margin: 24px 0 30px;
+  margin: 20px 0 24px;
 }
 
 .heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   margin-bottom: 14px;
 }
 
@@ -42,9 +42,9 @@
 
 .panel {
   margin-top: 12px;
-  padding: 22px 24px;
+  padding: 18px;
   border: var(--border-ink);
-  border-top: 4px solid var(--color-primary);
+  border-top: 3px solid var(--color-primary);
   border-radius: var(--radius-md);
   background: var(--color-surface);
   animation: reveal 160ms ease-out;
@@ -66,8 +66,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  min-height: 110px;
-  padding: 22px 24px;
+  min-height: 88px;
+  padding: 16px 18px;
   border: var(--border-ink);
   border-radius: var(--radius-md);
   background: var(--color-surface);
@@ -98,7 +98,7 @@
 
 .body {
   display: grid;
-  gap: 8px;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -148,8 +148,8 @@
   }
 
   .choice {
-    min-height: 98px;
-    padding: 18px;
+    min-height: 78px;
+    padding: 14px;
     gap: 14px;
   }
 
