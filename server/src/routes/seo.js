@@ -337,7 +337,7 @@ function getIndexableInstructions(query, repository, filters = {}, options = {})
     );
 
   const filtered =
-    filters.category || filters.tag
+    filters.category || filters.tag || filters.catalogId
       ? filterInstructionsByTaxonomy(visible, filters, options)
       : visible;
 
@@ -1119,7 +1119,11 @@ export function createSeoRouter({
       let filters;
       try {
         filters = validateInstructionTaxonomyFilters(
-          { category: req.query.category ?? '', tag: req.query.tag ?? '' },
+          {
+            category: req.query.category ?? '',
+            tag: req.query.tag ?? '',
+            catalogId: req.query.catalog ?? '',
+          },
           { catalog },
         );
       } catch {
@@ -1127,7 +1131,7 @@ export function createSeoRouter({
           .status(400)
           .set('X-Robots-Tag', 'noindex, nofollow')
           .type('text/plain')
-          .send('Некорректные фильтры категории или тега');
+          .send('Некорректные фильтры каталога, раздела или тега');
       }
       const instructions = getIndexableInstructions(query, repository, filters, { catalog });
       const hasParameters = Object.keys(req.query).length > 0;

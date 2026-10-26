@@ -40,7 +40,7 @@ test('existing admin generation remains available', () => {
   assert.match(component, /\{error &&/u);
 });
 
-test('empty state preserves its dashed card and is shown only for completed empty search', () => {
+test('empty state preserves its dashed card and appears for a completed empty search or catalog', () => {
   const css = read('../../client/src/components/EmptyState/EmptyState.module.css');
 
   const results = read(
@@ -57,6 +57,9 @@ test('empty state preserves its dashed card and is shown only for completed empt
 
   assert.match(
     hook,
-    /!isSearching && !searchError && Boolean\(debouncedQuery\.trim\(\)\) && items\.length === 0/u,
+    /!isSearching\s*&&\s*!searchError\s*&&\s*Boolean\(debouncedQuery\.trim\(\) \|\| catalogId\)\s*&&\s*items\.length === 0/u,
   );
+  const component = read('../../client/src/components/EmptyState/EmptyState.jsx');
+  assert.match(component, /В выбранном каталоге пока нет инструкций/u);
+  assert.match(component, /query\.trim\(\) &&/u);
 });

@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { searchInstructions } from '../../../store/instructionsSlice.js';
 import { PAGE_SIZE } from '../../../constants.js';
 
-export default function useInstructionEditor({ query, isAdmin }) {
+export default function useInstructionEditor({ query, catalogId, isAdmin }) {
   const dispatch = useDispatch();
   const [editingInstruction, setEditingInstruction] = useState(null);
 
@@ -15,7 +15,7 @@ export default function useInstructionEditor({ query, isAdmin }) {
   }
   function instructionSaved() {
     closeInstructionEditor();
-    dispatch(searchInstructions({ query, page: 1, pageSize: PAGE_SIZE }));
+    dispatch(searchInstructions({ query, catalogId, page: 1, pageSize: PAGE_SIZE }));
   }
   return { editingInstruction, openInstructionEditor, closeInstructionEditor, instructionSaved };
 }
