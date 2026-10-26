@@ -17,8 +17,10 @@ await clientRequire('esbuild').build({
       import { renderToStaticMarkup } from 'react-dom/server';
       import { StaticRouter } from 'react-router-dom';
       import Filters from './src/components/InstructionCatalog/CatalogTaxonomyFilters.jsx';
+      import Navigation from './src/components/TaxonomyLandingPage/TaxonomyNavigation.jsx';
       export { getInstructionTaxonomyFilters } from './src/api/instructionsApi.js';
       export function render(props) { return renderToStaticMarkup(<StaticRouter location="/"><Filters {...props} /></StaticRouter>); }
+      export function renderNavigation(props) { return renderToStaticMarkup(<StaticRouter location="/"><Navigation {...props} /></StaticRouter>); }
     `,
     resolveDir: fileURLToPath(new URL('../../client/', import.meta.url)),
     loader: 'jsx',
@@ -30,7 +32,7 @@ await clientRequire('esbuild').build({
   jsx: 'automatic',
   define: { 'import.meta.env': '{}' },
 });
-const { render, getInstructionTaxonomyFilters } = clientRequire(bundle);
+const { render, renderNavigation, getInstructionTaxonomyFilters } = clientRequire(bundle);
 
 const options = {
   catalogs: [
@@ -53,20 +55,70 @@ test('catalog cards disclose the connected menu and hide it when all instruction
   assert.ok(panelId);
   assert.ok(expanded.includes(`id="${panelId}"`));
   assert.ok(expanded.includes(`aria-labelledby="${panelId}-H01"`));
-  assert.match(expanded, /<option value="P06"/u);
-  assert.doesNotMatch(expanded, /<option value="W02"/u);
-  assert.match(expanded, /role="combobox"/u);
+  assert.match(expanded, /value="Инженеры"/u);
+  assert.doesNotMatch(expanded, /Электромонтаж/u);
+  assert.equal((expanded.match(/role="combobox"/gu) || []).length, 2);
+  assert.doesNotMatch(expanded, /role="listbox"/u);
   assert.match(expanded, /Сбросить фильтры/u);
 });
 
 test('legacy filter links still disclose the menu and loading cannot select stale tags', () => {
   const legacy = render({ options, catalogId: '', category: 'P06', tag: '' });
-  assert.match(legacy, /<select/u);
+  assert.match(legacy, /value="Инженеры"/u);
   assert.doesNotMatch(legacy, /hidden=""/u);
   const loading = render({ options, catalogId: 'H02', category: '', tag: '', loading: true });
   assert.match(loading, /aria-busy="true"/u);
   assert.match(loading, /<input(?=[^>]*role="combobox")(?=[^>]*disabled="")[^>]*>/u);
   assert.match(loading, /Загрузка разделов и тегов/u);
+  assert.equal((loading.match(/<input(?=[^>]*disabled="")[^>]*>/gu) || []).length, 2);
+});
+
+test('quick choices are bounded, scoped, and keep an active less common section visible', () => {
+  const categories = Array.from({ length: 24 }, (_, index) => ({
+    id: `P${index}`,
+    label: `Профессия ${index}`,
+    count: 24 - index,
+    catalogId: 'H01',
+  }));
+  const markup = render({
+    options: { ...options, categories: [...categories, options.categories[1]] },
+    catalogId: 'H01',
+    category: 'P23',
+    tag: '',
+  });
+  const quick = markup.match(
+    /<div[^>]*aria-label="Быстрый выбор раздела"[^>]*>([\s\S]*?)<\/div>/u,
+  )?.[1];
+  assert.ok(quick);
+  assert.equal((quick.match(/<button\b/gu) || []).length, 8);
+  assert.match(quick, /aria-pressed="true"[^>]*><span>Профессия 23</u);
+  assert.match(quick, /Профессия 0</u);
+  assert.doesNotMatch(quick, /Электромонтаж/u);
+  const work = render({ options, catalogId: 'H02', category: '', tag: '' });
+  assert.match(work, /Электромонтаж/u);
+  assert.doesNotMatch(work, /Инженеры/u);
+});
+
+test('compact directory keeps every ordinary link inside a closed native disclosure', () => {
+  const catalogs = [
+    {
+      code: 'H01',
+      name: 'Профессии',
+      path: '/catalog/H01/',
+      count: 3,
+      sections: [{ code: 'P06', name: 'Инженеры', path: '/section/P06/', count: 3 }],
+    },
+  ];
+  const tags = [{ code: 'T35', name: 'Электробезопасность', path: '/topic/T35/', count: 1 }];
+  const compact = renderNavigation({ catalogs, tags, compact: true });
+  assert.match(compact, /^<details[^>]*><summary>Все разделы и темы<\/summary>/u);
+  assert.doesNotMatch(compact, /<details[^>]*\bopen\b/u);
+  for (const path of ['/catalog/H01/', '/section/P06/', '/topic/T35/']) {
+    assert.ok(compact.includes(`href="${path}"`), path);
+  }
+  const full = renderNavigation({ sections: catalogs[0].sections });
+  assert.doesNotMatch(full, /<details/u);
+  assert.ok(full.includes('href="/section/P06/"'));
 });
 
 test('published catalog, category and tag pages are exposed as ordinary links beside the filters', () => {

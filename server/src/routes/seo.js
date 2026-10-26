@@ -556,7 +556,7 @@ function renderCatalogSeoBody(instructions, query = '', options = {}) {
     <main class="SeoPrerender_catalog">
       ${renderMainHero(options.navigation?.root ? { heading: options.navigation.root.h1, subtitle: '' } : {})}
       ${options.navigation?.root ? renderInstructionTaxonomyRichContent(options.navigation.root.introContent, 'TaxonomyLandingPage_intro') : ''}
-      ${options.navigation ? renderInstructionTaxonomyNavigation(options.navigation) : ''}
+      ${options.navigation ? renderInstructionTaxonomyNavigation(options.navigation, { compact: true }) : ''}
 
       <section aria-labelledby="seo-catalog-heading">
         <h2 id="seo-catalog-heading">

@@ -57,14 +57,17 @@ function sectionLinks(sections) {
     .join('')}</ul>`;
 }
 
-export function renderInstructionTaxonomyNavigation(navigation) {
+export function renderInstructionTaxonomyNavigation(navigation, { compact = false } = {}) {
   const catalogs = navigation.catalogs || [];
   const tags = navigation.tags || [];
   if (!catalogs.length && !tags.length) return '';
-  return `<nav class="TaxonomyLandingPage_navigation" aria-label="Каталоги и темы инструкций">
+  const html = `<nav class="TaxonomyLandingPage_navigation" aria-label="Каталоги и темы инструкций">
     ${catalogs.length ? `<div class="TaxonomyLandingPage_catalogs">${catalogs.map(catalog => `<section class="TaxonomyLandingPage_catalog"><h2><a class="TaxonomyLandingPage_catalogLink" href="${escapeSeoHtml(catalog.path)}">${escapeSeoHtml(catalog.name)} <span class="TaxonomyLandingPage_count">${count(catalog.count)}</span></a></h2>${sectionLinks(catalog.sections || [])}</section>`).join('')}</div>` : ''}
     ${tags.length ? `<section class="TaxonomyLandingPage_catalog"><h2>Темы инструкций</h2><ul class="TaxonomyLandingPage_tags">${tags.map(tag => `<li><a class="TaxonomyLandingPage_tag" href="${escapeSeoHtml(tag.path)}">${escapeSeoHtml(tag.name)} <span class="TaxonomyLandingPage_count">${count(tag.count)}</span></a></li>`).join('')}</ul></section>` : ''}
   </nav>`;
+  return compact
+    ? `<details class="TaxonomyLandingPage_directory"><summary>Все разделы и темы</summary>${html}</details>`
+    : html;
 }
 
 export function renderInstructionTaxonomyRichContent(content, className) {
