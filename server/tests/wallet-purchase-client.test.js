@@ -4,6 +4,8 @@ import {
   purchaseCatalogInstruction,
   WALLET_UPDATED_EVENT,
   notifyWalletUpdated,
+  walletPaymentUrl,
+  walletRequest,
 } from '../../client/public/assets/wallet-client.js';
 
 function jsonResponse(value, status = 200) {
@@ -115,6 +117,114 @@ test('invalid wallet response cannot charge money', async () => {
     await assert.rejects(purchaseCatalogInstruction('token', 'instruction-4'), /стоимость/);
     assert.equal(count, 1);
     assert.equal(WALLET_UPDATED_EVENT, 'boykovdocs:wallet-updated');
+  } finally {
+    globalThis.fetch = previous;
+  }
+});
+
+test('Word cannot be purchased by the client without explicit confirmation', async () => {
+  const previous = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    throw new Error('Unexpected request');
+  };
+  try {
+    await assert.rejects(
+      purchaseCatalogInstruction('token', 'instruction-1', { format: 'docx' }),
+      /Подтвердите/,
+    );
+    assert.equal(calls, 0);
+  } finally {
+    globalThis.fetch = previous;
+  }
+});
+
+test('confirmed Word purchase spends wallet funds directly and does not reuse an existing PDF purchase', async () => {
+  const previous = globalThis.fetch;
+  const calls = [];
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url, options });
+    if (calls.length === 1)
+      return jsonResponse({
+        balanceMinor: 5000,
+        priceMinor: 5000,
+        purchases: [{ id: 'wp_pdf', instructionId: 'instruction-1' }],
+      });
+    return jsonResponse({ purchaseId: 'wp_word', wallet: { balanceMinor: 0, priceMinor: 5000 } });
+  };
+  try {
+    const result = await purchaseCatalogInstruction('token', 'instruction-1', {
+      format: 'docx',
+      confirmed: true,
+    });
+    assert.equal(result.purchaseId, 'wp_word');
+    assert.deepEqual(JSON.parse(calls[1].options.body), {
+      instructionId: 'instruction-1',
+      priceMinor: 5000,
+      format: 'docx',
+      confirmed: true,
+    });
+    assert.equal(calls.length, 2);
+    assert.equal(calls[1].url, '/api/account/wallet/purchases');
+  } finally {
+    globalThis.fetch = previous;
+  }
+});
+
+test('already purchased Word is reusable with an empty wallet and never triggers another purchase', async () => {
+  const previous = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls += 1;
+    return jsonResponse({
+      balanceMinor: 0,
+      priceMinor: 5000,
+      purchases: [{ id: 'wp_word', instructionId: 'instruction-1', format: 'docx' }],
+    });
+  };
+  try {
+    const result = await purchaseCatalogInstruction('token', 'instruction-1', {
+      format: 'docx',
+      confirmed: true,
+    });
+    assert.equal(result.kind, 'purchased');
+    assert.equal(result.purchaseId, 'wp_word');
+    assert.equal(calls, 1);
+  } finally {
+    globalThis.fetch = previous;
+  }
+});
+
+test('Word top-up URLs retain document format, instruction and payment identity', () => {
+  const url = new URL(
+    walletPaymentUrl('instruction-1', 'wt_payment', 'docx'),
+    'https://example.test',
+  );
+  assert.equal(url.pathname, '/oplata-instrukcii');
+  assert.equal(url.searchParams.get('format'), 'docx');
+  assert.equal(url.searchParams.get('instruction'), 'instruction-1');
+  assert.equal(url.searchParams.get('topup'), 'wt_payment');
+  assert.equal(walletPaymentUrl('instruction-1'), '/oplata-instrukcii?instruction=instruction-1');
+});
+
+test('Word download rejects a PDF response and malformed attachments', async () => {
+  const previous = globalThis.fetch;
+  try {
+    for (const [body, contentType] of [
+      ['%PDF' + 'a'.repeat(1100), 'application/pdf'],
+      [
+        'invalid'.repeat(200),
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      ],
+    ]) {
+      globalThis.fetch = async () =>
+        new Response(body, { headers: { 'Content-Type': contentType } });
+      await assert.rejects(
+        walletRequest('token', '/purchases/wp_word/docx', { documentFormat: 'docx' }),
+        /Word/,
+      );
+    }
   } finally {
     globalThis.fetch = previous;
   }

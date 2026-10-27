@@ -4,7 +4,7 @@ import {
   walletPaymentUrl,
   downloadPurchasedInstruction,
   WALLET_UPDATED_EVENT,
-} from './wallet-client.js?v=20261016-wallet-v2';
+} from './wallet-client.js?v=word-download';
 import { quotaScheduleCopy } from './wallet-quota-view.js?v=20261020-monthly-quota';
 
 function element(tag, className, text) {
@@ -40,7 +40,7 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
     balance.append(
       element('div', 'wallet-eyebrow', '[ ВАШ БАЛАНС ]'),
       element('div', 'wallet-balance', formatRubles(wallet.balanceMinor)),
-      element('div', 'wallet-muted', 'Одна инструкция из каталога — 50 ₽'),
+      element('div', 'wallet-muted', 'Word — 50 ₽ · PDF — по доступному лимиту'),
     );
     summary.append(balance, link('Пополнить баланс →', walletPaymentUrl(), 'wallet-button'));
     const quotaPanel = element('section', 'account-wallet__quota');
@@ -54,6 +54,8 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
     status.setAttribute('role', 'status');
     const list = element('div', 'account-wallet__list');
     for (const purchase of wallet.purchases) {
+      const format = purchase.format || 'pdf';
+      const label = format === 'docx' ? 'Word' : 'PDF';
       const row = element('article', 'account-wallet__item');
       const info = element('div');
       info.append(
@@ -61,20 +63,27 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
         element(
           'div',
           'wallet-muted',
-          `${formatDate(purchase.createdAt)} · Повторное скачивание бесплатно`,
+          `${label} · ${formatDate(purchase.createdAt)} · Повторное скачивание бесплатно`,
         ),
       );
-      const button = element('button', 'wallet-button wallet-button--secondary', 'Скачать PDF');
+      const button = element(
+        'button',
+        'wallet-button wallet-button--secondary',
+        `Скачать ${label}`,
+      );
       button.type = 'button';
       button.addEventListener('click', async () => {
         if (!current() || downloading) return;
         downloading = true;
         button.disabled = true;
-        button.textContent = 'Готовим PDF…';
+        button.textContent = `Готовим ${label}…`;
         status.textContent = '';
         try {
-          await downloadPurchasedInstruction(token, purchase.id, { signal: lifetime.signal });
-          if (current()) status.textContent = 'PDF готов к сохранению.';
+          await downloadPurchasedInstruction(token, purchase.id, {
+            signal: lifetime.signal,
+            format,
+          });
+          if (current()) status.textContent = `${label} готов к сохранению.`;
         } catch (error) {
           if (current()) {
             if (error.status === 401) onAuthenticationError();
@@ -84,7 +93,7 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
           downloading = false;
           if (current()) {
             button.disabled = false;
-            button.textContent = 'Скачать PDF';
+            button.textContent = `Скачать ${label}`;
           }
         }
       });
@@ -96,7 +105,7 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
         element(
           'p',
           'wallet-muted',
-          'Здесь появятся инструкции, которые вы купите после окончания бесплатных скачиваний.',
+          'Здесь появятся купленные PDF и Word. Повторное скачивание купленного формата бесплатно.',
         ),
       );
     const history = element('details');
@@ -109,7 +118,7 @@ export function mountAccountWallet(root, { getToken, onAuthenticationError }) {
           ? 'Пополнение баланса'
           : item.type === 'refund'
             ? 'Возврат платежа'
-            : item.title;
+            : `${item.title} · ${item.format === 'docx' ? 'Word' : 'PDF'}`;
       row.append(
         element('span', '', `${title} · ${formatDate(item.createdAt)}`),
         element(

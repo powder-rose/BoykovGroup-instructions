@@ -120,11 +120,12 @@ function TopupForm({ busy, topup, balanceMinor, priceMinor }) {
   );
 }
 
-function Checkout({ token, instructionId, topupId }) {
+function Checkout({ token, instructionId, topupId, format }) {
   const { data, busy, notice, pendingId, refresh, topup, checkPayment, buy } = useWalletCheckout(
     token,
     instructionId,
     topupId,
+    format,
   );
   if (!data)
     return (
@@ -139,7 +140,8 @@ function Checkout({ token, instructionId, topupId }) {
     );
   const { wallet, instruction, quota } = data;
   const owned = Boolean(instruction?.purchaseId);
-  const free = !owned && quota.remaining > 0;
+  const label = format === 'docx' ? 'Word' : 'PDF';
+  const free = format === 'pdf' && !owned && quota.remaining > 0;
   const canBuy = instruction && !owned && !free && wallet.balanceMinor >= wallet.priceMinor;
   return (
     <>
@@ -159,11 +161,13 @@ function Checkout({ token, instructionId, topupId }) {
           {instruction ? (
             <>
               <span className="wallet-document-icon" aria-hidden="true">
-                PDF
+                {format === 'docx' ? 'DOCX' : 'PDF'}
               </span>
               <h2>{instruction.title}</h2>
               <p className="wallet-muted">
-                Полный документ с данными вашей компании — готовый к сохранению и печати.
+                {format === 'docx'
+                  ? 'Редактируемый документ с данными вашей компании. Word доступен только платно, независимо от бесплатного лимита PDF.'
+                  : 'Полный документ с данными вашей компании — готовый к сохранению и печати.'}
               </p>
               <div className="wallet-checkout__price">
                 <span>
@@ -195,7 +199,7 @@ function Checkout({ token, instructionId, topupId }) {
                 disabled={Boolean(busy)}
                 onClick={() => void buy()}
               >
-                {busy ? 'Готовим PDF…' : 'Скачать купленный PDF'}
+                {busy ? `Готовим ${label}…` : `Скачать купленный ${label}`}
               </button>
             </>
           )}
@@ -224,7 +228,7 @@ function Checkout({ token, instructionId, topupId }) {
                 disabled={Boolean(busy)}
                 onClick={() => void buy()}
               >
-                {busy === 'purchase' ? 'Готовим инструкцию…' : 'Купить за 50 ₽ и скачать'}
+                {busy === 'purchase' ? 'Готовим инструкцию…' : `Купить ${label} за 50 ₽ и скачать`}
               </button>
             </div>
           )}
@@ -242,7 +246,7 @@ function Checkout({ token, instructionId, topupId }) {
               </button>
             </div>
           )}
-          {(!instruction || (!owned && !free)) && (
+          {(!instruction || (!owned && !free && wallet.balanceMinor < wallet.priceMinor)) && (
             <TopupForm
               busy={busy}
               topup={topup}
@@ -268,8 +272,9 @@ function Checkout({ token, instructionId, topupId }) {
               <div>
                 <strong>Выберите инструкцию</strong>
                 <p>
-                  Когда бесплатные скачивания закончатся, купите нужную инструкцию за 50 ₽ с
-                  баланса.
+                  {format === 'docx'
+                    ? 'Купите Word за 50 ₽ с баланса. Покупка PDF оплачивается отдельно после окончания бесплатного лимита.'
+                    : 'Когда бесплатные скачивания PDF закончатся, купите нужный PDF за 50 ₽ с баланса.'}
                 </p>
               </div>
             </li>
@@ -297,6 +302,7 @@ export default function WalletPaymentPage() {
   const [params] = useSearchParams();
   const instructionId = params.get('instruction') || '';
   const topupId = params.get('topup') || '';
+  const format = params.get('format') === 'docx' ? 'docx' : 'pdf';
   const [query, setQuery] = useState('');
   const [login, setLogin] = useState(false);
   return (
@@ -324,7 +330,11 @@ export default function WalletPaymentPage() {
         <div className="wallet-page__hero">
           <p className="wallet-eyebrow">[ БОЙКОВГРУПП / ДОКУМЕНТЫ ]</p>
           <h1>
-            {instructionId ? 'Нужная инструкция.\nВсего за 50 ₽.' : 'Баланс для ваших\nинструкций.'}
+            {instructionId
+              ? format === 'docx'
+                ? 'Ваша инструкция\nв Word за 50 ₽.'
+                : 'Нужная инструкция.\nВсего за 50 ₽.'
+              : 'Баланс для ваших\nинструкций.'}
           </h1>
           <p>Одна покупка — доступ к документу в любое время.</p>
         </div>
@@ -332,10 +342,11 @@ export default function WalletPaymentPage() {
           <p role="status">Проверяем вход…</p>
         ) : user?.role === 'user' && token ? (
           <Checkout
-            key={`${token}:${instructionId}`}
+            key={`${token}:${instructionId}:${format}`}
             token={token}
             instructionId={instructionId}
             topupId={topupId}
+            format={format}
           />
         ) : (
           <section className="wallet-panel">

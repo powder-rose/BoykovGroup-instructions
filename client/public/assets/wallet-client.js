@@ -16,18 +16,31 @@ export function notifyWalletUpdated(wallet = null) {
   );
 }
 
-export function walletPaymentUrl(instructionId, topupId) {
+function downloadFormat(value = 'pdf') {
+  if (value !== 'pdf' && value !== 'docx') throw new Error('Выберите PDF или Word.');
+  return value;
+}
+
+export function walletPaymentUrl(instructionId, topupId, format = 'pdf') {
   const query = new URLSearchParams();
   if (instructionId) query.set('instruction', instructionId);
   if (topupId) query.set('topup', topupId);
+  if (downloadFormat(format) === 'docx') query.set('format', 'docx');
   return `/oplata-instrukcii${query.size ? `?${query}` : ''}`;
 }
 
 export async function walletRequest(
   token,
   endpoint = '',
-  { baseUrl = '', body, signal, pdf = false } = {},
+  { baseUrl = '', body, signal, pdf = false, documentFormat = null } = {},
 ) {
+  const format = documentFormat ? downloadFormat(documentFormat) : pdf ? 'pdf' : null;
+  const contentType =
+    format === 'docx'
+      ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      : format === 'pdf'
+        ? 'application/pdf'
+        : 'application/json';
   const controller = new AbortController();
   const abort = () => controller.abort();
   if (signal?.aborted) abort();
@@ -40,7 +53,7 @@ export async function walletRequest(
       signal: controller.signal,
       headers: {
         Authorization: `Bearer ${token}`,
-        Accept: pdf ? 'application/pdf' : 'application/json',
+        Accept: contentType,
         ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
       },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
@@ -52,12 +65,15 @@ export async function walletRequest(
         { code: data.code, status: response.status },
       );
     }
-    if (!pdf) return await response.json();
-    if (!response.headers.get('content-type')?.includes('application/pdf'))
-      throw new Error('Не удалось получить PDF. Покупка сохранена в личном кабинете.');
+    if (!format) return await response.json();
+    const label = format === 'docx' ? 'Word' : 'PDF';
+    if (!response.headers.get('content-type')?.includes(contentType))
+      throw new Error(`Не удалось получить ${label}. Покупка сохранена в личном кабинете.`);
     const blob = await response.blob();
-    if (blob.size < 1000 || (await blob.slice(0, 4).text()) !== '%PDF')
-      throw new Error('Не удалось получить PDF. Попробуйте скачать его ещё раз.');
+    const signature = new Uint8Array(await blob.slice(0, 4).arrayBuffer());
+    const expected = format === 'docx' ? [0x50, 0x4b, 0x03, 0x04] : [0x25, 0x50, 0x44, 0x46];
+    if (blob.size < 1000 || expected.some((byte, index) => signature[index] !== byte))
+      throw new Error(`Не удалось получить ${label}. Попробуйте скачать его ещё раз.`);
     return blob;
   } finally {
     clearTimeout(timer);
@@ -66,6 +82,9 @@ export async function walletRequest(
 }
 
 export async function purchaseCatalogInstruction(token, instructionId, options = {}) {
+  const format = downloadFormat(options.format);
+  if (format === 'docx' && options.confirmed !== true)
+    throw new Error('Подтвердите покупку Word за 50 ₽.');
   const wallet = await walletRequest(token, '', options);
   if (
     !Number.isSafeInteger(wallet.balanceMinor) ||
@@ -74,26 +93,39 @@ export async function purchaseCatalogInstruction(token, instructionId, options =
   ) {
     throw new Error('Не удалось проверить стоимость инструкции и баланс.');
   }
+  const owned = wallet.purchases?.find(
+    purchase => purchase.instructionId === instructionId && (purchase.format || 'pdf') === format,
+  );
+  if (owned) return { kind: 'purchased', purchaseId: owned.id, wallet };
   if (wallet.balanceMinor < wallet.priceMinor) return { kind: 'topup', wallet };
 
   const result = await walletRequest(token, '/purchases', {
     ...options,
-    body: { instructionId, priceMinor: wallet.priceMinor },
+    body: {
+      instructionId,
+      priceMinor: wallet.priceMinor,
+      ...(format === 'docx' ? { format, confirmed: true } : {}),
+    },
   });
   if (!result?.purchaseId) throw new Error('Покупка не подтверждена. Проверьте личный кабинет.');
   return { kind: 'purchased', purchaseId: result.purchaseId, wallet: result.wallet };
 }
 
 export async function downloadPurchasedInstruction(token, purchaseId, options = {}) {
-  const blob = await walletRequest(token, `/purchases/${encodeURIComponent(purchaseId)}/pdf`, {
-    ...options,
-    pdf: true,
-  });
+  const format = downloadFormat(options.format);
+  const blob = await walletRequest(
+    token,
+    `/purchases/${encodeURIComponent(purchaseId)}/${format}`,
+    {
+      ...options,
+      documentFormat: format,
+    },
+  );
   if (options.signal?.aborted) return;
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'instruction.pdf';
+  link.download = `instruction.${format}`;
   document.body.append(link);
   link.click();
   link.remove();

@@ -9,12 +9,12 @@ import {
 } from '../../../store/authSlice.js';
 
 import { downloadQuotaFromHeaders } from '../../../lib/downloadQuota.js';
-import { useWalletBalance } from '../../../contexts/WalletBalanceContext.jsx';
 import useDownloadQuota from './useDownloadQuota.js';
 import {
   downloadPurchasedInstruction,
   notifyWalletUpdated,
   purchaseCatalogInstruction,
+  walletRequest,
 } from '../../../../public/assets/wallet-client.js';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
@@ -44,7 +44,8 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
 
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
 
-  const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
+  const [purchaseDialog, setPurchaseDialog] = useState(null);
+  const [activeFormat, setActiveFormat] = useState('pdf');
 
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -54,7 +55,7 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
   const downloadControllerRef = useRef(null);
 
   useEffect(() => {
-    setIsLimitModalOpen(false);
+    setPurchaseDialog(null);
     setIsDownloading(false);
     setMessage(null);
     return () => {
@@ -94,14 +95,10 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
 
   const isUser = user?.role === 'user';
 
-  const { remaining, quotaError, refreshQuota, updateQuota, purchaseId } = useDownloadQuota(
-    token,
-    isCatalogDownload && isUser && !isRestoring,
-    instructionId,
-  );
+  const { remaining, quotaError, refreshQuota, updateQuota, purchaseId, wordPurchaseId } =
+    useDownloadQuota(token, isCatalogDownload && isUser && !isRestoring, instructionId);
 
   const isLimitReached = isCatalogDownload && remaining === 0 && !purchaseId;
-  const { balanceMinor, priceMinor } = useWalletBalance();
 
   async function downloadPdf() {
     if (!instructionId || !token || isDownloading || downloadControllerRef.current) {
@@ -110,6 +107,7 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
 
     const controller = new AbortController();
     downloadControllerRef.current = controller;
+    setActiveFormat('pdf');
     setIsDownloading(true);
 
     try {
@@ -211,10 +209,11 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
     }
   }
 
-  async function buyInstruction() {
+  async function buyInstruction(format) {
     if (!instructionId || !token || downloadControllerRef.current) return;
     const controller = new AbortController();
     downloadControllerRef.current = controller;
+    setActiveFormat(format);
     setIsDownloading(true);
 
     try {
@@ -222,35 +221,54 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
       const result = await purchaseCatalogInstruction(token, instructionId, {
         baseUrl: API_BASE_URL,
         signal: controller.signal,
+        format,
+        confirmed: true,
       });
       if (controller.signal.aborted) return;
       if (result.kind === 'topup') {
         notifyWalletUpdated(result.wallet);
-        setIsLimitModalOpen(true);
+        setPurchaseDialog({ format, wallet: result.wallet });
         return;
       }
 
       // The server makes the purchase idempotent and charges the account at most once.
       notifyWalletUpdated(result.wallet);
+      setPurchaseDialog(null);
       await downloadPurchasedInstruction(token, result.purchaseId, {
         baseUrl: API_BASE_URL,
         signal: controller.signal,
+        format,
       });
       if (!controller.signal.aborted) {
-        showMessage('Инструкция куплена. PDF готов, повторное скачивание бесплатно.', 'success');
+        showMessage(
+          `Инструкция куплена. ${format === 'docx' ? 'Word' : 'PDF'} готов к сохранению.`,
+          'success',
+        );
       }
     } catch (error) {
       if (controller.signal.aborted) return;
       if (error.code === 'INSUFFICIENT_BALANCE') {
-        notifyWalletUpdated();
-        setIsLimitModalOpen(true);
+        try {
+          const wallet = await walletRequest(token, '', {
+            baseUrl: API_BASE_URL,
+            signal: controller.signal,
+          });
+          if (controller.signal.aborted) return;
+          notifyWalletUpdated(wallet);
+          setPurchaseDialog({ format, wallet });
+        } catch {
+          if (!controller.signal.aborted)
+            showMessage('Баланс изменился. Закройте окно и проверьте его ещё раз.');
+        }
         return;
       }
       if (error.code === 'FREE_DOWNLOADS_AVAILABLE') {
+        setPurchaseDialog(null);
         showMessage('У вас ещё есть бесплатное скачивание. Баланс не списан.');
         return;
       }
       console.error('Instruction purchase error:', error);
+      setPurchaseDialog(previous => (previous ? { ...previous, error: error.message } : previous));
       showMessage(error?.message || 'Не удалось купить инструкцию.');
     } finally {
       if (downloadControllerRef.current === controller) {
@@ -261,10 +279,62 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
     }
   }
 
+  async function requestPurchase(format) {
+    if (!instructionId || !token || downloadControllerRef.current) return;
+    const controller = new AbortController();
+    downloadControllerRef.current = controller;
+    setActiveFormat(format);
+    setIsDownloading(true);
+    try {
+      const checkout = await walletRequest(
+        token,
+        `/checkout?instructionId=${encodeURIComponent(instructionId)}&format=${format}`,
+        { baseUrl: API_BASE_URL, signal: controller.signal },
+      );
+      if (controller.signal.aborted) return;
+      if (
+        !Number.isSafeInteger(checkout.wallet?.balanceMinor) ||
+        checkout.wallet?.priceMinor !== 5000
+      )
+        throw new Error('Не удалось проверить стоимость и баланс. Попробуйте ещё раз.');
+      notifyWalletUpdated(checkout.wallet);
+      if (checkout.instruction?.purchaseId) {
+        await downloadPurchasedInstruction(token, checkout.instruction.purchaseId, {
+          baseUrl: API_BASE_URL,
+          signal: controller.signal,
+          format,
+        });
+        if (!controller.signal.aborted)
+          showMessage(`${format === 'docx' ? 'Word' : 'PDF'} готов к сохранению.`, 'success');
+      } else {
+        setPurchaseDialog({ format, wallet: checkout.wallet });
+      }
+    } catch (error) {
+      if (!controller.signal.aborted) showMessage(error.message || 'Не удалось проверить покупку.');
+    } finally {
+      if (downloadControllerRef.current === controller) {
+        downloadControllerRef.current = null;
+        setIsDownloading(false);
+        if (!controller.signal.aborted) void refreshQuota();
+      }
+    }
+  }
+
+  function handleWordClick() {
+    if (isRestoring || isDownloading) return;
+    setActiveFormat('docx');
+    if (!user || !token) {
+      setIsRegistrationOpen(true);
+      return;
+    }
+    if (isUser) void requestPurchase('docx');
+  }
+
   function handleClick() {
     if (isRestoring || isDownloading) {
       return;
     }
+    setActiveFormat('pdf');
 
     if (!user || !token) {
       setIsRegistrationOpen(true);
@@ -273,7 +343,7 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
     }
 
     if (isLimitReached) {
-      void buyInstruction();
+      void requestPurchase('pdf');
       return;
     }
 
@@ -284,8 +354,16 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
 
   return {
     user,
-    isLimitModalOpen,
-    setIsLimitModalOpen,
+    purchaseDialog,
+    closePurchaseDialog: () => {
+      if (!downloadControllerRef.current) setPurchaseDialog(null);
+    },
+    confirmPurchase: () => {
+      if (purchaseDialog) void buyInstruction(purchaseDialog.format);
+    },
+    activeFormat,
+    wordPurchaseId,
+    handleWordClick,
     purchaseId,
     isRestoring,
     isRegistrationOpen,
@@ -294,8 +372,6 @@ export default function useInstructionPdfDownload(instructionId, downloadUrl) {
     message,
     isCatalogDownload,
     isLimitReached,
-    balanceMinor,
-    priceMinor,
     remaining,
     quotaError,
     handleClick,

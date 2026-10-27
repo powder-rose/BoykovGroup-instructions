@@ -35,11 +35,12 @@ export default function useDownloadQuota(token, enabled, instructionId = '') {
           token: key,
           quota,
           purchaseId: typeof data.purchaseId === 'string' ? data.purchaseId : null,
+          wordPurchaseId: typeof data.wordPurchaseId === 'string' ? data.wordPurchaseId : null,
           error: false,
         });
     } catch {
       if (!controller.signal.aborted)
-        setResult({ token: key, quota: null, purchaseId: null, error: true });
+        setResult({ token: key, quota: null, purchaseId: null, wordPurchaseId: null, error: true });
     } finally {
       if (requestRef.current === controller) requestRef.current = null;
     }
@@ -57,6 +58,7 @@ export default function useDownloadQuota(token, enabled, instructionId = '') {
         token: key,
         quota,
         purchaseId: previous.token === key ? previous.purchaseId : null,
+        wordPurchaseId: previous.token === key ? previous.wordPurchaseId : null,
         error: false,
       }));
     },
@@ -88,6 +90,7 @@ export default function useDownloadQuota(token, enabled, instructionId = '') {
   const isCurrentAccount = enabled && result.token === key;
   return {
     purchaseId: isCurrentAccount ? result.purchaseId : null,
+    wordPurchaseId: isCurrentAccount ? result.wordPurchaseId : null,
     remaining: isCurrentAccount ? (result.quota?.remaining ?? null) : null,
     quotaError: isCurrentAccount && result.error,
     refreshQuota,

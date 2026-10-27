@@ -9,7 +9,7 @@ import {
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
 
-export default function useWalletCheckout(token, instructionId, initialTopupId) {
+export default function useWalletCheckout(token, instructionId, initialTopupId, format = 'pdf') {
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState('');
   const [notice, setNotice] = useState(null);
@@ -30,7 +30,7 @@ export default function useWalletCheckout(token, instructionId, initialTopupId) 
     readingRef.current = controller;
     try {
       const result = await api(
-        `/checkout${instructionId ? `?instructionId=${encodeURIComponent(instructionId)}` : ''}`,
+        `/checkout?format=${format}${instructionId ? `&instructionId=${encodeURIComponent(instructionId)}` : ''}`,
         { signal: controller.signal },
       );
       if (!controller.signal.aborted && !lifeRef.current?.signal.aborted) setData(result);
@@ -40,7 +40,7 @@ export default function useWalletCheckout(token, instructionId, initialTopupId) 
         setNotice({ type: 'error', text: error.message });
       return null;
     }
-  }, [api, instructionId]);
+  }, [api, instructionId, format]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -99,18 +99,26 @@ export default function useWalletCheckout(token, instructionId, initialTopupId) 
         notifyWalletUpdated(result.wallet);
         setPendingId('');
         requestRef.current = null;
-        window.history.replaceState(window.history.state, '', walletPaymentUrl(instructionId));
+        window.history.replaceState(
+          window.history.state,
+          '',
+          walletPaymentUrl(instructionId, null, format),
+        );
         setNotice({
           type: 'success',
           text:
             result.topup.creditedMinor > 0
-              ? 'Баланс пополнен. Теперь можно купить инструкцию.'
+              ? `Баланс пополнен. Теперь можно купить ${format === 'docx' ? 'Word' : 'PDF'}.`
               : 'Этот платёж возвращён. Актуальный баланс указан ниже.',
         });
       } else if (result.topup.status === 'declined' || result.topup.status === 'expired') {
         setPendingId('');
         requestRef.current = null;
-        window.history.replaceState(window.history.state, '', walletPaymentUrl(instructionId));
+        window.history.replaceState(
+          window.history.state,
+          '',
+          walletPaymentUrl(instructionId, null, format),
+        );
         setNotice({
           type: 'error',
           text:
@@ -126,7 +134,7 @@ export default function useWalletCheckout(token, instructionId, initialTopupId) 
       }
       return result;
     },
-    [api, instructionId],
+    [api, instructionId, format],
   );
 
   useEffect(() => {
@@ -179,8 +187,10 @@ export default function useWalletCheckout(token, instructionId, initialTopupId) 
         return;
       }
       setPendingId(order.id);
-      const returnUrl = new URL(walletPaymentUrl(instructionId, order.id), window.location.origin)
-        .href;
+      const returnUrl = new URL(
+        walletPaymentUrl(instructionId, order.id, format),
+        window.location.origin,
+      ).href;
       window.history.replaceState(window.history.state, '', returnUrl);
       const widget = new cp.CloudPayments();
       const result = await widget.start({
@@ -211,7 +221,11 @@ export default function useWalletCheckout(token, instructionId, initialTopupId) 
       let purchaseId = data?.instruction?.purchaseId;
       if (!purchaseId) {
         const result = await api('/purchases', {
-          body: { instructionId, priceMinor: data.wallet.priceMinor },
+          body: {
+            instructionId,
+            priceMinor: data.wallet.priceMinor,
+            ...(format === 'docx' ? { format, confirmed: true } : {}),
+          },
         });
         if (lifeRef.current?.signal.aborted) return;
         purchaseId = result.purchaseId;
@@ -226,11 +240,12 @@ export default function useWalletCheckout(token, instructionId, initialTopupId) 
       await downloadPurchasedInstruction(token, purchaseId, {
         baseUrl,
         signal: lifeRef.current?.signal,
+        format,
       });
       if (!lifeRef.current?.signal.aborted)
         setNotice({
           type: 'success',
-          text: 'PDF готов к сохранению. Инструкция также доступна в личном кабинете.',
+          text: `${format === 'docx' ? 'Word' : 'PDF'} готов к сохранению. Инструкция также доступна в личном кабинете.`,
         });
     });
 

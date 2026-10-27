@@ -4,7 +4,7 @@ import usePdfRegistrationModal from './hooks/usePdfRegistrationModal.js';
 
 import './PdfRegistrationModal.css';
 
-export default function PdfRegistrationModal({ onClose }) {
+export default function PdfRegistrationModal({ onClose, format = 'pdf' }) {
   const {
     name,
     setName,
@@ -53,14 +53,18 @@ export default function PdfRegistrationModal({ onClose }) {
           ×
         </button>
 
-        <div className="boykovPdfRegistration__eyebrow">PDF</div>
+        <div className="boykovPdfRegistration__eyebrow">
+          {format === 'docx' ? 'WORD · 50 ₽' : 'PDF'}
+        </div>
 
         <h2 id="boykov-pdf-registration-title" className="boykovPdfRegistration__title">
           Регистрация
         </h2>
 
         <p className="boykovPdfRegistration__description">
-          Зарегистрируйтесь, чтобы скачать инструкцию в PDF.
+          {format === 'docx'
+            ? 'Зарегистрируйтесь, чтобы купить инструкцию в Word за 50 ₽. Списание — только после подтверждения.'
+            : 'Зарегистрируйтесь, чтобы скачать инструкцию в PDF.'}
         </p>
 
         <PdfRegistrationForm

@@ -44,7 +44,16 @@ instructionPdfRouter.get('/download-quota', requirePdfAccess, (req, res) => {
         : downloadQuotaService.get(req.user.sub);
     if (typeof req.query.instructionId === 'string' && req.query.instructionId) {
       const purchase = walletRepository.findPurchase(req.user.sub, req.query.instructionId);
-      return res.json({ ...quota, purchaseId: purchase?.id || null });
+      const wordPurchase = walletRepository.findPurchase(
+        req.user.sub,
+        req.query.instructionId,
+        'docx',
+      );
+      return res.json({
+        ...quota,
+        purchaseId: purchase?.id || null,
+        wordPurchaseId: wordPurchase?.id || null,
+      });
     }
     return res.json(quota);
   } catch (error) {

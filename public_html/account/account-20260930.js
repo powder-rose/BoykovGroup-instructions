@@ -22,7 +22,7 @@
   async function mountWallet(token, requestId) {
     if (!walletRoot) return;
     try {
-      const { mountAccountWallet } = await import('/assets/wallet-account.js?v=20261020-monthly-quota');
+      const { mountAccountWallet } = await import('/assets/wallet-account.js?v=word-download');
       if (requestId !== accountRequestId || getToken() !== token) return;
       walletController = mountAccountWallet(walletRoot, { getToken, onAuthenticationError: () => expireSession(token) });
     } catch {

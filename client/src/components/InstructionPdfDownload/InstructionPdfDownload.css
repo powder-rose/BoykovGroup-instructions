@@ -7,9 +7,71 @@
   flex-direction: column;
   align-items: stretch;
   gap: 12px;
-  width: 320px;
+  width: 520px;
   max-width: 100%;
   margin: 0;
+}
+
+.boykovPdfDownload__formats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.boykovPdfDownload__format {
+  display: flex;
+  flex: 1 1 220px;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.boykovPdfDownload__word {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 13px 18px;
+  border: var(--border-ink);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 3px 3px 0 var(--color-text);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.boykovPdfDownload__price {
+  color: var(--color-primary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.boykovPdfDownload__word:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 5px;
+}
+
+.boykovPdfDownload__word:disabled {
+  opacity: 0.6;
+  box-shadow: none;
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .boykovPdfDownload__word:hover:not(:disabled) {
+    background: var(--color-primary-light);
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--color-text);
+  }
 }
 
 .boykovPdfDownload__button {
@@ -105,12 +167,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .boykovPdfDownload__button {
+  .boykovPdfDownload__button,
+  .boykovPdfDownload__word {
     transition: none;
   }
 
   .boykovPdfDownload__button:hover:not(:disabled),
-  .boykovPdfDownload__button:active:not(:disabled) {
+  .boykovPdfDownload__button:active:not(:disabled),
+  .boykovPdfDownload__word:hover:not(:disabled) {
     transform: none;
   }
 
