@@ -332,6 +332,8 @@ cloudPaymentsWebhookRouter.post(
     updatePublicGenerationOrder(order.id, {
       status: 'paid',
 
+      fiscalPaymentLive: ['false', '0'].includes(String(data.TestMode).toLowerCase()),
+
       transactionId,
 
       paidAt: new Date().toISOString(),

@@ -3,6 +3,9 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { toPublicInstruction } from './instructionPublicView.js';
+import { captureFiscalContext } from './fiscalReceiptPayload.js';
+import { generationFiscalEvents } from './generationFiscalEvents.js';
+import { getUserById } from './userService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -45,11 +48,33 @@ function writeOrder(order) {
     throw new Error('Некорректный ID заказа');
   }
 
-  const tempPath = `${filepath}.${process.pid}.${Date.now()}.tmp`;
+  const tempPath = `${filepath}.${crypto.randomUUID()}.tmp`;
 
-  fs.writeFileSync(tempPath, JSON.stringify(order, null, 2), 'utf8');
-
-  fs.renameSync(tempPath, filepath);
+  let descriptor;
+  try {
+    descriptor = fs.openSync(tempPath, 'wx', 0o600);
+    fs.writeFileSync(descriptor, JSON.stringify(order, null, 2), 'utf8');
+    fs.fsyncSync(descriptor);
+    fs.closeSync(descriptor);
+    descriptor = undefined;
+    fs.renameSync(tempPath, filepath);
+    if (process.platform !== 'win32') {
+      const directory = fs.openSync(ORDERS_DIR, 'r');
+      try {
+        fs.fsyncSync(directory);
+      } finally {
+        fs.closeSync(directory);
+      }
+    }
+  } finally {
+    if (descriptor !== undefined) fs.closeSync(descriptor);
+    try {
+      fs.unlinkSync(tempPath);
+    } catch (error) {
+      if (error.code !== 'ENOENT')
+        console.error('[PublicGenerationOrder] temporary cleanup failed', error.code);
+    }
+  }
 
   return order;
 }
@@ -125,6 +150,8 @@ export function createPublicGenerationOrder(profession, pricing = {}, owner = {}
     ownerUserId: owner?.userId ? String(owner.userId) : null,
 
     ownerEmail: owner?.email ? String(owner.email).trim().toLowerCase() : null,
+
+    fiscalContext: captureFiscalContext(owner),
 
     profession: String(profession ?? '').trim(),
 
@@ -220,7 +247,28 @@ export function updatePublicGenerationOrder(id, patch = {}) {
     updatedAt: new Date().toISOString(),
   };
 
+  if (patch.status === 'paid' && patch.fiscalPaymentLive === true && !updated.fiscalContext) {
+    updated.fiscalContext = captureFiscalContext(() => getUserById(current.ownerUserId));
+  }
+  const fiscalEvents = generationFiscalEvents(updated, patch);
+  if (fiscalEvents.length) updated.fiscalEvents = fiscalEvents;
+
   return writeOrder(updated);
+}
+
+export function listPublicGenerationFiscalEvents() {
+  return fs
+    .readdirSync(ORDERS_DIR)
+    .filter(name => name.endsWith('.json'))
+    .flatMap(name => {
+      try {
+        const order = JSON.parse(fs.readFileSync(path.join(ORDERS_DIR, name), 'utf8'));
+        return order.fiscalEvents || [];
+      } catch {
+        console.error('[FiscalReceipt] generation source unavailable', name);
+        return [];
+      }
+    });
 }
 
 function safeTokenEqual(first, second) {

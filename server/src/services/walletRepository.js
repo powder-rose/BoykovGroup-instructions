@@ -3,6 +3,7 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { acquireFileLeaseLock, releaseFileLeaseLock } from '../utils/fileLeaseLock.js';
+import { createFiscalEvent } from './fiscalReceiptPayload.js';
 import {
   INSTRUCTION_PRICE_MINOR,
   MAX_TOPUP_MINOR,
@@ -239,6 +240,18 @@ export function createWalletRepository({ file = DEFAULT_FILE, io = fs } = {}) {
     listAdminPurchases() {
       return read(state => state.purchases.map(purchaseView));
     },
+    listFiscalEvents() {
+      if (!io.existsSync(file)) return [];
+      return read(state =>
+        [
+          ...state.payments.map(row => row.fiscalEvent),
+          ...state.refunds
+            .filter(row => state.payments.some(payment => payment.id === row.paymentId))
+            .map(row => row.fiscalEvent),
+          ...state.purchases.map(row => row.fiscalEvent),
+        ].filter(Boolean),
+      );
+    },
     getView(userId) {
       return read(state => ({
         currency: WALLET_CURRENCY,
@@ -298,7 +311,7 @@ export function createWalletRepository({ file = DEFAULT_FILE, io = fs } = {}) {
         return order ? orderView(state, order) : null;
       });
     },
-    createTopup({ userId, amountMinor, requestId, publicId, consent }) {
+    createTopup({ userId, amountMinor, requestId, publicId, consent, fiscalContext }) {
       validateTopupAmount(amountMinor);
       if (typeof requestId !== 'string' || !/^[a-zA-Z0-9_-]{16,80}$/u.test(requestId))
         throw walletError('INVALID_REQUEST_ID', 'Обновите страницу и повторите попытку.');
@@ -319,13 +332,14 @@ export function createWalletRepository({ file = DEFAULT_FILE, io = fs } = {}) {
           requestId,
           publicId,
           consent,
+          ...(fiscalContext ? { fiscalContext } : {}),
           createdAt: now(),
         };
         state.topups.push(order);
         return { changed: true, value: order };
       });
     },
-    credit({ orderId, transactionId }) {
+    credit({ orderId, transactionId, fiscalContext }) {
       return transaction(state => {
         const order = state.topups.find(row => row.id === orderId);
         assertState(order);
@@ -334,13 +348,34 @@ export function createWalletRepository({ file = DEFAULT_FILE, io = fs } = {}) {
           assertState(existing.orderId === orderId);
           return { value: orderView(state, order) };
         }
-        state.payments.push({
+        if (!order.fiscalContext && fiscalContext) {
+          const context = typeof fiscalContext === 'function' ? fiscalContext() : fiscalContext;
+          if (context) order.fiscalContext = context;
+        }
+        const payment = {
           id: transactionId,
           orderId,
           userId: order.userId,
           amountMinor: order.amountMinor,
           createdAt: now(),
-        });
+        };
+        if (order.fiscalContext) {
+          payment.fiscalEvent = createFiscalEvent({
+            kind: 'wallet-advance',
+            context: order.fiscalContext,
+            sourceId: transactionId,
+            invoiceId: order.id,
+            amountMinor: order.amountMinor,
+            transactionId,
+            createdAt: payment.createdAt,
+            title: 'Аванс на услуги предоставления инструкций БОЙКОВГРУПП',
+          });
+          // A signed Refund can arrive before Pay. Only a verified credit releases both receipts.
+          for (const refund of state.refunds.filter(row => row.paymentId === transactionId)) {
+            refund.fiscalEvent = refundEvent(order, refund, payment);
+          }
+        }
+        state.payments.push(payment);
         return { changed: true, value: orderView(state, order) };
       });
     },
@@ -357,14 +392,27 @@ export function createWalletRepository({ file = DEFAULT_FILE, io = fs } = {}) {
           );
           return { value: true };
         }
-        state.refunds.push({
+        const refund = {
           id: transactionId,
           paymentId: originalTransactionId,
           orderId,
           userId: order.userId,
           amountMinor,
           createdAt: now(),
-        });
+        };
+        if (order.fiscalContext)
+          refund.fiscalEvent = refundEvent(
+            order,
+            refund,
+            state.payments.find(row => row.id === originalTransactionId),
+          );
+        if (
+          refund.fiscalEvent &&
+          state.payments.some(row => row.id === originalTransactionId) &&
+          balance(state, order.userId) < amountMinor
+        )
+          refund.fiscalEvent.reviewReason = 'SPENT_ADVANCE_REFUND';
+        state.refunds.push(refund);
         return { changed: true, value: true };
       });
     },
@@ -376,7 +424,7 @@ export function createWalletRepository({ file = DEFAULT_FILE, io = fs } = {}) {
         state => state.purchases.find(row => row.id === id && row.userId === userId) || null,
       );
     },
-    purchase({ userId, instructionId, instruction, format = 'pdf' }) {
+    purchase({ userId, instructionId, instruction, format = 'pdf', fiscalContext }) {
       normalizePurchaseFormat(format);
       return transaction(state => {
         const existing = findPurchase(state, userId, instructionId, format);
@@ -393,11 +441,38 @@ export function createWalletRepository({ file = DEFAULT_FILE, io = fs } = {}) {
           amountMinor: INSTRUCTION_PRICE_MINOR,
           createdAt: now(),
         };
+        if (fiscalContext)
+          purchase.fiscalEvent = createFiscalEvent({
+            kind: 'wallet-settlement',
+            context: fiscalContext,
+            sourceId: purchase.id,
+            invoiceId: purchase.id,
+            amountMinor: purchase.amountMinor,
+            createdAt: purchase.createdAt,
+            title: `${format === 'docx' ? 'Word' : 'PDF'}: ${purchase.title}`,
+            dependsOn: state.payments
+              .filter(row => row.userId === userId && row.fiscalEvent)
+              .map(row => row.fiscalEvent.id),
+          });
         state.purchases.push(purchase);
         return { changed: true, value: purchaseView(purchase) };
       });
     },
   };
+}
+
+function refundEvent(order, refund, payment) {
+  return createFiscalEvent({
+    kind: 'wallet-refund',
+    context: order.fiscalContext,
+    sourceId: refund.id,
+    invoiceId: order.id,
+    amountMinor: refund.amountMinor,
+    transactionId: refund.id,
+    createdAt: refund.createdAt,
+    title: 'Возврат аванса на услуги предоставления инструкций БОЙКОВГРУПП',
+    dependsOn: payment?.fiscalEvent ? [payment.fiscalEvent.id] : [],
+  });
 }
 
 export const walletRepository = createWalletRepository();
