@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import PDFDocument from 'pdfkit';
 import { richTextToPlainText } from '../shared/instructionDocument.js';
+import { instructionBodyText } from './instructionDownloadText.js';
 import {
   renderInstructionCompanyHeader,
   renderInstructionCompanySignature,
@@ -61,17 +62,6 @@ function findFont(candidates) {
 function normalizeText(value) {
   return String(value ?? '')
     .replace(/\r\n?/g, '\n')
-    .trim();
-}
-
-// Remove only the generic sentence from PDF output, including wrapped or
-// formatted copies. Stored instructions and substantive wording stay intact.
-function instructionBodyText(value) {
-  return normalizeText(value)
-    .replace(
-      /(?<![\p{L}\p{N}_])Настоящая\s+инструкция\s+устанавливает\s+требования\s+безопасности\s+при\s+выполнении\s+работ\.[ \t]*/giu,
-      '',
-    )
     .trim();
 }
 

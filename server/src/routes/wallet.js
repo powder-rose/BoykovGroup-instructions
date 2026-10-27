@@ -1,11 +1,15 @@
 import { Router } from 'express';
 import { getUserById } from '../services/userService.js';
-import { walletRepository } from '../services/walletRepository.js';
+import { normalizePurchaseFormat, walletRepository } from '../services/walletRepository.js';
 import { walletPaymentService } from '../services/walletPaymentService.js';
 import { downloadQuotaService } from '../services/downloadQuotaService.js';
 import { instructionsRepository } from '../services/instructionsRepository.js';
 import { toPublicInstruction } from '../services/instructionPublicView.js';
 import { createInstructionPdfBuffer } from '../services/instructionPdfService.js';
+import {
+  createInstructionDocxBuffer,
+  DOCX_CONTENT_TYPE,
+} from '../services/instructionDocxService.js';
 import { getInstructionPdfCompanyProfile } from '../services/instructionPdfProfile.js';
 import { recordInstructionDownload } from '../services/downloadStatsService.js';
 import { INSTRUCTION_PRICE_MINOR, walletError } from '../services/walletMoney.js';
@@ -17,6 +21,7 @@ export function createWalletRouter({
   quotas = downloadQuotaService,
   instructions = instructionsRepository,
   generatePdf = createInstructionPdfBuffer,
+  generateDocx = createInstructionDocxBuffer,
   profileLookup = getInstructionPdfCompanyProfile,
   recordDownload = recordInstructionDownload,
 } = {}) {
@@ -51,16 +56,17 @@ export function createWalletRouter({
     run((req, res) => {
       const userId = req.walletUser.id;
       const instructionId = String(req.query.instructionId || '');
-      const owned = instructionId ? store.findPurchase(userId, instructionId) : null;
+      const format = normalizePurchaseFormat(req.query.format);
+      const owned = instructionId ? store.findPurchase(userId, instructionId, format) : null;
       const instruction =
         owned?.instruction || (instructionId ? instructions.getById(instructionId) : null);
       if (instructionId && !instruction)
         throw walletError('INSTRUCTION_NOT_FOUND', 'Инструкция не найдена.', 404);
       res.json({
         wallet: store.getView(userId),
-        quota: quotas.get(userId),
+        quota: format === 'pdf' ? quotas.get(userId) : null,
         instruction: instruction
-          ? { id: instructionId, title: instruction.title, purchaseId: owned?.id || null }
+          ? { id: instructionId, title: instruction.title, purchaseId: owned?.id || null, format }
           : null,
       });
     }),
@@ -119,11 +125,24 @@ export function createWalletRouter({
     }),
   );
 
-  async function preparePdf(req, instruction) {
-    const pdf = await generatePdf(instruction, { companyProfile: profileLookup(req.user) });
-    if (!Buffer.isBuffer(pdf) || pdf.length < 1000 || pdf.subarray(0, 4).toString() !== '%PDF')
-      throw walletError('PDF_UNAVAILABLE', 'Не удалось сформировать PDF. Попробуйте ещё раз.', 503);
-    return pdf;
+  async function prepareDocument(req, instruction, format) {
+    const generate = format === 'docx' ? generateDocx : generatePdf;
+    const buffer = await generate(instruction, { companyProfile: profileLookup(req.user) });
+    const valid =
+      Buffer.isBuffer(buffer) &&
+      buffer.length >= 1000 &&
+      (format === 'docx'
+        ? buffer.subarray(0, 4).equals(Buffer.from([0x50, 0x4b, 0x03, 0x04])) &&
+          buffer.includes(Buffer.from('word/document.xml')) &&
+          buffer.includes(Buffer.from('[Content_Types].xml'))
+        : buffer.subarray(0, 4).toString() === '%PDF');
+    if (!valid)
+      throw walletError(
+        format === 'docx' ? 'DOCX_UNAVAILABLE' : 'PDF_UNAVAILABLE',
+        `Не удалось сформировать ${format === 'docx' ? 'Word' : 'PDF'}. Попробуйте ещё раз.`,
+        503,
+      );
+    return buffer;
   }
 
   router.post(
@@ -131,12 +150,15 @@ export function createWalletRouter({
     run(async (req, res) => {
       if (req.body?.priceMinor !== INSTRUCTION_PRICE_MINOR)
         throw walletError('PRICE_CONFIRMATION_REQUIRED', 'Подтвердите покупку за 50 ₽.');
+      const format = normalizePurchaseFormat(req.body?.format);
+      if (format === 'docx' && req.body?.confirmed !== true)
+        throw walletError('PURCHASE_CONFIRMATION_REQUIRED', 'Подтвердите покупку Word за 50 ₽.');
       const instructionId =
         typeof req.body.instructionId === 'string' ? req.body.instructionId : '';
-      const existing = store.findPurchase(req.walletUser.id, instructionId);
+      const existing = store.findPurchase(req.walletUser.id, instructionId, format);
       if (existing)
         return res.json({ purchaseId: existing.id, wallet: store.getView(req.walletUser.id) });
-      if (quotas.get(req.walletUser.id).remaining > 0)
+      if (format === 'pdf' && quotas.get(req.walletUser.id).remaining > 0)
         throw walletError(
           'FREE_DOWNLOADS_AVAILABLE',
           'У вас ещё есть бесплатные скачивания. Откройте инструкцию и скачайте PDF бесплатно.',
@@ -148,31 +170,35 @@ export function createWalletRouter({
       if (store.getView(req.walletUser.id).balanceMinor < INSTRUCTION_PRICE_MINOR)
         throw walletError('INSUFFICIENT_BALANCE', 'Для покупки нужно 50 ₽ на балансе.', 409);
       // Expensive work stays outside the short file transaction. A broken PDF cannot spend money.
-      await preparePdf(req, snapshot);
+      await prepareDocument(req, snapshot, format);
       if (res.destroyed) return;
       const purchase = store.purchase({
         userId: req.walletUser.id,
         instructionId,
         instruction: snapshot,
+        format,
       });
       res.json({ purchaseId: purchase.id, wallet: store.getView(req.walletUser.id) });
     }),
   );
   router.get(
-    '/purchases/:id/pdf',
+    '/purchases/:id/:format(pdf|docx)',
     run(async (req, res) => {
       const purchase = store.getPurchase(req.walletUser.id, req.params.id);
-      if (!purchase) throw walletError('PURCHASE_NOT_FOUND', 'Покупка не найдена.', 404);
-      if (req.method === 'HEAD') return res.type('application/pdf').end();
-      const pdf = await preparePdf(req, purchase.instruction);
+      const format = req.params.format;
+      if (!purchase || (purchase.format ?? 'pdf') !== format)
+        throw walletError('PURCHASE_NOT_FOUND', 'Покупка не найдена.', 404);
+      const contentType = format === 'docx' ? DOCX_CONTENT_TYPE : 'application/pdf';
+      if (req.method === 'HEAD') return res.type(contentType).end();
+      const document = await prepareDocument(req, purchase.instruction, format);
       delete req.headers['if-none-match'];
       delete req.headers['if-modified-since'];
-      res.set('Content-Disposition', 'attachment; filename="instruction.pdf"');
+      res.set('Content-Disposition', `attachment; filename="instruction.${format}"`);
       res.set('X-Content-Type-Options', 'nosniff');
       res.once('finish', () => {
         if (
           res.statusCode !== 200 ||
-          !String(res.getHeader('content-type') || '').includes('application/pdf')
+          !String(res.getHeader('content-type') || '').includes(contentType)
         )
           return;
         try {
@@ -183,10 +209,10 @@ export function createWalletRouter({
             kind: 'paid',
           });
         } catch (error) {
-          console.error('Paid PDF download stats error:', error);
+          console.error('Paid instruction download stats error:', error);
         }
       });
-      res.type('application/pdf').send(pdf);
+      res.type(contentType).send(document);
     }),
   );
   router.use((error, _req, res, _next) => {

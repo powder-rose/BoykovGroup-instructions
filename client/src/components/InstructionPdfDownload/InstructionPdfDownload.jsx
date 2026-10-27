@@ -12,8 +12,12 @@ export default function InstructionPdfDownload({
 }) {
   const {
     user,
-    isLimitModalOpen,
-    setIsLimitModalOpen,
+    purchaseDialog,
+    closePurchaseDialog,
+    confirmPurchase,
+    activeFormat,
+    wordPurchaseId,
+    handleWordClick,
     purchaseId,
     isRestoring,
     isRegistrationOpen,
@@ -22,8 +26,6 @@ export default function InstructionPdfDownload({
     message,
     isCatalogDownload,
     isLimitReached,
-    balanceMinor,
-    priceMinor,
     remaining,
     quotaError,
     handleClick,
@@ -31,11 +33,12 @@ export default function InstructionPdfDownload({
 
   if (!instructionId) return null;
 
-  const buttonText = isDownloading
-    ? 'Обрабатываем запрос…'
-    : isLimitReached
-      ? 'Купить инструкцию'
-      : 'Скачать PDF';
+  const buttonText =
+    isDownloading && activeFormat === 'pdf'
+      ? 'Обрабатываем запрос…'
+      : isLimitReached
+        ? 'Купить инструкцию'
+        : 'Скачать PDF';
 
   let statusText = '';
   if (isCatalogDownload) {
@@ -44,12 +47,7 @@ export default function InstructionPdfDownload({
     else if (purchaseId) statusText = 'Инструкция куплена. Повторное скачивание бесплатно';
     else if (quotaError) statusText = 'Не удалось проверить остаток скачиваний';
     else if (remaining === null) statusText = 'Проверяем доступные инструкции…';
-    else if (isLimitReached && priceMinor && balanceMinor !== null) {
-      statusText =
-        balanceMinor >= priceMinor
-          ? 'Стоимость 50 ₽ · спишем с баланса, без перехода к оплате'
-          : 'Стоимость 50 ₽ · если денег не хватает, предложим пополнение';
-    } else if (isLimitReached) statusText = 'Стоимость 50 ₽ · проверим баланс перед покупкой';
+    else if (isLimitReached) statusText = 'PDF за 50 ₽ · покупка после подтверждения';
     else statusText = formatAvailableInstructions(remaining);
   }
 
@@ -57,43 +55,79 @@ export default function InstructionPdfDownload({
     <>
       <div
         id={id}
-        className={['boykovPdfDownload', isDownloading ? 'boykovPdfDownload--loading' : '']
+        className={[
+          'boykovPdfDownload',
+          isDownloading && activeFormat === 'pdf' ? 'boykovPdfDownload--loading' : '',
+        ]
           .filter(Boolean)
           .join(' ')}
       >
-        <button
-          type="button"
-          className="boykovPdfDownload__button"
-          disabled={isRestoring || isDownloading}
-          aria-busy={isDownloading}
-          aria-describedby={statusText ? `${id}-status` : undefined}
-          onClick={handleClick}
-        >
-          <span className="boykovPdfDownload__badge" aria-hidden="true" />
-          <span className="boykovPdfDownload__text">{buttonText}</span>
-        </button>
+        <div className="boykovPdfDownload__formats">
+          <div className="boykovPdfDownload__format">
+            <button
+              type="button"
+              className="boykovPdfDownload__button"
+              disabled={isRestoring || isDownloading}
+              aria-busy={isDownloading && activeFormat === 'pdf'}
+              aria-describedby={statusText ? `${id}-status` : undefined}
+              onClick={handleClick}
+            >
+              <span className="boykovPdfDownload__badge" aria-hidden="true" />
+              <span className="boykovPdfDownload__text">{buttonText}</span>
+            </button>
 
-        {statusText && (
-          <span
-            id={`${id}-status`}
-            className="boykovPdfDownload__status"
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            {statusText}
-          </span>
-        )}
+            {statusText && (
+              <span
+                id={`${id}-status`}
+                className="boykovPdfDownload__status"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+              >
+                {statusText}
+              </span>
+            )}
+          </div>
+          {!downloadUrl && user?.role !== 'admin' && (
+            <div className="boykovPdfDownload__format">
+              <button
+                type="button"
+                className="boykovPdfDownload__word"
+                disabled={isRestoring || isDownloading}
+                aria-busy={isDownloading && activeFormat === 'docx'}
+                aria-describedby={`${id}-word-status`}
+                onClick={handleWordClick}
+              >
+                <span>
+                  {isDownloading && activeFormat === 'docx' ? 'Готовим Word…' : 'Скачать Word'}
+                </span>
+                {!wordPurchaseId && <span className="boykovPdfDownload__price">50 ₽</span>}
+              </button>
+              <span id={`${id}-word-status`} className="boykovPdfDownload__status">
+                {wordPurchaseId
+                  ? 'Word куплен. Повторное скачивание бесплатно'
+                  : 'Редактируемый DOCX · только платно'}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {isLimitModalOpen && (
+      {purchaseDialog && (
         <DownloadLimitModal
           instructionId={instructionId}
-          onClose={() => setIsLimitModalOpen(false)}
+          format={purchaseDialog.format}
+          wallet={purchaseDialog.wallet}
+          busy={isDownloading}
+          error={purchaseDialog.error}
+          onConfirm={confirmPurchase}
+          onClose={closePurchaseDialog}
         />
       )}
 
-      {isRegistrationOpen && <PdfRegistrationModal onClose={() => setRegistrationOpen(false)} />}
+      {isRegistrationOpen && (
+        <PdfRegistrationModal format={activeFormat} onClose={() => setRegistrationOpen(false)} />
+      )}
 
       {message && (
         <div className={`boykovPdfMessage boykovPdfMessage--${message.type}`} role="status">

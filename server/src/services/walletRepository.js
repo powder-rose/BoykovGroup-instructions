@@ -17,6 +17,12 @@ const nonempty = value => typeof value === 'string' && value.length > 0;
 const positive = value => Number.isSafeInteger(value) && value > 0;
 const now = () => new Date().toISOString();
 
+export function normalizePurchaseFormat(format = 'pdf') {
+  if (format !== 'pdf' && format !== 'docx')
+    throw walletError('INVALID_FORMAT', 'Выберите PDF или Word.', 400);
+  return format;
+}
+
 function assertState(condition) {
   if (!condition)
     throw walletError('WALLET_UNAVAILABLE', 'Не удалось прочитать баланс. Попробуйте позже.', 503);
@@ -86,6 +92,8 @@ function validateState(state) {
   }
   const owned = new Set();
   for (const purchase of state.purchases) {
+    const format = purchase.format === undefined ? 'pdf' : purchase.format;
+    assertState(format === 'pdf' || format === 'docx');
     assertState(
       nonempty(purchase.userId) && nonempty(purchase.instructionId) && nonempty(purchase.title),
     );
@@ -94,7 +102,7 @@ function validateState(state) {
         purchase.instruction &&
         typeof purchase.instruction === 'object',
     );
-    const key = JSON.stringify([purchase.userId, purchase.instructionId]);
+    const key = JSON.stringify([purchase.userId, purchase.instructionId, format]);
     assertState(!owned.has(key));
     owned.add(key);
   }
@@ -115,8 +123,8 @@ function balance(state, userId) {
   return value;
 }
 
-function purchaseView({ id, instructionId, title, amountMinor, createdAt }) {
-  return { id, instructionId, title, amountMinor, createdAt };
+function purchaseView({ id, instructionId, title, amountMinor, createdAt, format = 'pdf' }) {
+  return { id, instructionId, title, amountMinor, createdAt, format };
 }
 
 function orderView(state, order) {
@@ -219,12 +227,22 @@ export function createWalletRepository({ file = DEFAULT_FILE, io = fs } = {}) {
   }
 
   const read = action => transaction(state => ({ value: action(state) }));
-  const findPurchase = (state, userId, instructionId) =>
-    state.purchases.find(row => row.userId === userId && row.instructionId === instructionId);
+  const findPurchase = (state, userId, instructionId, format = 'pdf') =>
+    state.purchases.find(
+      row =>
+        row.userId === userId &&
+        row.instructionId === instructionId &&
+        (row.format ?? 'pdf') === format,
+    );
 
   return {
     listAdminPurchases() {
-      return read(state => state.purchases.map(purchaseView));
+      return read(state =>
+        state.purchases.map(row => {
+          const { format: _format, ...view } = purchaseView(row);
+          return view;
+        }),
+      );
     },
     getView(userId) {
       return read(state => ({
@@ -267,6 +285,7 @@ export function createWalletRepository({ file = DEFAULT_FILE, io = fs } = {}) {
               id: row.id,
               type: 'purchase',
               title: row.title,
+              format: row.format ?? 'pdf',
               amountMinor: -row.amountMinor,
               createdAt: row.createdAt,
             })),
@@ -354,17 +373,18 @@ export function createWalletRepository({ file = DEFAULT_FILE, io = fs } = {}) {
         return { changed: true, value: true };
       });
     },
-    findPurchase(userId, instructionId) {
-      return read(state => findPurchase(state, userId, instructionId) || null);
+    findPurchase(userId, instructionId, format = 'pdf') {
+      return read(state => findPurchase(state, userId, instructionId, format) || null);
     },
     getPurchase(userId, id) {
       return read(
         state => state.purchases.find(row => row.id === id && row.userId === userId) || null,
       );
     },
-    purchase({ userId, instructionId, instruction }) {
+    purchase({ userId, instructionId, instruction, format = 'pdf' }) {
+      normalizePurchaseFormat(format);
       return transaction(state => {
-        const existing = findPurchase(state, userId, instructionId);
+        const existing = findPurchase(state, userId, instructionId, format);
         if (existing) return { value: purchaseView(existing) };
         if (balance(state, userId) < INSTRUCTION_PRICE_MINOR)
           throw walletError('INSUFFICIENT_BALANCE', 'Для покупки нужно 50 ₽ на балансе.', 409);
@@ -373,6 +393,7 @@ export function createWalletRepository({ file = DEFAULT_FILE, io = fs } = {}) {
           userId,
           instructionId,
           instruction,
+          format,
           title: instruction.title || 'Инструкция по охране труда',
           amountMinor: INSTRUCTION_PRICE_MINOR,
           createdAt: now(),
