@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 export default function useAdminCommerceStats(token) {
   const [period, setPeriod] = useState('total');
+  const [purchaseFormat, setPurchaseFormat] = useState('all');
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -18,7 +19,7 @@ export default function useAdminCommerceStats(token) {
       if (!silent) setLoading(true);
       try {
         const response = await fetch(
-          `/api/admin/commerce-stats?period=${encodeURIComponent(period)}`,
+          `/api/admin/commerce-stats?period=${encodeURIComponent(period)}&format=${encodeURIComponent(purchaseFormat)}`,
           {
             headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' },
             cache: 'no-store',
@@ -53,7 +54,7 @@ export default function useAdminCommerceStats(token) {
       window.removeEventListener('focus', onFocus);
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
-  }, [token, period]);
+  }, [token, period, purchaseFormat]);
 
-  return { period, setPeriod, data, loading, error };
+  return { period, setPeriod, purchaseFormat, setPurchaseFormat, data, loading, error };
 }

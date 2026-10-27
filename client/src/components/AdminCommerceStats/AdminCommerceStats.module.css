@@ -68,6 +68,19 @@
   box-shadow: 0 1px 4px rgba(24, 36, 58, 0.09);
 }
 
+.formatFilters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.filterLabel {
+  color: #78859a;
+  font-size: 12px;
+}
+
 .period:focus-visible,
 .instruction a:focus-visible {
   outline: 2px solid var(--color-primary, #2869d7);

@@ -5,6 +5,11 @@ import { walletRepository } from './walletRepository.js';
 const DAY_MS = 24 * 60 * 60 * 1000;
 const PERIOD_DAYS = { today: 1, '7d': 7, '30d': 30 };
 const PERIODS = new Set(['total', ...Object.keys(PERIOD_DAYS)]);
+const PURCHASE_FORMATS = new Set(['all', 'pdf', 'docx']);
+const emptyFormatTotals = () => ({
+  pdf: { count: 0, amountMinor: 0 },
+  docx: { count: 0, amountMinor: 0 },
+});
 const moscowFormatter = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'Europe/Moscow',
   year: 'numeric',
@@ -50,21 +55,23 @@ function ranking(groups, getInstruction, kind) {
         slug: isPublished ? instruction.slug || instruction.id : null,
         count: group.count,
         ...(kind === 'purchases'
-          ? { amountMinor: group.amountMinor }
+          ? { amountMinor: group.amountMinor, byFormat: group.byFormat }
           : { free: group.free, paid: group.paid, uniqueDownloaders: group.downloaders.size }),
       };
     });
 }
 
-/** A privacy-safe report: no customer IDs, hashes, order objects or PDF snapshots. */
+/** A privacy-safe report: no customer IDs, hashes, order objects or document snapshots. */
 export function summarizeCommerceStats({
   period = 'total',
+  purchaseFormat = 'all',
   purchaseEvents = [],
   downloadEvents = [],
   getInstruction = () => null,
   now = new Date(),
 } = {}) {
   const normalizedPeriod = PERIODS.has(period) ? period : 'total';
+  const normalizedFormat = PURCHASE_FORMATS.has(purchaseFormat) ? purchaseFormat : 'all';
   const nowTimestamp = new Date(now).getTime();
   if (!Number.isFinite(nowTimestamp)) throw new TypeError('Invalid report date');
   const allowedDays =
@@ -81,29 +88,39 @@ export function summarizeCommerceStats({
   };
 
   const purchaseGroups = new Map();
+  const byFormat = emptyFormatTotals();
   let purchaseCount = 0;
   let purchaseAmountMinor = 0;
   for (const purchase of purchaseEvents) {
     const id = purchase?.instructionId;
     const amount = purchase?.amountMinor;
+    // Purchases made before format support were PDF purchases.
+    const format = purchase?.format === undefined ? 'pdf' : purchase.format;
     if (
       typeof id !== 'string' ||
       !id ||
       !Number.isSafeInteger(amount) ||
       amount <= 0 ||
+      (format !== 'pdf' && format !== 'docx') ||
+      (normalizedFormat !== 'all' && format !== normalizedFormat) ||
       !inPeriod(purchase.createdAt)
     )
       continue;
     purchaseCount += 1;
     purchaseAmountMinor += amount;
+    byFormat[format].count += 1;
+    byFormat[format].amountMinor += amount;
     const group = purchaseGroups.get(id) || {
       id,
       title: safeTitle(purchase.title, id),
       count: 0,
       amountMinor: 0,
+      byFormat: emptyFormatTotals(),
     };
     group.count += 1;
     group.amountMinor += amount;
+    group.byFormat[format].count += 1;
+    group.byFormat[format].amountMinor += amount;
     purchaseGroups.set(id, group);
   }
 
@@ -144,12 +161,14 @@ export function summarizeCommerceStats({
 
   return {
     period: normalizedPeriod,
+    purchaseFormat: normalizedFormat,
     generatedAt: new Date(nowTimestamp).toISOString(),
     purchases: {
       count: purchaseCount,
       amountMinor: purchaseAmountMinor,
       uniqueInstructions: purchaseGroups.size,
       averageMinor: purchaseCount ? Math.round(purchaseAmountMinor / purchaseCount) : 0,
+      byFormat,
       items: ranking(purchaseGroups, getInstruction, 'purchases'),
     },
     downloads: {
@@ -163,7 +182,7 @@ export function summarizeCommerceStats({
   };
 }
 
-export function getCommerceStats({ period = 'total' } = {}) {
+export function getCommerceStats({ period = 'total', purchaseFormat = 'all' } = {}) {
   let downloadEvents;
   try {
     downloadEvents = readDownloadEvents();
@@ -173,6 +192,7 @@ export function getCommerceStats({ period = 'total' } = {}) {
   }
   return summarizeCommerceStats({
     period,
+    purchaseFormat,
     purchaseEvents: walletRepository.listAdminPurchases(),
     downloadEvents,
     getInstruction: id => instructionsRepository.getById(id),
