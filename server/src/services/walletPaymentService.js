@@ -4,6 +4,8 @@ import {
   findCloudPaymentsTransaction,
 } from './cloudPaymentsApiService.js';
 import { paymentId, rublesToMinor, walletError } from './walletMoney.js';
+import { captureFiscalContext } from './fiscalReceiptPayload.js';
+import { getUserById } from './userService.js';
 
 function isLive(value) {
   return value === false || value === 0 || value === '0' || value === 'false';
@@ -23,6 +25,7 @@ export function createWalletPaymentService({
   store = walletRepository,
   lookup = getCloudPaymentsTransaction,
   find = findCloudPaymentsTransaction,
+  userLookup = getUserById,
 } = {}) {
   function requireOrder(id) {
     const order = store.getOrder(id);
@@ -68,7 +71,12 @@ export function createWalletPaymentService({
       }
       // A signed test notification is acknowledged without creating spendable funds.
       if (!isLive(data.TestMode)) return null;
-      return store.credit({ orderId: order.id, transactionId: paymentId(data.TransactionId) });
+      return store.credit({
+        orderId: order.id,
+        transactionId: paymentId(data.TransactionId),
+        fiscalContext: () =>
+          order.fiscalContext || captureFiscalContext(() => userLookup(order.userId)),
+      });
     },
     async confirm(userId, orderId, transactionId) {
       const order = requireOrder(orderId);
@@ -89,9 +97,15 @@ export function createWalletPaymentService({
       if (data.Status === 'Declined' || data.Status === 'Cancelled')
         return { ...current, status: 'declined' };
       if (data.Status !== 'Completed') return current;
-      return store.credit({ orderId, transactionId: paymentId(data.TransactionId) });
+      return store.credit({
+        orderId,
+        transactionId: paymentId(data.TransactionId),
+        fiscalContext: () =>
+          order.fiscalContext || captureFiscalContext(() => userLookup(order.userId)),
+      });
     },
     refund(data) {
+      if (data.TestMode !== undefined && !isLive(data.TestMode)) return null;
       const order = requireOrder(String(data.InvoiceId ?? ''));
       const amountMinor = rublesToMinor(data.Amount);
       if (

@@ -27,6 +27,8 @@ import {
 } from './services/publicPaidGenerationService.js';
 
 import { isYandexGptConfigured } from './services/yandexGptService.js';
+import { getFiscalConfiguration } from './services/fiscalReceiptPayload.js';
+import { fiscalReceiptWorker } from './services/fiscalReceiptService.js';
 
 /*
  * SECURITY_BOOTSTRAP
@@ -36,6 +38,7 @@ import { isYandexGptConfigured } from './services/yandexGptService.js';
  */
 try {
   assertJwtConfiguration();
+  getFiscalConfiguration();
 } catch (error) {
   console.error(`[Startup] ${error?.message || 'Invalid JWT configuration'}`);
 
@@ -96,6 +99,7 @@ const server = app.listen(PORT, () => {
   stopDailySiteStatsEmailJob = startDailySiteStatsEmailJob();
 
   startCompanyProfileNotificationWorker();
+  fiscalReceiptWorker.start();
 });
 
 const shutdown = createGracefulShutdown({
@@ -104,6 +108,7 @@ const shutdown = createGracefulShutdown({
   timeoutMs: shutdownTimeoutMs,
 
   cleanup: [
+    () => fiscalReceiptWorker.stop(),
     () => {
       clearInterval(publicGenerationRecoveryTimer);
     },

@@ -494,6 +494,8 @@ publicGenerationRouter.post(
     updatePublicGenerationOrder(order.id, {
       status: 'paid',
 
+      fiscalPaymentLive: transaction.TestMode === false,
+
       transactionId,
 
       paidAt,

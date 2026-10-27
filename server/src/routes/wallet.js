@@ -13,6 +13,7 @@ import {
 import { getInstructionPdfCompanyProfile } from '../services/instructionPdfProfile.js';
 import { recordInstructionDownload } from '../services/downloadStatsService.js';
 import { INSTRUCTION_PRICE_MINOR, walletError } from '../services/walletMoney.js';
+import { captureFiscalContext } from '../services/fiscalReceiptPayload.js';
 
 export function createWalletRouter({
   userLookup = getUserById,
@@ -102,6 +103,7 @@ export function createWalletRouter({
           ip: req.ip,
           userAgent: String(req.get('user-agent') || '').slice(0, 1000),
         },
+        fiscalContext: captureFiscalContext(req.walletUser),
       });
       res.status(201).json({
         ...store.getOrderView(req.walletUser.id, order.id),
@@ -167,6 +169,7 @@ export function createWalletRouter({
       const instruction = instructions.getById(instructionId);
       if (!instruction) throw walletError('INSTRUCTION_NOT_FOUND', 'Инструкция не найдена.', 404);
       const snapshot = toPublicInstruction(instruction);
+      const fiscalContext = captureFiscalContext(req.walletUser);
       if (store.getView(req.walletUser.id).balanceMinor < INSTRUCTION_PRICE_MINOR)
         throw walletError('INSUFFICIENT_BALANCE', 'Для покупки нужно 50 ₽ на балансе.', 409);
       // Expensive work stays outside the short file transaction. A broken PDF cannot spend money.
@@ -177,6 +180,7 @@ export function createWalletRouter({
         instructionId,
         instruction: snapshot,
         format,
+        fiscalContext,
       });
       res.json({ purchaseId: purchase.id, wallet: store.getView(req.walletUser.id) });
     }),
