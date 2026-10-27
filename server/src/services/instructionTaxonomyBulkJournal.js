@@ -139,6 +139,20 @@ function validateAction(action, kind) {
       fail('Некорректные параметры импорта CSV');
     return;
   }
+  if (action?.type === 'assign-missing-tags') {
+    fields(action, new Set(['type', 'assignments']));
+    if (
+      !Array.isArray(action.assignments) ||
+      !action.assignments.length ||
+      !uniqueStrings(action.assignments.map(item => item?.id))
+    )
+      fail('Некорректный список назначений тегов');
+    for (const item of action.assignments) {
+      fields(item, new Set(['id', 'tagIds']));
+      if (!uniqueStrings(item.tagIds) || !item.tagIds.length) fail('Не указаны теги инструкции');
+    }
+    return;
+  }
   fields(action, new Set(['type', 'tagIds']));
   if (
     !['add-tags', 'remove-tags'].includes(action.type) ||
@@ -369,6 +383,12 @@ function validatePlan(plan, expectedId, { assertHeld } = {}) {
   )
     fail('Некорректный список резервных копий');
   const selected = new Set(plan.ids);
+  if (
+    plan.action.type === 'assign-missing-tags' &&
+    (plan.action.assignments.length !== selected.size ||
+      plan.action.assignments.some(item => !selected.has(item.id)))
+  )
+    fail('Назначения не соответствуют выбранным инструкциям');
   const inventory = new Map();
   for (const entry of plan.inventory) {
     fields(entry, new Set(['id', 'version', 'fingerprint']));
