@@ -12,6 +12,109 @@ import { createInstructionTaxonomyRegistryRepository } from '../src/services/ins
 import { createInstructionTaxonomyRegistryService } from '../src/services/instructionTaxonomyRegistryService.js';
 import { InstructionsRepository } from '../src/services/instructionsRepository.js';
 
+test('missing-tag assignments preserve tagged versions, drafts, categories and manual-review holds', t => {
+  const f = fixture(t);
+  f.write('empty', 'published', {
+    primaryCategoryId: null,
+    tagIds: [],
+    taxonomyMeta: { needsReview: true, categorySource: 'manual' },
+  });
+  f.write('legacy', 'published', { primaryCategoryId: 'electrical', tagIds: null });
+  f.write('tagged', 'published', { tagIds: ['T04'] });
+  f.write('private-status', 'published', { status: 'draft', tagIds: [] });
+  f.write('private-seo', 'published', { seoStatus: 'draft', tagIds: [] });
+  f.write('empty', 'draft', { tagIds: [] });
+  f.write('legacy', 'draft', { tagIds: ['T07'] });
+  f.write('unrelated', 'published', { tagIds: [] });
+  const before = f.bytes();
+  const action = {
+    type: 'assign-missing-tags',
+    assignments: [
+      { id: 'empty', tagIds: ['T02'] },
+      { id: 'legacy', tagIds: ['T07'] },
+      { id: 'tagged', tagIds: ['T19'] },
+      { id: 'private-status', tagIds: ['T19'] },
+      { id: 'private-seo', tagIds: ['T19'] },
+    ],
+  };
+  const preview = f.preview(['empty', 'legacy', 'tagged', 'private-status', 'private-seo'], action);
+  assert.deepEqual(preview.counts, {
+    selectedDocuments: 5,
+    changedDocuments: 2,
+    changedVersions: 2,
+    updatedVersions: 2,
+    unchangedDocuments: 3,
+  });
+  assert.deepEqual(f.bytes(), before);
+  assert.equal(
+    f.journal.read(preview.previewId).slots.every(slot => slot.version === 'published'),
+    true,
+  );
+  f.apply(preview.previewId);
+  const after = f.bytes();
+  for (const key of [
+    'empty:draft',
+    'legacy:draft',
+    'tagged:published',
+    'unrelated:published',
+    'private-status:published',
+    'private-seo:published',
+  ])
+    assert.equal(after[key], before[key]);
+  const empty = JSON.parse(Buffer.from(after['empty:published'], 'base64'));
+  assert.equal(empty.primaryCategoryId, null);
+  assert.deepEqual(empty.taxonomyMeta, {
+    needsReview: true,
+    categorySource: 'manual',
+    tagsSource: 'manual',
+  });
+  assert.equal(empty.revision, 5);
+  const legacy = JSON.parse(Buffer.from(after['legacy:published'], 'base64'));
+  assert.equal(legacy.primaryCategoryId, 'electrical');
+  assert.deepEqual(legacy.tagIds, ['T07']);
+  const rollback = f.service.previewRollback(preview.previewId, 'admin-one');
+  assert.equal(rollback.counts.updatedVersions, 2);
+  f.apply(rollback.previewId);
+  const restored = f.bytes();
+  assert.equal(restored['empty:draft'], before['empty:draft']);
+  assert.equal(restored['legacy:draft'], before['legacy:draft']);
+  assert.deepEqual(JSON.parse(Buffer.from(restored['empty:published'], 'base64')).tagIds, []);
+});
+
+test('missing-tag assignments reject incomplete mappings and unknown tags and roll back failed writes', t => {
+  const f = fixture(t);
+  f.write('one', 'published', { tagIds: [] });
+  f.write('two', 'published', { tagIds: [] });
+  const before = f.bytes();
+  for (const assignments of [
+    [{ id: 'one', tagIds: ['T02'] }],
+    [
+      { id: 'one', tagIds: ['T02'] },
+      { id: 'one', tagIds: ['T03'] },
+    ],
+    [
+      { id: 'one', tagIds: ['unknown'] },
+      { id: 'two', tagIds: ['T03'] },
+    ],
+    [
+      { id: 'one', tagIds: [] },
+      { id: 'two', tagIds: ['T03'] },
+    ],
+  ])
+    assert.throws(() => f.preview(['one', 'two'], { type: 'assign-missing-tags', assignments }));
+  const preview = f.preview(['one', 'two'], {
+    type: 'assign-missing-tags',
+    assignments: [
+      { id: 'one', tagIds: ['T02'] },
+      { id: 'two', tagIds: ['T03'] },
+    ],
+  });
+  f.faults.failWrites.add(2);
+  assert.throws(() => f.apply(preview.previewId), { code: 'TAXONOMY_BULK_APPLY_FAILED' });
+  assert.deepEqual(f.bytes(), before);
+  assert.equal(f.journal.getActive(), null);
+});
+
 function fixture(t) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'boykovdocs-taxonomy-bulk-service-'));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));

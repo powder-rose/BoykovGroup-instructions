@@ -45,6 +45,8 @@ export function versionLabel(version, index = 0, draftCount = 1) {
 export function operationLabel(action, labels) {
   if (!action) return 'Откат операции';
   if (action.type === 'rollback') return `Откат операции: ${action.operationId}`;
+  if (action.type === 'assign-missing-tags')
+    return 'Заполнить пустые теги опубликованных инструкций';
   if (action.type === 'import-csv') {
     return `Импорт CSV: ${action.fileName} · ${action.tagMode === 'replace' ? 'полная замена тегов' : 'добавление тегов'}`;
   }

@@ -101,6 +101,24 @@ test('empty history and pending guard are read-only; operation paths accept only
   assert.deepEqual(fs.readdirSync(f.root), []);
 });
 
+test('missing-tag journal actions require a complete unique assignment map with bounded fields', t => {
+  const f = fixture(t);
+  const action = { type: 'assign-missing-tags', assignments: [{ id: 'doc-one', tagIds: ['T02'] }] };
+  const plan = f.journal.savePreview(input({ action }));
+  assert.deepEqual(f.create().read(plan.id).action, action);
+  for (const assignments of [
+    [],
+    [{ id: 'other', tagIds: ['T02'] }],
+    [{ id: 'doc-one', tagIds: [] }],
+    [...action.assignments, ...action.assignments],
+    [{ ...action.assignments[0], extra: true }],
+  ]) {
+    assert.throws(() =>
+      f.journal.savePreview(input({ action: { type: 'assign-missing-tags', assignments } })),
+    );
+  }
+});
+
 test('previews retain exact backup bytes across restart and assign immutable server operation IDs', t => {
   const f = fixture(t);
   const plan = f.journal.savePreview(input());
