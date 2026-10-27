@@ -9,7 +9,7 @@ export function createCommerceStatsRouter({ getStats = getCommerceStats } = {}) 
     res.set('Cache-Control', 'private, no-store');
     res.vary('Authorization');
     try {
-      return res.json(getStats({ period: req.query?.period }));
+      return res.json(getStats({ period: req.query?.period, purchaseFormat: req.query?.format }));
     } catch (error) {
       console.error('Commerce stats error:', error);
       return res.status(500).json({ error: 'Не удалось получить статистику покупок и скачиваний' });

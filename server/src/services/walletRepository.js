@@ -237,12 +237,7 @@ export function createWalletRepository({ file = DEFAULT_FILE, io = fs } = {}) {
 
   return {
     listAdminPurchases() {
-      return read(state =>
-        state.purchases.map(row => {
-          const { format: _format, ...view } = purchaseView(row);
-          return view;
-        }),
-      );
+      return read(state => state.purchases.map(purchaseView));
     },
     getView(userId) {
       return read(state => ({
