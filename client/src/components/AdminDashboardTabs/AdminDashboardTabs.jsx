@@ -23,7 +23,7 @@ const TABS = [
 
   {
     id: 'purchases',
-    label: 'Покупки',
+    label: 'Продажи',
   },
   {
     id: 'downloads',

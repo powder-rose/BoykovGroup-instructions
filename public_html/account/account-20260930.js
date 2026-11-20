@@ -65,7 +65,7 @@
     loading.textContent = 'Загружаем данные компании…';
     companyProfileRoot.append(loading);
     try {
-      const { mountCompanyProfileForm } = await import('/assets/company-profile-form.js?v=20261015-company-profile-v3');
+      const { mountCompanyProfileForm } = await import('/assets/company-profile-form.js?v=company-profile-benefits');
       if (requestId !== accountRequestId || getToken() !== token) return;
       companyProfileController = mountCompanyProfileForm(companyProfileRoot, {
         getToken,

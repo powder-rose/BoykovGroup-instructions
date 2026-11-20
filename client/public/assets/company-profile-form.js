@@ -16,6 +16,8 @@ const FIELDS = [
 ];
 
 let formSequence = 0;
+const SAVE_LABEL = 'Сохранить для инструкций';
+const SKIP_LABEL = 'Заполнить позже';
 
 /** Shared by the registration dialog and the static personal account. */
 export function mountCompanyProfileForm(
@@ -46,20 +48,31 @@ export function mountCompanyProfileForm(
 
   const section = element('section', 'company-profile');
   section.setAttribute('aria-labelledby', `${instanceId}-title`);
-  const eyebrow = element('p', 'company-profile__eyebrow', 'ДАННЫЕ ДЛЯ ИНСТРУКЦИЙ');
+  const eyebrow = element('p', 'company-profile__eyebrow', 'ИНСТРУКЦИИ ДЛЯ ВАШЕЙ КОМПАНИИ');
   const title = element(
     'h2',
     'company-profile__title',
-    mode === 'onboarding' ? 'Добавьте данные компании' : 'Данные компании',
+    mode === 'onboarding'
+      ? 'Получайте готовые инструкции с данными вашей компании'
+      : 'Данные компании для ваших инструкций',
   );
   title.id = `${instanceId}-title`;
   const description = element(
     'p',
     'company-profile__description',
-    'Подставим эти данные в PDF-инструкции, чтобы их было удобнее проверить и подготовить к подписанию. Все поля необязательные; их можно изменить в личном кабинете.',
+    'Заполните один раз — реквизиты будут автоматически подставляться в PDF- и Word-инструкции при скачивании.',
+  );
+  const benefit = element('div', 'company-profile__benefit');
+  benefit.append(
+    element('p', 'company-profile__benefit-title', 'В скачанном файле уже будут ваши данные'),
+    element(
+      'p',
+      'company-profile__benefit-text',
+      'Компания и ИНН — в шапке документа, руководитель — в блоке «УТВЕРЖДАЮ», ответственный по охране труда — в подписи. Вписывать их вручную в каждую инструкцию не придётся.',
+    ),
   );
   const body = element('div', 'company-profile__body');
-  section.append(eyebrow, title, description, body);
+  section.append(eyebrow, title, description, benefit, body);
   root.replaceChildren(section);
 
   function showStatus(message, isError = false) {
@@ -161,11 +174,11 @@ export function mountCompanyProfileForm(
     });
     if (saveButton) {
       saveButton.disabled = value;
-      saveButton.textContent = value && action === 'saved' ? 'Сохраняем…' : 'Сохранить данные';
+      saveButton.textContent = value && action === 'saved' ? 'Сохраняем…' : SAVE_LABEL;
     }
     if (skipButton) {
       skipButton.disabled = value;
-      skipButton.textContent = value && action === 'dismissed' ? 'Пропускаем…' : 'Пропустить';
+      skipButton.textContent = value && action === 'dismissed' ? 'Пропускаем…' : SKIP_LABEL;
     }
   }
 
@@ -218,7 +231,7 @@ export function mountCompanyProfileForm(
       }
       showStatus(
         action === 'saved'
-          ? 'Данные компании сохранены.'
+          ? 'Данные сохранены. Они появятся в PDF- и Word-инструкциях при скачивании.'
           : 'Можно заполнить позже в личном кабинете.',
       );
       onComplete?.(view, { action });
@@ -297,12 +310,12 @@ export function mountCompanyProfileForm(
     saveButton = element(
       'button',
       'company-profile__button company-profile__button--primary',
-      'Сохранить данные',
+      SAVE_LABEL,
     );
     saveButton.type = 'submit';
     actions.append(saveButton);
     if (mode === 'onboarding') {
-      skipButton = element('button', 'company-profile__button', 'Пропустить');
+      skipButton = element('button', 'company-profile__button', SKIP_LABEL);
       skipButton.type = 'button';
       skipButton.addEventListener('click', () => submit('dismissed'));
       actions.append(skipButton);
@@ -311,7 +324,12 @@ export function mountCompanyProfileForm(
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
     status.setAttribute('aria-atomic', 'true');
-    form.append(grid, notice, actions, status);
+    const optional = element(
+      'p',
+      'company-profile__optional',
+      'Все поля необязательны. Данные можно изменить в личном кабинете.',
+    );
+    form.append(optional, grid, notice, actions, status);
     form.addEventListener('submit', event => {
       event.preventDefault();
       submit('saved');
