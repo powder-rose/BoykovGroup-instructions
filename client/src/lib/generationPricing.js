@@ -1,0 +1,1 @@
+export const PUBLIC_GENERATION_PRICE_RUB = 150;

@@ -35,6 +35,8 @@ export default function InstructionList({
 
   return (
     <>
+      <InstructionGenerationCard />
+
       <ul className={styles.list}>
         {visibleItems.map((instruction, index) => (
           <RevealItem key={instruction.id} delay={(index % 3) * 90}>
@@ -47,8 +49,6 @@ export default function InstructionList({
             />
           </RevealItem>
         ))}
-
-        <InstructionGenerationCard delay={(visibleItems.length % 3) * 90} />
       </ul>
 
       <InstructionListPagination

@@ -1,31 +1,23 @@
 import { Link } from 'react-router-dom';
 
-import cardStyles from '../InstructionButton/InstructionButton.module.css';
+import { PUBLIC_GENERATION_PRICE_RUB } from '../../lib/generationPricing.js';
 
 import styles from './InstructionGenerationCard.module.css';
 
-import RevealItem from './InstructionListRevealItem.jsx';
-
-export default function InstructionGenerationCard({ delay }) {
+export default function InstructionGenerationCard() {
   return (
-    <RevealItem delay={delay}>
-      <div className={`${cardStyles.card} ${styles.card}`}>
-        <div className={`${cardStyles.clickArea} ${styles.inner}`}>
-          <span className={`${cardStyles.body} ${styles.body}`}>
-            <span className={styles.eyebrow}>[ своя инструкция ]</span>
+    <aside className={styles.banner} aria-label="Создание своей инструкции">
+      <div className={styles.body}>
+        <span className={styles.eyebrow}>[ своя инструкция ]</span>
 
-            <span className={`${cardStyles.title} ${styles.title}`}>
-              Не нашли нужную инструкцию?
-            </span>
+        <h2 className={styles.title}>Не нашли нужную инструкцию?</h2>
 
-            <span className={styles.text}>Создадим её за 2 минуты!</span>
-
-            <Link to="/srochnaya-generaciya-instrukcii" className={styles.button}>
-              Сгенерировать
-            </Link>
-          </span>
-        </div>
+        <p className={styles.text}>Создадим её за 2 минуты — {PUBLIC_GENERATION_PRICE_RUB} ₽.</p>
       </div>
-    </RevealItem>
+
+      <Link to="/srochnaya-generaciya-instrukcii" className={styles.button}>
+        Сгенерировать
+      </Link>
+    </aside>
   );
 }
