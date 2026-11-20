@@ -7,6 +7,8 @@ import Navigation from '../Navigation/Navigation.jsx';
 
 import SEO from '../SEO/SEO.jsx';
 
+import { PUBLIC_GENERATION_PRICE_RUB } from '../../lib/generationPricing.js';
+
 import useUrgentGenerationPromo from './hooks/useUrgentGenerationPromo.js';
 
 import useUrgentGenerationPayment from './hooks/useUrgentGenerationPayment.js';
@@ -103,7 +105,7 @@ export default function UrgentGenerationPage() {
   return (
     <div className={styles.page}>
       <SEO
-        title="Срочная инструкция по охране труда за 500 ₽ | БОЙКОВГРУПП"
+        title={`Срочная инструкция по охране труда за ${PUBLIC_GENERATION_PRICE_RUB} ₽ | БОЙКОВГРУПП`}
         description="Срочная подготовка проекта инструкции по охране труда для нужной профессии с опорой на требования законодательства РФ."
       />
 

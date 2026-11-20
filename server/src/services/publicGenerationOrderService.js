@@ -11,7 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const ORDERS_DIR = path.join(__dirname, '..', 'data', 'publicGenerationOrders');
 
-export const PUBLIC_GENERATION_PRICE_RUB = 500;
+export const PUBLIC_GENERATION_PRICE_RUB = 150;
 
 export const PUBLIC_GENERATION_CURRENCY = 'RUB';
 

@@ -1,3 +1,5 @@
+import { PAGE_SIZE } from '../constants.js';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 async function request(path, options = {}) {
@@ -36,7 +38,7 @@ function authHeaders(token) {
 export function searchInstructions({
   query = '',
   page = 1,
-  pageSize = 11,
+  pageSize = PAGE_SIZE,
   sort,
   catalogId = '',
   category = '',

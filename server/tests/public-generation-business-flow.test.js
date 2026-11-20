@@ -261,6 +261,41 @@ function markOrderPaid(orderService, order, transactionId) {
   return updated;
 }
 
+test('new generation orders cost 150 RUB without repricing existing orders', async () => {
+  const flow = await createIsolatedBusinessFlow();
+
+  try {
+    const owner = { userId: 'generation-price-user', email: 'price@example.invalid' };
+    const existing = flow.orderService.createPublicGenerationOrder(
+      'Ранее заказанная инструкция',
+      { originalAmount: 500, amount: 500 },
+      owner,
+    );
+    const saved = fs.readFileSync(path.join(flow.ordersDirectory, `${existing.id}.json`));
+
+    const created = flow.orderService.createPublicGenerationOrder('Новая инструкция', {}, owner);
+
+    assert.equal(flow.orderService.PUBLIC_GENERATION_PRICE_RUB, 150);
+    assert.equal(created.originalAmount, 150);
+    assert.equal(created.amount, 150);
+    assert.equal(created.currency, 'RUB');
+    assert.deepEqual(
+      fs.readFileSync(path.join(flow.ordersDirectory, `${existing.id}.json`)),
+      saved,
+    );
+
+    const updated = flow.orderService.updatePublicGenerationOrder(existing.id, {
+      amount: 150,
+      originalAmount: 150,
+    });
+
+    assert.equal(updated.amount, 500);
+    assert.equal(updated.originalAmount, 500);
+  } finally {
+    await flow.cleanup();
+  }
+});
+
 test(
   'paid generation delivers a private instruction to its owner without publishing it',
   {
