@@ -141,6 +141,30 @@ jobs:
           docker logs boykovdocs-lifecycle-test
           exit 1
 
+      - name: Verify HTTPS SEO through Docker Nginx
+        shell: bash
+        run: |
+          set -euo pipefail
+          cleanup() {
+            docker rm -f boykovdocs-seo-nginx >/dev/null 2>&1 || true
+            docker network disconnect boykovdocs-seo-test boykovdocs-lifecycle-test >/dev/null 2>&1 || true
+            docker network rm boykovdocs-seo-test >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
+          docker network create boykovdocs-seo-test
+          docker network connect --alias api boykovdocs-seo-test boykovdocs-lifecycle-test
+          docker run -d --name boykovdocs-seo-nginx \
+            --network boykovdocs-seo-test \
+            -p 127.0.0.1:18082:80 \
+            --mount type=bind,source="$GITHUB_WORKSPACE/client/dist",target=/usr/share/nginx/html,readonly \
+            --mount type=bind,source="$GITHUB_WORKSPACE/deploy/nginx/default.conf",target=/etc/nginx/conf.d/default.conf,readonly \
+            nginx:1.28-alpine
+          docker exec boykovdocs-seo-nginx nginx -t
+          curl -fsS --retry 5 --retry-connrefused --retry-delay 1 \
+            http://127.0.0.1:18082/ -o /dev/null
+          node scripts/check-proxy-seo.mjs http://127.0.0.1:18082
+
       - name: Verify Node is PID 1
         shell: bash
         run: |
