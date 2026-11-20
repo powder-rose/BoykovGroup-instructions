@@ -275,6 +275,8 @@ cloudPaymentsWebhookRouter.post(
         paidAt: new Date().toISOString(),
 
         failureCode: 'MODERATION_AFTER_PAYMENT',
+
+        fiscalPaymentLive: ['false', '0'].includes(String(data.TestMode).toLowerCase()),
       });
 
       return res.json({
@@ -292,6 +294,8 @@ cloudPaymentsWebhookRouter.post(
     if (isTestPayment && process.env.PUBLIC_GENERATION_PUBLISH_TEST_PAYMENTS !== '1') {
       updatePublicGenerationOrder(order.id, {
         status: 'test_paid',
+
+        fiscalPaymentLive: false,
 
         transactionId,
 

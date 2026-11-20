@@ -1,4 +1,6 @@
 import useAdminCommerceStats from './hooks/useAdminCommerceStats.js';
+import AdminSalesBreakdown from './AdminSalesBreakdown.jsx';
+import { formatNumber, formatMoney, salesSummaryMetrics } from './commerceStatsFormatters.js';
 import styles from './AdminCommerceStats.module.css';
 
 const PERIODS = [
@@ -13,11 +15,11 @@ const FORMATS = [
   { id: 'docx', title: 'Word' },
 ];
 
-const formatNumber = value => Number(value || 0).toLocaleString('ru-RU');
-const formatMoney = minor =>
-  new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(
-    Number(minor || 0) / 100,
-  );
+const PURCHASE_TYPES = [
+  { id: 'all', title: 'Все продажи' },
+  { id: 'catalog', title: 'Готовые инструкции' },
+  { id: 'generation', title: 'Генерации' },
+];
 
 function SummaryCards({ items }) {
   return (
@@ -38,21 +40,22 @@ function RankingTable({ items, mode, showFormats }) {
     return <p className={styles.empty}>За выбранный период пока нет записей.</p>;
   }
   const maximum = items[0].count;
+  const isPurchase = mode !== 'downloads';
   return (
     <div className={styles.tableWrap}>
       <table className={styles.table}>
         <thead>
           <tr>
             <th scope="col">№</th>
-            <th scope="col">Инструкция</th>
-            <th scope="col">{mode === 'purchases' ? 'Покупок' : 'Скачиваний'}</th>
+            <th scope="col">{mode === 'generations' ? 'Профессия / вид работ' : 'Инструкция'}</th>
+            <th scope="col">{isPurchase ? 'Покупок' : 'Скачиваний'}</th>
             {showFormats && (
               <>
                 <th scope="col">PDF</th>
                 <th scope="col">Word</th>
               </>
             )}
-            {mode === 'purchases' ? (
+            {isPurchase ? (
               <th scope="col">Сумма</th>
             ) : (
               <>
@@ -88,7 +91,7 @@ function RankingTable({ items, mode, showFormats }) {
                   <td>{formatNumber(item.byFormat?.docx?.count)}</td>
                 </>
               )}
-              {mode === 'purchases' ? (
+              {isPurchase ? (
                 <td>{formatMoney(item.amountMinor)}</td>
               ) : (
                 <>
@@ -105,69 +108,86 @@ function RankingTable({ items, mode, showFormats }) {
 }
 
 export default function AdminCommerceStats({ token, section }) {
-  const { period, setPeriod, purchaseFormat, setPurchaseFormat, data, loading, error } =
-    useAdminCommerceStats(token);
+  const {
+    period,
+    setPeriod,
+    purchaseFormat,
+    setPurchaseFormat,
+    purchaseType,
+    setPurchaseType,
+    data,
+    loading,
+    error,
+  } = useAdminCommerceStats(token);
   const isPurchases = section === 'purchases';
-  const report = data?.[isPurchases ? 'purchases' : 'downloads'];
+  const isAllSales = isPurchases && purchaseType === 'all';
+  const isGeneration = isPurchases && purchaseType === 'generation';
+  const report =
+    data?.[
+      !isPurchases ? 'downloads' : isAllSales ? 'sales' : isGeneration ? 'generations' : 'purchases'
+    ];
   const allFormats = purchaseFormat === 'all';
   const formatTitle = FORMATS.find(item => item.id === purchaseFormat)?.title;
-  const metrics = isPurchases
-    ? [
-        {
-          label: 'Куплено инструкций',
-          value: formatNumber(report?.count),
-          note: allFormats
-            ? `PDF: ${formatNumber(report?.byFormat?.pdf?.count)} · Word: ${formatNumber(report?.byFormat?.docx?.count)}`
-            : `Оплаченные ${formatTitle}`,
-        },
-        {
-          label: 'Сумма покупок',
-          value: formatMoney(report?.amountMinor),
-          note: allFormats
-            ? `PDF: ${formatMoney(report?.byFormat?.pdf?.amountMinor)} · Word: ${formatMoney(report?.byFormat?.docx?.amountMinor)}`
-            : 'Пополнения баланса не включены',
-        },
-        {
-          label: 'Разных инструкций',
-          value: formatNumber(report?.uniqueInstructions),
-          note: 'Наименований в покупках',
-        },
-        {
-          label: 'Средний чек',
-          value: formatMoney(report?.averageMinor),
-          note: 'За покупку формата',
-        },
-      ]
-    : [
-        {
-          label: 'Всего скачиваний',
-          value: formatNumber(report?.count),
-          note: 'Файлов PDF и Word',
-        },
-        { label: 'Бесплатных', value: formatNumber(report?.free), note: 'По лимиту аккаунтов' },
-        { label: 'Платных', value: formatNumber(report?.paid), note: 'Купленные документы' },
-        {
-          label: 'Пользователей',
-          value: formatNumber(report?.uniqueDownloaders),
-          note: 'Уникальных за период',
-        },
-      ];
+  const metrics =
+    isAllSales || isGeneration
+      ? salesSummaryMetrics(report, isGeneration)
+      : isPurchases
+        ? [
+            {
+              label: 'Куплено инструкций',
+              value: formatNumber(report?.count),
+              note: allFormats
+                ? `PDF: ${formatNumber(report?.byFormat?.pdf?.count)} · Word: ${formatNumber(report?.byFormat?.docx?.count)}`
+                : `Оплаченные ${formatTitle}`,
+            },
+            {
+              label: 'Сумма покупок',
+              value: formatMoney(report?.amountMinor),
+              note: allFormats
+                ? `PDF: ${formatMoney(report?.byFormat?.pdf?.amountMinor)} · Word: ${formatMoney(report?.byFormat?.docx?.amountMinor)}`
+                : 'Пополнения баланса не включены',
+            },
+            {
+              label: 'Разных инструкций',
+              value: formatNumber(report?.uniqueInstructions),
+              note: 'Наименований в покупках',
+            },
+            {
+              label: 'Средний чек',
+              value: formatMoney(report?.averageMinor),
+              note: 'За покупку формата',
+            },
+          ]
+        : [
+            {
+              label: 'Всего скачиваний',
+              value: formatNumber(report?.count),
+              note: 'Файлов PDF и Word',
+            },
+            { label: 'Бесплатных', value: formatNumber(report?.free), note: 'По лимиту аккаунтов' },
+            { label: 'Платных', value: formatNumber(report?.paid), note: 'Купленные документы' },
+            {
+              label: 'Пользователей',
+              value: formatNumber(report?.uniqueDownloaders),
+              note: 'Уникальных за период',
+            },
+          ];
 
   return (
     <section
       className={styles.section}
       data-boykov-admin-tab-section={section}
-      aria-label={isPurchases ? 'Статистика покупок' : 'Статистика скачиваний'}
+      aria-label={isPurchases ? 'Статистика продаж' : 'Статистика скачиваний'}
     >
       <div className={styles.heading}>
         <div>
           <p className={styles.eyebrow}>АНАЛИТИКА ИНСТРУКЦИЙ</p>
           <h2 className={styles.title}>
-            {isPurchases ? 'Статистика покупок' : 'Статистика скачиваний'}
+            {isPurchases ? 'Статистика продаж' : 'Статистика скачиваний'}
           </h2>
           <p className={styles.description}>
             {isPurchases
-              ? 'Покупки PDF и Word по 50 ₽ за формат. Пополнения кошелька учитываются отдельно.'
+              ? 'Продажи готовых PDF и Word и покупки генераций. Пополнения баланса не включены.'
               : 'Успешные выдачи PDF и Word и самые востребованные инструкции.'}
           </p>
         </div>
@@ -187,6 +207,25 @@ export default function AdminCommerceStats({ token, section }) {
       </div>
 
       {isPurchases && (
+        <div className={styles.formatFilters}>
+          <span className={styles.filterLabel}>Тип покупки</span>
+          <div className={styles.periods} role="group" aria-label="Тип покупки">
+            {PURCHASE_TYPES.map(item => (
+              <button
+                key={item.id}
+                type="button"
+                className={`${styles.period} ${purchaseType === item.id ? styles.periodActive : ''}`}
+                aria-pressed={purchaseType === item.id}
+                onClick={() => setPurchaseType(item.id)}
+              >
+                {item.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {isPurchases && purchaseType === 'catalog' && (
         <div className={styles.formatFilters}>
           <span className={styles.filterLabel}>Формат</span>
           <div className={styles.periods} role="group" aria-label="Формат покупки">
@@ -218,24 +257,43 @@ export default function AdminCommerceStats({ token, section }) {
       {!loading && !error && report && (
         <>
           <SummaryCards items={metrics} />
-          <div className={styles.listHeading}>
-            <div>
-              <h3 className={styles.listTitle}>
-                {isPurchases ? 'Топ-10 по покупкам' : 'Топ-10 по скачиваниям'}
-              </h3>
-              <p className={styles.description}>
-                {isPurchases
-                  ? 'Каждый купленный формат учитывается один раз. Повторные скачивания не добавляют покупок.'
-                  : 'Повторные скачивания учитываются отдельно.'}
-              </p>
-            </div>
-            <span className={styles.rankHint}>По убыванию количества</span>
-          </div>
-          <RankingTable
-            items={report.items}
-            mode={section}
-            showFormats={isPurchases && allFormats}
-          />
+          {isAllSales ? (
+            <AdminSalesBreakdown purchases={data.purchases} generations={data.generations} />
+          ) : (
+            <>
+              <div className={styles.listHeading}>
+                <div>
+                  <h3 className={styles.listTitle}>
+                    {isGeneration
+                      ? 'Топ-10 по покупкам генераций'
+                      : isPurchases
+                        ? 'Топ-10 по покупкам'
+                        : 'Топ-10 по скачиваниям'}
+                  </h3>
+                  <p className={styles.description}>
+                    {isGeneration
+                      ? 'Каждый оплаченный заказ — одна покупка. Повторные попытки генерации не увеличивают продажи.'
+                      : isPurchases
+                        ? 'Каждый купленный формат учитывается один раз. Повторные скачивания не добавляют покупок.'
+                        : 'Повторные скачивания учитываются отдельно.'}
+                  </p>
+                </div>
+                <span className={styles.rankHint}>По убыванию количества</span>
+              </div>
+              <RankingTable
+                items={report.items}
+                mode={isGeneration ? 'generations' : section}
+                showFormats={isPurchases && !isGeneration && allFormats}
+              />
+            </>
+          )}
+          {isPurchases && purchaseType !== 'catalog' && (
+            <p className={styles.footnote}>
+              Оплаты учитываются по дате оплаты, подтверждённые возвраты — по дате возврата. Даты —
+              по Москве. Возврат за прошлый период может дать отрицательный итог текущего. Тестовые
+              платежи и неоплаченные заказы не учитываются.
+            </p>
+          )}
           {!isPurchases && (
             <p className={styles.footnote}>
               {report.trackingStarted

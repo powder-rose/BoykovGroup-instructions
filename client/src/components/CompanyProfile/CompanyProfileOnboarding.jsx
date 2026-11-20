@@ -31,14 +31,14 @@ function OnboardingDialog({ token, notice, onComplete }) {
     <dialog
       ref={dialogRef}
       className="company-profile-onboarding"
-      aria-label="Данные компании для PDF"
+      aria-label="Инструкции с данными вашей компании"
       onCancel={event => {
         event.preventDefault();
         void controllerRef.current?.dismiss();
       }}
     >
       <p className="company-profile-onboarding__notice" role="status">
-        {notice || 'Данные компании можно добавить сейчас или позже в личном кабинете.'}
+        {notice || 'Аккаунт готов. Настройте данные для ваших инструкций.'}
       </p>
       <CompanyProfileForm
         token={token}

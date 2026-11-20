@@ -39,9 +39,37 @@
 
 .company-profile__description {
   max-width: 820px;
-  margin: 0 0 24px;
+  margin: 0 0 18px;
   color: #556176;
   font-size: 14px;
+}
+
+.company-profile__benefit {
+  margin-bottom: 22px;
+  padding: 16px 18px;
+  border: 1px solid #d8e5f9;
+  border-left: 3px solid #1f66d1;
+  border-radius: 8px;
+  background: #f1f6fe;
+}
+
+.company-profile__benefit-title {
+  margin: 0 0 5px;
+  color: #254a80;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.company-profile__benefit-text {
+  margin: 0;
+  color: #425a7a;
+  font-size: 13px;
+}
+
+.company-profile__optional {
+  margin: 0 0 16px;
+  color: #626d7f;
+  font-size: 12px;
 }
 
 .company-profile__fields {

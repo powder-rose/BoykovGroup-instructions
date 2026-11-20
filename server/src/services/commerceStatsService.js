@@ -1,6 +1,8 @@
 import { readDownloadEvents } from './downloadStatsService.js';
 import { instructionsRepository } from './instructionsRepository.js';
 import { walletRepository } from './walletRepository.js';
+import { listPublicGenerationSales } from './publicGenerationOrderService.js';
+import { summarizeGenerationSales } from './generationSalesStatsService.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const PERIOD_DAYS = { today: 1, '7d': 7, '30d': 30 };
@@ -67,6 +69,7 @@ export function summarizeCommerceStats({
   purchaseFormat = 'all',
   purchaseEvents = [],
   downloadEvents = [],
+  generationEvents = [],
   getInstruction = () => null,
   now = new Date(),
 } = {}) {
@@ -159,10 +162,23 @@ export function summarizeCommerceStats({
     downloadGroups.set(id, group);
   }
 
+  const generations = summarizeGenerationSales({
+    orders: generationEvents,
+    inPeriod,
+    nowTimestamp,
+  });
   return {
     period: normalizedPeriod,
     purchaseFormat: normalizedFormat,
     generatedAt: new Date(nowTimestamp).toISOString(),
+    generations,
+    sales: {
+      count: purchaseCount + generations.count,
+      amountMinor: purchaseAmountMinor + generations.amountMinor,
+      refundedCount: generations.refundedCount,
+      refundedAmountMinor: generations.refundedAmountMinor,
+      netAmountMinor: purchaseAmountMinor + generations.netAmountMinor,
+    },
     purchases: {
       count: purchaseCount,
       amountMinor: purchaseAmountMinor,
@@ -194,6 +210,7 @@ export function getCommerceStats({ period = 'total', purchaseFormat = 'all' } = 
     period,
     purchaseFormat,
     purchaseEvents: walletRepository.listAdminPurchases(),
+    generationEvents: listPublicGenerationSales(),
     downloadEvents,
     getInstruction: id => instructionsRepository.getById(id),
   });

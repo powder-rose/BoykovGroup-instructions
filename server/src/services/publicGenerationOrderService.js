@@ -418,6 +418,53 @@ export function listPublicGenerationOrdersByOwner(ownerUserId) {
   return result;
 }
 
+/** Minimal financial projection; never pass tokens, buyer contacts or documents to analytics. */
+export function listPublicGenerationSales({ directory = ORDERS_DIR } = {}) {
+  try {
+    return fs
+      .readdirSync(directory)
+      .filter(name => name.endsWith('.json') && isValidOrderId(name.slice(0, -5)))
+      .map(name => {
+        const file = path.join(directory, name);
+        if (!fs.lstatSync(file).isFile()) throw new Error('Invalid order source');
+        const order = JSON.parse(fs.readFileSync(file, 'utf8'));
+        if (!order || Array.isArray(order) || order.id !== name.slice(0, -5)) {
+          throw new Error('Invalid order record');
+        }
+        return {
+          id: order.id,
+          profession: order.profession,
+          amount: order.amount,
+          currency: order.currency,
+          status: order.status,
+          paidAt: order.paidAt,
+          refundedAt: order.refundedAt,
+          hasPayment:
+            (typeof order.transactionId === 'string' && Boolean(order.transactionId.trim())) ||
+            (typeof order.transactionId === 'number' &&
+              Number.isSafeInteger(order.transactionId) &&
+              order.transactionId > 0),
+          paymentMatched: !['PAYMENT_MISMATCH', 'DUPLICATE_TRANSACTION'].includes(
+            order.failureCode,
+          ),
+          paymentMode:
+            order.fiscalPaymentLive === false || order.status === 'test_paid'
+              ? 'test'
+              : order.fiscalPaymentLive === true
+                ? 'live'
+                : order.fiscalPaymentLive === undefined || order.fiscalPaymentLive === null
+                  ? 'legacy'
+                  : 'unknown',
+        };
+      });
+  } catch {
+    // Partial financial totals are misleading; fail without exposing corrupt file contents.
+    throw Object.assign(new Error('Не удалось прочитать заказы генераций'), {
+      code: 'GENERATION_SALES_SOURCE_UNAVAILABLE',
+    });
+  }
+}
+
 export function getPublicGenerationOrderByOwnerView(id, ownerUserId) {
   const target = String(ownerUserId ?? '').trim();
 
