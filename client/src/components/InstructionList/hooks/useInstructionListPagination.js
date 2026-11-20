@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const PAGE_SIZE = 11;
+import { PAGE_SIZE } from '../../../constants.js';
 
 export default function useInstructionListPagination({ instructions, total, query }) {
   const [currentPage, setCurrentPage] = useState(1);

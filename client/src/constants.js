@@ -1,2 +1,2 @@
 /**       . */
-export const PAGE_SIZE = 11;
+export const PAGE_SIZE = 12;

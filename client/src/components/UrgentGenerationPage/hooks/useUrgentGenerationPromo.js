@@ -1,8 +1,8 @@
 import { useState } from 'react';
 
-import { normalizePromoCode, formatAmount } from '../urgentGenerationUtils.js';
+import { PUBLIC_GENERATION_PRICE_RUB } from '../../../lib/generationPricing.js';
 
-const BASE_AMOUNT = 500;
+import { normalizePromoCode, formatAmount } from '../urgentGenerationUtils.js';
 
 export default function useUrgentGenerationPromo() {
   const [promoInput, setPromoInput] = useState('');
@@ -105,9 +105,11 @@ export default function useUrgentGenerationPromo() {
 
   const displayOriginalAmount = Number.isFinite(appliedPromo?.originalAmount)
     ? appliedPromo.originalAmount
-    : BASE_AMOUNT;
+    : PUBLIC_GENERATION_PRICE_RUB;
 
-  const displayAmount = Number.isFinite(appliedPromo?.amount) ? appliedPromo.amount : BASE_AMOUNT;
+  const displayAmount = Number.isFinite(appliedPromo?.amount)
+    ? appliedPromo.amount
+    : PUBLIC_GENERATION_PRICE_RUB;
 
   const hasPromoDiscount = displayAmount < displayOriginalAmount;
 
