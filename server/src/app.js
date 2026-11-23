@@ -122,7 +122,7 @@ export function createApp({
 
   app.post('/api/public-generation/orders/:id/confirm-payment', rateLimits.paymentConfirmation);
 
-  app.post('/api/visitor-stats/visit', rateLimits.analyticsWrite);
+  app.post(['/api/visitor-stats/session', '/api/visitor-stats/visit'], rateLimits.analyticsWrite);
 
   app.post('/api/instructions/:id/view', rateLimits.analyticsWrite);
 
