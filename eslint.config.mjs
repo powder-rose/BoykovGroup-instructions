@@ -8,6 +8,7 @@ const frontendFiles = [
   'client/src/**/*.{js,jsx}',
   'client/public/assets/company-profile*.js',
   'client/public/assets/wallet*.js',
+  'client/public/assets/visitor-tracking.js',
 ];
 
 const nodeFiles = [

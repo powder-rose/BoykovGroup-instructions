@@ -230,3 +230,37 @@
     padding-bottom: 20px;
   }
 }
+
+.boykovVisitorStats__metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.boykovVisitorStats__periods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.boykovVisitorStats__periods button {
+  padding: 8px 12px;
+  border: 1px solid #d6e1f3;
+  border-radius: 9px;
+  background: #fff;
+  color: #526582;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+.boykovVisitorStats__periods button[aria-pressed='true'] {
+  background: #eef4ff;
+  border-color: #2e6fe0;
+  color: #2e6fe0;
+}
+.boykovVisitorStats__periods button:focus-visible {
+  outline: 2px solid #2e6fe0;
+  outline-offset: 2px;
+}
+@media (max-width: 560px) {
+  .boykovVisitorStats__metrics {
+    grid-template-columns: 1fr;
+  }
+}

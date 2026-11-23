@@ -20,7 +20,7 @@ export default function AdminVisitorStats({ token, hidden = false }) {
 
         <h2 className="boykovVisitorStats__title">Посетители сайта</h2>
 
-        <p className="boykovVisitorStats__description">Уникальные посетители и просмотры страниц</p>
+        <p className="boykovVisitorStats__description">Посетители, визиты и просмотры страниц</p>
       </div>
 
       <AdminVisitorStatsContent data={data} loading={loading} error={error} />

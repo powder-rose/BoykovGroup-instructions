@@ -1,104 +1,28 @@
-import { useEffect, useRef } from 'react';
-
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-
 import { useSelector } from 'react-redux';
-
 import { selectIsAdmin, selectIsRestoringSession } from '../../store/authSlice.js';
 
-const STORAGE_KEY = 'boykovdocs_visitor_id_v1';
-
-function createVisitorId() {
-  if (window.crypto && typeof window.crypto.randomUUID === 'function') {
-    return window.crypto.randomUUID().replace(/-/g, '_');
-  }
-
-  return (
-    Date.now().toString(36) +
-    '_' +
-    Math.random().toString(36).slice(2) +
-    Math.random().toString(36).slice(2)
-  );
-}
-
-function getVisitorId() {
-  try {
-    let visitorId = window.localStorage.getItem(STORAGE_KEY);
-
-    if (!visitorId) {
-      visitorId = createVisitorId();
-
-      window.localStorage.setItem(STORAGE_KEY, visitorId);
-    }
-
-    return visitorId;
-  } catch {
-    return null;
-  }
-}
+const TRACKING_MODULE_URL = '/assets/visitor-tracking.js?v=traffic-filtering';
 
 export default function VisitorTracker() {
   const location = useLocation();
-
   const isAdmin = useSelector(selectIsAdmin);
-
   const isRestoring = useSelector(selectIsRestoringSession);
-
-  const lastLocationRef = useRef(null);
-
   useEffect(() => {
-    /*
-     * Ждём восстановления auth.
-     *
-     * Иначе администратор мог бы
-     * успеть засчитаться как обычный
-     * посетитель до восстановления JWT.
-     */
-    if (isRestoring || isAdmin) {
-      return;
-    }
-
-    const locationKey = location.pathname + location.search;
-
-    if (lastLocationRef.current === locationKey) {
-      return;
-    }
-
-    const visitorId = getVisitorId();
-
-    if (!visitorId) {
-      return;
-    }
-
-    lastLocationRef.current = locationKey;
-
-    /*
-     * keepalive нужен намеренно: запрос статистики должен иметь шанс
-     * завершиться даже при навигации или закрытии страницы.
-     * AbortController противоречил бы этому поведению.
-     */
-    // eslint-disable-next-line @eslint-react/web-api-no-leaked-fetch -- keepalive analytics delivery
-    fetch('/api/visitor-stats/visit', {
-      method: 'POST',
-
-      headers: {
-        'Content-Type': 'application/json',
-      },
-
-      body: JSON.stringify({
-        visitorId,
-      }),
-
-      keepalive: true,
-
-      cache: 'no-store',
-    }).catch(() => {
-      /*
-       * Ошибка аналитики не должна
-       * влиять на работу сайта.
-       */
-    });
+    if (isRestoring || isAdmin) return undefined;
+    let active = true;
+    // One shared collector also deduplicates a legacy script on the same document.
+    import(/* @vite-ignore */ TRACKING_MODULE_URL)
+      .then(module => {
+        if (active) return module.trackCurrentPage();
+      })
+      .catch(() => {
+        /* Statistics must not interrupt the website. */
+      });
+    return () => {
+      active = false;
+    };
   }, [location.pathname, location.search, isAdmin, isRestoring]);
-
   return null;
 }

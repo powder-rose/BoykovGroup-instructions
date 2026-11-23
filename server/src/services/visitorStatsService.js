@@ -1,207 +1,139 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-
 import { createBufferedFileAppender } from '../utils/asyncFileWriter.js';
+import { hashVisitorId, visitorHashPattern, visitorIdPattern } from './visitorTrackingPolicy.js';
+export { isLikelyBot } from './visitorTrackingPolicy.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const directory = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+  'data',
+  'analytics',
+);
+const DAY = 86400000;
+const GAP = 30 * 60000;
+const dayKey = ts => new Date(ts + 3 * 3600000).toISOString().slice(0, 10);
 
-const DATA_DIR = path.join(__dirname, '..', 'data', 'analytics');
-
-const EVENTS_FILE = path.join(DATA_DIR, 'visitor-events.jsonl');
-
-const MOSCOW_TIMEZONE = 'Europe/Moscow';
-
-const visitorEventWriter = createBufferedFileAppender({
-  filePath: EVENTS_FILE,
-
-  label: 'visitor-page-views',
-});
-
-function ensureStorage() {
-  /*
-   * Runtime writes are handled by asyncFileWriter.
-   *
-   * The hot path must not create files
-   * synchronously inside the event loop.
-   */
-}
-
-function getDayKey(date = new Date()) {
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: MOSCOW_TIMEZONE,
-
-    year: 'numeric',
-
-    month: '2-digit',
-
-    day: '2-digit',
-  });
-
-  const parts = Object.fromEntries(
-    formatter
-      .formatToParts(date)
-      .filter(part => part.type !== 'literal')
-      .map(part => [part.type, part.value]),
-  );
-
-  return `${parts.year}-` + `${parts.month}-` + `${parts.day}`;
-}
-
-function getDayKeyOffset(offset) {
-  return getDayKey(new Date(Date.now() + Number(offset) * 86400000));
-}
-
-function getDayKeys(numberOfDays) {
-  return new Set(
-    Array.from(
-      {
-        length: numberOfDays,
-      },
-
-      (_, index) => getDayKeyOffset(-index),
-    ),
-  );
-}
-
-function normalizeVisitorId(value) {
-  const id = String(value ?? '').trim();
-
-  if (id.length < 16 || id.length > 128) {
-    return null;
-  }
-
-  if (!/^[a-zA-Z0-9_-]+$/u.test(id)) {
-    return null;
-  }
-
-  return id;
-}
-
-function hashVisitorId(visitorId) {
-  return crypto.createHash('sha256').update(visitorId).digest('hex');
-}
-
-function readEvents() {
-  ensureStorage();
-
+export function readVisitorEvents(file) {
   let text;
-
   try {
-    text = fs.readFileSync(EVENTS_FILE, 'utf-8');
+    text = fs.readFileSync(file, 'utf8');
   } catch (error) {
-    console.error('Visitor stats read error:', error);
-
-    return [];
+    if (error.code === 'ENOENT') return [];
+    throw error;
   }
-
-  if (!text.trim()) {
-    return [];
-  }
-
   const events = [];
-
+  const seen = new Set();
   for (const line of text.split('\n')) {
-    if (!line.trim()) {
-      continue;
-    }
-
+    if (!line.trim()) continue;
     try {
       const event = JSON.parse(line);
-
-      if (event?.day && event?.visitor) {
-        events.push(event);
-      }
+      const at = Date.parse(event.ts);
+      if (!Number.isFinite(at) || !visitorHashPattern.test(event.visitor || '')) continue;
+      if (event.schema === 2) {
+        if (!visitorHashPattern.test(event.eventId || '') || seen.has(event.eventId)) continue;
+        seen.add(event.eventId);
+      } else if (event.schema !== undefined) continue;
+      events.push({ ...event, day: dayKey(at), at });
     } catch {
-      /*
-       * Одна повреждённая строка
-       * не должна ломать статистику.
-       */
+      /* Ignore incomplete or malformed individual records. */
     }
   }
-
-  return events;
+  return events.sort((a, b) => a.at - b.at);
 }
 
-function aggregatePeriod(events, allowedDays = null) {
-  const visitors = new Set();
-
-  let pageViews = 0;
-
-  for (const event of events) {
-    if (allowedDays && !allowedDays.has(event.day)) {
-      continue;
+export function summarizeVisitorEvents(events, now = Date.now()) {
+  const valid = events.filter(e => e.at <= now);
+  const today = Date.parse(dayKey(now) + 'T00:00:00+03:00');
+  const endMinute = Math.floor(now / 60000) * 60000;
+  function period(from, to = now + 1) {
+    const visitors = new Set(),
+      lastSeen = new Map();
+    let pageViews = 0,
+      visits = 0,
+      legacyPageViews = 0;
+    for (const event of valid) {
+      if (event.at < from - GAP || event.at >= to) continue;
+      const previous = lastSeen.get(event.visitor);
+      if (event.at >= from) {
+        pageViews++;
+        visitors.add(event.visitor);
+        if (previous === undefined || event.at - previous >= GAP) visits++;
+        if (event.schema !== 2) legacyPageViews++;
+      }
+      lastSeen.set(event.visitor, event.at);
     }
-
-    pageViews += 1;
-
-    visitors.add(event.visitor);
+    return { visitors: visitors.size, visits, pageViews, legacyPageViews };
   }
-
   return {
-    visitors: visitors.size,
-
-    pageViews,
+    today: period(today),
+    yesterday: period(today - DAY, today),
+    last24Hours: period(endMinute - DAY, endMinute),
+    last7Days: period(today - 6 * DAY),
+    last30Days: period(today - 29 * DAY),
+    total: period(0),
+    tracking: { version: 2, filteredSince: valid.find(e => e.schema === 2)?.ts || null },
+    generatedAt: new Date(now).toISOString(),
+    timezone: 'Europe/Moscow',
   };
 }
 
-export function isLikelyBot(userAgent = '') {
-  return /bot|crawler|spider|slurp|yandex|googlebot|bingbot|duckduckbot|baiduspider|facebookexternalhit|preview/iu.test(
-    String(userAgent ?? ''),
-  );
-}
-
-export function recordVisitorPageView({ visitorId }) {
-  const normalized = normalizeVisitorId(visitorId);
-
-  if (!normalized) {
-    return false;
+export function createVisitorStatsService({
+  file = path.join(directory, 'visitor-events.jsonl'),
+  clock = Date.now,
+} = {}) {
+  const writer = createBufferedFileAppender({ filePath: file, label: 'visitor-page-views' });
+  const seen = new Map();
+  const ttl = 2 * DAY;
+  let historyAvailable = true;
+  try {
+    for (const event of readVisitorEvents(file))
+      if (event.schema === 2 && event.at >= clock() - ttl) seen.set(event.eventId, event.at);
+  } catch {
+    // An unavailable analytics journal must not prevent the API from starting.
+    // Keep collection closed until storage is fixed and the process restarts.
+    historyAvailable = false;
   }
-
-  ensureStorage();
-
-  const now = new Date();
-
-  const event = {
-    ts: now.toISOString(),
-
-    day: getDayKey(now),
-
-    visitor: hashVisitorId(normalized),
-  };
-
-  visitorEventWriter.append(`${JSON.stringify(event)}\n`);
-
-  return true;
-}
-
-export function getVisitorStats() {
-  const events = readEvents();
-
-  const todayKey = getDayKeyOffset(0);
-
-  const yesterdayKey = getDayKeyOffset(-1);
-
-  const today = aggregatePeriod(events, new Set([todayKey]));
-
-  const yesterday = aggregatePeriod(events, new Set([yesterdayKey]));
-
-  const last7Days = aggregatePeriod(events, getDayKeys(7));
-
-  const last30Days = aggregatePeriod(events, getDayKeys(30));
-
-  const total = aggregatePeriod(events);
-
+  let nextPrune = 0;
   return {
-    today,
-    yesterday,
-    last7Days,
-    last30Days,
-    total,
-
-    generatedAt: new Date().toISOString(),
-
-    timezone: MOSCOW_TIMEZONE,
+    record({ visitorHash, eventId }) {
+      if (!historyAvailable) return false;
+      if (
+        !visitorHashPattern.test(visitorHash || '') ||
+        typeof eventId !== 'string' ||
+        !visitorIdPattern.test(eventId)
+      )
+        return false;
+      const now = clock();
+      if (now >= nextPrune) {
+        for (const [key, at] of seen) if (at < now - ttl) seen.delete(key);
+        nextPrune = now + 60000;
+      }
+      const key = hashVisitorId(visitorHash + ':' + eventId);
+      if (seen.has(key)) return false;
+      // Bound memory under abuse. Fail closed rather than evicting recent receipts.
+      if (seen.size >= 100000) return false;
+      seen.set(key, now);
+      writer.append(
+        JSON.stringify({
+          schema: 2,
+          ts: new Date(now).toISOString(),
+          day: dayKey(now),
+          visitor: visitorHash,
+          eventId: key,
+        }) + '\n',
+      );
+      return true;
+    },
+    getStats() {
+      return summarizeVisitorEvents(readVisitorEvents(file), clock());
+    },
+    flush() {
+      return writer.flush();
+    },
   };
 }
+const service = createVisitorStatsService();
+export const recordVisitorPageView = data => service.record(data);
+export const getVisitorStats = () => service.getStats();
